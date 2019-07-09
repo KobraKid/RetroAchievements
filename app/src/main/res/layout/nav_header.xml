@@ -1,17 +1,36 @@
+<!-- Navigation Drawer Header -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="192dp"
-    android:background="?attr/colorPrimaryDark"
+    android:background="@color/colorPrimaryDark"
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark"
     android:orientation="vertical"
     android:gravity="bottom">
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/profile_picture"
+        android:contentDescription="@string/profile_picture"
+        android:src="@mipmap/ic_launcher_round"/>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Header"
+        android:id="@+id/username"
+        android:text="@string/username"
+        tools:text="KobraKid1337"
         android:textColor="@android:color/white"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/stats"
+        tools:text="Rank: 1500 | Score: 13587"
+        tools:visibility="visible"
+        android:textColor="@android:color/white"
+        android:visibility="gone"/>
 
 </LinearLayout>

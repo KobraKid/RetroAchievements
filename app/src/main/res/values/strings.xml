@@ -2,7 +2,22 @@
     <string name="app_name">RetroAchievements</string>
     <string name="edit_message">Enter a message</string>
     <string name="button_send">Send</string>
+    <string name="username">Not logged in</string>
+    <string name="profile_picture">Profile Picture</string>
+
+    <!-- Drawer -->
+    <string name="homepage">Home</string>
+    <string name="listspage">Lists</string>
+    <string name="leaderboardspage">Leaderboards</string>
+    <string name="settingspage">Settings</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_nav_menu">NavMenu</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
 </resources>

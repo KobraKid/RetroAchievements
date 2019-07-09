@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Navigation Drawer Menu -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_first_fragment"
-            android:title="First" />
+            android:id="@+id/nav_home_fragment"
+            android:icon="@drawable/ic_home"
+            android:title="@string/homepage" />
         <item
-            android:id="@+id/nav_second_fragment"
-            android:title="Second" />
+            android:id="@+id/nav_lists_fragment"
+            android:icon="@drawable/ic_view_list"
+            android:title="@string/listspage" />
         <item
-            android:id="@+id/nav_third_fragment"
-            android:title="Third" />
+            android:id="@+id/nav_leaderboards_fragment"
+            android:icon="@drawable/ic_insert_chart"
+            android:title="@string/leaderboardspage" />
+        <item
+            android:id="@+id/nav_settings_fragment"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/settingspage" />
     </group>
 
 </menu>

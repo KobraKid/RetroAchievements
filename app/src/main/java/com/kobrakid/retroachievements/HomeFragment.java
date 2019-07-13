@@ -22,7 +22,7 @@ import java.util.Date;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements RAAPICallback {
 
     private OnFragmentInteractionListener mListener;
     private RAAPIConnection apiConnection;
@@ -38,8 +38,7 @@ public class HomeFragment extends Fragment {
      * @return A new instance of fragment HomeFragment.
      */
     public static HomeFragment newInstance() {
-        HomeFragment fragment = new HomeFragment();
-        return fragment;
+        return new HomeFragment();
     }
 
     @Override
@@ -51,9 +50,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Set up API connection
-        String ra_user = getArguments().getString(getString(R.string.ra_user));
-        String ra_api_key = getArguments().getString(getString(R.string.ra_api_key));
-        apiConnection = new RAAPIConnection(ra_user, ra_api_key, getContext());
+        apiConnection = ((MainActivity) getActivity()).apiConnection;
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false);
@@ -72,36 +69,51 @@ public class HomeFragment extends Fragment {
                 if (isChecked) {
                     // TODO (Testing)
                     TextView textView = getView().findViewById(R.id.home_text_view);
-                    RAAPICallback callback = new RAAPICallback(textView);
+                    RAAPICallback callback = HomeFragment.this;
                     String radioButtonName = checkedRadioButton.getText().toString();
-                    if (radioButtonName.equals("GetTopTenUsers")) {
-                        apiConnection.GetTopTenUsers(callback);
-                    } else if (radioButtonName.equals("GetGameInfo")) {
-                        apiConnection.GetGameInfo("3", callback);
-                    } else if (radioButtonName.equals("GetGameInfoExtended")) {
-                        apiConnection.GetGameInfoExtended("3", callback);
-                    } else if (radioButtonName.equals("GetConsoleIDs")) {
-                        apiConnection.GetConsoleIDs(callback);
-                    } else if (radioButtonName.equals("GetGameList")) {
-                        apiConnection.GetGameList("2", callback);
-                    } else if (radioButtonName.equals("GetFeedFor")) {
-                        apiConnection.GetFeedFor("KobraKid1337", 5, 0, callback);
-                    } else if (radioButtonName.equals("GetUserRankAndScore")) {
-                        apiConnection.GetUserRankAndScore("KobraKid1337", callback);
-                    } else if (radioButtonName.equals("GetUserProgress")) {
-                        apiConnection.GetUserProgress("KobraKid1337", "3", callback);
-                    } else if (radioButtonName.equals("GetUserRecentlyPlayedGames")) {
-                        apiConnection.GetUserRecentlyPlayedGames("KobraKid1337", 5, 0, callback);
-                    } else if (radioButtonName.equals("GetUserSummary")) {
-                        apiConnection.GetUserSummary("KobraKid1337", 5, callback);
-                    } else if (radioButtonName.equals("GetGameInfoAndUserProgress")) {
-                        apiConnection.GetGameInfoAndUserProgress("KobraKid1337", "3", callback);
-                    } else if (radioButtonName.equals("GetAchievementsEarnedOnDay")) {
-                        apiConnection.GetAchievementsEarnedOnDay("KobraKid1337", "2018-04-16", callback);
-                    } else if (radioButtonName.equals("GetAchievementsEarnedBetween")) {
-                        apiConnection.GetAchievementsEarnedBetween("KobraKid1337", new Date(118, 4, 15), new Date(118, 4, 20), callback);
-                    } else {
-                        textView.setText("Uh oh:\n" + radioButtonName);
+                    switch (radioButtonName) {
+                        case "GetTopTenUsers":
+                            apiConnection.GetTopTenUsers(callback);
+                            break;
+                        case "GetGameInfo":
+                            apiConnection.GetGameInfo("3", callback);
+                            break;
+                        case "GetGameInfoExtended":
+                            apiConnection.GetGameInfoExtended("3", callback);
+                            break;
+                        case "GetConsoleIDs":
+                            apiConnection.GetConsoleIDs(callback);
+                            break;
+                        case "GetGameList":
+                            apiConnection.GetGameList("2", callback);
+                            break;
+                        case "GetFeedFor":
+                            apiConnection.GetFeedFor("KobraKid1337", 5, 0, callback);
+                            break;
+                        case "GetUserRankAndScore":
+                            apiConnection.GetUserRankAndScore("KobraKid1337", callback);
+                            break;
+                        case "GetUserProgress":
+                            apiConnection.GetUserProgress("KobraKid1337", "3", callback);
+                            break;
+                        case "GetUserRecentlyPlayedGames":
+                            apiConnection.GetUserRecentlyPlayedGames("KobraKid1337", 5, 0, callback);
+                            break;
+                        case "GetUserSummary":
+                            apiConnection.GetUserSummary("KobraKid1337", 5, callback);
+                            break;
+                        case "GetGameInfoAndUserProgress":
+                            apiConnection.GetGameInfoAndUserProgress("KobraKid1337", "3", callback);
+                            break;
+                        case "GetAchievementsEarnedOnDay":
+                            apiConnection.GetAchievementsEarnedOnDay("KobraKid1337", "2018-04-16", callback);
+                            break;
+                        case "GetAchievementsEarnedBetween":
+                            apiConnection.GetAchievementsEarnedBetween("KobraKid1337", new Date(118, 4, 15), new Date(118, 4, 20), callback);
+                            break;
+                        default:
+                            textView.setText("Uh oh:\n" + radioButtonName);
+                            break;
                     }
                 }
             }
@@ -123,6 +135,14 @@ public class HomeFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void callback(int responseCode, String response) {
+        if (response.equals("Invalid API Key")) {
+            return;
+        }
+        ((TextView) getView().findViewById(R.id.home_text_view)).setText(response);
     }
 
     /**

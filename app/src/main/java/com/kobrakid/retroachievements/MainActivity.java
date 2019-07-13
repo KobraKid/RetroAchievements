@@ -15,17 +15,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnFragmentInteractionListener,
         LeaderboardsFragment.OnFragmentInteractionListener,
         ListsFragment.OnFragmentInteractionListener,
-        SettingsFragment.OnFragmentInteractionListener {
+        SettingsFragment.OnFragmentInteractionListener,
+        RAAPICallback {
 
     private DrawerLayout myDrawer;
-    private Toolbar myToolbar;
-    private NavigationView navDrawer;
 
     // Request Codes
     static final int BEGIN_LOGIN = 0;
@@ -34,10 +36,10 @@ public class MainActivity extends AppCompatActivity
     static final int LOGIN_FAILURE = 1;
     static final int LOGIN_CANCELLED = 2;
 
-    private static String ra_user = null; //"KobraKid1337";
+    private static String ra_user = null;
     private static String ra_api_key = null; // "LrY9UvdmckJWfgTsVC5SdTODrlTcHrkj";
 
-    private RAAPIConnection apiConnection = null;
+    public RAAPIConnection apiConnection = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,15 +48,21 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         setTitle("Home");
 
-        myToolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(myToolbar);
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
         myDrawer = findViewById(R.id.drawer_layout);
-        navDrawer = findViewById(R.id.nav_view);
-        setupDrawerContent(navDrawer);
+        setupDrawerContent((NavigationView) findViewById(R.id.nav_view));
+
+        // Try to get saved preferences and log in
+        Context context = MainActivity.this;
+        SharedPreferences sharedPref = context.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
+        ra_user = sharedPref.getString(getString(R.string.ra_user), null);
+        ra_api_key = sharedPref.getString(getString(R.string.ra_api_key), null);
+        apiConnection = new RAAPIConnection(ra_user, ra_api_key, MainActivity.this);
+        apiConnection.GetUserRankAndScore(ra_user, this);
 
         setupInitialFragment();
     }
@@ -72,35 +80,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setupInitialFragment() {
-        // Try to get saved preferences and log in
-        Context context = MainActivity.this;
-        SharedPreferences sharedPref = context.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
-        ra_user = sharedPref.getString(getString(R.string.ra_user), null);
-        ra_api_key = sharedPref.getString(getString(R.string.ra_api_key), null);
-
         HomeFragment fragment = new HomeFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString(getString(R.string.ra_user), ra_user);
-        bundle.putString(getString(R.string.ra_api_key), ra_api_key);
-        fragment.setArguments(bundle);
+//        Bundle bundle = new Bundle();
+//        bundle.putString(getString(R.string.ra_user), ra_user);
+//        bundle.putString(getString(R.string.ra_api_key), ra_api_key);
+//        fragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment).commit();
-    }
-
-    @Override
-    protected void onResumeFragments() {
-        super.onResumeFragments();
-
-        // If logged in, populate initial fragment with user's info
-//        if (ra_user != null && ra_api_key != null) {
-//            apiConnection = new RAAPIConnection(ra_user, ra_api_key, MainActivity.this);
-//        }
-//        if (ra_user != null) {
-//            ((TextView) findViewById(R.id.nav_username)).setText(ra_user);
-//        }
-//        if (apiConnection == null) {
-//            apiConnection = new RAAPIConnection(ra_user, ra_api_key, MainActivity.this);
-//        }
-//        apiConnection.GetUserRankAndScore(ra_user, new RAAPICallback((TextView) findViewById(R.id.nav_stats)));
     }
 
     public void selectDrawerItem(MenuItem item) {
@@ -133,10 +118,10 @@ public class MainActivity extends AppCompatActivity
         }
 
         // Pass login information to new Fragment
-        Bundle bundle = new Bundle();
-        bundle.putString(getString(R.string.ra_user), ra_user);
-        bundle.putString(getString(R.string.ra_api_key), ra_api_key);
-        fragment.setArguments(bundle);
+//        Bundle bundle = new Bundle();
+//        bundle.putString(getString(R.string.ra_user), ra_user);
+//        bundle.putString(getString(R.string.ra_api_key), ra_api_key);
+//        fragment.setArguments(bundle);
 
         // Show new Fragment in main view
         getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment).commit();
@@ -161,25 +146,12 @@ public class MainActivity extends AppCompatActivity
                 ra_api_key = sharedPref.getString(getString(R.string.ra_api_key), null);
 
                 ((TextView) findViewById(R.id.nav_username)).setText(ra_user);
-                if (apiConnection == null) {
-                    apiConnection = new RAAPIConnection(ra_user, ra_api_key, MainActivity.this);
-                }
-                apiConnection.GetUserRankAndScore(ra_user, new RAAPICallback((TextView) findViewById(R.id.nav_stats)));
-//                apiConnection.GetUserRankAndScore(ra_user, new Runnable() {
-//                    @Override
-//                    public void run() {
-//
-//                    }
-//                });
-                findViewById(R.id.nav_stats).setVisibility(View.VISIBLE);
-
-                // TODO Show toast to confirm login
-
+                apiConnection.updateCredentials(ra_user, ra_api_key);
+                apiConnection.GetUserRankAndScore(ra_user, this);
                 break;
+            case LOGIN_FAILURE:
+            case LOGIN_CANCELLED:
             default:
-
-                // TODO Show toast to explain login failure
-
                 break;
         }
     }
@@ -188,6 +160,22 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         myDrawer.closeDrawers();
+    }
+
+    @Override
+    public void callback(int responseCode, String response) {
+        if (response.equals("Invalid API Key")) {
+            return;
+        }
+        // The user has logged in
+        if (responseCode == RAAPIConnection.RESPONSE_GET_USER_RANK_AND_SCORE) {
+            ((TextView) findViewById(R.id.nav_username)).setText(ra_user);
+            ((TextView) findViewById(R.id.nav_stats)).setText(response);
+            findViewById(R.id.nav_stats).setVisibility(View.VISIBLE);
+            Picasso.get()
+                    .load("https://retroachievements.org/UserPic/" + ra_user + ".png")
+                    .into((ImageView) findViewById(R.id.nav_profile_picture));
+        }
     }
 
     @Override
@@ -203,4 +191,8 @@ public class MainActivity extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
+}
+
+interface RAAPICallback {
+    void callback(int responseCode, String response);
 }

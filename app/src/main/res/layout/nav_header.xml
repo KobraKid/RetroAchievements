@@ -13,6 +13,7 @@
         android:id="@+id/nav_profile_picture"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:background="@android:color/transparent"
         android:contentDescription="@string/profile_picture"
         android:onClick="showLogin"
         android:src="@drawable/favicon" />

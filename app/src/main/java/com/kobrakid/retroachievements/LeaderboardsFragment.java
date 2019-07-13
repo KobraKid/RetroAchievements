@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 
 /**
@@ -17,9 +18,10 @@ import android.view.ViewGroup;
  * Use the {@link LeaderboardsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class LeaderboardsFragment extends Fragment {
+public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
     private OnFragmentInteractionListener mListener;
+    private RAAPIConnection apiConnection;
 
     public LeaderboardsFragment() {
         // Required empty public constructor
@@ -32,8 +34,7 @@ public class LeaderboardsFragment extends Fragment {
      * @return A new instance of fragment LeaderboardsFragment.
      */
     public static LeaderboardsFragment newInstance(String param1, String param2) {
-        LeaderboardsFragment fragment = new LeaderboardsFragment();
-        return fragment;
+        return new LeaderboardsFragment();
     }
 
     @Override
@@ -44,8 +45,17 @@ public class LeaderboardsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Set up API connection
+        apiConnection = ((MainActivity) getActivity()).apiConnection;
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_leaderboards, container, false);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        apiConnection.GetTopTenUsers(this);
     }
 
     @Override
@@ -63,6 +73,13 @@ public class LeaderboardsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void callback(int responseCode, String response) {
+        if (responseCode == RAAPIConnection.RESPONSE_GET_TOP_TEN_USERS) {
+            ((TextView) getActivity().findViewById(R.id.leaderboards_text_view)).setText(response);
+        }
     }
 
     /**

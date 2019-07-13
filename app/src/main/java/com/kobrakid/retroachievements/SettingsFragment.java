@@ -7,6 +7,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+
+import java.util.Date;
 
 
 /**
@@ -17,17 +22,10 @@ import android.view.ViewGroup;
  * Use the {@link SettingsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SettingsFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class SettingsFragment extends Fragment implements RAAPICallback {
 
     private OnFragmentInteractionListener mListener;
+    private RAAPIConnection apiConnection;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -37,42 +35,94 @@ public class SettingsFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment SettingsFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static SettingsFragment newInstance(String param1, String param2) {
-        SettingsFragment fragment = new SettingsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public static SettingsFragment newInstance() {
+        return new SettingsFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Set up API connection
+        apiConnection = ((MainActivity) getActivity()).apiConnection;
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_settings, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        RadioGroup radioGroup = getView().findViewById(R.id.radioGroup1);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                RadioButton checkedRadioButton = radioGroup.findViewById(i);
+                boolean isChecked = checkedRadioButton.isChecked();
+                if (isChecked) {
+                    // TODO (Testing)
+                    TextView textView = getView().findViewById(R.id.settings_text_view);
+                    RAAPICallback callback = SettingsFragment.this;
+                    String radioButtonName = checkedRadioButton.getText().toString();
+                    switch (radioButtonName) {
+                        case "GetTopTenUsers":
+                            apiConnection.GetTopTenUsers(callback);
+                            break;
+                        case "GetGameInfo":
+                            apiConnection.GetGameInfo("3", callback);
+                            break;
+                        case "GetGameInfoExtended":
+                            apiConnection.GetGameInfoExtended("3", callback);
+                            break;
+                        case "GetConsoleIDs":
+                            apiConnection.GetConsoleIDs(callback);
+                            break;
+                        case "GetGameList":
+                            apiConnection.GetGameList("2", callback);
+                            break;
+                        case "GetFeedFor":
+                            apiConnection.GetFeedFor("KobraKid1337", 5, 0, callback);
+                            break;
+                        case "GetUserRankAndScore":
+                            apiConnection.GetUserRankAndScore("KobraKid1337", callback);
+                            break;
+                        case "GetUserProgress":
+                            apiConnection.GetUserProgress("KobraKid1337", "3", callback);
+                            break;
+                        case "GetUserRecentlyPlayedGames":
+                            apiConnection.GetUserRecentlyPlayedGames("KobraKid1337", 5, 0, callback);
+                            break;
+                        case "GetUserSummary":
+                            apiConnection.GetUserSummary("KobraKid1337", 5, callback);
+                            break;
+                        case "GetGameInfoAndUserProgress":
+                            apiConnection.GetGameInfoAndUserProgress("KobraKid1337", "3", callback);
+                            break;
+                        case "GetAchievementsEarnedOnDay":
+                            apiConnection.GetAchievementsEarnedOnDay("KobraKid1337", "2018-04-16", callback);
+                            break;
+                        case "GetAchievementsEarnedBetween":
+                            apiConnection.GetAchievementsEarnedBetween("KobraKid1337", new Date(118, 4, 15), new Date(118, 4, 20), callback);
+                            break;
+                        case "GetLeaderboardsList":
+                            apiConnection.GetLeaderboardsList(callback);
+                            break;
+                        default:
+                            textView.setText("Uh oh:\n" + radioButtonName);
+                            break;
+                    }
+                }
+            }
+        });
     }
+
 
     @Override
     public void onAttach(Context context) {
@@ -91,18 +141,18 @@ public class SettingsFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void callback(int responseCode, String response) {
+        ((TextView) getView().findViewById(R.id.settings_text_view)).setText(response);
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 }

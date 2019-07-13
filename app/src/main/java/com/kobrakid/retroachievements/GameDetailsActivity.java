@@ -1,13 +1,13 @@
 package com.kobrakid.retroachievements;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
-public class LoginHelpActivity extends AppCompatActivity {
+public class GameDetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login_help);
+        setContentView(R.layout.activity_game_details);
     }
 }

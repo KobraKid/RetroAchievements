@@ -31,7 +31,7 @@ public class ListsFragment extends Fragment {
      *
      * @return A new instance of fragment ListsFragment.
      */
-    public static ListsFragment newInstance(String param1, String param2) {
+    public static ListsFragment newInstance() {
         return new ListsFragment();
     }
 

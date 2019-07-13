@@ -7,11 +7,15 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.Date;
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 /**
@@ -26,6 +30,8 @@ public class HomeFragment extends Fragment implements RAAPICallback {
 
     private OnFragmentInteractionListener mListener;
     private RAAPIConnection apiConnection;
+    // Only call API when the view is first started, or when the user asks for a manual refresh
+    private boolean hasPopulatedGames = false;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -44,6 +50,7 @@ public class HomeFragment extends Fragment implements RAAPICallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        hasPopulatedGames = false;
     }
 
     @Override
@@ -60,64 +67,15 @@ public class HomeFragment extends Fragment implements RAAPICallback {
     public void onStart() {
         super.onStart();
 
-        RadioGroup radioGroup = (RadioGroup) getView().findViewById(R.id.radioGroup1);
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                RadioButton checkedRadioButton = (RadioButton) radioGroup.findViewById(i);
-                boolean isChecked = checkedRadioButton.isChecked();
-                if (isChecked) {
-                    // TODO (Testing)
-                    TextView textView = getView().findViewById(R.id.home_text_view);
-                    RAAPICallback callback = HomeFragment.this;
-                    String radioButtonName = checkedRadioButton.getText().toString();
-                    switch (radioButtonName) {
-                        case "GetTopTenUsers":
-                            apiConnection.GetTopTenUsers(callback);
-                            break;
-                        case "GetGameInfo":
-                            apiConnection.GetGameInfo("3", callback);
-                            break;
-                        case "GetGameInfoExtended":
-                            apiConnection.GetGameInfoExtended("3", callback);
-                            break;
-                        case "GetConsoleIDs":
-                            apiConnection.GetConsoleIDs(callback);
-                            break;
-                        case "GetGameList":
-                            apiConnection.GetGameList("2", callback);
-                            break;
-                        case "GetFeedFor":
-                            apiConnection.GetFeedFor("KobraKid1337", 5, 0, callback);
-                            break;
-                        case "GetUserRankAndScore":
-                            apiConnection.GetUserRankAndScore("KobraKid1337", callback);
-                            break;
-                        case "GetUserProgress":
-                            apiConnection.GetUserProgress("KobraKid1337", "3", callback);
-                            break;
-                        case "GetUserRecentlyPlayedGames":
-                            apiConnection.GetUserRecentlyPlayedGames("KobraKid1337", 5, 0, callback);
-                            break;
-                        case "GetUserSummary":
-                            apiConnection.GetUserSummary("KobraKid1337", 5, callback);
-                            break;
-                        case "GetGameInfoAndUserProgress":
-                            apiConnection.GetGameInfoAndUserProgress("KobraKid1337", "3", callback);
-                            break;
-                        case "GetAchievementsEarnedOnDay":
-                            apiConnection.GetAchievementsEarnedOnDay("KobraKid1337", "2018-04-16", callback);
-                            break;
-                        case "GetAchievementsEarnedBetween":
-                            apiConnection.GetAchievementsEarnedBetween("KobraKid1337", new Date(118, 4, 15), new Date(118, 4, 20), callback);
-                            break;
-                        default:
-                            textView.setText("Uh oh:\n" + radioButtonName);
-                            break;
-                    }
-                }
-            }
-        });
+        // Initialize user's home screen if they are logged in
+        if (!hasPopulatedGames && MainActivity.ra_user != null) {
+            Picasso.get()
+                    .load("https://retroachievements.org/UserPic/" + MainActivity.ra_user + ".png")
+                    .into((ImageView) getView().findViewById(R.id.home_profile_picture));
+            apiConnection.GetUserSummary(MainActivity.ra_user, 5, HomeFragment.this);
+            // TODO allow manual repopulation
+            hasPopulatedGames = true;
+        }
     }
 
     @Override
@@ -139,10 +97,58 @@ public class HomeFragment extends Fragment implements RAAPICallback {
 
     @Override
     public void callback(int responseCode, String response) {
-        if (response.equals("Invalid API Key")) {
-            return;
+        if (responseCode == RAAPIConnection.RESPONSE_GET_USER_SUMMARY) {
+            JSONObject reader;
+            try {
+                reader = new JSONObject(response);
+
+                // Fill out user summary
+                ((TextView) getView().findViewById(R.id.home_stats)).setText(getString(R.string.nav_rank_score,
+                        reader.getString("TotalPoints"),
+                        reader.getString("Rank")));
+                ((TextView) getView().findViewById(R.id.home_username)).setText(MainActivity.ra_user);
+                getView().findViewById(R.id.home_stats).setVisibility(View.VISIBLE);
+
+                // Fill out recently played games list
+                LinearLayout recentGames = getView().findViewById(R.id.home_recent_games);
+                JSONArray recentlyPlayed = reader.getJSONArray("RecentlyPlayed");
+                for (int i = 0; i < recentlyPlayed.length(); i++) {
+                    LinearLayout game = (LinearLayout) View.inflate(getContext(), R.layout.game_summary, null);
+                    JSONObject gameObj = recentlyPlayed.getJSONObject(i);
+
+                    // Image
+                    String imageIcon = gameObj.getString("ImageIcon");
+                    Picasso.get()
+                            .load("https://retroachievements.org" + imageIcon)
+                            .into((ImageView) game.findViewById(R.id.game_summary_image_icon));
+
+                    // Title
+                    String gameTitle = gameObj.getString("Title");
+                    ((TextView) game.findViewById(R.id.game_summary_title)).setText(gameTitle);
+
+                    // Awards/Score
+                    String gameID = gameObj.getString("GameID");
+                    JSONObject awards = reader.getJSONObject("Awarded").getJSONObject(gameID);
+                    String possibleAchievements = awards.getString("NumPossibleAchievements");
+                    String possibleScore = awards.getString("PossibleScore");
+                    int awardedAchieve = Integer.parseInt(awards.getString("NumAchieved"));
+                    int awardedAchieveHardcore = Integer.parseInt(awards.getString("NumAchievedHardcore"));
+                    String score = awardedAchieve > awardedAchieveHardcore ? awards.getString("ScoreAchieved") : awards.getString("ScoreAchievedHardcore");
+                    ((TextView) game.findViewById(R.id.game_summary_stats))
+                            .setText(getResources().getString(R.string.game_stats,
+                                    (awardedAchieve > awardedAchieveHardcore ? awardedAchieve : awardedAchieveHardcore),
+                                    possibleAchievements,
+                                    score,
+                                    possibleScore));
+
+                    // TODO Make games clickable
+                    recentGames.addView(game, i);
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
-        ((TextView) getView().findViewById(R.id.home_text_view)).setText(response);
     }
 
     /**

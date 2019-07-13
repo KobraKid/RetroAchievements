@@ -5,10 +5,15 @@
     <string name="profile_picture">Profile Picture</string>
 
     <!-- Drawer -->
+    <string name="nav_rank_score">Score: %1$s | Rank: %2$s</string>
     <string name="nav_home">Home</string>
     <string name="nav_lists">Lists</string>
     <string name="nav_leaderboards">Leaderboards</string>
     <string name="nav_settings">Settings</string>
+
+    <!-- Home -->
+    <string name="game_stats">%1$d/%2$s\n(%3$s/%4$s)</string>
+    <string name="view_more">View More</string>
 
     <!-- Login -->
     <string name="login">Login</string>

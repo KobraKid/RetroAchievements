@@ -20,6 +20,8 @@ class RAAPIConnection {
     private String ra_api_key;
     private final Context context;
 
+    // Constants
+    // Response Codes
     static final int RESPONSE_ERROR = -1;
     static final int RESPONSE_GET_TOP_TEN_USERS = 0;
     static final int RESPONSE_GET_GAME_INFO = 1;
@@ -34,16 +36,12 @@ class RAAPIConnection {
     static final int RESPONSE_GET_GAME_INFO_AND_USER_PROGRESS = 10;
     static final int RESPONSE_GET_ACHIEVEMENTS_EARNED_ON_DAY = 11;
     static final int RESPONSE_GET_ACHIEVEMENTS_EARNED_BETWEEN = 12;
+    static final int RESPONSE_GET_LEADERBOARDS = 13;
 
     RAAPIConnection(String ra_user, String ra_api_key, Context context) {
         this.ra_user = ra_user;
         this.ra_api_key = ra_api_key;
         this.context = context;
-    }
-
-    void updateCredentials(String ra_user, String ra_api_key) {
-        this.ra_user = ra_user;
-        this.ra_api_key = ra_api_key;
     }
 
     /**
@@ -55,6 +53,13 @@ class RAAPIConnection {
         return "?z=" + ra_user + "&y=" + ra_api_key;
     }
 
+    /**
+     * The function responsible for performing API calls.
+     *
+     * @param target       The API function to call.
+     * @param responseCode The response code to be returned to the callback.
+     * @param callback     The callback to be notified upon request completion.
+     */
     private void GetRAURL(String target, int responseCode, RAAPICallback callback) {
         GetRAURL(target, "", responseCode, callback);
     }
@@ -374,7 +379,7 @@ class RAAPIConnection {
      *             "ScoreAchievedHardcore":     Total Score Achieved in Hardcore Mode               String/int
      *         }
      *     }
-     *     "RecentAchievements": {
+     *     "RecentAchievements": {                                                                  (Newest First)
      *         "Game ID": {
      *             "Achievement ID": {
      *                 "ID":                    "Achievement ID"                                    String,
@@ -553,6 +558,29 @@ class RAAPIConnection {
                 RESPONSE_GET_ACHIEVEMENTS_EARNED_BETWEEN,
                 callback
         );
+    }
+
+    /**
+     * Returns the full list of leaderboards available.
+     *
+     * @param callback The RAAPICallback that should accept the results of the API call.
+     */
+    void GetLeaderboardsList(final RAAPICallback callback) {
+        final String url = "https://retroachievements.org/leaderboardList.php";
+        RequestQueue queue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                callback.callback(RESPONSE_GET_LEADERBOARDS, response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.callback(RESPONSE_ERROR, "Error!");
+            }
+        });
+
+        queue.add(stringRequest);
     }
 
 }

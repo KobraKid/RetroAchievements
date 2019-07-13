@@ -30,6 +30,7 @@
         android:layout_marginEnd="32dp"
         android:ellipsize="end"
         android:hint="@string/login_username"
+        android:imeOptions="actionSend"
         android:inputType="text"
         android:maxLines="1"
         android:textColor="@android:color/white"
@@ -37,32 +38,6 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline" />
-
-    <EditText
-        android:id="@+id/api_field"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
-        android:hint="@string/login_api_key"
-        android:inputType="textPassword"
-        android:textColor="@android:color/white"
-        app:layout_constraintEnd_toStartOf="@+id/imageView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_field" />
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:contentDescription="@string/login_help"
-        android:onClick="showHelp"
-        app:layout_constraintBottom_toBottomOf="@+id/api_field"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/api_field"
-        app:srcCompat="@drawable/ic_help_outline" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"
@@ -84,6 +59,6 @@
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/api_field" />
+        app:layout_constraintTop_toBottomOf="@+id/login_field" />
 
 </android.support.constraint.ConstraintLayout>

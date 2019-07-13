@@ -20,6 +20,9 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class MainActivity extends AppCompatActivity
         implements HomeFragment.OnFragmentInteractionListener,
         LeaderboardsFragment.OnFragmentInteractionListener,
@@ -36,8 +39,9 @@ public class MainActivity extends AppCompatActivity
     static final int LOGIN_FAILURE = 1;
     static final int LOGIN_CANCELLED = 2;
 
-    private static String ra_user = null;
-    private static String ra_api_key = null; // "LrY9UvdmckJWfgTsVC5SdTODrlTcHrkj";
+    static String ra_user = null;
+    static final String ra_api_user = "KobraKid1337";
+    static final String ra_api_key = "LrY9UvdmckJWfgTsVC5SdTODrlTcHrkj";
 
     public RAAPIConnection apiConnection = null;
 
@@ -48,22 +52,26 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         setTitle("Home");
 
+        // Set up title bar
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
+        // Set up navigation drawer
         myDrawer = findViewById(R.id.drawer_layout);
         setupDrawerContent((NavigationView) findViewById(R.id.nav_view));
+
+        // Initialize API connection
+        apiConnection = new RAAPIConnection(ra_api_user, ra_api_key, MainActivity.this);
 
         // Try to get saved preferences and log in
         Context context = MainActivity.this;
         SharedPreferences sharedPref = context.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
         ra_user = sharedPref.getString(getString(R.string.ra_user), null);
-        ra_api_key = sharedPref.getString(getString(R.string.ra_api_key), null);
-        apiConnection = new RAAPIConnection(ra_user, ra_api_key, MainActivity.this);
         apiConnection.GetUserRankAndScore(ra_user, this);
 
+        // Set up home fragment
         setupInitialFragment();
     }
 
@@ -80,12 +88,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setupInitialFragment() {
-        HomeFragment fragment = new HomeFragment();
-//        Bundle bundle = new Bundle();
-//        bundle.putString(getString(R.string.ra_user), ra_user);
-//        bundle.putString(getString(R.string.ra_api_key), ra_api_key);
-//        fragment.setArguments(bundle);
-        getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.flContent, new HomeFragment()).commit();
     }
 
     public void selectDrawerItem(MenuItem item) {
@@ -117,12 +120,6 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
-        // Pass login information to new Fragment
-//        Bundle bundle = new Bundle();
-//        bundle.putString(getString(R.string.ra_user), ra_user);
-//        bundle.putString(getString(R.string.ra_api_key), ra_api_key);
-//        fragment.setArguments(bundle);
-
         // Show new Fragment in main view
         getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment).commit();
 
@@ -132,8 +129,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void showLogin(View view) {
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivityForResult(intent, BEGIN_LOGIN);
+        startActivityForResult(new Intent(this, LoginActivity.class), BEGIN_LOGIN);
+    }
+
+    public void showRecentGames(View view) {
+        startActivity(new Intent(this, RecentGamesActivity.class));
     }
 
     @Override
@@ -143,10 +143,8 @@ public class MainActivity extends AppCompatActivity
                 Context context = MainActivity.this;
                 SharedPreferences sharedPref = context.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
                 ra_user = sharedPref.getString(getString(R.string.ra_user), null);
-                ra_api_key = sharedPref.getString(getString(R.string.ra_api_key), null);
 
                 ((TextView) findViewById(R.id.nav_username)).setText(ra_user);
-                apiConnection.updateCredentials(ra_user, ra_api_key);
                 apiConnection.GetUserRankAndScore(ra_user, this);
                 break;
             case LOGIN_FAILURE:
@@ -164,13 +162,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void callback(int responseCode, String response) {
-        if (response.equals("Invalid API Key")) {
-            return;
-        }
         // The user has logged in
         if (responseCode == RAAPIConnection.RESPONSE_GET_USER_RANK_AND_SCORE) {
+            // Parse JSON and plug in information
+            JSONObject reader;
+            try {
+                reader = new JSONObject(response);
+                ((TextView) findViewById(R.id.nav_stats)).setText(getString(R.string.nav_rank_score,
+                        reader.getString("Score"),
+                        reader.getString("Rank")));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             ((TextView) findViewById(R.id.nav_username)).setText(ra_user);
-            ((TextView) findViewById(R.id.nav_stats)).setText(response);
             findViewById(R.id.nav_stats).setVisibility(View.VISIBLE);
             Picasso.get()
                     .load("https://retroachievements.org/UserPic/" + ra_user + ".png")
@@ -194,5 +199,13 @@ public class MainActivity extends AppCompatActivity
 }
 
 interface RAAPICallback {
+
+    /**
+     * The callback function to be run upon response from the RA API.
+     *
+     * @param responseCode The corresponding response code, which informs a callback on what kind of
+     *                     API call was made.
+     * @param response     The raw String response that was retrieved from the API call.
+     */
     void callback(int responseCode, String response);
 }

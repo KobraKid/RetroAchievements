@@ -4,8 +4,11 @@ import android.content.Context;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -22,8 +25,6 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
 
     private Context context;
 
-    private String gameID;
-    private String forumTopicID;
     public String numDistinctCasual;
     private ArrayList<String>
             ids,
@@ -36,17 +37,9 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
             numsAwarded,
             numsAwardedHC;
 
-    class AchievementViewHolder extends RecyclerView.ViewHolder {
+    private final AchievementViewHolderListener viewHolderListener;
 
-        LinearLayout linearLayout;
-
-        AchievementViewHolder(LinearLayout l) {
-            super(l);
-            linearLayout = l;
-        }
-    }
-
-    public AchievementAdapter(Context context,
+    public AchievementAdapter(Fragment fragment,
                               ArrayList<String> ids,
                               ArrayList<String> badges,
                               ArrayList<String> titles,
@@ -57,7 +50,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
                               ArrayList<String> numsAwarded,
                               ArrayList<String> numsAwardedHC,
                               String numDistinctCasual) {
-        this.context = context;
+        this.context = fragment.getContext();
         this.ids = ids;
         this.badges = badges;
         this.titles = titles;
@@ -68,6 +61,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         this.numsAwarded = numsAwarded;
         this.numsAwardedHC = numsAwardedHC;
         this.numDistinctCasual = numDistinctCasual;
+        this.viewHolderListener = new AchievementViewHolderListenerImpl(fragment);
 
     }
 
@@ -79,7 +73,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
                 .inflate(R.layout.view_holder_achievement_summary,
                         parent,
                         false);
-        return new AchievementViewHolder(linearLayout);
+        return new AchievementViewHolder(linearLayout, viewHolderListener);
     }
 
     @Override
@@ -124,6 +118,48 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
     @Override
     public int getItemCount() {
         return ids.size();
+    }
+
+    /****************************
+     Inner Classes and Interfaces
+     ****************************/
+
+    private interface AchievementViewHolderListener {
+        void onItemClicked(View view, int adapterPosition);
+    }
+
+    private static class AchievementViewHolderListenerImpl implements AchievementViewHolderListener {
+
+        private Fragment fragment;
+
+        AchievementViewHolderListenerImpl(Fragment fragment) {
+            this.fragment = fragment;
+            Log.i("Impl", "set");
+        }
+
+        @Override
+        public void onItemClicked(View view, int adapterPosition) {
+            Log.i("AchievementClick", "pos: " + adapterPosition);
+        }
+    }
+
+    class AchievementViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        final LinearLayout linearLayout;
+        private final AchievementViewHolderListener viewHolderListener;
+
+        AchievementViewHolder(LinearLayout linearLayout, AchievementViewHolderListener viewHolderListener) {
+            super(linearLayout);
+            this.linearLayout = linearLayout;
+            Log.i("ViewListener", "set");
+            this.viewHolderListener = viewHolderListener;
+        }
+
+        @Override
+        public void onClick(View view) {
+            Log.i("AchievementClick", "clicked");
+            viewHolderListener.onItemClicked(view, getAdapterPosition());
+        }
     }
 
 }

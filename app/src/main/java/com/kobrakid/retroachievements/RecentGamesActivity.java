@@ -29,7 +29,6 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
 
     private ArrayList<String> imageIcons, titles, stats, ids;
 
@@ -61,9 +60,7 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
         // Set up RecyclerView
         recyclerView = findViewById(R.id.recent_games_recycler_view);
         recyclerView.setHasFixedSize(true);
-
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         imageIcons = new ArrayList<>();
         titles = new ArrayList<>();

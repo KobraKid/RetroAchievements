@@ -6,13 +6,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.kobrakid.retroachievements.GameDetailsActivity;
 import com.kobrakid.retroachievements.MainActivity;
@@ -20,12 +16,10 @@ import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.RAAPICallback;
 import com.kobrakid.retroachievements.RAAPIConnection;
 import com.kobrakid.retroachievements.adapter.AchievementAdapter;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -44,12 +38,10 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
 
     private OnFragmentInteractionListener mListener;
     private RAAPIConnection apiConnection;
     private String gameID;
-    private String forumTopicID;
     private ArrayList<String>
             ids,
             badges,
@@ -60,7 +52,6 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
             datesEarned,
             numsAwarded,
             numsAwardedHC;
-    private String numDistinctCasual;
     private boolean isActive = false;
 
     public AchievementSummaryFragment() {
@@ -85,7 +76,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
         gameID = getArguments().getString("GameID");
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_game_details_uesr_summary, container, false);
+        return inflater.inflate(R.layout.fragment_achievement_summary, container, false);
     }
 
     @Override
@@ -93,11 +84,9 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
         super.onStart();
 
         // Set up RecyclerView
-        recyclerView = getView().findViewById(R.id.game_details_achievements_recycler_view);
+        recyclerView = getActivity().findViewById(R.id.game_details_achievements_recycler_view);
         recyclerView.setHasFixedSize(true);
-
-        layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         ids = new ArrayList<>();
         badges = new ArrayList<>();
@@ -108,10 +97,9 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
         datesEarned = new ArrayList<>();
         numsAwarded = new ArrayList<>();
         numsAwardedHC = new ArrayList<>();
-        numDistinctCasual = "1";
 
         adapter = new AchievementAdapter(
-                getContext(),
+                this,
                 ids,
                 badges,
                 titles,
@@ -121,7 +109,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 datesEarned,
                 numsAwarded,
                 numsAwardedHC,
-                numDistinctCasual);
+                "1");
         recyclerView.setAdapter(adapter);
     }
 
@@ -175,16 +163,6 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 numsAwarded.clear();
                 numsAwardedHC.clear();
 
-                getActivity().setTitle(reader.getString("Title") + " (" + reader.getString("ConsoleName") + ")");
-                Picasso.get()
-                        .load("https://retroachievements.org" + reader.getString("ImageIcon"))
-                        .into((ImageView) getView().findViewById(R.id.game_details_image_icon));
-                ((TextView) getView().findViewById(R.id.game_details_developer)).setText(getString(R.string.developed, reader.getString("Developer")));
-                ((TextView) getView().findViewById(R.id.game_details_publisher)).setText(getString(R.string.published, reader.getString("Publisher")));
-                ((TextView) getView().findViewById(R.id.game_details_genre)).setText(getString(R.string.genre, reader.getString("Genre")));
-                ((TextView) getView().findViewById(R.id.game_details_release_date)).setText(getString(R.string.released, reader.getString("Released")));
-
-                forumTopicID = reader.getString("ForumTopicID");
                 ((AchievementAdapter) adapter).numDistinctCasual = reader.getString("NumDistinctPlayersCasual");
 
                 JSONObject achievements = reader.getJSONObject("Achievements");
@@ -192,7 +170,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 int count;
                 List<Integer> displayOrder = new ArrayList<>();
                 List<Integer> displayOrderEarned = new ArrayList<>();
-                int numEarned = 0, numEarnedHC = 0, totalAch = 0, earnedPts = 0, totalPts = 0, earnedRatio = 0, totalRatio = 0;
+                int totalAch = 0;
                 for (Iterator<String> keys = achievements.keys(); keys.hasNext(); ) {
                     String achievementID = keys.next();
                     achievement = achievements.getJSONObject(achievementID);
@@ -204,18 +182,11 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                         displayOrderEarned.add(Integer.parseInt(achievement.getString("DisplayOrder")));
                         Collections.sort(displayOrderEarned);
                         count = displayOrderEarned.indexOf(Integer.parseInt(achievement.getString("DisplayOrder")));
-                        numEarned++;
-                        numEarnedHC++;
-                        earnedPts += 2 * Integer.parseInt(achievement.getString("Points"));
-                        earnedRatio += Integer.parseInt(achievement.getString("TrueRatio"));
                     } else if (achievement.has("DateEarned")) {
                         dateEarned = achievement.getString("DateEarned");
                         displayOrderEarned.add(Integer.parseInt(achievement.getString("DisplayOrder")));
                         Collections.sort(displayOrderEarned);
                         count = displayOrderEarned.indexOf(Integer.parseInt(achievement.getString("DisplayOrder")));
-                        numEarned++;
-                        earnedPts += Integer.parseInt(achievement.getString("Points"));
-                        earnedRatio += Integer.parseInt(achievement.getString("TrueRatio"));
                     } else {
                         displayOrder.add(Integer.parseInt(achievement.getString("DisplayOrder")));
                         Collections.sort(displayOrder);
@@ -239,27 +210,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                     numsAwardedHC.add(count, achievement.getString("NumAwardedHardcore"));
 
                     totalAch++;
-                    totalPts += Integer.parseInt(achievement.getString("Points"));
-                    totalRatio += Integer.parseInt(achievement.getString("TrueRatio"));
                 }
-
-                ((TextView) getView().findViewById(R.id.game_details_progress_text))
-                        .setText(getString(
-                                R.string.completion,
-                                new DecimalFormat("@@@@")
-                                        .format(((float) (numEarned + numEarnedHC) / (float) totalAch) * 100.0)));
-                ((ProgressBar) getView().findViewById(R.id.game_details_progress)).setProgress((int) (((float) numEarned) / ((float) totalAch) * 10000.0));
-                ((TextView) getView().findViewById(R.id.game_details_user_summary))
-                        .setText(Html.fromHtml(getString(
-                                R.string.user_summary,
-                                numEarned,
-                                totalAch,
-                                numEarnedHC,
-                                earnedPts,
-                                earnedRatio,
-                                totalPts,
-                                totalRatio)));
-
                 adapter.notifyDataSetChanged();
             } catch (JSONException e) {
                 e.printStackTrace();

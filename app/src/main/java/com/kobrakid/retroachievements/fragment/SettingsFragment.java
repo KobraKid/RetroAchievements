@@ -38,12 +38,6 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment SettingsFragment.
-     */
     public static SettingsFragment newInstance() {
         return new SettingsFragment();
     }

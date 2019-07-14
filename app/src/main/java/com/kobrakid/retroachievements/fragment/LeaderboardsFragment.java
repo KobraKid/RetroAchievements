@@ -34,12 +34,6 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment LeaderboardsFragment.
-     */
     public static LeaderboardsFragment newInstance(String param1, String param2) {
         return new LeaderboardsFragment();
     }

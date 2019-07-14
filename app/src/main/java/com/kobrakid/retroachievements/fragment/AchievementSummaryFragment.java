@@ -35,12 +35,12 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link GameDetailsSummaryFragment.OnFragmentInteractionListener} interface
+ * {@link AchievementSummaryFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link GameDetailsSummaryFragment#newInstance} factory method to
+ * Use the {@link AchievementSummaryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class GameDetailsSummaryFragment extends Fragment implements RAAPICallback {
+public class AchievementSummaryFragment extends Fragment implements RAAPICallback {
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
@@ -63,12 +63,12 @@ public class GameDetailsSummaryFragment extends Fragment implements RAAPICallbac
     private String numDistinctCasual;
     private boolean isActive = false;
 
-    public GameDetailsSummaryFragment() {
+    public AchievementSummaryFragment() {
         // Required empty public constructor
     }
 
-    public static GameDetailsSummaryFragment newInstance() {
-        return new GameDetailsSummaryFragment();
+    public static AchievementSummaryFragment newInstance() {
+        return new AchievementSummaryFragment();
     }
 
     @Override
@@ -85,7 +85,7 @@ public class GameDetailsSummaryFragment extends Fragment implements RAAPICallbac
         gameID = getArguments().getString("GameID");
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_game_details_summary, container, false);
+        return inflater.inflate(R.layout.fragment_game_details_uesr_summary, container, false);
     }
 
     @Override
@@ -130,7 +130,7 @@ public class GameDetailsSummaryFragment extends Fragment implements RAAPICallbac
         super.onResume();
         isActive = true;
 
-        apiConnection.GetGameInfoAndUserProgress(MainActivity.ra_user, gameID, GameDetailsSummaryFragment.this);
+        apiConnection.GetGameInfoAndUserProgress(MainActivity.ra_user, gameID, AchievementSummaryFragment.this);
     }
 
     @Override

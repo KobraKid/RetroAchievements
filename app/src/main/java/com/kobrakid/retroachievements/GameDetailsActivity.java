@@ -11,12 +11,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.kobrakid.retroachievements.fragment.GameDetailsSummaryFragment;
+import com.kobrakid.retroachievements.fragment.AchievementSummaryFragment;
 
 /**
  * This class will display detailed information about a single game.
  */
-public class GameDetailsActivity extends AppCompatActivity implements RAAPICallback, GameDetailsSummaryFragment.OnFragmentInteractionListener {
+public class GameDetailsActivity extends AppCompatActivity implements RAAPICallback, AchievementSummaryFragment.OnFragmentInteractionListener {
 
     private String gameID;
     public RAAPIConnection apiConnection;
@@ -44,7 +44,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
         // Create fragment
         Bundle bundle = new Bundle();
         bundle.putString("GameID", gameID);
-        GameDetailsSummaryFragment summaryFragment = new GameDetailsSummaryFragment();
+        AchievementSummaryFragment summaryFragment = new AchievementSummaryFragment();
         summaryFragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction().replace(R.id.game_details_frame, summaryFragment).commit();
     }

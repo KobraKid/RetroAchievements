@@ -41,7 +41,7 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
     public GameSummaryAdapter.GameSummaryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LinearLayout linearLayout = (LinearLayout) LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.game_summary,
+                .inflate(R.layout.view_holder_game_summary,
                         parent,
                         false);
         GameSummaryViewHolder viewHolder = new GameSummaryViewHolder(linearLayout);

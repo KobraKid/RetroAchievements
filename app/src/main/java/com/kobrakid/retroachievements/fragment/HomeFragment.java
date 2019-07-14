@@ -42,12 +42,6 @@ public class HomeFragment extends Fragment implements RAAPICallback {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment HomeFragment.
-     */
     public static HomeFragment newInstance() {
         return new HomeFragment();
     }
@@ -132,7 +126,7 @@ public class HomeFragment extends Fragment implements RAAPICallback {
                 LinearLayout recentGames = getView().findViewById(R.id.home_recent_games);
                 JSONArray recentlyPlayed = reader.getJSONArray("RecentlyPlayed");
                 for (int i = 0; i < recentlyPlayed.length(); i++) {
-                    LinearLayout game = (LinearLayout) View.inflate(getContext(), R.layout.game_summary, null);
+                    LinearLayout game = (LinearLayout) View.inflate(getContext(), R.layout.view_holder_game_summary, null);
                     JSONObject gameObj = recentlyPlayed.getJSONObject(i);
 
                     // Image

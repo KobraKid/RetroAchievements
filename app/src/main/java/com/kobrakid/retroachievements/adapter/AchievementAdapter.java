@@ -76,7 +76,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
     public AchievementAdapter.AchievementViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LinearLayout linearLayout = (LinearLayout) LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.achievement_summary,
+                .inflate(R.layout.view_holder_achievement_summary,
                         parent,
                         false);
         return new AchievementViewHolder(linearLayout);

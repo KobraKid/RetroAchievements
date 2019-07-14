@@ -1,4 +1,4 @@
-package com.kobrakid.retroachievements;
+package com.kobrakid.retroachievements.fragment;
 
 import android.content.Context;
 import android.net.Uri;
@@ -8,6 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.kobrakid.retroachievements.MainActivity;
+import com.kobrakid.retroachievements.R;
+import com.kobrakid.retroachievements.RAAPICallback;
+import com.kobrakid.retroachievements.RAAPIConnection;
 
 
 /**

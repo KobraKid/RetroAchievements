@@ -18,7 +18,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
-        String theme = sharedPref.getString(getString(R.string.theme_setting), "Blank");
         setTheme(ThemeToggler.getTheme(this, sharedPref));
 
         setContentView(R.layout.activity_login);
@@ -38,11 +37,8 @@ public class LoginActivity extends AppCompatActivity {
     public void login(View view) {
         String ra_user = ((EditText) findViewById(R.id.login_field)).getText().toString();
         // Successfully logged in, save the new credentials and return
-        Context context = LoginActivity.this;
-        SharedPreferences sharedPref = context.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(getString(R.string.ra_user), ra_user);
-        editor.commit();
+        this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), ra_user).apply();
+
         setResult(MainActivity.LOGIN_SUCCESS);
 
         Toast.makeText(getApplicationContext(), getString(R.string.new_login_welcome, ra_user), Toast.LENGTH_SHORT).show();

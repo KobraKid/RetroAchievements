@@ -13,6 +13,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.kobrakid.retroachievements.adapter.GameSummaryAdapter;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,7 +42,6 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
         super.onCreate(savedInstanceState);
 
         SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
-        String theme = sharedPref.getString(getString(R.string.theme_setting), "Blank");
         setTheme(ThemeToggler.getTheme(this, sharedPref));
 
         setContentView(R.layout.activity_recent_games);

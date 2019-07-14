@@ -43,4 +43,7 @@
     <string name="ra_user">saved_ra_user</string>
     <string name="ra_api_key">saved_ra_api_key</string>
     <string name="theme_setting">setting_saved_theme</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

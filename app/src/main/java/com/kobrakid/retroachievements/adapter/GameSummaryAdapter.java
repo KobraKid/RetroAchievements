@@ -1,4 +1,4 @@
-package com.kobrakid.retroachievements;
+package com.kobrakid.retroachievements.adapter;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.kobrakid.retroachievements.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

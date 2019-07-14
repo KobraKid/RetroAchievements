@@ -1,4 +1,4 @@
-package com.kobrakid.retroachievements;
+package com.kobrakid.retroachievements.fragment;
 
 import android.content.Context;
 import android.net.Uri;
@@ -11,6 +11,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.kobrakid.retroachievements.MainActivity;
+import com.kobrakid.retroachievements.R;
+import com.kobrakid.retroachievements.RAAPICallback;
+import com.kobrakid.retroachievements.RAAPIConnection;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -51,7 +55,6 @@ public class HomeFragment extends Fragment implements RAAPICallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        hasPopulatedGames = false;
     }
 
     @Override
@@ -59,6 +62,7 @@ public class HomeFragment extends Fragment implements RAAPICallback {
                              Bundle savedInstanceState) {
         // Set up API connection
         apiConnection = ((MainActivity) getActivity()).apiConnection;
+        hasPopulatedGames = false;
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false);

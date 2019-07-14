@@ -15,7 +15,7 @@
     <ImageView
         android:id="@+id/achievement_summary_badge"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="64dp"
         android:layout_weight="0.15"
         android:adjustViewBounds="true"
         app:srcCompat="@drawable/favicon" />
@@ -72,6 +72,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="10000"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
             android:progressTint="?attr/colorAccent"
             android:secondaryProgressTint="?attr/colorPrimary"
             android:secondaryProgressTintMode="src_over"

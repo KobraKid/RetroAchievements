@@ -12,7 +12,7 @@ import com.android.volley.toolbox.Volley;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-class RAAPIConnection {
+public class RAAPIConnection {
 
     private static final String BASE_URL = "https://retroachievements.org/API/";
 
@@ -22,21 +22,21 @@ class RAAPIConnection {
 
     // Constants
     // Response Codes
-    static final int RESPONSE_ERROR = -1;
-    static final int RESPONSE_GET_TOP_TEN_USERS = 0;
-    static final int RESPONSE_GET_GAME_INFO = 1;
-    static final int RESPONSE_GET_GAME_INFO_EXTENDED = 2;
-    static final int RESPONSE_GET_CONSOLE_IDS = 3;
-    static final int RESPONSE_GET_GAME_LIST = 4;
-    static final int RESPONSE_GET_FEED_FOR = 5;
-    static final int RESPONSE_GET_USER_RANK_AND_SCORE = 6;
-    static final int RESPONSE_GET_USER_PROGRESS = 7;
-    static final int RESPONSE_GET_USER_RECENTLY_PLAYED_GAMES = 8;
-    static final int RESPONSE_GET_USER_SUMMARY = 9;
-    static final int RESPONSE_GET_GAME_INFO_AND_USER_PROGRESS = 10;
-    static final int RESPONSE_GET_ACHIEVEMENTS_EARNED_ON_DAY = 11;
-    static final int RESPONSE_GET_ACHIEVEMENTS_EARNED_BETWEEN = 12;
-    static final int RESPONSE_GET_LEADERBOARDS = 13;
+    public static final int RESPONSE_ERROR = -1;
+    public static final int RESPONSE_GET_TOP_TEN_USERS = 0;
+    public static final int RESPONSE_GET_GAME_INFO = 1;
+    public static final int RESPONSE_GET_GAME_INFO_EXTENDED = 2;
+    public static final int RESPONSE_GET_CONSOLE_IDS = 3;
+    public static final int RESPONSE_GET_GAME_LIST = 4;
+    public static final int RESPONSE_GET_FEED_FOR = 5;
+    public static final int RESPONSE_GET_USER_RANK_AND_SCORE = 6;
+    public static final int RESPONSE_GET_USER_PROGRESS = 7;
+    public static final int RESPONSE_GET_USER_RECENTLY_PLAYED_GAMES = 8;
+    public static final int RESPONSE_GET_USER_SUMMARY = 9;
+    public static final int RESPONSE_GET_GAME_INFO_AND_USER_PROGRESS = 10;
+    public static final int RESPONSE_GET_ACHIEVEMENTS_EARNED_ON_DAY = 11;
+    public static final int RESPONSE_GET_ACHIEVEMENTS_EARNED_BETWEEN = 12;
+    public static final int RESPONSE_GET_LEADERBOARDS = 13;
 
     RAAPIConnection(String ra_user, String ra_api_key, Context context) {
         this.ra_user = ra_user;
@@ -101,7 +101,7 @@ class RAAPIConnection {
      *
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetTopTenUsers(RAAPICallback callback) {
+    public void GetTopTenUsers(RAAPICallback callback) {
         GetRAURL(
                 "API_GetTopTenUsers.php",
                 RESPONSE_GET_TOP_TEN_USERS,
@@ -134,7 +134,7 @@ class RAAPIConnection {
      * @param gameID Unique String ID of a game.
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetGameInfo(String gameID, RAAPICallback callback) {
+    public void GetGameInfo(String gameID, RAAPICallback callback) {
         GetRAURL(
                 "API_GetGame.php",
                 "&i=" + gameID,
@@ -188,7 +188,7 @@ class RAAPIConnection {
      * @param gameID Unique String ID of a game.
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetGameInfoExtended(String gameID, RAAPICallback callback) {
+    public void GetGameInfoExtended(String gameID, RAAPICallback callback) {
         GetRAURL(
                 "API_GetGameExtended.php",
                 "&i=" + gameID,
@@ -209,7 +209,7 @@ class RAAPIConnection {
      *
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetConsoleIDs(RAAPICallback callback) {
+    public void GetConsoleIDs(RAAPICallback callback) {
         GetRAURL(
                 "API_GetConsoleIDs.php",
                 RESPONSE_GET_CONSOLE_IDS,
@@ -233,7 +233,7 @@ class RAAPIConnection {
      * @param consoleID Unique String ID of the console.
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetGameList(String consoleID, RAAPICallback callback) {
+    public void GetGameList(String consoleID, RAAPICallback callback) {
         GetRAURL(
                 "API_GetGameList.php",
                 "&i=" + consoleID,
@@ -250,7 +250,7 @@ class RAAPIConnection {
      * @param offset Unused.
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetFeedFor(String user, int count, int offset, RAAPICallback callback) {
+    public void GetFeedFor(String user, int count, int offset, RAAPICallback callback) {
         GetRAURL(
                 "API_GetFeed.php",
                 "&u=" + user + "&c=" + Integer.toString(count) + "&o=" + Integer.toString(offset),
@@ -270,7 +270,7 @@ class RAAPIConnection {
      * @param user The user to get the rank and score of.
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetUserRankAndScore(String user, RAAPICallback callback) {
+    public void GetUserRankAndScore(String user, RAAPICallback callback) {
         GetRAURL(
                 "API_GetUserRankAndScore.php",
                 "&u=" + user,
@@ -297,7 +297,7 @@ class RAAPIConnection {
      * @param gameIDCSV The unique String ID of the game to check.
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetUserProgress(String user, String gameIDCSV, RAAPICallback callback) {
+    public void GetUserProgress(String user, String gameIDCSV, RAAPICallback callback) {
         GetRAURL(
                 "API_GetUserProgress.php",
                 "&u=" + user + "&i=" + gameIDCSV,
@@ -330,7 +330,7 @@ class RAAPIConnection {
      * @param offset How much to offset the list by before retrieving the given number of games.
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetUserRecentlyPlayedGames(String user, int count, int offset, RAAPICallback callback) {
+    public void GetUserRecentlyPlayedGames(String user, int count, int offset, RAAPICallback callback) {
         GetRAURL(
                 "API_GetUserRecentlyPlayedGames.php",
                 "&u=" + user + "&c=" + Integer.toString(count) + "&o=" + Integer.toString(offset),
@@ -413,7 +413,7 @@ class RAAPIConnection {
      * @param numRecentGames Number of recent games to analyze.
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetUserSummary(String user, int numRecentGames, RAAPICallback callback) {
+    public void GetUserSummary(String user, int numRecentGames, RAAPICallback callback) {
         GetRAURL(
                 "API_GetUserSummary.php",
                 "&u=" + user + "&g=" + Integer.toString(numRecentGames) + "&a=5",
@@ -474,7 +474,7 @@ class RAAPIConnection {
      * @param gameID The Unique String ID of the game progress to be retrieved.
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetGameInfoAndUserProgress(String user, String gameID, RAAPICallback callback) {
+    public void GetGameInfoAndUserProgress(String user, String gameID, RAAPICallback callback) {
         GetRAURL(
                 "API_GetGameInfoAndUserProgress.php",
                 "&u=" + user + "&g=" + gameID,
@@ -510,7 +510,7 @@ class RAAPIConnection {
      * @param dateInput The date to look up, formatted as "yyyy-MM-dd."
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetAchievementsEarnedOnDay(String user, String dateInput, RAAPICallback callback) {
+    public void GetAchievementsEarnedOnDay(String user, String dateInput, RAAPICallback callback) {
         GetRAURL(
                 "API_GetAchievementsEarnedOnDay.php",
                 "&u=" + user + "&d=" + dateInput,
@@ -547,7 +547,7 @@ class RAAPIConnection {
      * @param dateEnd The ending Date object.
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetAchievementsEarnedBetween(String user, Date dateStart, Date dateEnd, RAAPICallback callback) {
+    public void GetAchievementsEarnedBetween(String user, Date dateStart, Date dateEnd, RAAPICallback callback) {
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         GetRAURL(
@@ -565,7 +565,7 @@ class RAAPIConnection {
      *
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    void GetLeaderboardsList(final RAAPICallback callback) {
+    public void GetLeaderboardsList(final RAAPICallback callback) {
         final String url = "https://retroachievements.org/leaderboardList.php";
         RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {

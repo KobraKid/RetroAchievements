@@ -19,6 +19,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.kobrakid.retroachievements.fragment.HomeFragment;
+import com.kobrakid.retroachievements.fragment.LeaderboardsFragment;
+import com.kobrakid.retroachievements.fragment.ListsFragment;
+import com.kobrakid.retroachievements.fragment.SettingsFragment;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -34,14 +38,14 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout myDrawer;
 
     // Request Codes
-    static final int BEGIN_LOGIN = 0;
-    static final int SHOW_RECENT_GAMES = 1;
+    public static final int BEGIN_LOGIN = 0;
+    public static final int SHOW_RECENT_GAMES = 1;
     // Response Codes
-    static final int LOGIN_SUCCESS = 0;
-    static final int LOGIN_FAILURE = 1;
-    static final int LOGIN_CANCELLED = 2;
+    public static final int LOGIN_SUCCESS = 0;
+    public static final int LOGIN_FAILURE = 1;
+    public static final int LOGIN_CANCELLED = 2;
 
-    static String ra_user = null;
+    public static String ra_user = null;
     static final String ra_api_user = "KobraKid1337";
     static final String ra_api_key = "LrY9UvdmckJWfgTsVC5SdTODrlTcHrkj";
 
@@ -244,16 +248,4 @@ public class MainActivity extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
-}
-
-interface RAAPICallback {
-
-    /**
-     * The callback function to be run upon response from the RA API.
-     *
-     * @param responseCode The corresponding response code, which informs a callback on what kind of
-     *                     API call was made.
-     * @param response     The raw String response that was retrieved from the API call.
-     */
-    void callback(int responseCode, String response);
 }

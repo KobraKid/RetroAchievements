@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <!-- Blank -->
+    <color name="blank_colorPrimary">#2C97FA</color>
+    <color name="blank_colorPrimaryDark">#1A1A1A</color>
+    <color name="blank_colorError">#292929</color>
+    <color name="blank_colorAccent">#CC9900</color>
+
+    <!-- 2016 -->
+    <color name="twentySixteen_colorPrimary">#424242</color>
+    <color name="twentySixteen_colorPrimaryDark">#73271F</color>
+    <color name="twentySixteen_colorError">#D25245</color>
+    <color name="twentySixteen_colorAccent">#F4F4F4</color>
+
+    <!-- Green -->
+    <color name="green_colorPrimary">#18D410</color>
+
+    <!-- Pony -->
+    <color name="pony_colorPrimary">#FF00E4</color>
+    <color name="pony_colorAccent">#FF0080</color>
+
+    <!-- Red -->
+    <color name="red_colorPrimary">#D4000C</color>
+    <color name="red_colorAccent">#FF0C00</color>
+
+    <!-- Spooky -->
+    <color name="spooky_colorPrimary">#424242</color>
+    <color name="spooky_colorPrimaryDark">#F8F8F8</color>
+    <color name="spooky_colorError">#C8C8C8</color>
+    <color name="spooky_colorAccent">#FF0C00</color>
 </resources>

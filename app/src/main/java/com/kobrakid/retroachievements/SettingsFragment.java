@@ -27,6 +27,8 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     private OnFragmentInteractionListener mListener;
     private RAAPIConnection apiConnection;
 
+    private boolean isActive = false;
+
     public SettingsFragment() {
         // Required empty public constructor
     }
@@ -123,6 +125,17 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        isActive = true;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        isActive = false;
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -143,6 +156,8 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
 
     @Override
     public void callback(int responseCode, String response) {
+        if (!isActive)
+            return;
         ((TextView) getView().findViewById(R.id.settings_text_view)).setText(response);
     }
 

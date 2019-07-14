@@ -23,6 +23,8 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
     private OnFragmentInteractionListener mListener;
     private RAAPIConnection apiConnection;
 
+    private boolean isActive = false;
+
     public LeaderboardsFragment() {
         // Required empty public constructor
     }
@@ -59,6 +61,18 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        isActive = true;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        isActive = false;
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
@@ -77,6 +91,8 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
     @Override
     public void callback(int responseCode, String response) {
+        if (!isActive)
+            return;
         if (responseCode == RAAPIConnection.RESPONSE_GET_TOP_TEN_USERS) {
             ((TextView) getActivity().findViewById(R.id.leaderboards_text_view)).setText(response);
         }

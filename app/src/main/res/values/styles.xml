@@ -1,16 +1,139 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <!-- Attributes -->
+    <attr name="transparent_title_bg" format="reference" />
+    <attr name="current_theme" format="reference" />
+
+    <!-- Blank theme -->
+    <style name="BlankTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/blank_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/blank_colorPrimaryDark</item>
+        <item name="colorError">@color/blank_colorError</item>
+        <item name="colorAccent">@color/blank_colorAccent</item>
+
+        <item name="android:background">@color/blank_colorError</item>
+        <item name="android:textColor">@color/blank_colorPrimary</item>
+        <item name="android:actionMenuTextColor">@color/blank_colorPrimary</item>
+        <item name="android:itemTextAppearance">@color/blank_colorPrimary</item>
+        <item name="android:textColorPrimary">@color/blank_colorPrimary</item>
+        <item name="android:textColorSecondary">@color/blank_colorPrimary</item>
+
+        <item name="current_theme">@style/BlankTheme</item>
+        <item name="transparent_title_bg">@style/BlankTheme.TransparentTitleBG</item>
     </style>
 
-    <style name="AppTheme.NoActionBar">
+    <style name="BlankTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="BlankTheme.TransparentTheme">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="BlankTheme.TransparentTitleBG">
+        <item name="android:background">#00000000</item>
+    </style>
+
+    <!-- 2016 Theme -->
+    <style name="TwentySixteenTheme">
+        <item name="colorPrimary">@color/twentySixteen_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/twentySixteen_colorPrimaryDark</item>
+        <item name="colorError">@color/twentySixteen_colorError</item>
+        <item name="colorAccent">@color/twentySixteen_colorAccent</item>
+
+        <item name="android:background">@color/twentySixteen_colorError</item>
+        <item name="android:textColor">@color/twentySixteen_colorPrimary</item>
+        <item name="android:actionMenuTextColor">@color/twentySixteen_colorPrimary</item>
+        <item name="android:itemTextAppearance">@color/twentySixteen_colorPrimary</item>
+        <item name="android:textColorPrimary">@color/twentySixteen_colorPrimary</item>
+        <item name="android:textColorSecondary">@color/twentySixteen_colorPrimary</item>
+
+        <item name="current_theme">@style/TwentySixteenTheme</item>
+        <item name="transparent_title_bg">@style/TwentySixteenTheme.TransparentTitleBG</item>
+    </style>
+
+    <style name="TwentySixteenTheme.TransparentTitleBG">
+        <item name="android:background">#00000000</item>
+    </style>
+
+    <!-- Green Theme -->
+    <style name="GreenTheme" parent="BlankTheme">
+        <item name="colorPrimary">@color/green_colorPrimary</item>
+
+        <item name="android:textColor">@color/green_colorPrimary</item>
+        <item name="android:actionMenuTextColor">@color/green_colorPrimary</item>
+        <item name="android:itemTextAppearance">@color/green_colorPrimary</item>
+        <item name="android:textColorPrimary">@color/green_colorPrimary</item>
+        <item name="android:textColorSecondary">@color/green_colorPrimary</item>
+
+        <item name="current_theme">@style/GreenTheme</item>
+        <item name="transparent_title_bg">@style/GreenTheme.TransparentTitleBG</item>
+    </style>
+
+    <style name="GreenTheme.TransparentTitleBG">
+        <item name="android:background">#00000000</item>
+    </style>
+
+    <!-- Pony Theme -->
+    <style name="PonyTheme" parent="BlankTheme">
+        <item name="colorPrimary">@color/pony_colorPrimary</item>
+        <item name="colorAccent">@color/pony_colorAccent</item>
+
+        <item name="android:textColor">@color/pony_colorPrimary</item>
+        <item name="android:actionMenuTextColor">@color/pony_colorPrimary</item>
+        <item name="android:itemTextAppearance">@color/pony_colorPrimary</item>
+        <item name="android:textColorPrimary">@color/pony_colorPrimary</item>
+        <item name="android:textColorSecondary">@color/pony_colorPrimary</item>
+
+        <item name="current_theme">@style/PonyTheme</item>
+        <item name="transparent_title_bg">@style/PonyTheme.TransparentTitleBG</item>
+    </style>
+
+    <style name="PonyTheme.TransparentTitleBG">
+        <item name="android:background">#00000000</item>
+    </style>
+
+    <!-- Red Theme -->
+    <style name="RedTheme" parent="BlankTheme">
+        <item name="colorPrimary">@color/red_colorPrimary</item>
+        <item name="colorAccent">@color/red_colorAccent</item>
+
+        <item name="android:textColor">@color/red_colorPrimary</item>
+        <item name="android:actionMenuTextColor">@color/red_colorPrimary</item>
+        <item name="android:itemTextAppearance">@color/red_colorPrimary</item>
+        <item name="android:textColorPrimary">@color/red_colorPrimary</item>
+        <item name="android:textColorSecondary">@color/red_colorPrimary</item>
+
+        <item name="current_theme">@style/RedTheme</item>
+        <item name="transparent_title_bg">@style/RedTheme.TransparentTitleBG</item>
+    </style>
+
+    <style name="RedTheme.TransparentTitleBG">
+        <item name="android:background">#00000000</item>
+    </style>
+
+    <!-- Spooky Theme -->
+    <style name="SpookyTheme">
+        <item name="colorPrimary">@color/spooky_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/spooky_colorPrimaryDark</item>
+        <item name="colorError">@color/spooky_colorError</item>
+        <item name="colorAccent">@color/spooky_colorAccent</item>
+
+        <item name="android:background">@color/spooky_colorError</item>
+        <item name="android:textColor">@color/spooky_colorPrimary</item>
+        <item name="android:actionMenuTextColor">@color/spooky_colorPrimary</item>
+        <item name="android:itemTextAppearance">@color/spooky_colorPrimary</item>
+        <item name="android:textColorPrimary">@color/spooky_colorPrimary</item>
+        <item name="android:textColorSecondary">@color/spooky_colorPrimary</item>
+
+        <item name="current_theme">@style/SpookyTheme</item>
+        <item name="transparent_title_bg">@style/SpookyTheme.TransparentTitleBG</item>
+    </style>
+
+    <style name="SpookyTheme.TransparentTitleBG">
+        <item name="android:background">#00000000</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

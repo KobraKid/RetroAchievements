@@ -13,6 +13,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity
 
     // Request Codes
     static final int BEGIN_LOGIN = 0;
+    static final int SHOW_RECENT_GAMES = 1;
     // Response Codes
     static final int LOGIN_SUCCESS = 0;
     static final int LOGIN_FAILURE = 1;
@@ -43,11 +45,19 @@ public class MainActivity extends AppCompatActivity
     static final String ra_api_user = "KobraKid1337";
     static final String ra_api_key = "LrY9UvdmckJWfgTsVC5SdTODrlTcHrkj";
 
+    private boolean isActive = false;
+
     public RAAPIConnection apiConnection = null;
+    public SharedPreferences sharedPref = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Try to get saved preferences and log in
+        sharedPref = this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
+        setTheme(ThemeToggler.getTheme(this, sharedPref));
+        ra_user = sharedPref.getString(getString(R.string.ra_user), null);
 
         setContentView(R.layout.activity_main);
         setTitle("Home");
@@ -56,7 +66,12 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        TypedValue typedValue = new TypedValue();
+        if (getTheme().resolveAttribute(R.drawable.ic_menu, typedValue, true)) {
+            actionBar.setHomeAsUpIndicator(typedValue.resourceId);
+        } else {
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        }
 
         // Set up navigation drawer
         myDrawer = findViewById(R.id.drawer_layout);
@@ -65,10 +80,6 @@ public class MainActivity extends AppCompatActivity
         // Initialize API connection
         apiConnection = new RAAPIConnection(ra_api_user, ra_api_key, MainActivity.this);
 
-        // Try to get saved preferences and log in
-        Context context = MainActivity.this;
-        SharedPreferences sharedPref = context.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
-        ra_user = sharedPref.getString(getString(R.string.ra_user), null);
         apiConnection.GetUserRankAndScore(ra_user, this);
 
         // Set up home fragment
@@ -133,7 +144,35 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void showRecentGames(View view) {
-        startActivity(new Intent(this, RecentGamesActivity.class));
+        startActivityForResult(new Intent(this, RecentGamesActivity.class), SHOW_RECENT_GAMES);
+    }
+
+    public void showGameDetails(View view) {
+        Intent intent = new Intent(this, GameDetailsActivity.class);
+        Bundle extras = new Bundle();
+        extras.putString("GameID",
+                ((TextView) view.findViewById(R.id.game_summary_game_id)).getText().toString());
+        intent.putExtras(extras);
+        startActivity(intent);
+    }
+
+    public void changeTheme(View view) {
+        // TODO Make a more elegant theme switcher
+        String currTheme = sharedPref.getString(getString(R.string.theme_setting), "");
+        if (currTheme.equals("Blank")) {
+            sharedPref.edit().putString(getString(R.string.theme_setting), "TwentySixteen").apply();
+        } else if (currTheme.equals("TwentySixteen")) {
+            sharedPref.edit().putString(getString(R.string.theme_setting), "Green").apply();
+        } else if (currTheme.equals("Green")) {
+            sharedPref.edit().putString(getString(R.string.theme_setting), "Pony").apply();
+        } else if (currTheme.equals("Pony")) {
+            sharedPref.edit().putString(getString(R.string.theme_setting), "Red").apply();
+        } else if (currTheme.equals("Red")) {
+            sharedPref.edit().putString(getString(R.string.theme_setting), "Spooky").apply();
+        } else {
+            sharedPref.edit().putString(getString(R.string.theme_setting), "Blank").apply();
+        }
+        recreate();
     }
 
     @Override
@@ -158,10 +197,19 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         myDrawer.closeDrawers();
+        isActive = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isActive = false;
     }
 
     @Override
     public void callback(int responseCode, String response) {
+        if (!isActive)
+            return;
         // The user has logged in
         if (responseCode == RAAPIConnection.RESPONSE_GET_USER_RANK_AND_SCORE) {
             // Parse JSON and plug in information

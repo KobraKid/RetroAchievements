@@ -21,6 +21,8 @@ public class ListsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+    private boolean isActive = false;
+
     public ListsFragment() {
         // Required empty public constructor
     }
@@ -45,6 +47,18 @@ public class ListsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_lists, container, false);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        isActive = true;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        isActive = false;
     }
 
     @Override

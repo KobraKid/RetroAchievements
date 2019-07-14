@@ -16,6 +16,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
+        String theme = sharedPref.getString(getString(R.string.theme_setting), "Blank");
+        setTheme(ThemeToggler.getTheme(this, sharedPref));
+
         setContentView(R.layout.activity_login);
         final EditText login = findViewById(R.id.login_field);
         login.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -40,9 +45,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.commit();
         setResult(MainActivity.LOGIN_SUCCESS);
 
-        // TODO Strings
-        CharSequence text = "Hello, " + ra_user + ". Successfully logged in.";
-        Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), getString(R.string.new_login_welcome, ra_user), Toast.LENGTH_SHORT).show();
 
         finish();
     }

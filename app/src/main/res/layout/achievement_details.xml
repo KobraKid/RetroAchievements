@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/achievement_details"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/achievement_details_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="0.8"
+            android:padding="8dp"
+            android:singleLine="true"
+            android:textAlignment="center"
+            android:textColor="?attr/colorAccent"
+            android:textSize="24sp"
+            tools:text="Top of the Flagpole" />
+
+        <TextView
+            android:id="@+id/achievement_details_points"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="0.2"
+            android:gravity="right"
+            android:padding="8dp"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            tools:text="1\n(1)" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/achievement_details_badge"
+            android:layout_width="0dp"
+            android:layout_height="150dp"
+            android:layout_weight="0.25"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/favicon" />
+
+        <TextView
+            android:id="@+id/achievement_details_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="0.75"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:textSize="14sp"
+            tools:text="Earn a 5000 Point Bonus by touching the top of the flagpole" />
+
+    </LinearLayout>
+
+</LinearLayout>

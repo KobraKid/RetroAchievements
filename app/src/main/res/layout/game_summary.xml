@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="50dp"
+    android:onClick="showGameDetails"
     android:orientation="vertical">
 
     <View
@@ -19,15 +20,18 @@
         <ImageView
             android:id="@+id/game_summary_image_icon"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.1"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:layout_weight="0.15"
+            android:adjustViewBounds="true"
             app:srcCompat="@drawable/favicon" />
 
         <TextView
             android:id="@+id/game_summary_title"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.8"
+            android:layout_weight="0.65"
             android:gravity="center"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
@@ -35,11 +39,17 @@
 
         <TextView
             android:id="@+id/game_summary_stats"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.1"
+            android:layout_weight="0.2"
             android:gravity="center"
             tools:text="8/72\n(8/400)" />
+
+        <TextView
+            android:id="@+id/game_summary_game_id"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
 
     </LinearLayout>
 

@@ -32,6 +32,7 @@ public class HomeFragment extends Fragment implements RAAPICallback {
     private RAAPIConnection apiConnection;
     // Only call API when the view is first started, or when the user asks for a manual refresh
     private boolean hasPopulatedGames = false;
+    private boolean isActive = false;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -79,6 +80,18 @@ public class HomeFragment extends Fragment implements RAAPICallback {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        isActive = true;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        isActive = false;
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
@@ -97,6 +110,8 @@ public class HomeFragment extends Fragment implements RAAPICallback {
 
     @Override
     public void callback(int responseCode, String response) {
+        if (!isActive)
+            return;
         if (responseCode == RAAPIConnection.RESPONSE_GET_USER_SUMMARY) {
             JSONObject reader;
             try {
@@ -136,12 +151,14 @@ public class HomeFragment extends Fragment implements RAAPICallback {
                     String score = awardedAchieve > awardedAchieveHardcore ? awards.getString("ScoreAchieved") : awards.getString("ScoreAchievedHardcore");
                     ((TextView) game.findViewById(R.id.game_summary_stats))
                             .setText(getResources().getString(R.string.game_stats,
-                                    (awardedAchieve > awardedAchieveHardcore ? awardedAchieve : awardedAchieveHardcore),
+                                    Integer.toString(awardedAchieve > awardedAchieveHardcore ? awardedAchieve : awardedAchieveHardcore),
                                     possibleAchievements,
                                     score,
                                     possibleScore));
 
-                    // TODO Make games clickable
+                    // Game ID
+                    ((TextView) game.findViewById(R.id.game_summary_game_id)).setText(gameID);
+
                     recentGames.addView(game, i);
                 }
 

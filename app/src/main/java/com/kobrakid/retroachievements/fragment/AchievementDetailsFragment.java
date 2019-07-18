@@ -1,6 +1,8 @@
 package com.kobrakid.retroachievements.fragment;
 
 import android.content.Context;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,10 +12,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.kobrakid.retroachievements.R;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+
+import java.text.DecimalFormat;
 
 
 /**
@@ -48,6 +54,40 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
         final View view = inflater.inflate(R.layout.fragment_achievement_details, container, false);
         view.setOnClickListener(this);
         view.setTransitionName("achievement_" + getArguments().getString("Position"));
+
+        // Set fields from transferred data
+        ((TextView) view.findViewById(R.id.achievement_details_title)).setText(getArguments().getString("Title"));
+        ((TextView) view.findViewById(R.id.achievement_details_description)).setText(getArguments().getString("Description"));
+        if (getArguments().getString("DateEarned").startsWith("NoDate")) {
+            ColorMatrix matrix = new ColorMatrix();
+            matrix.setSaturation(0);
+            ((ImageView) view.findViewById(R.id.achievement_details_badge)).setColorFilter(new ColorMatrixColorFilter(matrix));
+            ((TextView) view.findViewById(R.id.achievement_details_date))
+                    .setText(getContext().getString(R.string.date_earned, getArguments().getString("DateEarned")));
+        } else {
+            ((ImageView) view.findViewById(R.id.achievement_details_badge)).clearColorFilter();
+            ((TextView) view.findViewById(R.id.achievement_details_date))
+                    .setText(getContext().getString(R.string.date_earned, getArguments().getString("DateEarned")));
+        }
+        ((TextView) view.findViewById(R.id.achievement_details_completion_text))
+                .setText(getContext().getString(
+                        R.string.earned_by_details,
+                        getArguments().getString("NumAwarded"),
+                        getArguments().getString("NumDistinctPlayersCasual"),
+                        new DecimalFormat("@@@@")
+                                .format(Double.parseDouble(getArguments().getString("NumAwarded")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 100.0)));
+        ((TextView) view.findViewById(R.id.achievement_details_completion_hardcore_text))
+                .setText(getContext().getString(
+                        R.string.earned_by_details,
+                        getArguments().getString("NumAwardedHardcore"),
+                        getArguments().getString("NumDistinctPlayersCasual"),
+                        new DecimalFormat("@@@@")
+                                .format(Double.parseDouble(getArguments().getString("NumAwardedHardcore")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 100.0)));
+        ProgressBar progressBar = view.findViewById(R.id.achievement_details_completion_hardcore);
+        progressBar.setProgress((int) (Double.parseDouble(getArguments().getString("NumAwardedHardcore")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 10000.0));
+        progressBar = view.findViewById(R.id.achievement_details_completion);
+        progressBar.setProgress((int) (Double.parseDouble(getArguments().getString("NumAwarded")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 10000.0));
+
 
         postponeEnterTransition();
 

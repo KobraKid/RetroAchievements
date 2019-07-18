@@ -33,6 +33,9 @@
     <string name="forum" tools:ignore="TypographyEllipsis">Open Forum Page...</string>
     <string name="webpage" tools:ignore="TypographyEllipsis">View on RetroAchievements...</string>
 
+    <!-- Achievement Details -->
+    <string name="earned_by_details">Earned by %1$s of %2$s players (%3$s%%)</string>
+
     <!-- Login -->
     <string name="login">Login</string>
     <string name="login_username">Username</string>

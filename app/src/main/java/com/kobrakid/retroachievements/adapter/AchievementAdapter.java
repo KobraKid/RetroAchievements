@@ -63,7 +63,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         this.numsAwarded = numsAwarded;
         this.numsAwardedHC = numsAwardedHC;
         this.numDistinctCasual = numDistinctCasual;
-        this.viewHolderListener = new AchievementViewHolderListenerImpl(fragment);
+        this.viewHolderListener = new AchievementViewHolderListenerImpl(fragment, this);
 
     }
 
@@ -137,9 +137,11 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
     private static class AchievementViewHolderListenerImpl implements AchievementViewHolderListener {
 
         private Fragment fragment;
+        private AchievementAdapter adapter;
 
-        AchievementViewHolderListenerImpl(Fragment fragment) {
+        AchievementViewHolderListenerImpl(Fragment fragment, AchievementAdapter adapter) {
             this.fragment = fragment;
+            this.adapter = adapter;
         }
 
         @Override
@@ -152,8 +154,16 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
             Fragment detailsFragment = new AchievementDetailsFragment();
             Bundle bundle = new Bundle();
             bundle.putString("Position", "" + adapterPosition);
-            bundle.putString("GameID", ((TextView) view.findViewById(R.id.achievement_summary_id)).getText().toString());
-            bundle.putString("ImageIcon", ((TextView) view.findViewById(R.id.achievement_summary_badge_id)).getText().toString());
+            bundle.putString("GameID", adapter.ids.get(adapterPosition));
+            bundle.putString("ImageIcon", adapter.badges.get(adapterPosition));
+            bundle.putString("Title", adapter.titles.get(adapterPosition));
+            bundle.putString("Points", adapter.points.get(adapterPosition));
+            bundle.putString("TrueRatio", adapter.trueRatios.get(adapterPosition));
+            bundle.putString("Description", adapter.descriptions.get(adapterPosition));
+            bundle.putString("DateEarned", adapter.datesEarned.get(adapterPosition));
+            bundle.putString("NumAwarded", adapter.numsAwarded.get(adapterPosition));
+            bundle.putString("NumAwardedHardcore", adapter.numsAwardedHC.get(adapterPosition));
+            bundle.putString("NumDistinctPlayersCasual", adapter.numDistinctCasual);
             detailsFragment.setArguments(bundle);
             fragment
                     .getActivity()

@@ -41,6 +41,13 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/achievement_details_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        tools:text="earned 2017-09-08 05:17:20" />
+
     <ProgressBar
         android:id="@+id/achievement_details_completion"
         style="?android:attr/progressBarStyleHorizontal"

@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.kobrakid.retroachievements.fragment.AchievementDetailsFragment;
 import com.kobrakid.retroachievements.fragment.AchievementSummaryFragment;
 import com.squareup.picasso.Picasso;
 
@@ -28,7 +27,7 @@ import java.util.Iterator;
 /**
  * This class will display detailed information about a single game.
  */
-public class GameDetailsActivity extends AppCompatActivity implements RAAPICallback, AchievementSummaryFragment.OnFragmentInteractionListener, AchievementDetailsFragment.OnFragmentInteractionListener {
+public class GameDetailsActivity extends AppCompatActivity implements RAAPICallback {
 
     private String gameID;
     private String forumTopicID;
@@ -181,8 +180,4 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
 
     }
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
 }

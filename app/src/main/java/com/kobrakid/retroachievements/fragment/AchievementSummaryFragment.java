@@ -1,12 +1,8 @@
 package com.kobrakid.retroachievements.fragment;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +13,7 @@ import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.RAAPICallback;
 import com.kobrakid.retroachievements.RAAPIConnection;
 import com.kobrakid.retroachievements.adapter.AchievementAdapter;
+import com.kobrakid.retroachievements.manager.AchievementLayoutManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,20 +24,12 @@ import java.util.Iterator;
 import java.util.List;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AchievementSummaryFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link AchievementSummaryFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class AchievementSummaryFragment extends Fragment implements RAAPICallback {
 
     private RecyclerView recyclerView = null;
     private RecyclerView.Adapter adapter = null;
+    public RecyclerView.LayoutManager layoutManager = null;
 
-    private OnFragmentInteractionListener mListener;
     private RAAPIConnection apiConnection = null;
     private String gameID = null;
     private ArrayList<String>
@@ -58,10 +47,6 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
 
     public AchievementSummaryFragment() {
         // Required empty public constructor
-    }
-
-    public static AchievementSummaryFragment newInstance() {
-        return new AchievementSummaryFragment();
     }
 
     @Override
@@ -85,7 +70,8 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
         // Set up RecyclerView
         recyclerView = rootView.findViewById(R.id.game_details_achievements_recycler_view);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        layoutManager = new AchievementLayoutManager(getActivity());
+        recyclerView.setLayoutManager(layoutManager);
 
         ids = new ArrayList<>();
         badges = new ArrayList<>();
@@ -140,23 +126,6 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
     public void onPause() {
         super.onPause();
         isActive = false;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
     }
 
     @Override
@@ -240,7 +209,6 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
     }
 
     private void prepareTransitions() {
-        setExitTransition(TransitionInflater.from(getContext()).inflateTransition(R.transition.achievement_list_exit_transition));
 //        setExitSharedElementCallback(new SharedElementCallback() {
 //            @Override
 //            public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
@@ -250,16 +218,6 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
 //                                .findViewById(R.id.achievement_summary_badge));
 //            }
 //        });
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     */
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
     }
 
 }

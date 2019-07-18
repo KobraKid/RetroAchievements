@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.transition.Slide;
+import android.transition.TransitionSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +21,7 @@ import android.widget.TextView;
 import com.kobrakid.retroachievements.GameDetailsActivity;
 import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.fragment.AchievementDetailsFragment;
+import com.kobrakid.retroachievements.fragment.AchievementSummaryFragment;
 import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
@@ -80,6 +84,8 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull AchievementViewHolder holder, int position) {
+
+        ((TextView) holder.linearLayout.findViewById(R.id.recycler_view_position)).setText("" + position);
 
         // Badge
         Picasso.get()
@@ -148,8 +154,32 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         public void onItemClicked(View view, int adapterPosition) {
             GameDetailsActivity.currentPosition = adapterPosition;
 
-//            ((TransitionSet) fragment.getExitTransition()).excludeTarget(view, true);
-
+            // Create a new transition
+            TransitionSet transitionSet = new TransitionSet();
+            transitionSet.setOrdering(TransitionSet.ORDERING_TOGETHER);
+            // Get the adapter position of the first child
+            int firstChildIndex = Integer.parseInt(
+                    ((TextView) ((AchievementSummaryFragment) fragment)
+                            .layoutManager
+                            .getChildAt(0)
+                            .findViewById(R.id.recycler_view_position))
+                            .getText()
+                            .toString());
+            // Custom logic to slide higher achievements up, lower ones down
+            for (int i = 0; i < adapter.getItemCount(); i++) {
+                Slide slide = new Slide();
+                slide.setDuration(fragment.getActivity().getResources().getInteger(R.integer.animation_duration));
+                slide.addTarget(((AchievementSummaryFragment) fragment).layoutManager.getChildAt(i));
+                if (i + firstChildIndex < adapterPosition) {
+                    slide.setSlideEdge(Gravity.TOP);
+                    transitionSet.addTransition(slide);
+                } else if (i + firstChildIndex > adapterPosition) {
+                    slide.setSlideEdge(Gravity.BOTTOM);
+                    transitionSet.addTransition(slide);
+                }
+            }
+            fragment.setExitTransition(transitionSet);
+            // Set up the target fragment
             ImageView transitionBadge = view.findViewById(R.id.achievement_summary_badge);
             Fragment detailsFragment = new AchievementDetailsFragment();
             Bundle bundle = new Bundle();

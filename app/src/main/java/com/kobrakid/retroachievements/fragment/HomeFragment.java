@@ -20,6 +20,10 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 
 /**
@@ -35,7 +39,7 @@ public class HomeFragment extends Fragment implements RAAPICallback {
     private OnFragmentInteractionListener mListener;
     private RAAPIConnection apiConnection;
     // Only call API when the view is first started, or when the user asks for a manual refresh
-    private boolean hasPopulatedGames = false;
+    private boolean hasPopulatedGames = false, hasPopulatedMasteries = false;
     private boolean isActive = false;
 
     public HomeFragment() {
@@ -65,6 +69,8 @@ public class HomeFragment extends Fragment implements RAAPICallback {
     @Override
     public void onStart() {
         super.onStart();
+
+        apiConnection.GetUserWebProfile(MainActivity.ra_user, HomeFragment.this);
 
         // Initialize user's home screen if they are logged in
         if (!hasPopulatedGames && MainActivity.ra_user != null) {
@@ -110,8 +116,28 @@ public class HomeFragment extends Fragment implements RAAPICallback {
     public void callback(int responseCode, String response) {
         if (!isActive)
             return;
+
+        JSONObject reader;
+
+        if (!hasPopulatedMasteries && responseCode == RAAPIConnection.RESPONSE_GET_USER_WEB_PROFILE) {
+            LinearLayout masteries = getActivity().findViewById(R.id.masteries);
+
+            Document document = Jsoup.parse(response);
+            Elements elements = document.select("div[class=trophyimage]");
+
+            for (Element element : elements) {
+                String gameID = element.selectFirst("a[href]").attr("href").substring(6);
+                String imageIcon = element.selectFirst("img[src]").attr("src");
+                ImageView imageView = new ImageView(getContext());
+                Picasso.get()
+                        .load("https://retroachievements.org" + imageIcon)
+                        .into(imageView);
+                masteries.addView(imageView);
+            }
+            masteries.setVisibility(View.VISIBLE);
+            hasPopulatedMasteries = true;
+        }
         if (responseCode == RAAPIConnection.RESPONSE_GET_USER_SUMMARY) {
-            JSONObject reader;
             try {
                 reader = new JSONObject(response);
 

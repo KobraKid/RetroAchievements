@@ -214,6 +214,9 @@ public class MainActivity extends AppCompatActivity
     public void callback(int responseCode, String response) {
         if (!isActive)
             return;
+        if (responseCode == RAAPIConnection.RESPONSE_ERROR) {
+            findViewById(R.id.nav_username).setVisibility(View.VISIBLE);
+        }
         // The user has logged in
         if (responseCode == RAAPIConnection.RESPONSE_GET_USER_RANK_AND_SCORE) {
             // Parse JSON and plug in information
@@ -228,6 +231,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             ((TextView) findViewById(R.id.nav_username)).setText(ra_user);
+            findViewById(R.id.nav_username).setVisibility(View.VISIBLE);
             findViewById(R.id.nav_stats).setVisibility(View.VISIBLE);
             Picasso.get()
                     .load("https://retroachievements.org/UserPic/" + ra_user + ".png")

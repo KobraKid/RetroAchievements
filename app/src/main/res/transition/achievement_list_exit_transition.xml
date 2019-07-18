@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="375"
+    android:interpolator="@android:interpolator/fast_out_slow_in"
+    android:startDelay="25">
+    <slide android:slideEdge="top">
+        <targets android:targetId="@id/game_details_achievements_recycler_view" />
+    </slide>
+</transitionSet>

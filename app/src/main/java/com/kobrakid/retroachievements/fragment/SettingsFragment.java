@@ -16,6 +16,11 @@ import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.RAAPICallback;
 import com.kobrakid.retroachievements.RAAPIConnection;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.util.Date;
 
 
@@ -115,6 +120,9 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
                         case "GetLeaderboardsList":
                             apiConnection.GetLeaderboardsList(callback);
                             break;
+                        case "GetUserWebProfile":
+                            apiConnection.GetUserWebProfile("KobraKid1337", callback);
+                            break;
                         default:
                             textView.setText("Uh oh:\n" + radioButtonName);
                             break;
@@ -157,6 +165,15 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     public void callback(int responseCode, String response) {
         if (!isActive)
             return;
+        if (responseCode == RAAPIConnection.RESPONSE_GET_USER_WEB_PROFILE) {
+            Document document = Jsoup.parse(response);
+            response = "";
+            // Using Elements to get the Meta data
+            Elements elements = document.select("div[class=trophyimage]");
+            for (Element element : elements) {
+                response += element.selectFirst("a[href]").attr("href") + "\n";
+            }
+        }
         ((TextView) getView().findViewById(R.id.settings_text_view)).setText(response);
     }
 

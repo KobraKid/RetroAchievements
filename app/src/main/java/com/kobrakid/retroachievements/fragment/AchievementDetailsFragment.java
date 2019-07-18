@@ -4,11 +4,16 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.kobrakid.retroachievements.R;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 
 /**
@@ -19,7 +24,7 @@ import com.kobrakid.retroachievements.R;
  * Use the {@link AchievementDetailsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AchievementDetailsFragment extends Fragment {
+public class AchievementDetailsFragment extends Fragment implements View.OnClickListener {
 
     private OnFragmentInteractionListener mListener;
 
@@ -40,7 +45,42 @@ public class AchievementDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_achievement_details, container, false);
+        final View view = inflater.inflate(R.layout.fragment_achievement_details, container, false);
+        view.setOnClickListener(this);
+        view.setTransitionName("achievement_" + getArguments().getString("Position"));
+
+        postponeEnterTransition();
+
+        final ImageView badge = view.findViewById(R.id.achievement_details_badge);
+        Picasso.get()
+                .load("http://retroachievements.org/Badge/" + getArguments().getString("ImageIcon") + ".png")
+                .into(badge, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        prepareSharedElementTransition(view);
+                        startPostponedEnterTransition();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        prepareSharedElementTransition(view);
+                        startPostponedEnterTransition();
+                    }
+                });
+
+        return view;
+    }
+
+    private void prepareSharedElementTransition(final View view) {
+        Transition transition = TransitionInflater.from(getContext()).inflateTransition(R.transition.image_shared_element_transition);
+        setSharedElementEnterTransition(transition);
+        // TODO Figure out why transitions (and/or recycler views) are so awful and hard to work with
+//        setEnterSharedElementCallback(new SharedElementCallback() {
+//            @Override
+//            public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+//                sharedElements.put(names.get(0), view);
+//            }
+//        });
     }
 
     @Override
@@ -58,6 +98,11 @@ public class AchievementDetailsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onClick(View view) {
+        this.getFragmentManager().popBackStack();
     }
 
     /**

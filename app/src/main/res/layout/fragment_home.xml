@@ -40,6 +40,21 @@
         tools:visibility="visible" />
 
     <LinearLayout
+        android:id="@+id/masteries"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/home_stats"
+        tools:visibility="visible"></LinearLayout>
+
+    <LinearLayout
         android:id="@+id/home_recent_games"
         android:layout_width="395dp"
         android:layout_height="405dp"
@@ -48,7 +63,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/home_stats">
+        app:layout_constraintTop_toBottomOf="@+id/masteries">
 
         <Button
             android:layout_width="match_parent"

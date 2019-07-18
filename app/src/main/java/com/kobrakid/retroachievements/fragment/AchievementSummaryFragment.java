@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,12 +37,12 @@ import java.util.List;
  */
 public class AchievementSummaryFragment extends Fragment implements RAAPICallback {
 
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
+    private RecyclerView recyclerView = null;
+    private RecyclerView.Adapter adapter = null;
 
     private OnFragmentInteractionListener mListener;
-    private RAAPIConnection apiConnection;
-    private String gameID;
+    private RAAPIConnection apiConnection = null;
+    private String gameID = null;
     private ArrayList<String>
             ids,
             badges,
@@ -53,6 +54,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
             numsAwarded,
             numsAwardedHC;
     private boolean isActive = false;
+    private String gameInfoAndUserProgressResponse = "";
 
     public AchievementSummaryFragment() {
         // Required empty public constructor
@@ -70,21 +72,18 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Set up API connection
+        if (apiConnection == null)
+            apiConnection = ((GameDetailsActivity) getActivity()).apiConnection;
 
-        apiConnection = ((GameDetailsActivity) getActivity()).apiConnection;
+        // Set up arguments
+        if (gameID == null && getArguments().containsKey("GameID"))
+            gameID = getArguments().getString("GameID");
 
-        gameID = getArguments().getString("GameID");
-
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_achievement_summary, container, false);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
+        View rootView = inflater.inflate(R.layout.fragment_achievement_summary, container, false);
 
         // Set up RecyclerView
-        recyclerView = getActivity().findViewById(R.id.game_details_achievements_recycler_view);
+        recyclerView = rootView.findViewById(R.id.game_details_achievements_recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
@@ -111,6 +110,18 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 numsAwardedHC,
                 "1");
         recyclerView.setAdapter(adapter);
+
+        // Set up animations
+        prepareTransitions();
+        postponeEnterTransition();
+
+        return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        startPostponedEnterTransition();
     }
 
     @Override
@@ -118,7 +129,11 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
         super.onResume();
         isActive = true;
 
-        apiConnection.GetGameInfoAndUserProgress(MainActivity.ra_user, gameID, AchievementSummaryFragment.this);
+        if (gameInfoAndUserProgressResponse.equals("")) {
+            apiConnection.GetGameInfoAndUserProgress(MainActivity.ra_user, gameID, AchievementSummaryFragment.this);
+        } else {
+            parseResponse();
+        }
     }
 
     @Override
@@ -149,73 +164,92 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
         if (!isActive)
             return;
         if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_INFO_AND_USER_PROGRESS) {
-            JSONObject reader;
-            try {
-                reader = new JSONObject(response);
-
-                ids.clear();
-                badges.clear();
-                titles.clear();
-                points.clear();
-                trueRatios.clear();
-                descriptions.clear();
-                datesEarned.clear();
-                numsAwarded.clear();
-                numsAwardedHC.clear();
-
-                ((AchievementAdapter) adapter).numDistinctCasual = reader.getString("NumDistinctPlayersCasual");
-
-                JSONObject achievements = reader.getJSONObject("Achievements");
-                JSONObject achievement;
-                int count;
-                List<Integer> displayOrder = new ArrayList<>();
-                List<Integer> displayOrderEarned = new ArrayList<>();
-                int totalAch = 0;
-                for (Iterator<String> keys = achievements.keys(); keys.hasNext(); ) {
-                    String achievementID = keys.next();
-                    achievement = achievements.getJSONObject(achievementID);
-
-                    // Set up ordering of achievements
-                    String dateEarned = "";
-                    if (achievement.has("DateEarnedHardcore")) {
-                        dateEarned = achievement.getString("DateEarnedHardcore");
-                        displayOrderEarned.add(Integer.parseInt(achievement.getString("DisplayOrder")));
-                        Collections.sort(displayOrderEarned);
-                        count = displayOrderEarned.indexOf(Integer.parseInt(achievement.getString("DisplayOrder")));
-                    } else if (achievement.has("DateEarned")) {
-                        dateEarned = achievement.getString("DateEarned");
-                        displayOrderEarned.add(Integer.parseInt(achievement.getString("DisplayOrder")));
-                        Collections.sort(displayOrderEarned);
-                        count = displayOrderEarned.indexOf(Integer.parseInt(achievement.getString("DisplayOrder")));
-                    } else {
-                        displayOrder.add(Integer.parseInt(achievement.getString("DisplayOrder")));
-                        Collections.sort(displayOrder);
-                        count = displayOrder.indexOf(Integer.parseInt(achievement.getString("DisplayOrder"))) + displayOrderEarned.size();
-                    }
-                    if (count == 0)
-                        count = totalAch;
-
-                    // Parse JSON for achievement info
-                    ids.add(count, achievementID);
-                    badges.add(count, achievement.getString("BadgeName"));
-                    titles.add(count, achievement.getString("Title"));
-                    points.add(count, achievement.getString("Points"));
-                    trueRatios.add(count, achievement.getString("TrueRatio"));
-                    descriptions.add(count, achievement.getString("Description"));
-                    if (dateEarned.equals("")) {
-                        dateEarned = "NoDate:" + count;
-                    }
-                    datesEarned.add(count, dateEarned);
-                    numsAwarded.add(count, achievement.getString("NumAwarded"));
-                    numsAwardedHC.add(count, achievement.getString("NumAwardedHardcore"));
-
-                    totalAch++;
-                }
-                adapter.notifyDataSetChanged();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            gameInfoAndUserProgressResponse = response;
+            parseResponse();
+            getActivity().findViewById(R.id.game_details_loading_bar).setVisibility(View.GONE);
         }
+    }
+
+    private void parseResponse() {
+        JSONObject reader;
+        try {
+            reader = new JSONObject(gameInfoAndUserProgressResponse);
+
+            ids.clear();
+            badges.clear();
+            titles.clear();
+            points.clear();
+            trueRatios.clear();
+            descriptions.clear();
+            datesEarned.clear();
+            numsAwarded.clear();
+            numsAwardedHC.clear();
+
+            ((AchievementAdapter) adapter).numDistinctCasual = reader.getString("NumDistinctPlayersCasual");
+
+            JSONObject achievements = reader.getJSONObject("Achievements");
+            JSONObject achievement;
+            int count;
+            List<Integer> displayOrder = new ArrayList<>();
+            List<Integer> displayOrderEarned = new ArrayList<>();
+            int totalAch = 0;
+            for (Iterator<String> keys = achievements.keys(); keys.hasNext(); ) {
+                String achievementID = keys.next();
+                achievement = achievements.getJSONObject(achievementID);
+
+                // Set up ordering of achievements
+                String dateEarned = "";
+                if (achievement.has("DateEarnedHardcore")) {
+                    dateEarned = achievement.getString("DateEarnedHardcore");
+                    displayOrderEarned.add(Integer.parseInt(achievement.getString("DisplayOrder")));
+                    Collections.sort(displayOrderEarned);
+                    count = displayOrderEarned.indexOf(Integer.parseInt(achievement.getString("DisplayOrder")));
+                } else if (achievement.has("DateEarned")) {
+                    dateEarned = achievement.getString("DateEarned");
+                    displayOrderEarned.add(Integer.parseInt(achievement.getString("DisplayOrder")));
+                    Collections.sort(displayOrderEarned);
+                    count = displayOrderEarned.indexOf(Integer.parseInt(achievement.getString("DisplayOrder")));
+                } else {
+                    displayOrder.add(Integer.parseInt(achievement.getString("DisplayOrder")));
+                    Collections.sort(displayOrder);
+                    count = displayOrder.indexOf(Integer.parseInt(achievement.getString("DisplayOrder"))) + displayOrderEarned.size();
+                }
+                if (count == 0)
+                    count = totalAch;
+
+                // Parse JSON for achievement info
+                ids.add(count, achievementID);
+                badges.add(count, achievement.getString("BadgeName"));
+                titles.add(count, achievement.getString("Title"));
+                points.add(count, achievement.getString("Points"));
+                trueRatios.add(count, achievement.getString("TrueRatio"));
+                descriptions.add(count, achievement.getString("Description"));
+                if (dateEarned.equals("")) {
+                    dateEarned = "NoDate:" + count;
+                }
+                datesEarned.add(count, dateEarned);
+                numsAwarded.add(count, achievement.getString("NumAwarded"));
+                numsAwardedHC.add(count, achievement.getString("NumAwardedHardcore"));
+
+                totalAch++;
+            }
+            adapter.notifyDataSetChanged();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void prepareTransitions() {
+        setExitTransition(TransitionInflater.from(getContext()).inflateTransition(R.transition.achievement_list_exit_transition));
+//        setExitSharedElementCallback(new SharedElementCallback() {
+//            @Override
+//            public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+//                sharedElements.put(names.get(0),
+//                        recyclerView.findViewHolderForAdapterPosition(GameDetailsActivity.currentPosition)
+//                                .itemView
+//                                .findViewById(R.id.achievement_summary_badge));
+//            }
+//        });
     }
 
     /**
@@ -227,4 +261,5 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
     }
+
 }

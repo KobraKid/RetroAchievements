@@ -3,10 +3,10 @@ package com.kobrakid.retroachievements.adapter;
 import android.content.Context;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +15,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.kobrakid.retroachievements.GameDetailsActivity;
 import com.kobrakid.retroachievements.R;
+import com.kobrakid.retroachievements.fragment.AchievementDetailsFragment;
 import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
@@ -78,10 +80,14 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull AchievementViewHolder holder, int position) {
+
         // Badge
         Picasso.get()
                 .load("https://retroachievements.org/Badge/" + badges.get(position) + ".png")
                 .into((ImageView) holder.linearLayout.findViewById(R.id.achievement_summary_badge));
+        holder.linearLayout.findViewById(R.id.achievement_summary_badge).setTransitionName("achievement_" + position);
+        ((TextView) holder.linearLayout.findViewById(R.id.achievement_summary_badge_id))
+                .setText(badges.get(position));
 
         // Text descriptions
         ((TextView) holder.linearLayout.findViewById(R.id.achievement_summary_id))
@@ -134,16 +140,34 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
 
         AchievementViewHolderListenerImpl(Fragment fragment) {
             this.fragment = fragment;
-            Log.i("Impl", "set");
         }
 
         @Override
         public void onItemClicked(View view, int adapterPosition) {
-            Log.i("AchievementClick", "pos: " + adapterPosition);
+            GameDetailsActivity.currentPosition = adapterPosition;
+
+//            ((TransitionSet) fragment.getExitTransition()).excludeTarget(view, true);
+
+            ImageView transitionBadge = view.findViewById(R.id.achievement_summary_badge);
+            Fragment detailsFragment = new AchievementDetailsFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("Position", "" + adapterPosition);
+            bundle.putString("GameID", ((TextView) view.findViewById(R.id.achievement_summary_id)).getText().toString());
+            bundle.putString("ImageIcon", ((TextView) view.findViewById(R.id.achievement_summary_badge_id)).getText().toString());
+            detailsFragment.setArguments(bundle);
+            fragment
+                    .getActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .addSharedElement(transitionBadge, transitionBadge.getTransitionName())
+                    .replace(R.id.game_details_frame, detailsFragment, AchievementDetailsFragment.class.getSimpleName())
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 
-    class AchievementViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class AchievementViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         final LinearLayout linearLayout;
         private final AchievementViewHolderListener viewHolderListener;
@@ -151,13 +175,12 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         AchievementViewHolder(LinearLayout linearLayout, AchievementViewHolderListener viewHolderListener) {
             super(linearLayout);
             this.linearLayout = linearLayout;
-            Log.i("ViewListener", "set");
             this.viewHolderListener = viewHolderListener;
+            linearLayout.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            Log.i("AchievementClick", "clicked");
             viewHolderListener.onItemClicked(view, getAdapterPosition());
         }
     }

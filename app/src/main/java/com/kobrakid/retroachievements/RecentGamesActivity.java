@@ -38,9 +38,9 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
     private int offset;
     private final int gamesPerAPICall = 15;
     // Easy way to prevent spam API calls
-    boolean hasParsed = false;
+    private boolean hasParsed = false;
 
-    RAAPIConnection apiConnection;
+    private RAAPIConnection apiConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

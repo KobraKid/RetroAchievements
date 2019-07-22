@@ -18,6 +18,7 @@
         android:orientation="horizontal">
 
         <ImageView
+            android:contentDescription="@string/cd_game_summary_image_icon"
             android:id="@+id/game_summary_image_icon"
             android:layout_width="0dp"
             android:layout_height="64dp"

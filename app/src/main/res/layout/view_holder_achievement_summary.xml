@@ -44,6 +44,7 @@
         android:visibility="gone" />
 
     <ImageView
+        android:contentDescription="@string/cd_achievement_summary_badge"
         android:id="@+id/achievement_summary_badge"
         android:layout_width="0dp"
         android:layout_height="64dp"

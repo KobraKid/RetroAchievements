@@ -29,22 +29,22 @@ import java.util.ArrayList;
 
 public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.AchievementViewHolder> {
 
-    private Context context;
+    private final Context context;
 
     public String numDistinctCasual;
-    private ArrayList<String>
-            ids,
-            badges,
-            titles,
-            points,
-            trueRatios,
-            descriptions,
-            datesEarned,
-            numsAwarded,
-            numsAwardedHC,
-            authors,
-            datesCreated,
-            datesModified;
+    private final ArrayList<String>
+            ids;
+    private final ArrayList<String> badges;
+    private final ArrayList<String> titles;
+    private final ArrayList<String> points;
+    private final ArrayList<String> trueRatios;
+    private final ArrayList<String> descriptions;
+    private final ArrayList<String> datesEarned;
+    private final ArrayList<String> numsAwarded;
+    private final ArrayList<String> numsAwardedHC;
+    private final ArrayList<String> authors;
+    private final ArrayList<String> datesCreated;
+    private final ArrayList<String> datesModified;
 
     private final AchievementViewHolderListener viewHolderListener;
 
@@ -155,8 +155,8 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
 
     private static class AchievementViewHolderListenerImpl implements AchievementViewHolderListener {
 
-        private Fragment fragment;
-        private AchievementAdapter adapter;
+        private final Fragment fragment;
+        private final AchievementAdapter adapter;
 
         AchievementViewHolderListenerImpl(Fragment fragment, AchievementAdapter adapter) {
             this.fragment = fragment;

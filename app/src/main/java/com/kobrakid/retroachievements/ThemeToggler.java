@@ -3,9 +3,9 @@ package com.kobrakid.retroachievements;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class ThemeToggler {
+class ThemeToggler {
 
-    public static int getTheme(Context context, SharedPreferences sharedPreferences) {
+    static int getTheme(Context context, SharedPreferences sharedPreferences) {
         String theme = sharedPreferences.getString(context.getResources().getString(R.string.theme_setting), "Blank");
         switch (theme) {
             case "TwentySixteen":

@@ -26,6 +26,7 @@
         android:paddingBottom="8dp">
 
         <ImageView
+            android:contentDescription="@string/cd_achievement_details_badge"
             android:id="@+id/achievement_details_badge"
             android:layout_width="128dp"
             android:layout_height="wrap_content"

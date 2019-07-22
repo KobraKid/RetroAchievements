@@ -3,7 +3,6 @@ package com.kobrakid.retroachievements;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -28,12 +27,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MainActivity extends AppCompatActivity
-        implements HomeFragment.OnFragmentInteractionListener,
-        LeaderboardsFragment.OnFragmentInteractionListener,
-        ListsFragment.OnFragmentInteractionListener,
-        SettingsFragment.OnFragmentInteractionListener,
-        RAAPICallback {
+public class MainActivity extends AppCompatActivity implements RAAPICallback {
 
     private DrawerLayout myDrawer;
 
@@ -52,7 +46,7 @@ public class MainActivity extends AppCompatActivity
     private boolean isActive = false;
 
     public RAAPIConnection apiConnection = null;
-    public SharedPreferences sharedPref = null;
+    private SharedPreferences sharedPref = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +100,7 @@ public class MainActivity extends AppCompatActivity
         getSupportFragmentManager().beginTransaction().replace(R.id.flContent, new HomeFragment()).commit();
     }
 
-    public void selectDrawerItem(MenuItem item) {
+    private void selectDrawerItem(MenuItem item) {
         Fragment fragment = null;
         Class fragmentClass;
 
@@ -163,18 +157,25 @@ public class MainActivity extends AppCompatActivity
     public void changeTheme(View view) {
         // TODO Make a more elegant theme switcher
         String currTheme = sharedPref.getString(getString(R.string.theme_setting), "");
-        if (currTheme.equals("Blank")) {
-            sharedPref.edit().putString(getString(R.string.theme_setting), "TwentySixteen").apply();
-        } else if (currTheme.equals("TwentySixteen")) {
-            sharedPref.edit().putString(getString(R.string.theme_setting), "Green").apply();
-        } else if (currTheme.equals("Green")) {
-            sharedPref.edit().putString(getString(R.string.theme_setting), "Pony").apply();
-        } else if (currTheme.equals("Pony")) {
-            sharedPref.edit().putString(getString(R.string.theme_setting), "Red").apply();
-        } else if (currTheme.equals("Red")) {
-            sharedPref.edit().putString(getString(R.string.theme_setting), "Spooky").apply();
-        } else {
-            sharedPref.edit().putString(getString(R.string.theme_setting), "Blank").apply();
+        switch (currTheme) {
+            case "Blank":
+                sharedPref.edit().putString(getString(R.string.theme_setting), "TwentySixteen").apply();
+                break;
+            case "TwentySixteen":
+                sharedPref.edit().putString(getString(R.string.theme_setting), "Green").apply();
+                break;
+            case "Green":
+                sharedPref.edit().putString(getString(R.string.theme_setting), "Pony").apply();
+                break;
+            case "Pony":
+                sharedPref.edit().putString(getString(R.string.theme_setting), "Red").apply();
+                break;
+            case "Red":
+                sharedPref.edit().putString(getString(R.string.theme_setting), "Spooky").apply();
+                break;
+            default:
+                sharedPref.edit().putString(getString(R.string.theme_setting), "Blank").apply();
+                break;
         }
         recreate();
     }
@@ -240,15 +241,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                myDrawer.openDrawer(GravityCompat.START);
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            myDrawer.openDrawer(GravityCompat.START);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

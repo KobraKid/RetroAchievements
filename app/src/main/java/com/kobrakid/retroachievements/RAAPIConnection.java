@@ -1,6 +1,5 @@
 package com.kobrakid.retroachievements;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 
@@ -14,15 +13,15 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@SuppressWarnings("WeakerAccess")
 public class RAAPIConnection {
 
     private static final String BASE_URL = "https://retroachievements.org/API/";
 
-    private String ra_user;
-    private String ra_api_key;
+    private final String ra_user;
+    private final String ra_api_key;
     private final Context context;
 
     // Constants
@@ -599,13 +598,11 @@ public class RAAPIConnection {
         if (user == null)
             callback.callback(RESPONSE_ERROR, "No user");
         else {
-            @SuppressLint("SimpleDateFormat")
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             GetRAURL(
                     "API_GetAchievementsEarnedBetween.php",
                     "&u=" + user
-                            + "&f=" + Long.toString(dateStart.getTime() / 1000)
-                            + "&t=" + Long.toString(dateEnd.getTime() / 1000),
+                            + "&f=" + (dateStart.getTime() / 1000)
+                            + "&t=" + (dateEnd.getTime() / 1000),
                     RESPONSE_GET_ACHIEVEMENTS_EARNED_BETWEEN,
                     callback
             );
@@ -637,7 +634,7 @@ public class RAAPIConnection {
             new GetWeb(user, callback).execute();
     }
 
-    private class GetWeb extends AsyncTask<Void, Void, Document> {
+    private static class GetWeb extends AsyncTask<Void, Void, Document> {
 
         final RAAPICallback callback;
         final String user;

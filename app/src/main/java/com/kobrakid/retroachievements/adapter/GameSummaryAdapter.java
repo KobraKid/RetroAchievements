@@ -16,13 +16,16 @@ import java.util.ArrayList;
 
 public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.GameSummaryViewHolder> {
 
-    private ArrayList<String> imageIcons, titles, stats, ids;
+    private final ArrayList<String> imageIcons;
+    private final ArrayList<String> titles;
+    private final ArrayList<String> stats;
+    private final ArrayList<String> ids;
 
     public static class GameSummaryViewHolder extends RecyclerView.ViewHolder {
 
-        public LinearLayout linearLayout;
+        final LinearLayout linearLayout;
 
-        public GameSummaryViewHolder(LinearLayout l) {
+        GameSummaryViewHolder(LinearLayout l) {
             super(l);
             linearLayout = l;
         }
@@ -44,8 +47,7 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
                 .inflate(R.layout.view_holder_game_summary,
                         parent,
                         false);
-        GameSummaryViewHolder viewHolder = new GameSummaryViewHolder(linearLayout);
-        return viewHolder;
+        return new GameSummaryViewHolder(linearLayout);
     }
 
     @Override

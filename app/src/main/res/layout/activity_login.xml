@@ -27,6 +27,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
+        android:autofillHints="username"
         android:ellipsize="end"
         android:hint="@string/login_username"
         android:imeOptions="actionSend"
@@ -37,7 +38,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline" />
+        app:layout_constraintTop_toTopOf="@+id/guideline"
+        tools:targetApi="o" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"

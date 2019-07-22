@@ -16,7 +16,7 @@
         android:layout_marginBottom="8dp"
         android:adjustViewBounds="true"
         android:background="@android:color/transparent"
-        android:contentDescription="@string/profile_picture"
+        android:contentDescription="@string/cd_profile_picture"
         android:onClick="showLogin"
         android:src="@drawable/favicon" />
 

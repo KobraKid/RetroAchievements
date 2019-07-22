@@ -32,6 +32,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.2"
                     android:adjustViewBounds="true"
+                    android:contentDescription="@string/cd_game_details_image_icon"
                     android:cropToPadding="false"
                     android:src="@drawable/favicon" />
 

@@ -41,7 +41,10 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
             descriptions,
             datesEarned,
             numsAwarded,
-            numsAwardedHC;
+            numsAwardedHC,
+            authors,
+            datesCreated,
+            datesModified;
     private boolean isActive = false;
     private String gameInfoAndUserProgressResponse = "";
 
@@ -82,6 +85,9 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
         datesEarned = new ArrayList<>();
         numsAwarded = new ArrayList<>();
         numsAwardedHC = new ArrayList<>();
+        authors = new ArrayList<>();
+        datesCreated = new ArrayList<>();
+        datesModified = new ArrayList<>();
 
         adapter = new AchievementAdapter(
                 this,
@@ -94,6 +100,9 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 datesEarned,
                 numsAwarded,
                 numsAwardedHC,
+                authors,
+                datesCreated,
+                datesModified,
                 "1");
         recyclerView.setAdapter(adapter);
 
@@ -153,6 +162,9 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
             datesEarned.clear();
             numsAwarded.clear();
             numsAwardedHC.clear();
+            authors.clear();
+            datesCreated.clear();
+            datesModified.clear();
 
             ((AchievementAdapter) adapter).numDistinctCasual = reader.getString("NumDistinctPlayersCasual");
 
@@ -199,6 +211,9 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 datesEarned.add(count, dateEarned);
                 numsAwarded.add(count, achievement.getString("NumAwarded"));
                 numsAwardedHC.add(count, achievement.getString("NumAwardedHardcore"));
+                authors.add(count, achievement.getString("Author"));
+                datesCreated.add(count, achievement.getString("DateCreated"));
+                datesModified.add(count, achievement.getString("DateModified"));
 
                 totalAch++;
             }

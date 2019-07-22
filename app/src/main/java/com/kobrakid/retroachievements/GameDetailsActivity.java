@@ -156,7 +156,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
         switch (id) {
             case android.R.id.home:
                 handled = true;
-                onBackPressed();
+                finish();
                 break;
             case R.id.action_forum:
                 handled = true;

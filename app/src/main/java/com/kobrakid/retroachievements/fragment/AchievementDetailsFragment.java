@@ -44,8 +44,7 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
             ColorMatrix matrix = new ColorMatrix();
             matrix.setSaturation(0);
             ((ImageView) view.findViewById(R.id.achievement_details_badge)).setColorFilter(new ColorMatrixColorFilter(matrix));
-            ((TextView) view.findViewById(R.id.achievement_details_date))
-                    .setText(getContext().getString(R.string.date_earned, getArguments().getString("DateEarned")));
+//            view.findViewById(R.id.achievement_details_date).setVisibility(View.GONE);
         } else {
             ((ImageView) view.findViewById(R.id.achievement_details_badge)).clearColorFilter();
             ((TextView) view.findViewById(R.id.achievement_details_date))
@@ -60,11 +59,15 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
                                 .format(Double.parseDouble(getArguments().getString("NumAwarded")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 100.0)));
         ((TextView) view.findViewById(R.id.achievement_details_completion_hardcore_text))
                 .setText(getContext().getString(
-                        R.string.earned_by_details,
+                        R.string.earned_by_hc_details,
                         getArguments().getString("NumAwardedHardcore"),
-                        getArguments().getString("NumDistinctPlayersCasual"),
                         new DecimalFormat("@@@@")
                                 .format(Double.parseDouble(getArguments().getString("NumAwardedHardcore")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 100.0)));
+        ((TextView) view.findViewById(R.id.achievement_details_metadata))
+                .setText(getString(R.string.metadata,
+                        getArguments().getString("Author"),
+                        getArguments().getString("DateCreated"),
+                        getArguments().getString("DateModified")));
         ProgressBar progressBar = view.findViewById(R.id.achievement_details_completion_hardcore);
         progressBar.setProgress((int) (Double.parseDouble(getArguments().getString("NumAwardedHardcore")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 10000.0));
         progressBar = view.findViewById(R.id.achievement_details_completion);

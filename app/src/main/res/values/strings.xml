@@ -28,13 +28,16 @@
     <string name="user_summary"><![CDATA[You have earned <b>%1$d</b> of <b>%2$d</b> achievements,
     <br/>and a further <b>%3$d</b> HARDCORE achievements,
     <br/>worth <b>%4$d</b> <font color="0xFFFFFF">(%5$d)</font> points of <b>%6$d</b> <font color="0xFFFFFF">(%7$d)</font> possible points.]]></string>
-    <string name="won_by">won by %1$s (%2$s) of %3$s (%4$s%%)</string>
-    <string name="date_earned">earned on %1$s</string>
     <string name="forum" tools:ignore="TypographyEllipsis">Open Forum Page...</string>
     <string name="webpage" tools:ignore="TypographyEllipsis">View on RetroAchievements...</string>
 
     <!-- Achievement Details -->
+    <string name="won_by">won by %1$s (%2$s) of %3$s (%4$s%%)</string>
+    <string name="date_earned">earned on %1$s</string>
     <string name="earned_by_details">Earned by %1$s of %2$s players (%3$s%%)</string>
+    <string name="earned_by_hc_details">Earned by %1$s HARDCORE players (%2$s%%)</string>
+    <string name="not_yet_earned">You have not yet earned this achievement</string>
+    <string name="metadata">Created by %1$s on %2$s\nLast modified %3$s</string>
 
     <!-- Login -->
     <string name="login">Login</string>

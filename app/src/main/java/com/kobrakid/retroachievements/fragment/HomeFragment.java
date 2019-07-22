@@ -77,7 +77,7 @@ public class HomeFragment extends Fragment implements RAAPICallback {
             Picasso.get()
                     .load("https://retroachievements.org/UserPic/" + MainActivity.ra_user + ".png")
                     .into((ImageView) getView().findViewById(R.id.home_profile_picture));
-            apiConnection.GetUserSummary(MainActivity.ra_user, 5, HomeFragment.this);
+            apiConnection.GetUserSummary(MainActivity.ra_user, 3, HomeFragment.this);
             // TODO allow manual repopulation
             hasPopulatedGames = true;
         }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,14 +26,19 @@ import java.util.ArrayList;
  * This class will display a more comprehensive list of recent games, rather than the
  * quick 5-game summary present on the home screen.
  */
-public class RecentGamesActivity extends AppCompatActivity implements RAAPICallback {
+public class RecentGamesActivity extends AppCompatActivity implements RAAPICallback, SwipeRefreshLayout.OnRefreshListener {
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private ArrayList<String> imageIcons, titles, stats, ids;
 
     private boolean isActive = false;
+    private int offset;
+    private final int gamesPerAPICall = 15;
+    // Easy way to prevent spam API calls
+    boolean hasParsed = false;
 
     RAAPIConnection apiConnection;
 
@@ -69,12 +75,29 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
 
         adapter = new GameSummaryAdapter(imageIcons, titles, stats, ids);
         recyclerView.setAdapter(adapter);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (!recyclerView.canScrollVertically(1) && hasParsed) {
+                    hasParsed = false;
+                    offset += gamesPerAPICall;
+                    apiConnection.GetUserRecentlyPlayedGames(MainActivity.ra_user, gamesPerAPICall, offset, RecentGamesActivity.this);
+                }
+            }
+        });
+
+        // Set up refresh action
+        swipeRefreshLayout = findViewById(R.id.recent_games_refresh);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        offset = 0;
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        apiConnection.GetUserRecentlyPlayedGames(MainActivity.ra_user, 15, 0, this);
+        hasParsed = false;
+        apiConnection.GetUserRecentlyPlayedGames(MainActivity.ra_user, gamesPerAPICall, offset, this);
     }
 
     @Override
@@ -98,29 +121,33 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
             try {
                 reader = new JSONArray(response);
 
-                ids.clear();
-                imageIcons.clear();
-                titles.clear();
-                stats.clear();
+                if (offset == 0) {
+                    ids.clear();
+                    imageIcons.clear();
+                    titles.clear();
+                    stats.clear();
+                }
 
                 for (int i = 0; i < reader.length(); i++) {
                     JSONObject game = reader.getJSONObject(i);
-                    imageIcons.add(i, game.getString("ImageIcon"));
-                    titles.add(i, game.getString("Title"));
+                    imageIcons.add(i + offset, game.getString("ImageIcon"));
+                    titles.add(i + offset, game.getString("Title"));
 
-                    stats.add(i, getString(R.string.game_stats,
+                    stats.add(i + offset, getString(R.string.game_stats,
                             game.getString("NumAchieved"),
                             game.getString("NumPossibleAchievements"),
                             game.getString("ScoreAchieved"),
                             game.getString("PossibleScore")));
 
-                    ids.add(i, game.getString("GameID"));
+                    ids.add(i + offset, game.getString("GameID"));
                 }
+                swipeRefreshLayout.setRefreshing(false);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
             adapter.notifyDataSetChanged();
+            hasParsed = true;
         }
     }
 
@@ -148,5 +175,12 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
         super.onBackPressed();
         finish();
         overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out);
+    }
+
+    @Override
+    public void onRefresh() {
+        hasParsed = false;
+        offset = 0;
+        apiConnection.GetUserRecentlyPlayedGames(MainActivity.ra_user, gamesPerAPICall, offset, this);
     }
 }

@@ -41,7 +41,10 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
             descriptions,
             datesEarned,
             numsAwarded,
-            numsAwardedHC;
+            numsAwardedHC,
+            authors,
+            datesCreated,
+            datesModified;
 
     private final AchievementViewHolderListener viewHolderListener;
 
@@ -55,6 +58,9 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
                               ArrayList<String> datesEarned,
                               ArrayList<String> numsAwarded,
                               ArrayList<String> numsAwardedHC,
+                              ArrayList<String> authors,
+                              ArrayList<String> datesCreated,
+                              ArrayList<String> datesModified,
                               String numDistinctCasual) {
         this.context = fragment.getContext();
         this.ids = ids;
@@ -66,6 +72,9 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         this.datesEarned = datesEarned;
         this.numsAwarded = numsAwarded;
         this.numsAwardedHC = numsAwardedHC;
+        this.authors = authors;
+        this.datesCreated = datesCreated;
+        this.datesModified = datesModified;
         this.numDistinctCasual = numDistinctCasual;
         this.viewHolderListener = new AchievementViewHolderListenerImpl(fragment, this);
 
@@ -85,7 +94,11 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
     @Override
     public void onBindViewHolder(@NonNull AchievementViewHolder holder, int position) {
 
+        // Hidden Text Views
         ((TextView) holder.linearLayout.findViewById(R.id.recycler_view_position)).setText("" + position);
+        ((TextView) holder.linearLayout.findViewById(R.id.achievement_summary_author)).setText(authors.get(position));
+        ((TextView) holder.linearLayout.findViewById(R.id.achievement_summary_created)).setText(datesCreated.get(position));
+        ((TextView) holder.linearLayout.findViewById(R.id.achievement_summary_modified)).setText(datesModified.get(position));
 
         // Badge
         Picasso.get()
@@ -193,6 +206,9 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
             bundle.putString("DateEarned", adapter.datesEarned.get(adapterPosition));
             bundle.putString("NumAwarded", adapter.numsAwarded.get(adapterPosition));
             bundle.putString("NumAwardedHardcore", adapter.numsAwardedHC.get(adapterPosition));
+            bundle.putString("Author", adapter.authors.get(adapterPosition));
+            bundle.putString("DateCreated", adapter.datesCreated.get(adapterPosition));
+            bundle.putString("DateModified", adapter.datesModified.get(adapterPosition));
             bundle.putString("NumDistinctPlayersCasual", adapter.numDistinctCasual);
             detailsFragment.setArguments(bundle);
             fragment

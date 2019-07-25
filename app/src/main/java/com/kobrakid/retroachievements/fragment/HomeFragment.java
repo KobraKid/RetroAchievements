@@ -1,5 +1,6 @@
 package com.kobrakid.retroachievements.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.kobrakid.retroachievements.GameDetailsActivity;
 import com.kobrakid.retroachievements.MainActivity;
 import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.RAAPICallback;
@@ -24,7 +26,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class HomeFragment extends Fragment implements RAAPICallback {
+public class HomeFragment extends Fragment implements RAAPICallback, View.OnClickListener {
 
     private RAAPIConnection apiConnection;
     // Only call API when the view is first started, or when the user asks for a manual refresh
@@ -101,6 +103,14 @@ public class HomeFragment extends Fragment implements RAAPICallback {
                         .load("https://retroachievements.org" + imageIcon)
                         .into(imageView);
                 masteries.addView(imageView);
+                try {
+                    imageView.setId(Integer.parseInt(gameID));
+                } catch (NumberFormatException e) {
+                    // TODO set up logging system
+                    // Crash happens when parsing achievements for connecting account to FB
+                    e.printStackTrace();
+                }
+                imageView.setOnClickListener(this);
             }
             masteries.setVisibility(View.VISIBLE);
             hasPopulatedMasteries = true;
@@ -160,4 +170,13 @@ public class HomeFragment extends Fragment implements RAAPICallback {
         }
     }
 
+    @Override
+    public void onClick(View view) {
+        Intent intent = new Intent(this.getActivity(), GameDetailsActivity.class);
+        Bundle extras = new Bundle();
+        extras.putString("GameID",
+                "" + view.getId());
+        intent.putExtras(extras);
+        startActivity(intent);
+    }
 }

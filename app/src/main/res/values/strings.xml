@@ -6,7 +6,7 @@
     <!-- Navigation Drawer -->
     <string name="nav_rank_score">Score: %1$s | Rank: %2$s</string>
     <string name="nav_home">Home</string>
-    <string name="nav_lists">Lists</string>
+    <string name="nav_lists">Game Lists</string>
     <string name="nav_leaderboards">Leaderboards</string>
     <string name="nav_settings">Settings</string>
 
@@ -56,5 +56,6 @@
     <string name="cd_profile_picture">Profile Picture</string>
     <string name="cd_game_summary_image_icon">Game summary image icon</string>
     <string name="cd_achievement_summary_badge">Achievement summary badge</string>
+    <string name="cd_console_icon">Console icon</string>
 
 </resources>

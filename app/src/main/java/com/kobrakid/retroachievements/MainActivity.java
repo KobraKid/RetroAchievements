@@ -48,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback {
     public RAAPIConnection apiConnection = null;
     private SharedPreferences sharedPref = null;
 
+    private Fragment fragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback {
     }
 
     private void selectDrawerItem(MenuItem item) {
-        Fragment fragment = null;
+        fragment = null;
         Class fragmentClass;
 
         // Determine selected Navigation Drawer item
@@ -247,5 +249,13 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (fragment instanceof ListsFragment && ((ListsFragment) fragment).adapter.isExpanded)
+            ((ListsFragment) fragment).onBackPressed();
+        else
+            super.onBackPressed();
     }
 }

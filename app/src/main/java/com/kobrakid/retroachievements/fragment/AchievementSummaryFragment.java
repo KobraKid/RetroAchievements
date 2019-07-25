@@ -71,7 +71,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
 
         View rootView = inflater.inflate(R.layout.fragment_achievement_summary, container, false);
 
-        // Set up RecyclerView
+        // Set up Achievements RecyclerView
         recyclerView = rootView.findViewById(R.id.game_details_achievements_recycler_view);
         recyclerView.setHasFixedSize(true);
         layoutManager = new AchievementLayoutManager(getActivity());

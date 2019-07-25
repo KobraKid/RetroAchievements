@@ -146,7 +146,10 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
                 e.printStackTrace();
             }
 
-            adapter.notifyDataSetChanged();
+            if (offset == 0)
+                adapter.notifyDataSetChanged();
+            else
+                adapter.notifyItemRangeInserted(offset, gamesPerAPICall);
             hasParsed = true;
         }
     }

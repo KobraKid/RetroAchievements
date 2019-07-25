@@ -19,6 +19,10 @@ android {
     }
 }
 
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'
@@ -33,4 +37,5 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'org.jsoup:jsoup:1.11.2'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }

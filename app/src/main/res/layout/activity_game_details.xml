@@ -73,6 +73,7 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/game_details_achievements_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="8dp"
@@ -81,6 +82,7 @@
                 android:textSize="30sp" />
 
             <LinearLayout
+                android:id="@+id/game_details_achievements_stats"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -124,18 +126,48 @@
 
             </LinearLayout>
 
+            <ImageButton
+                android:id="@+id/game_details_toggle_achievements"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorError"
+                android:src="@drawable/ic_arrow_drop_up" />
+
             <ProgressBar
                 android:id="@+id/game_details_loading_bar"
                 style="?android:attr/progressBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:background="@android:color/transparent" />
+                android:background="@android:color/transparent"
+                tools:visibility="gone" />
 
             <FrameLayout
                 android:id="@+id/game_details_frame"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:elevation="-10dp"
+                tools:visibility="gone" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="@string/achievement_distribution"
+                    android:textSize="30sp" />
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/game_details_achievement_distribution"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

@@ -27,6 +27,7 @@
     <string name="user_summary"><![CDATA[You have earned <b>%1$d</b> of <b>%2$d</b> achievements,
     <br/>and a further <b>%3$d</b> HARDCORE achievements,
     <br/>worth <b>%4$d</b> <font color="0xFFFFFF">(%5$d)</font> points of <b>%6$d</b> <font color="0xFFFFFF">(%7$d)</font> possible points.]]></string>
+    <string name="achievement_distribution">Achievement Distribution</string>
     <string name="forum" tools:ignore="TypographyEllipsis">Open Forum Page...</string>
     <string name="webpage" tools:ignore="TypographyEllipsis">View on RetroAchievements...</string>
 

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -25,7 +26,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 if (i == EditorInfo.IME_ACTION_SEND) {
-                    login();
+                    login(textView);
                     return true;
                 }
                 return false;
@@ -33,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void login() {
+    void login(View view) {
         String ra_user = ((EditText) findViewById(R.id.login_field)).getText().toString();
         // Successfully logged in, save the new credentials and return
         this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), ra_user).apply();

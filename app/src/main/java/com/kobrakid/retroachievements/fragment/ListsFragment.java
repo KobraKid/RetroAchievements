@@ -2,6 +2,7 @@ package com.kobrakid.retroachievements.fragment;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,7 @@ import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.RAAPICallback;
 import com.kobrakid.retroachievements.RAAPIConnection;
 import com.kobrakid.retroachievements.adapter.ConsoleAdapter;
+import com.kobrakid.retroachievements.adapter.GameSummaryAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,11 +32,11 @@ public class ListsFragment extends Fragment implements RAAPICallback {
 
     private RAAPIConnection apiConnection;
 
-    public RecyclerView consoleListRecyclerView;
-    private RecyclerView gameListRecyclerView;
-    private LinearLayoutManager layoutManager;
-    public ConsoleAdapter adapter;
-    private ArrayList<String> consoleIDs, consoleNames;
+    public RecyclerView consoleListRecyclerView, gameListRecyclerView;
+    private LinearLayoutManager consoleListLayoutManager, gameListLayoutManager;
+    public ConsoleAdapter consoleAdapter;
+    public GameSummaryAdapter gameAdapter;
+    private ArrayList<String> consoleIDs, consoleNames, gameImageIcons, gameTitles, gameStats, gameIDs;
     public int scrollPosition = 0;
 
     public ListsFragment() {
@@ -61,13 +63,20 @@ public class ListsFragment extends Fragment implements RAAPICallback {
         // Set up console list
         consoleIDs = new ArrayList<>();
         consoleNames = new ArrayList<>();
-        adapter = new ConsoleAdapter(consoleIDs, consoleNames, gameListRecyclerView, this);
-        consoleListRecyclerView.setAdapter(adapter);
-        layoutManager = new LinearLayoutManager(getContext());
-        consoleListRecyclerView.setLayoutManager(layoutManager);
+        consoleAdapter = new ConsoleAdapter(consoleIDs, consoleNames, gameListRecyclerView, this);
+        consoleListRecyclerView.setAdapter(consoleAdapter);
+        consoleListLayoutManager = new LinearLayoutManager(getContext());
+        consoleListRecyclerView.setLayoutManager(consoleListLayoutManager);
 
-        // Wait to set up game list until console is chosen
+        // Set up games list with empty values
         gameListRecyclerView = view.findViewById(R.id.list_games);
+        gameImageIcons = new ArrayList<>();
+        gameTitles = new ArrayList<>();
+        gameStats = new ArrayList<>();
+        gameIDs = new ArrayList<>();
+        gameAdapter = new GameSummaryAdapter(gameImageIcons, gameTitles, gameStats, gameIDs);
+        gameListRecyclerView.setAdapter(gameAdapter);
+        gameListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // TODO figure out what titles should be/change to
         getActivity().setTitle("Consoles");
@@ -75,14 +84,33 @@ public class ListsFragment extends Fragment implements RAAPICallback {
         return view;
     }
 
+    public void onConsoleSelected(int position, String console) {
+        // Hide Console List RecyclerView
+        consoleAdapter.isExpanded = !consoleAdapter.isExpanded;
+        Point p = new Point();
+        getActivity().getWindowManager().getDefaultDisplay().getSize(p);
+        consoleListRecyclerView.animate().setDuration(375).translationX(-p.x).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                consoleListRecyclerView.setVisibility(View.GONE);
+            }
+        });
+        scrollPosition = position;
+
+        // Set up Game List RecyclerView
+        apiConnection.GetGameList(console, this);
+        gameListRecyclerView.setVisibility(View.VISIBLE);
+    }
+
     public void onBackPressed() {
-        adapter.isExpanded = false;
+        consoleAdapter.isExpanded = false;
         consoleListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
                 super.onAnimationStart(animation);
                 consoleListRecyclerView.setVisibility(View.VISIBLE);
-                layoutManager.scrollToPositionWithOffset(scrollPosition, 0);
+                consoleListLayoutManager.scrollToPositionWithOffset(scrollPosition, 0);
             }
         });
     }
@@ -104,11 +132,12 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     public void callback(int responseCode, String response) {
         if (!isActive)
             return;
+        JSONArray reader;
         if (responseCode == RAAPIConnection.RESPONSE_GET_CONSOLE_IDS) {
             consoleIDs.clear();
             consoleNames.clear();
             try {
-                JSONArray reader = new JSONArray(response);
+                reader = new JSONArray(response);
                 for (int i = 0; i < reader.length(); i++) {
                     JSONObject console = reader.getJSONObject(i);
                     consoleNames.add(console.getString("Name"));
@@ -118,7 +147,24 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            adapter.notifyDataSetChanged();
+            consoleAdapter.notifyDataSetChanged();
+        } else if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_LIST) {
+            gameImageIcons.clear();
+            gameTitles.clear();
+            gameStats.clear();
+            gameIDs.clear();
+            try {
+                reader = new JSONArray(response);
+                for (int i = 0; i < reader.length(); i++) {
+                    JSONObject game = reader.getJSONObject(i);
+                    gameTitles.add(game.getString("Title"));
+                    gameIDs.add(game.getString("ID"));
+                    gameImageIcons.add(game.getString("ImageIcon"));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            gameAdapter.notifyDataSetChanged();
         }
     }
 }

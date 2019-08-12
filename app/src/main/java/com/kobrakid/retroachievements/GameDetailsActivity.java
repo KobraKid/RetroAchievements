@@ -141,32 +141,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
             try {
                 reader = new JSONObject(response);
 
-                setTitle(reader.getString("Title") + " (" + reader.getString("ConsoleName") + ")");
-
-                JSONObject achievements = reader.getJSONObject("Achievements");
-                JSONObject achievement;
-                int numEarned = 0, numEarnedHC = 0, totalAch = 0, earnedPts = 0, totalPts = 0, earnedRatio = 0, totalRatio = 0;
-                ArrayList earnedTotals = new ArrayList<Integer>();
-                for (Iterator<String> keys = achievements.keys(); keys.hasNext(); ) {
-                    String achievementID = keys.next();
-                    achievement = achievements.getJSONObject(achievementID);
-
-                    if (achievement.has("DateEarnedHardcore")) {
-                        numEarned++;
-                        numEarnedHC++;
-                        earnedPts += 2 * Integer.parseInt(achievement.getString("Points"));
-                        earnedRatio += Integer.parseInt(achievement.getString("TrueRatio"));
-                    } else if (achievement.has("DateEarned")) {
-                        numEarned++;
-                        earnedPts += Integer.parseInt(achievement.getString("Points"));
-                        earnedRatio += Integer.parseInt(achievement.getString("TrueRatio"));
-                    }
-                    totalAch++;
-                    totalPts += Integer.parseInt(achievement.getString("Points"));
-                    totalRatio += Integer.parseInt(achievement.getString("TrueRatio"));
-                    earnedTotals.add(Integer.parseInt(achievement.getString("NumAwarded")));
-                }
-
+                setTitle(reader.getString("Title").trim() + " (" + reader.getString("ConsoleName") + ")");
                 Picasso.get()
                         .load("https://retroachievements.org" + reader.getString("ImageIcon"))
                         .into((ImageView) findViewById(R.id.game_details_image_icon));
@@ -175,26 +150,54 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
                 ((TextView) findViewById(R.id.game_details_genre)).setText(getString(R.string.genre, reader.getString("Genre")));
                 ((TextView) findViewById(R.id.game_details_release_date)).setText(getString(R.string.released, reader.getString("Released")));
 
-                ((TextView) findViewById(R.id.game_details_progress_text))
-                        .setText(getString(
-                                R.string.completion,
-                                new DecimalFormat("@@@@")
-                                        .format(((float) (numEarned + numEarnedHC) / (float) totalAch) * 100.0)));
-                ((ProgressBar) findViewById(R.id.game_details_progress)).setProgress((int) (((float) numEarned) / ((float) totalAch) * 10000.0));
-                ((TextView) findViewById(R.id.game_details_user_summary))
-                        .setText(Html.fromHtml(getString(
-                                R.string.user_summary,
-                                numEarned,
-                                totalAch,
-                                numEarnedHC,
-                                earnedPts,
-                                earnedRatio,
-                                totalPts,
-                                totalRatio)));
+                if (reader.getString("NumAchievements").equals("0")) {
+                    findViewById(R.id.game_details_no_achievements).setVisibility(View.VISIBLE);
+                } else {
+                    JSONObject achievements = reader.getJSONObject("Achievements");
+                    JSONObject achievement;
+                    int numEarned = 0, numEarnedHC = 0, totalAch = 0, earnedPts = 0, totalPts = 0, earnedRatio = 0, totalRatio = 0;
+                    ArrayList earnedTotals = new ArrayList<Integer>();
+                    for (Iterator<String> keys = achievements.keys(); keys.hasNext(); ) {
+                        String achievementID = keys.next();
+                        achievement = achievements.getJSONObject(achievementID);
 
-                setupAchievementDistributionChart(earnedTotals);
+                        if (achievement.has("DateEarnedHardcore")) {
+                            numEarned++;
+                            numEarnedHC++;
+                            earnedPts += 2 * Integer.parseInt(achievement.getString("Points"));
+                            earnedRatio += Integer.parseInt(achievement.getString("TrueRatio"));
+                        } else if (achievement.has("DateEarned")) {
+                            numEarned++;
+                            earnedPts += Integer.parseInt(achievement.getString("Points"));
+                            earnedRatio += Integer.parseInt(achievement.getString("TrueRatio"));
+                        }
+                        totalAch++;
+                        totalPts += Integer.parseInt(achievement.getString("Points"));
+                        totalRatio += Integer.parseInt(achievement.getString("TrueRatio"));
+                        earnedTotals.add(Integer.parseInt(achievement.getString("NumAwarded")));
+                    }
 
-                forumTopicID = reader.getString("ForumTopicID");
+                    ((TextView) findViewById(R.id.game_details_progress_text))
+                            .setText(getString(
+                                    R.string.completion,
+                                    new DecimalFormat("@@@@")
+                                            .format(((float) (numEarned + numEarnedHC) / (float) totalAch) * 100.0)));
+                    ((ProgressBar) findViewById(R.id.game_details_progress)).setProgress((int) (((float) numEarned) / ((float) totalAch) * 10000.0));
+                    ((TextView) findViewById(R.id.game_details_user_summary))
+                            .setText(Html.fromHtml(getString(
+                                    R.string.user_summary,
+                                    numEarned,
+                                    totalAch,
+                                    numEarnedHC,
+                                    earnedPts,
+                                    earnedRatio,
+                                    totalPts,
+                                    totalRatio)));
+
+                    setupAchievementDistributionChart(earnedTotals);
+
+                    forumTopicID = reader.getString("ForumTopicID");
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }

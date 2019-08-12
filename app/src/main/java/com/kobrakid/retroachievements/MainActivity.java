@@ -253,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback {
 
     @Override
     public void onBackPressed() {
-        if (fragment instanceof ListsFragment && ((ListsFragment) fragment).adapter.isExpanded)
+        if (fragment instanceof ListsFragment && ((ListsFragment) fragment).consoleAdapter.isExpanded)
             ((ListsFragment) fragment).onBackPressed();
         else
             super.onBackPressed();

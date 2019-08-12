@@ -73,6 +73,18 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/game_details_no_achievements"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/no_achievements"
+                android:textColor="?attr/colorAccent"
+                android:textSize="16sp"
+                android:visibility="gone" />
+
+            <TextView
                 android:id="@+id/game_details_achievements_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

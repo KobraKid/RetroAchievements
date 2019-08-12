@@ -1,12 +1,8 @@
 package com.kobrakid.retroachievements.adapter;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,22 +75,8 @@ public class ConsoleAdapter extends RecyclerView.Adapter {
 
         @Override
         public void onItemClicked(View view, int adapterPosition) {
-            // Hide this RecyclerView
-            adapter.isExpanded = !adapter.isExpanded;
-            Point p = new Point();
-            fragment.getActivity().getWindowManager().getDefaultDisplay().getSize(p);
-            ((ListsFragment) fragment).consoleListRecyclerView.animate().setDuration(375).translationX(-p.x).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    ((ListsFragment) fragment).consoleListRecyclerView.setVisibility(View.GONE);
-                }
-            });
-            ((ListsFragment) fragment).scrollPosition = adapterPosition;
 
-            // TODO Set up next RecyclerView
-            adapter.gameList.setLayoutManager(new LinearLayoutManager(fragment.getContext()));
-            // adapter.gameList.setAdapter();
+            ((ListsFragment) fragment).onConsoleSelected(adapterPosition, adapter.consoleIDs.get(adapterPosition));
         }
     }
 
@@ -113,4 +95,5 @@ public class ConsoleAdapter extends RecyclerView.Adapter {
             viewHolderListener.onItemClicked(view, getAdapterPosition());
         }
     }
+
 }

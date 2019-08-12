@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -60,9 +61,13 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
                 .load("https://retroachievements.org" + imageIcons.get(position))
                 .into(((ImageView) holder.linearLayout.findViewById(R.id.game_summary_image_icon)));
         ((TextView) holder.linearLayout.findViewById(R.id.game_summary_title))
-                .setText(titles.get(position));
-        ((TextView) holder.linearLayout.findViewById(R.id.game_summary_stats))
-                .setText(stats.get(position));
+                .setText(titles.get(position).trim());
+        if (stats.size() == 0) {
+            holder.linearLayout.findViewById(R.id.game_summary_stats).setVisibility(View.GONE);
+        } else {
+            ((TextView) holder.linearLayout.findViewById(R.id.game_summary_stats))
+                    .setText(stats.get(position));
+        }
         ((TextView) holder.linearLayout.findViewById(R.id.game_summary_game_id))
                 .setText(ids.get(position));
     }

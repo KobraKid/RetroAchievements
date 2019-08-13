@@ -14,6 +14,9 @@
     <string name="game_stats">%1$s of %2$s\n(%3$s/%4$s)</string>
     <string name="view_more">View More</string>
 
+    <!-- List Fragment -->
+    <string name="no_games">No Games</string>
+
     <!-- Recent Games Activity -->
     <string name="recent_games_title">Recent Games</string>
 

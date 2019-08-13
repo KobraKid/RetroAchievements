@@ -245,7 +245,11 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            myDrawer.openDrawer(GravityCompat.START);
+            if (fragment instanceof ListsFragment && ((ListsFragment) fragment).isShowingGames) {
+                ((ListsFragment) fragment).onBackPressed();
+            } else {
+                myDrawer.openDrawer(GravityCompat.START);
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);

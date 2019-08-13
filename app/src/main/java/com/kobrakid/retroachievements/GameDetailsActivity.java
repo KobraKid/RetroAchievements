@@ -42,6 +42,7 @@ import java.util.List;
 /**
  * This class will display detailed information about a single game.
  */
+// TODO Fix null publisher/developer/etc on certain games (e.g. Commodore 64 - Prince of Persia)
 public class GameDetailsActivity extends AppCompatActivity implements RAAPICallback {
 
     private String gameID;

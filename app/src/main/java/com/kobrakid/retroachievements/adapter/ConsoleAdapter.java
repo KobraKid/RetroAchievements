@@ -19,14 +19,12 @@ public class ConsoleAdapter extends RecyclerView.Adapter {
 
     private ArrayList<String> consoleIDs, consoleNames;
     private final ConsoleViewHolderListenerImpl viewHolderListener;
-    private final RecyclerView gameList;
     public boolean isExpanded = false;
 
-    public ConsoleAdapter(ArrayList<String> consoleIDs, ArrayList<String> consoleNames, RecyclerView gameList, Fragment fragment) {
+    public ConsoleAdapter(ArrayList<String> consoleIDs, ArrayList<String> consoleNames, Fragment fragment) {
         this.consoleIDs = consoleIDs;
         this.consoleNames = consoleNames;
         this.viewHolderListener = new ConsoleViewHolderListenerImpl(fragment, this);
-        this.gameList = gameList;
     }
 
     @NonNull
@@ -76,7 +74,7 @@ public class ConsoleAdapter extends RecyclerView.Adapter {
         @Override
         public void onItemClicked(View view, int adapterPosition) {
 
-            ((ListsFragment) fragment).onConsoleSelected(adapterPosition, adapter.consoleIDs.get(adapterPosition));
+            ((ListsFragment) fragment).onConsoleSelected(adapterPosition, adapter.consoleIDs.get(adapterPosition), adapter.consoleNames.get(adapterPosition));
         }
     }
 

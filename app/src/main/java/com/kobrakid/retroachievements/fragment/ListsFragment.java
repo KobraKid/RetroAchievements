@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     public GameSummaryAdapter gameAdapter;
     private ArrayList<String> consoleIDs, consoleNames, gameImageIcons, gameTitles, gameStats, gameIDs;
     public int scrollPosition = 0;
+    public boolean isShowingGames = false;
 
     public ListsFragment() {
         // Required empty public constructor
@@ -63,7 +65,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
         // Set up console list
         consoleIDs = new ArrayList<>();
         consoleNames = new ArrayList<>();
-        consoleAdapter = new ConsoleAdapter(consoleIDs, consoleNames, gameListRecyclerView, this);
+        consoleAdapter = new ConsoleAdapter(consoleIDs, consoleNames, this);
         consoleListRecyclerView.setAdapter(consoleAdapter);
         consoleListLayoutManager = new LinearLayoutManager(getContext());
         consoleListRecyclerView.setLayoutManager(consoleListLayoutManager);
@@ -76,15 +78,27 @@ public class ListsFragment extends Fragment implements RAAPICallback {
         gameIDs = new ArrayList<>();
         gameAdapter = new GameSummaryAdapter(gameImageIcons, gameTitles, gameStats, gameIDs);
         gameListRecyclerView.setAdapter(gameAdapter);
-        gameListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        gameListLayoutManager = new LinearLayoutManager(getContext());
+        gameListRecyclerView.setLayoutManager(gameListLayoutManager);
 
-        // TODO figure out what titles should be/change to
+        Point p = new Point();
+        getActivity().getWindowManager().getDefaultDisplay().getSize(p);
+        gameListRecyclerView.animate().setDuration(375).translationX(p.x).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationEnd(animation);
+                gameListRecyclerView.setVisibility(View.VISIBLE);
+            }
+        });
+
         getActivity().setTitle("Consoles");
 
         return view;
     }
 
-    public void onConsoleSelected(int position, String console) {
+    public void onConsoleSelected(int position, String console, String consoleName) {
+        getActivity().setTitle(consoleName);
+
         // Hide Console List RecyclerView
         consoleAdapter.isExpanded = !consoleAdapter.isExpanded;
         Point p = new Point();
@@ -100,10 +114,42 @@ public class ListsFragment extends Fragment implements RAAPICallback {
 
         // Set up Game List RecyclerView
         apiConnection.GetGameList(console, this);
-        gameListRecyclerView.setVisibility(View.VISIBLE);
+        gameImageIcons.clear();
+        gameTitles.clear();
+        gameStats.clear();
+        gameIDs.clear();
+        gameAdapter.notifyDataSetChanged();
+
+        TypedValue typedValue = new TypedValue();
+        if (getActivity().getTheme().resolveAttribute(R.drawable.ic_arrow_back, typedValue, true)) {
+            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(typedValue.resourceId);
+        } else {
+            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
+        }
+
+        isShowingGames = true;
     }
 
     public void onBackPressed() {
+        getActivity().setTitle("Consoles");
+
+        TypedValue typedValue = new TypedValue();
+        if (getActivity().getTheme().resolveAttribute(R.drawable.ic_menu, typedValue, true)) {
+            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(typedValue.resourceId);
+        } else {
+            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
+        }
+
+        Point p = new Point();
+        getActivity().getWindowManager().getDefaultDisplay().getSize(p);
+        gameListRecyclerView.animate().setDuration(375).translationX(p.x).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+//                gameListRecyclerView.setVisibility(View.GONE);
+            }
+        });
+
         consoleAdapter.isExpanded = false;
         consoleListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
             @Override
@@ -113,6 +159,8 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                 consoleListLayoutManager.scrollToPositionWithOffset(scrollPosition, 0);
             }
         });
+
+        isShowingGames = false;
     }
 
     @Override
@@ -149,22 +197,34 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             }
             consoleAdapter.notifyDataSetChanged();
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_LIST) {
-            gameImageIcons.clear();
-            gameTitles.clear();
-            gameStats.clear();
-            gameIDs.clear();
             try {
                 reader = new JSONArray(response);
-                for (int i = 0; i < reader.length(); i++) {
-                    JSONObject game = reader.getJSONObject(i);
-                    gameTitles.add(game.getString("Title"));
-                    gameIDs.add(game.getString("ID"));
-                    gameImageIcons.add(game.getString("ImageIcon"));
+
+                if (reader.length() > 0) {
+                    getActivity().findViewById(R.id.list_no_games).setVisibility(View.GONE);
+                    for (int i = 0; i < reader.length(); i++) {
+                        JSONObject game = reader.getJSONObject(i);
+                        gameTitles.add(game.getString("Title"));
+                        gameIDs.add(game.getString("ID"));
+                        gameImageIcons.add(game.getString("ImageIcon"));
+                    }
+                } else {
+                    getActivity().findViewById(R.id.list_no_games).setVisibility(View.VISIBLE);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             gameAdapter.notifyDataSetChanged();
+
+            // Show Game List RecyclerView
+            gameListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    gameListRecyclerView.setVisibility(View.VISIBLE);
+                }
+            });
         }
     }
+
 }

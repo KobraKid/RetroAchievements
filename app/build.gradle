@@ -38,4 +38,5 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'org.jsoup:jsoup:1.11.2'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    api 'com.google.guava:guava:28.0-android'
 }

@@ -17,6 +17,10 @@
     <!-- List Fragment -->
     <string name="no_games">No Games</string>
 
+    <!-- Leaderboards Fragment -->
+    <string name="top_users">Top Users</string>
+    <string name="leaderboards_games">Leaderboard List</string>
+
     <!-- Recent Games Activity -->
     <string name="recent_games_title">Recent Games</string>
 

@@ -102,8 +102,8 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
                         case "GetAchievementsEarnedBetween":
                             apiConnection.GetAchievementsEarnedBetween("KobraKid1337", new Date(118, 4, 15), new Date(118, 4, 20), callback);
                             break;
-                        case "GetLeaderboardsList":
-                            apiConnection.GetLeaderboardsList(callback);
+                        case "GetLeaderboards":
+                            apiConnection.GetLeaderboards(true, callback);
                             break;
                         case "GetUserWebProfile":
                             apiConnection.GetUserWebProfile("KobraKid1337", callback);

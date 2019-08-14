@@ -2,6 +2,7 @@ package com.kobrakid.retroachievements;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -12,6 +13,9 @@ import com.android.volley.toolbox.Volley;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
@@ -42,6 +46,8 @@ public class RAAPIConnection {
     public static final int RESPONSE_GET_ACHIEVEMENTS_EARNED_BETWEEN = 12;
     public static final int RESPONSE_GET_LEADERBOARDS = 13;
     public static final int RESPONSE_GET_USER_WEB_PROFILE = 14;
+
+    private static final String leaderboardsFile = "leaderboards";
 
     RAAPIConnection(String ra_user, String ra_api_key, Context context) {
         this.ra_user = ra_user;
@@ -609,22 +615,9 @@ public class RAAPIConnection {
         }
     }
 
-    public void GetLeaderboardsList(final RAAPICallback callback) {
-        final String url = "https://retroachievements.org/leaderboardList.php";
-        RequestQueue queue = Volley.newRequestQueue(context);
-        StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                callback.callback(RESPONSE_GET_LEADERBOARDS, response);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                callback.callback(RESPONSE_ERROR, "Error!");
-            }
-        });
-
-        queue.add(stringRequest);
+    public void GetLeaderboards(boolean useCache, final RAAPICallback callback) {
+        GetFile getFile = new GetFile();
+        getFile.execute(useCache, callback, context);
     }
 
     public void GetUserWebProfile(String user, final RAAPICallback callback) {
@@ -659,6 +652,70 @@ public class RAAPIConnection {
         @Override
         protected void onPostExecute(Document result) {
             callback.callback(RESPONSE_GET_USER_WEB_PROFILE, result.outerHtml());
+        }
+    }
+
+    private static class GetFile extends AsyncTask<Object, String, String> {
+
+        RAAPICallback callback;
+
+        @Override
+        protected String doInBackground(Object... params) {
+            Boolean useCache = (Boolean) params[0];
+            final RAAPICallback callback = (RAAPICallback) params[1];
+            this.callback = callback;
+            final Context context = (Context) params[2];
+
+            String response = "";
+            if (useCache) {
+                // Try to fetch cached file
+                try {
+                    File f = new File(context.getFilesDir().getPath() + "/" + leaderboardsFile);
+                    FileInputStream is = new FileInputStream(f);
+                    int size = is.available();
+                    byte[] buffer = new byte[size];
+                    if (is.read(buffer) == -1)
+                        Log.i("TAG", "Retrieved cached data");
+                    is.close();
+                    response = new String(buffer);
+                } catch (IOException e) {
+                    Log.e("TAG", "Error in Reading: " + e.getLocalizedMessage());
+                }
+            }
+            if (response.length() == 0) {
+                final String url = "https://retroachievements.org/leaderboardList.php";
+                RequestQueue queue = Volley.newRequestQueue(context);
+                StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Cache result
+                        try {
+                            FileWriter writer = new FileWriter(context.getFilesDir().getPath() + "/" + leaderboardsFile);
+                            writer.write(response);
+                            writer.flush();
+                            writer.close();
+                            Log.i("TAG", "Wrote cached data");
+                        } catch (IOException e) {
+                            Log.e("TAG", "Error in Writing: " + e.getLocalizedMessage());
+                        }
+                        callback.callback(RESPONSE_GET_LEADERBOARDS, response);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        callback.callback(RESPONSE_ERROR, "Error!");
+                    }
+                });
+
+                queue.add(stringRequest);
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            super.onPostExecute(response);
+            callback.callback(RESPONSE_GET_LEADERBOARDS, response);
         }
     }
 

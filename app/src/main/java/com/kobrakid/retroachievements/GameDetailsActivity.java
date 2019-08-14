@@ -42,7 +42,6 @@ import java.util.List;
 /**
  * This class will display detailed information about a single game.
  */
-// TODO Fix null publisher/developer/etc on certain games (e.g. Commodore 64 - Prince of Persia)
 public class GameDetailsActivity extends AppCompatActivity implements RAAPICallback {
 
     private String gameID;
@@ -146,10 +145,18 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
                 Picasso.get()
                         .load("https://retroachievements.org" + reader.getString("ImageIcon"))
                         .into((ImageView) findViewById(R.id.game_details_image_icon));
-                ((TextView) findViewById(R.id.game_details_developer)).setText(getString(R.string.developed, reader.getString("Developer")));
-                ((TextView) findViewById(R.id.game_details_publisher)).setText(getString(R.string.published, reader.getString("Publisher")));
-                ((TextView) findViewById(R.id.game_details_genre)).setText(getString(R.string.genre, reader.getString("Genre")));
-                ((TextView) findViewById(R.id.game_details_release_date)).setText(getString(R.string.released, reader.getString("Released")));
+                String developer = reader.getString("Developer");
+                developer = developer.equals("null") ? "????" : developer;
+                String publisher = reader.getString("Publisher");
+                publisher = publisher.equals("null") ? "????" : publisher;
+                String genre = reader.getString("Genre");
+                genre = genre.equals("null") ? "????" : genre;
+                String released = reader.getString("Released");
+                released = released.equals("null") ? "????" : released;
+                ((TextView) findViewById(R.id.game_details_developer)).setText(getString(R.string.developed, developer));
+                ((TextView) findViewById(R.id.game_details_publisher)).setText(getString(R.string.published, publisher));
+                ((TextView) findViewById(R.id.game_details_genre)).setText(getString(R.string.genre, genre));
+                ((TextView) findViewById(R.id.game_details_release_date)).setText(getString(R.string.released, released));
 
                 if (reader.getString("NumAchievements").equals("0")) {
                     findViewById(R.id.game_details_no_achievements).setVisibility(View.VISIBLE);

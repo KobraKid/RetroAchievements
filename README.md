@@ -8,6 +8,8 @@ A mobile application version of the RetroAchievements.org website, which adds ac
 
 ## License
 
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
 ## Acknowledgements
 
 * Retroachievements.org for their excellent platform and super-useful API

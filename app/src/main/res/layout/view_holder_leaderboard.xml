@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -9,37 +8,43 @@
         android:id="@+id/id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="8dp"
         android:visibility="gone"
-        tools:text="ID" />
+        tools:text="0" />
 
     <ImageView
         android:id="@+id/game"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_weight="1"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="8dp"
         android:adjustViewBounds="true"
-        app:srcCompat="@drawable/favicon" />
+        android:src="@drawable/favicon" />
 
     <TextView
         android:id="@+id/console"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="8dp"
         android:layout_weight="1"
         tools:text="CONSOLE" />
 
     <TextView
         android:id="@+id/title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="8dp"
+        android:layout_weight="2.8"
         tools:text="TITLE" />
 
     <TextView
         android:id="@+id/description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="8dp"
         android:visibility="gone"
         tools:text="DESCRIPTION" />
 
@@ -47,13 +52,17 @@
         android:id="@+id/type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="8dp"
+        android:visibility="gone"
         tools:text="TYPE" />
 
     <TextView
         android:id="@+id/numresults"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        tools:text="NUMRESULTS" />
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        tools:text="64" />
 </LinearLayout>

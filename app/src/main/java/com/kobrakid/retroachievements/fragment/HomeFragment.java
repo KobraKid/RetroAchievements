@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.GameDetailsActivity;
 import com.kobrakid.retroachievements.MainActivity;
 import com.kobrakid.retroachievements.R;
@@ -62,7 +63,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
         // Initialize user's home screen if they are logged in
         if (!hasPopulatedGames && MainActivity.ra_user != null) {
             Picasso.get()
-                    .load("https://retroachievements.org/UserPic/" + MainActivity.ra_user + ".png")
+                    .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + MainActivity.ra_user + ".png")
                     .into((ImageView) getView().findViewById(R.id.home_profile_picture));
             apiConnection.GetUserSummary(MainActivity.ra_user, 3, HomeFragment.this);
             // TODO allow manual repopulation
@@ -100,7 +101,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                 String imageIcon = element.selectFirst("img[src]").attr("src");
                 ImageView imageView = new ImageView(getContext());
                 Picasso.get()
-                        .load("https://retroachievements.org" + imageIcon)
+                        .load(Consts.BASE_URL + imageIcon)
                         .into(imageView);
                 masteries.addView(imageView);
                 try {
@@ -136,7 +137,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                     // Image
                     String imageIcon = gameObj.getString("ImageIcon");
                     Picasso.get()
-                            .load("https://retroachievements.org" + imageIcon)
+                            .load(Consts.BASE_URL + imageIcon)
                             .into((ImageView) game.findViewById(R.id.game_summary_image_icon));
 
                     // Title

@@ -22,7 +22,7 @@ import java.util.Date;
 @SuppressWarnings("WeakerAccess")
 public class RAAPIConnection {
 
-    private static final String BASE_URL = "https://retroachievements.org/API/";
+    private static final String BASE_URL = Consts.BASE_URL + "/" + Consts.API_URL + "/";
 
     private final String ra_user;
     private final String ra_api_key;
@@ -639,7 +639,7 @@ public class RAAPIConnection {
 
         @Override
         protected Document doInBackground(Void... voids) {
-            String url = "https://retroachievements.org/user/" + user;
+            String url = Consts.BASE_URL + "/" + Consts.USER_POSTFIX + "/" + user;
             Document document = null;
             try {
                 document = Jsoup.connect(url).get();
@@ -683,7 +683,7 @@ public class RAAPIConnection {
                 }
             }
             if (response.length() == 0) {
-                final String url = "https://retroachievements.org/leaderboardList.php";
+                final String url = Consts.BASE_URL + "/" + Consts.LEADERBOARD_POSTFIX;
                 RequestQueue queue = Volley.newRequestQueue(context);
                 StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
                     @Override

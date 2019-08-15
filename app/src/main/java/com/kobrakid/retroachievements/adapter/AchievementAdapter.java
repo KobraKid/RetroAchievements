@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.GameDetailsActivity;
 import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.fragment.AchievementDetailsFragment;
@@ -102,7 +103,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
 
         // Badge
         Picasso.get()
-                .load("https://retroachievements.org/Badge/" + badges.get(position) + ".png")
+                .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + badges.get(position) + ".png")
                 .into((ImageView) holder.linearLayout.findViewById(R.id.achievement_summary_badge));
         holder.linearLayout.findViewById(R.id.achievement_summary_badge).setTransitionName("achievement_" + position);
         ((TextView) holder.linearLayout.findViewById(R.id.achievement_summary_badge_id))

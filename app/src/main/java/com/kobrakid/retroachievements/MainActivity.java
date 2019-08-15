@@ -1,5 +1,7 @@
 package com.kobrakid.retroachievements;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -182,6 +185,40 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback {
         recreate();
     }
 
+    public void toggleUsers(View topTenUsersToggle) {
+        final View topTenUsers = findViewById(R.id.leaderboards_users);
+        topTenUsers.setZ(-1);
+        if (topTenUsers.getVisibility() == View.GONE) {
+            ((ImageButton) topTenUsersToggle).setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_down));
+            topTenUsers
+                    .animate()
+                    .alpha(1.0f)
+                    .translationYBy(topTenUsers.getHeight())
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            topTenUsers.setVisibility(View.VISIBLE);
+                        }
+                    });
+        } else {
+            ((ImageButton) topTenUsersToggle).setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_up));
+            topTenUsers
+                    .animate()
+                    .alpha(0.0f)
+                    .translationYBy(-topTenUsers.getHeight())
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            topTenUsers.setVisibility(View.GONE);
+                        }
+                    });
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (resultCode) {
@@ -237,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback {
             findViewById(R.id.nav_username).setVisibility(View.VISIBLE);
             findViewById(R.id.nav_stats).setVisibility(View.VISIBLE);
             Picasso.get()
-                    .load("https://retroachievements.org/UserPic/" + ra_user + ".png")
+                    .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + ra_user + ".png")
                     .into((ImageView) findViewById(R.id.nav_profile_picture));
         }
     }

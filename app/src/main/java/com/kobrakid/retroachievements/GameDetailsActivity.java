@@ -78,7 +78,6 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
         summaryFragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction().add(R.id.game_details_frame, summaryFragment).commit();
 
-
         // Set up Achievements toggle
         final ImageButton achievementHeaderGroup = findViewById(R.id.game_details_toggle_achievements);
         achievementHeaderGroup.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +85,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
             public void onClick(View view) {
                 final View gameDetailsFrame = findViewById(R.id.game_details_frame);
                 if (gameDetailsFrame.getVisibility() == View.GONE) {
-                    achievementHeaderGroup.setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_up));
+                    achievementHeaderGroup.setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_down));
                     gameDetailsFrame
                             .animate()
                             .alpha(1.0f)
@@ -100,7 +99,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
                                 }
                             });
                 } else {
-                    achievementHeaderGroup.setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_down));
+                    achievementHeaderGroup.setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_up));
                     gameDetailsFrame
                             .animate()
                             .alpha(0.0f)
@@ -143,7 +142,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
 
                 setTitle(reader.getString("Title").trim() + " (" + reader.getString("ConsoleName") + ")");
                 Picasso.get()
-                        .load("https://retroachievements.org" + reader.getString("ImageIcon"))
+                        .load(Consts.BASE_URL + reader.getString("ImageIcon"))
                         .into((ImageView) findViewById(R.id.game_details_image_icon));
                 String developer = reader.getString("Developer");
                 developer = developer.equals("null") ? "????" : developer;
@@ -229,14 +228,14 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
                 break;
             case R.id.action_forum:
                 handled = true;
-                String forumUrl = "https://retroachievements.org/viewtopic.php?t=" + forumTopicID;
+                String forumUrl = Consts.BASE_URL + "/" + Consts.FORUM_POSTFIX + forumTopicID;
                 Intent forumIntent = new Intent(Intent.ACTION_VIEW);
                 forumIntent.setData(Uri.parse(forumUrl));
                 startActivity(forumIntent);
                 break;
             case R.id.action_webpage:
                 handled = true;
-                String raUrl = "https://retroachievements.org/game/" + gameID;
+                String raUrl = Consts.BASE_URL + "/" + Consts.GAME_POSTFIX + "/" + gameID;
                 Intent raIntent = new Intent(Intent.ACTION_VIEW);
                 raIntent.setData(Uri.parse(raUrl));
                 startActivity(raIntent);

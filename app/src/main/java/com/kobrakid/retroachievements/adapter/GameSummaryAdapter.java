@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.R;
 import com.squareup.picasso.Picasso;
 
@@ -58,7 +59,7 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
             return;
         }
         Picasso.get()
-                .load("https://retroachievements.org" + imageIcons.get(position))
+                .load(Consts.BASE_URL + imageIcons.get(position))
                 .into(((ImageView) holder.linearLayout.findViewById(R.id.game_summary_image_icon)));
         ((TextView) holder.linearLayout.findViewById(R.id.game_summary_title))
                 .setText(titles.get(position).trim());

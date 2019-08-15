@@ -73,7 +73,6 @@ public class ConsoleAdapter extends RecyclerView.Adapter {
 
         @Override
         public void onItemClicked(View view, int adapterPosition) {
-
             ((ListsFragment) fragment).onConsoleSelected(adapterPosition, adapter.consoleIDs.get(adapterPosition), adapter.consoleNames.get(adapterPosition));
         }
     }

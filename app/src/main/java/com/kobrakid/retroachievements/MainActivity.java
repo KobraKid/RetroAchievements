@@ -30,7 +30,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MainActivity extends AppCompatActivity implements RAAPICallback {
+public class MainActivity extends AppCompatActivity implements RAAPICallback, SettingsFragment.OnFragmentInteractionListener {
 
     private DrawerLayout myDrawer;
 
@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback {
 
     public static String ra_user = null;
     static final String ra_api_user = "KobraKid1337";
+    @SuppressWarnings("SpellCheckingInspection")
     static final String ra_api_key = "LrY9UvdmckJWfgTsVC5SdTODrlTcHrkj";
 
     private boolean isActive = false;
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback {
         setupDrawerContent((NavigationView) findViewById(R.id.nav_view));
 
         // Initialize API connection
-        apiConnection = new RAAPIConnection(ra_api_user, ra_api_key, MainActivity.this);
+        apiConnection = new RAAPIConnection(MainActivity.this);
 
         apiConnection.GetUserRankAndScore(ra_user, this);
 
@@ -142,14 +143,6 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback {
         myDrawer.closeDrawers();
     }
 
-    public void showLogin(View view) {
-        startActivityForResult(new Intent(this, LoginActivity.class), BEGIN_LOGIN);
-    }
-
-    public void showRecentGames(View view) {
-        startActivityForResult(new Intent(this, RecentGamesActivity.class), SHOW_RECENT_GAMES);
-    }
-
     public void showGameDetails(View view) {
         Intent intent = new Intent(this, GameDetailsActivity.class);
         Bundle extras = new Bundle();
@@ -157,66 +150,6 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback {
                 ((TextView) view.findViewById(R.id.game_summary_game_id)).getText().toString());
         intent.putExtras(extras);
         startActivity(intent);
-    }
-
-    public void changeTheme(View view) {
-        // TODO Make a more elegant theme switcher
-        String currTheme = sharedPref.getString(getString(R.string.theme_setting), "");
-        switch (currTheme) {
-            case "Blank":
-                sharedPref.edit().putString(getString(R.string.theme_setting), "TwentySixteen").apply();
-                break;
-            case "TwentySixteen":
-                sharedPref.edit().putString(getString(R.string.theme_setting), "Green").apply();
-                break;
-            case "Green":
-                sharedPref.edit().putString(getString(R.string.theme_setting), "Pony").apply();
-                break;
-            case "Pony":
-                sharedPref.edit().putString(getString(R.string.theme_setting), "Red").apply();
-                break;
-            case "Red":
-                sharedPref.edit().putString(getString(R.string.theme_setting), "Spooky").apply();
-                break;
-            default:
-                sharedPref.edit().putString(getString(R.string.theme_setting), "Blank").apply();
-                break;
-        }
-        recreate();
-    }
-
-    public void toggleUsers(View topTenUsersToggle) {
-        final View topTenUsers = findViewById(R.id.leaderboards_users);
-        topTenUsers.setZ(-1);
-        if (topTenUsers.getVisibility() == View.GONE) {
-            ((ImageButton) topTenUsersToggle).setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_down));
-            topTenUsers
-                    .animate()
-                    .alpha(1.0f)
-                    .translationYBy(topTenUsers.getHeight())
-                    .setDuration(300)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            topTenUsers.setVisibility(View.VISIBLE);
-                        }
-                    });
-        } else {
-            ((ImageButton) topTenUsersToggle).setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_up));
-            topTenUsers
-                    .animate()
-                    .alpha(0.0f)
-                    .translationYBy(-topTenUsers.getHeight())
-                    .setDuration(300)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            topTenUsers.setVisibility(View.GONE);
-                        }
-                    });
-        }
     }
 
     @Override
@@ -298,5 +231,63 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback {
             ((ListsFragment) fragment).onBackPressed();
         else
             super.onBackPressed();
+    }
+
+    /*
+    Home Fragment Interface Implementation
+    * */
+    public void showLogin(View view) {
+        startActivityForResult(new Intent(this, LoginActivity.class), BEGIN_LOGIN);
+    }
+
+    public void showRecentGames(View view) {
+        startActivityForResult(new Intent(this, RecentGamesActivity.class), SHOW_RECENT_GAMES);
+    }
+
+    /*
+    Leaderboards Fragment Interface Implementations
+     * */
+    public void toggleUsers(View topTenUsersToggle) {
+        final View topTenUsers = findViewById(R.id.leaderboards_users);
+        topTenUsers.setZ(-1);
+        if (topTenUsers.getVisibility() == View.GONE) {
+            ((ImageButton) topTenUsersToggle).setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_down));
+            topTenUsers
+                    .animate()
+                    .alpha(1.0f)
+                    .translationYBy(topTenUsers.getHeight())
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            topTenUsers.setVisibility(View.VISIBLE);
+                        }
+                    });
+        } else {
+            ((ImageButton) topTenUsersToggle).setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_up));
+            topTenUsers
+                    .animate()
+                    .alpha(0.0f)
+                    .translationYBy(-topTenUsers.getHeight())
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            topTenUsers.setVisibility(View.GONE);
+                        }
+                    });
+        }
+    }
+
+    /*
+    Settings Fragment Interface implementations
+     */
+    @Override
+    public void logout(View view) {
+        if (fragment instanceof SettingsFragment) {
+            ((SettingsFragment) fragment).logout();
+        }
     }
 }

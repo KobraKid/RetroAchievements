@@ -14,6 +14,8 @@ import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.R;
 import com.squareup.picasso.Picasso;
 
+import org.jsoup.Jsoup;
+
 import java.util.ArrayList;
 
 public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.GameSummaryViewHolder> {
@@ -62,7 +64,7 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
                 .load(Consts.BASE_URL + imageIcons.get(position))
                 .into(((ImageView) holder.linearLayout.findViewById(R.id.game_summary_image_icon)));
         ((TextView) holder.linearLayout.findViewById(R.id.game_summary_title))
-                .setText(titles.get(position).trim());
+                .setText(Jsoup.parse(titles.get(position).trim()).text());
         if (stats.size() == 0) {
             holder.linearLayout.findViewById(R.id.game_summary_stats).setVisibility(View.GONE);
         } else {

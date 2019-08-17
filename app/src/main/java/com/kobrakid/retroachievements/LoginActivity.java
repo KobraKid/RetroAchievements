@@ -34,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    void login(View view) {
+    public void login(View view) {
         String ra_user = ((EditText) findViewById(R.id.login_field)).getText().toString();
         // Successfully logged in, save the new credentials and return
         this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), ra_user).apply();

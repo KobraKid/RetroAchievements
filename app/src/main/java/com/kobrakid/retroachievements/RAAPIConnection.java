@@ -49,9 +49,9 @@ public class RAAPIConnection {
 
     private static final String leaderboardsFile = "leaderboards";
 
-    RAAPIConnection(String ra_user, String ra_api_key, Context context) {
-        this.ra_user = ra_user;
-        this.ra_api_key = ra_api_key;
+    RAAPIConnection(Context context) {
+        this.ra_user = MainActivity.ra_api_user;
+        this.ra_api_key = MainActivity.ra_api_key;
         this.context = context;
     }
 
@@ -683,7 +683,7 @@ public class RAAPIConnection {
                 }
             }
             if (response.length() == 0) {
-                final String url = Consts.BASE_URL + "/" + Consts.LEADERBOARD_POSTFIX;
+                final String url = Consts.BASE_URL + "/" + Consts.LEADERBOARDS_POSTFIX;
                 RequestQueue queue = Volley.newRequestQueue(context);
                 StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
                     @Override

@@ -54,8 +54,6 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
         overridePendingTransition(R.anim.slide_in, android.R.anim.fade_out);
 
         apiConnection = new RAAPIConnection(
-                MainActivity.ra_api_user,
-                MainActivity.ra_api_key,
                 RecentGamesActivity.this);
 
         // Set up title bar

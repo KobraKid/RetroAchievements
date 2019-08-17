@@ -21,6 +21,15 @@
     <string name="top_users">Top Users</string>
     <string name="leaderboards_games">Leaderboard List</string>
 
+    <!-- Settings Fragment -->
+    <string name="settings_category_appearance">Appearance</string>
+    <string name="settings_category_account">Account</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_current_theme">Current Theme: %1$s</string>
+    <string name="settings_toggle_console">Hide Consoles with 0 Games</string>
+    <string name="settings_toggle_game">Hide Games with 0 Achievements</string>
+    <string name="settings_log_out">Log Out</string>
+
     <!-- Recent Games Activity -->
     <string name="recent_games_title">Recent Games</string>
 
@@ -56,6 +65,8 @@
     <string name="login_key">com.kobrakid.retroachievements.LOGIN_PREFERENCES_FILE_KEY</string>
     <string name="ra_user">saved_ra_user</string>
     <string name="theme_setting">setting_saved_theme</string>
+    <string name="empty_console_hide_setting">setting_hide_empty_consoles</string>
+    <string name="empty_game_hide_setting">setting_hide_empty_games</string>
 
     <!-- ImageView Accessibility Content Descriptions -->
     <string name="cd_masteries">Mastered games</string>

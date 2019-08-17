@@ -51,7 +51,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
     private RecyclerView leaderboardsRecycler;
     private LeaderboardsAdapter adapter;
     private RecyclerView.LayoutManager manager;
-    RowSortedTable<Integer, String, String> table, tableFiltered;
+    private RowSortedTable<Integer, String, String> table, tableFiltered;
     private boolean isActive = false;
 
     private Spinner consoleDropdown;
@@ -230,11 +230,11 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
     private static class LeaderboardsAsyncTask extends AsyncTask<String, Integer, RowSortedTable<Integer, String, String>> {
 
-        private WeakReference<Activity> mActivity;
-        private WeakReference<Context> mContext;
-        private WeakReference<Spinner> mDropdown;
-        private WeakReference<LeaderboardsAdapter> mAdapter;
-        private WeakReference<RowSortedTable<Integer, String, String>> mTable, mTableFiltered;
+        private final WeakReference<Activity> mActivity;
+        private final WeakReference<Context> mContext;
+        private final WeakReference<Spinner> mDropdown;
+        private final WeakReference<LeaderboardsAdapter> mAdapter;
+        private final WeakReference<RowSortedTable<Integer, String, String>> mTable, mTableFiltered;
 
         LeaderboardsAsyncTask(Activity activity, Context context, Spinner dropdown, LeaderboardsAdapter adapter, RowSortedTable<Integer, String, String> table, RowSortedTable<Integer, String, String> tableFiltered) {
             this.mActivity = new WeakReference<>(activity);
@@ -248,7 +248,8 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         @Override
         protected RowSortedTable<Integer, String, String> doInBackground(String... strings) {
             final RowSortedTable<Integer, String, String> leaderboards = mTable.get();
-            if (leaderboards != null) {
+            final RowSortedTable<Integer, String, String> tableFiltered = mTableFiltered.get();
+            if (leaderboards != null && tableFiltered != null) {
                 Document document = Jsoup.parse(strings[0]);
                 Elements rows = document.select("div[class=detaillist] > table > tbody > tr");
 
@@ -264,9 +265,8 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
                     leaderboards.put(i - 1, "NUMRESULTS", row.select("td").get(6).text());
                     publishProgress((i * 100) / (rows.size()));
                 }
+                tableFiltered.putAll(leaderboards);
             }
-            final RowSortedTable<Integer, String, String> tableFiltered = mTableFiltered.get();
-            tableFiltered.putAll(leaderboards);
             return leaderboards;
         }
 

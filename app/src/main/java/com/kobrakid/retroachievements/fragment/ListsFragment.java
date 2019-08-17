@@ -33,12 +33,12 @@ public class ListsFragment extends Fragment implements RAAPICallback {
 
     private RAAPIConnection apiConnection;
 
-    public RecyclerView consoleListRecyclerView, gameListRecyclerView;
+    private RecyclerView consoleListRecyclerView, gameListRecyclerView;
     private LinearLayoutManager consoleListLayoutManager, gameListLayoutManager;
-    public ConsoleAdapter consoleAdapter;
-    public GameSummaryAdapter gameAdapter;
+    ConsoleAdapter consoleAdapter;
+    private GameSummaryAdapter gameAdapter;
     private ArrayList<String> consoleIDs, consoleNames, gameImageIcons, gameTitles, gameStats, gameIDs;
-    public int scrollPosition = 0;
+    private int scrollPosition = 0;
     public boolean isShowingGames = false;
 
     public ListsFragment() {

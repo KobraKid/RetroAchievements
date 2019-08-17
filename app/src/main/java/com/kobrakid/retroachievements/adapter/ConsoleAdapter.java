@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class ConsoleAdapter extends RecyclerView.Adapter {
 
-    private ArrayList<String> consoleIDs, consoleNames;
+    private final ArrayList<String> consoleIDs, consoleNames;
     private final ConsoleViewHolderListenerImpl viewHolderListener;
     public boolean isExpanded = false;
 

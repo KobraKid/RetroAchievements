@@ -60,7 +60,7 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
                 } else {
                     tableFiltered.clear();
                     for (int i = 0; i < table.rowKeySet().size(); i++) {
-                        if ((strings.length == 1 || table.row(i).get("TITLE").contains(strings[1])) && table.row(i).get("CONSOLE").equals(strings[0])) {
+                        if (table.row(i).get("TITLE").contains(strings[1]) && (strings[0].equals("") || table.row(i).get("CONSOLE").equals(strings[0]))) {
                             int row = tableFiltered.rowKeySet().size();
                             tableFiltered.put(row, "ID", table.row(i).get("ID"));
                             tableFiltered.put(row, "IMAGE", table.row(i).get("IMAGE"));
@@ -79,12 +79,10 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
 
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                if (filterResults.values instanceof Boolean && (Boolean) filterResults.values) {
-                    notifyDataSetChanged();
-                } else {
+                if (!(filterResults.values instanceof Boolean && (Boolean) filterResults.values)) {
                     tableFiltered.putAll(table);
-                    notifyDataSetChanged();
                 }
+                notifyDataSetChanged();
             }
         };
     }

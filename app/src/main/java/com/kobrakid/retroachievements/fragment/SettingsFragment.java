@@ -1,32 +1,32 @@
 package com.kobrakid.retroachievements.fragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.kobrakid.retroachievements.MainActivity;
+import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.R;
-import com.kobrakid.retroachievements.RAAPICallback;
-import com.kobrakid.retroachievements.RAAPIConnection;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import java.util.Arrays;
 
-import java.util.Date;
+public class SettingsFragment extends Fragment {
 
-public class SettingsFragment extends Fragment implements RAAPICallback {
-
-    private RAAPIConnection apiConnection;
-
-    private boolean isActive = false;
+    private OnFragmentInteractionListener listener;
+    private SharedPreferences sharedPref;
+    private String theme = "";
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -40,110 +40,99 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Set up API connection
-        apiConnection = ((MainActivity) getActivity()).apiConnection;
+        // Initialize preferences object
+        sharedPref = getActivity().getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false);
-    }
+        View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-    @Override
-    public void onStart() {
-        super.onStart();
+        // Set up views
+        this.theme = sharedPref.getString(getString(R.string.theme_setting), "");
+        ((TextView) view.findViewById(R.id.settings_current_theme)).setText(getString(R.string.settings_current_theme, theme));
 
-        RadioGroup radioGroup = getView().findViewById(R.id.radioGroup1);
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        ((Spinner) view.findViewById(R.id.settings_theme_dropdown)).setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, Consts.THEMES) {
             @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                RadioButton checkedRadioButton = radioGroup.findViewById(i);
-                boolean isChecked = checkedRadioButton.isChecked();
-                if (isChecked) {
-                    // TODO (Testing)
-                    TextView textView = getView().findViewById(R.id.settings_text_view);
-                    RAAPICallback callback = SettingsFragment.this;
-                    String radioButtonName = checkedRadioButton.getText().toString();
-                    switch (radioButtonName) {
-                        case "GetTopTenUsers":
-                            apiConnection.GetTopTenUsers(callback);
-                            break;
-                        case "GetGameInfo":
-                            apiConnection.GetGameInfo("3", callback);
-                            break;
-                        case "GetGameInfoExtended":
-                            apiConnection.GetGameInfoExtended("3", callback);
-                            break;
-                        case "GetConsoleIDs":
-                            apiConnection.GetConsoleIDs(callback);
-                            break;
-                        case "GetGameList":
-                            apiConnection.GetGameList("2", callback);
-                            break;
-                        case "GetFeedFor":
-                            apiConnection.GetFeedFor("KobraKid1337", 5, 0, callback);
-                            break;
-                        case "GetUserRankAndScore":
-                            apiConnection.GetUserRankAndScore("KobraKid1337", callback);
-                            break;
-                        case "GetUserProgress":
-                            apiConnection.GetUserProgress("KobraKid1337", "3", callback);
-                            break;
-                        case "GetUserRecentlyPlayedGames":
-                            apiConnection.GetUserRecentlyPlayedGames("KobraKid1337", 5, 0, callback);
-                            break;
-                        case "GetUserSummary":
-                            apiConnection.GetUserSummary("KobraKid1337", 5, callback);
-                            break;
-                        case "GetGameInfoAndUserProgress":
-                            apiConnection.GetGameInfoAndUserProgress("KobraKid1337", "3", callback);
-                            break;
-                        case "GetAchievementsEarnedOnDay":
-                            apiConnection.GetAchievementsEarnedOnDay("KobraKid1337", "2018-04-16", callback);
-                            break;
-                        case "GetAchievementsEarnedBetween":
-                            apiConnection.GetAchievementsEarnedBetween("KobraKid1337", new Date(118, 4, 15), new Date(118, 4, 20), callback);
-                            break;
-                        case "GetLeaderboards":
-                            apiConnection.GetLeaderboards(true, callback);
-                            break;
-                        case "GetUserWebProfile":
-                            apiConnection.GetUserWebProfile("KobraKid1337", callback);
-                            break;
-                        default:
-                            textView.setText("Uh oh:\n" + radioButtonName);
-                            break;
-                    }
+            public boolean isEnabled(int position) {
+                return Consts.THEMES_ENABLE_ARRAY[position];
+            }
+
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                TextView textView = (TextView) super.getDropDownView(position, convertView, parent);
+                if (isEnabled(position)) {
+                    textView.setTextColor(Color.BLACK);
+                } else {
+                    textView.setTextColor(Color.GRAY);
                 }
+                return textView;
             }
         });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        isActive = true;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        isActive = false;
-    }
-
-    @Override
-    public void callback(int responseCode, String response) {
-        if (!isActive)
-            return;
-        if (responseCode == RAAPIConnection.RESPONSE_GET_USER_WEB_PROFILE) {
-            Document document = Jsoup.parse(response);
-            response = "";
-            // Using Elements to get the Meta data
-            Elements elements = document.select("div[class=trophyimage]");
-            for (Element element : elements) {
-                response += element.selectFirst("a[href]").attr("href") + "\n";
+        ((Spinner) view.findViewById(R.id.settings_theme_dropdown)).setSelection(Arrays.asList(Consts.THEMES).indexOf(theme));
+        ((Spinner) view.findViewById(R.id.settings_theme_dropdown)).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
+                changeTheme(adapterView.getItemAtPosition(pos).toString());
             }
-        }
-        ((TextView) getView().findViewById(R.id.settings_text_view)).setText(response);
 
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        ((CheckBox) view.findViewById(R.id.settings_hide_consoles)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                hideConsoles(b);
+            }
+        });
+        ((CheckBox) view.findViewById(R.id.settings_hide_games)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                hideGames(b);
+            }
+        });
+
+        return view;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            listener = (OnFragmentInteractionListener) getActivity();
+        } catch (ClassCastException e) {
+            throw new ClassCastException(getActivity().toString()
+                    + " must implement OnHeadlineSelectedListener");
+        }
+    }
+
+    /*
+    Settings-related Functions
+    * */
+
+    private void changeTheme(String theme) {
+        if (!(this.theme.equals(theme) || this.theme.equals(""))) {
+            sharedPref.edit().putString(getString(R.string.theme_setting), theme).apply();
+            getActivity().recreate();
+        }
+    }
+
+    private void hideConsoles(boolean hide) {
+        sharedPref.edit().putBoolean(getString(R.string.empty_console_hide_setting), hide).apply();
+    }
+
+    private void hideGames(boolean hide) {
+        sharedPref.edit().putBoolean(getString(R.string.empty_game_hide_setting), hide).apply();
+    }
+
+    public void logout() {
+        sharedPref.edit().putString(getString(R.string.ra_user), null).apply();
+        getActivity().recreate();
+    }
+
+    public interface OnFragmentInteractionListener {
+        void logout(View view);
     }
 
 }

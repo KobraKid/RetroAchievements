@@ -32,6 +32,7 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
         gameID = getIntent().getExtras().getString("GameID");
 
         // Set up API connection
-        apiConnection = new RAAPIConnection(MainActivity.ra_api_user, MainActivity.ra_api_key, this);
+        apiConnection = new RAAPIConnection(this);
 
         // Create fragment
         Bundle bundle = new Bundle();
@@ -140,18 +141,18 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
             try {
                 reader = new JSONObject(response);
 
-                setTitle(reader.getString("Title").trim() + " (" + reader.getString("ConsoleName") + ")");
+                setTitle(Jsoup.parse(reader.getString("Title").trim()).text() + " (" + reader.getString("ConsoleName") + ")");
                 Picasso.get()
                         .load(Consts.BASE_URL + reader.getString("ImageIcon"))
                         .into((ImageView) findViewById(R.id.game_details_image_icon));
                 String developer = reader.getString("Developer");
-                developer = developer.equals("null") ? "????" : developer;
+                developer = developer.equals("null") ? "????" : Jsoup.parse(developer).text();
                 String publisher = reader.getString("Publisher");
-                publisher = publisher.equals("null") ? "????" : publisher;
+                publisher = publisher.equals("null") ? "????" : Jsoup.parse(publisher).text();
                 String genre = reader.getString("Genre");
-                genre = genre.equals("null") ? "????" : genre;
+                genre = genre.equals("null") ? "????" : Jsoup.parse(genre).text();
                 String released = reader.getString("Released");
-                released = released.equals("null") ? "????" : released;
+                released = released.equals("null") ? "????" : Jsoup.parse(released).text();
                 ((TextView) findViewById(R.id.game_details_developer)).setText(getString(R.string.developed, developer));
                 ((TextView) findViewById(R.id.game_details_publisher)).setText(getString(R.string.published, publisher));
                 ((TextView) findViewById(R.id.game_details_genre)).setText(getString(R.string.genre, genre));
@@ -163,7 +164,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
                     JSONObject achievements = reader.getJSONObject("Achievements");
                     JSONObject achievement;
                     int numEarned = 0, numEarnedHC = 0, totalAch = 0, earnedPts = 0, totalPts = 0, earnedRatio = 0, totalRatio = 0;
-                    ArrayList earnedTotals = new ArrayList<Integer>();
+                    ArrayList<Integer> earnedTotals = new ArrayList<>();
                     for (Iterator<String> keys = achievements.keys(); keys.hasNext(); ) {
                         String achievementID = keys.next();
                         achievement = achievements.getJSONObject(achievementID);

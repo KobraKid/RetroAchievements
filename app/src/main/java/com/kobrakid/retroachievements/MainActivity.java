@@ -30,9 +30,11 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * The entry point for the app, and the Activity that manages most of the basic Fragments used
+ * throughout the app.
+ */
 public class MainActivity extends AppCompatActivity implements RAAPICallback, SettingsFragment.OnFragmentInteractionListener {
-
-    private DrawerLayout myDrawer;
 
     // Request Codes
     public static final int BEGIN_LOGIN = 0;
@@ -42,17 +44,17 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
     public static final int LOGIN_FAILURE = 1;
     public static final int LOGIN_CANCELLED = 2;
 
+    public RAAPIConnection apiConnection = null;
+
     public static String ra_user = null;
     static final String ra_api_user = "KobraKid1337";
     @SuppressWarnings("SpellCheckingInspection")
     static final String ra_api_key = "LrY9UvdmckJWfgTsVC5SdTODrlTcHrkj";
 
-    private boolean isActive = false;
-
-    public RAAPIConnection apiConnection = null;
-    private SharedPreferences sharedPref = null;
-
     private Fragment fragment;
+    private boolean isActive = false;
+    private DrawerLayout myDrawer;
+    private SharedPreferences sharedPref = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
         // Try to get saved preferences and log in
         sharedPref = this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
-        setTheme(ThemeToggler.getTheme(this, sharedPref));
+        setTheme(ThemeManager.getTheme(this, sharedPref));
         ra_user = sharedPref.getString(getString(R.string.ra_user), null);
 
         setContentView(R.layout.activity_main);
@@ -233,9 +235,8 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
             super.onBackPressed();
     }
 
-    /*
-    Home Fragment Interface Implementation
-    * */
+    /* Home Fragment Interface Implementation */
+
     public void showLogin(View view) {
         startActivityForResult(new Intent(this, LoginActivity.class), BEGIN_LOGIN);
     }
@@ -244,9 +245,8 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         startActivityForResult(new Intent(this, RecentGamesActivity.class), SHOW_RECENT_GAMES);
     }
 
-    /*
-    Leaderboards Fragment Interface Implementations
-     * */
+    /* Leaderboards Fragment Interface Implementations */
+
     public void toggleUsers(View topTenUsersToggle) {
         final View topTenUsers = findViewById(R.id.leaderboards_users);
         topTenUsers.setZ(-1);
@@ -281,9 +281,8 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         }
     }
 
-    /*
-    Settings Fragment Interface implementations
-     */
+    /* Settings Fragment Interface implementations */
+
     @Override
     public void logout(View view) {
         if (fragment instanceof SettingsFragment) {

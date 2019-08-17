@@ -19,16 +19,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
+/**
+ * The RAAPIConnection class exposes the RetroAchievements API.
+ */
 @SuppressWarnings("WeakerAccess")
 public class RAAPIConnection {
 
-    private static final String BASE_URL = Consts.BASE_URL + "/" + Consts.API_URL + "/";
-
-    private final String ra_user;
-    private final String ra_api_key;
-    private final Context context;
-
-    // Constants
     // Response Codes
     public static final int RESPONSE_ERROR = -1;
     public static final int RESPONSE_GET_TOP_TEN_USERS = 0;
@@ -47,8 +43,15 @@ public class RAAPIConnection {
     public static final int RESPONSE_GET_LEADERBOARDS = 13;
     public static final int RESPONSE_GET_USER_WEB_PROFILE = 14;
 
-    private static final String leaderboardsFile = "leaderboards";
+    private static final String BASE_URL = Consts.BASE_URL + "/" + Consts.API_URL + "/";
 
+    private final String ra_user;
+    private final String ra_api_key;
+    private final Context context;
+
+    /**
+     * @param context The context which will hold the Request Queue.
+     */
     RAAPIConnection(Context context) {
         this.ra_user = MainActivity.ra_api_user;
         this.ra_api_key = MainActivity.ra_api_key;
@@ -56,7 +59,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * Construct the portion of the URL responsible for authentication.
+     * Constructs the portion of the URL responsible for authentication.
      *
      * @return A String containing authentication information.
      */
@@ -65,7 +68,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * The function responsible for performing API calls.
+     * Responsible for performing API calls.
      *
      * @param target       The API function to call.
      * @param responseCode The response code to be returned to the callback.
@@ -76,10 +79,12 @@ public class RAAPIConnection {
     }
 
     /**
-     * Perform the HTTP GET Request on a constructed URL.
+     * Performs an HTTP GET Request on a URL constructed from its String parameters.
      *
-     * @param target The target API call.
-     * @param params Additional parameters that the API call may require.
+     * @param target       The target API call.
+     * @param params       Additional parameters that the API call may require.
+     * @param responseCode The response code associated with this API call (if it succeeds).
+     * @param callback     The RAAPICallback whose callback function will be called with the results of the API call.
      */
     private void GetRAURL(String target, String params, final int responseCode, final RAAPICallback callback) {
         if (target == null) {
@@ -106,7 +111,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * Returns the top ten users.
+     * Queries the top ten users.
      * <p>
      * [<br/>
      * &emsp;{<br/>
@@ -127,7 +132,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * Returns summary information about a game.
+     * Queries summary information about a game.
      * <p>
      * {<br/>
      * &emsp;"Title":         "Title"                             String,<br/>
@@ -164,7 +169,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * Returns more extensive information on a particular game.
+     * Queries more extensive information on a particular game.
      * <p>
      * {<br/>
      * &emsp;"ID":                                Game ID                                 int,<br/>
@@ -221,7 +226,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * Returns a list of Console IDs.
+     * Queries a list of Console IDs.
      * <p>
      * [<br/>
      * &emsp;{<br/>
@@ -241,7 +246,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * Returns the list of games available for a given console.
+     * Queries the list of games available for a given console.
      * <p>
      * [<br/>
      * &emsp;{<br/>
@@ -276,6 +281,7 @@ public class RAAPIConnection {
      * @param offset   Unused.
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
+    @Deprecated
     public void GetFeedFor(String user, int count, int offset, RAAPICallback callback) {
         if (user == null)
             callback.callback(RESPONSE_ERROR, "No user");
@@ -289,7 +295,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * Returns the rank and score of a given user.
+     * Queries the rank and score of a given user.
      * <p>
      * {<br/>
      * &emsp;"Score": Score   int,<br/>
@@ -312,7 +318,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * Returns summary information on a given user's progress in a given game.
+     * Queries summary information on a given user's progress in a given game.
      * <p>
      * {<br/>
      * &emsp;gameIDCSV: {<br/>
@@ -344,7 +350,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * Returns a list of games the given user has recently played.
+     * Queries a list of games the given user has recently played.
      * <p>
      * [<br/>
      * &emsp;{<br/>
@@ -380,7 +386,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * Returns detailed information about a given user.
+     * Queries detailed information about a given user.
      * <p>
      * {<br/>
      * &emsp;"MemberSince":                         "Date Member Joined"                                String,<br/>
@@ -466,7 +472,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * Returns progress of a given user towards a given game.
+     * Queries progress of a given user towards a given game.
      * <p>
      * {<br/>
      * &emsp;"ID":                              Game ID                                                         int,<br/>
@@ -532,7 +538,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * Returns the list of achievements earned by a given user on a given day.
+     * Queries the list of achievements earned by a given user on a given day.
      * <p>
      * [<br/>
      * &emsp;{<br/>
@@ -573,7 +579,7 @@ public class RAAPIConnection {
     }
 
     /**
-     * Returns the list of achievements earned by a given user between a range of dates.
+     * Queries the list of achievements earned by a given user between a range of dates.
      * <p>
      * [<br/>
      * &emsp;{<br/>
@@ -615,11 +621,24 @@ public class RAAPIConnection {
         }
     }
 
+    /**
+     * Scrapes the RA website for all available leaderboards.
+     *
+     * @param useCache If set, a cached version of the leaderboards list will be fetched instead (if
+     *                 it exists), to prevent repeat downloads of large HTML.
+     * @param callback The RAAPICallback that should accept the results of the call.
+     */
     public void GetLeaderboards(boolean useCache, final RAAPICallback callback) {
         GetFile getFile = new GetFile();
         getFile.execute(useCache, callback, context);
     }
 
+    /**
+     * Scrapes the RA website for any of the user's information that is not exposed by the API.
+     *
+     * @param user     The user whose information should be scraped.
+     * @param callback he RAAPICallback that should accept the results of the API call.
+     */
     public void GetUserWebProfile(String user, final RAAPICallback callback) {
         if (user == null)
             callback.callback(RESPONSE_ERROR, "No user");
@@ -670,7 +689,7 @@ public class RAAPIConnection {
             if (useCache) {
                 // Try to fetch cached file
                 try {
-                    File f = new File(context.getFilesDir().getPath() + "/" + leaderboardsFile);
+                    File f = new File(context.getFilesDir().getPath() + "/" + context.getString(R.string.file_leaderboards_cache));
                     FileInputStream is = new FileInputStream(f);
                     int size = is.available();
                     byte[] buffer = new byte[size];
@@ -690,7 +709,7 @@ public class RAAPIConnection {
                     public void onResponse(String response) {
                         // Cache result
                         try {
-                            FileWriter writer = new FileWriter(context.getFilesDir().getPath() + "/" + leaderboardsFile);
+                            FileWriter writer = new FileWriter(context.getFilesDir().getPath() + "/" + context.getString(R.string.file_leaderboards_cache));
                             writer.write(response);
                             writer.flush();
                             writer.close();

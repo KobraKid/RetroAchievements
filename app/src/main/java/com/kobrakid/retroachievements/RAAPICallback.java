@@ -1,5 +1,8 @@
 package com.kobrakid.retroachievements;
 
+/**
+ * Must be implemented by any class that intends on accessing the RetroAchievements API.
+ */
 public interface RAAPICallback {
 
     /**

@@ -28,26 +28,24 @@ import java.util.ArrayList;
  */
 public class RecentGamesActivity extends AppCompatActivity implements RAAPICallback, SwipeRefreshLayout.OnRefreshListener {
 
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
-    private SwipeRefreshLayout swipeRefreshLayout;
-
-    private ArrayList<String> imageIcons, titles, stats, ids;
-
+    // API
+    private RAAPIConnection apiConnection;
     private boolean isActive = false;
     private int offset;
     private final int gamesPerAPICall = 15;
-    // Easy way to prevent spam API calls
-    private boolean hasParsed = false;
+    private boolean hasParsed = false; // Easy way to prevent spam API calls while scrolling quickly
 
-    private RAAPIConnection apiConnection;
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter adapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private ArrayList<String> imageIcons, titles, stats, ids;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
-        setTheme(ThemeToggler.getTheme(this, sharedPref));
+        setTheme(ThemeManager.getTheme(this, sharedPref));
 
         setContentView(R.layout.activity_recent_games);
         setTitle(R.string.recent_games_title);
@@ -111,6 +109,30 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
     }
 
     @Override
+    public void onRefresh() {
+        hasParsed = false;
+        offset = 0;
+        apiConnection.GetUserRecentlyPlayedGames(MainActivity.ra_user, gamesPerAPICall, offset, this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out);
+    }
+
+    @Override
     public void callback(int responseCode, String response) {
         if (!isActive)
             return;
@@ -152,6 +174,11 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
         }
     }
 
+    /**
+     * Sets up a new activity to show more details on a particular game.
+     *
+     * @param view The game the user tapped on.
+     */
     public void showGameDetails(View view) {
         Intent intent = new Intent(this, GameDetailsActivity.class);
         Bundle extras = new Bundle();
@@ -159,29 +186,5 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
                 ((TextView) view.findViewById(R.id.game_summary_game_id)).getText().toString());
         intent.putExtras(extras);
         startActivity(intent);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
-        overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out);
-    }
-
-    @Override
-    public void onRefresh() {
-        hasParsed = false;
-        offset = 0;
-        apiConnection.GetUserRecentlyPlayedGames(MainActivity.ra_user, gamesPerAPICall, offset, this);
     }
 }

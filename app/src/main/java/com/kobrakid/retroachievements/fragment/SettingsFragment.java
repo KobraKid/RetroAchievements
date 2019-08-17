@@ -24,6 +24,7 @@ import java.util.Arrays;
 
 public class SettingsFragment extends Fragment {
 
+    // Unused, but guarantees that the parent Activity implements OnFragmentInteractionListener
     private OnFragmentInteractionListener listener;
     private SharedPreferences sharedPref;
     private String theme = "";
@@ -107,9 +108,7 @@ public class SettingsFragment extends Fragment {
         }
     }
 
-    /*
-    Settings-related Functions
-    * */
+    /* Settings-related Functions */
 
     private void changeTheme(String theme) {
         if (!(this.theme.equals(theme) || this.theme.equals(""))) {
@@ -130,6 +129,8 @@ public class SettingsFragment extends Fragment {
         sharedPref.edit().putString(getString(R.string.ra_user), null).apply();
         getActivity().recreate();
     }
+
+    /* Inner Classes and Interfaces */
 
     public interface OnFragmentInteractionListener {
         void logout(View view);

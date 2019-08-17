@@ -24,15 +24,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-
+/**
+ * This class is responsible for displaying summary information on all the achievements for a
+ * particular game.
+ */
 public class AchievementSummaryFragment extends Fragment implements RAAPICallback {
-
-    private RecyclerView recyclerView = null;
-    private RecyclerView.Adapter adapter = null;
-    public RecyclerView.LayoutManager layoutManager = null;
 
     private RAAPIConnection apiConnection = null;
     private String gameID = null;
+    private String gameInfoAndUserProgressResponse = "";
     private ArrayList<String>
             ids,
             badges,
@@ -47,7 +47,10 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
             datesCreated,
             datesModified;
     private boolean isActive = false;
-    private String gameInfoAndUserProgressResponse = "";
+
+    private RecyclerView recyclerView = null;
+    private RecyclerView.Adapter adapter = null;
+    public RecyclerView.LayoutManager layoutManager = null;
 
     public AchievementSummaryFragment() {
         // Required empty public constructor

@@ -30,11 +30,8 @@ import java.util.ArrayList;
 
 public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.AchievementViewHolder> {
 
-    private final Context context;
-
     public String numDistinctCasual;
-    private final ArrayList<String>
-            ids;
+    private final ArrayList<String> ids;
     private final ArrayList<String> badges;
     private final ArrayList<String> titles;
     private final ArrayList<String> points;
@@ -47,6 +44,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
     private final ArrayList<String> datesCreated;
     private final ArrayList<String> datesModified;
 
+    private final Context context;
     private final AchievementViewHolderListener viewHolderListener;
 
     public AchievementAdapter(Fragment fragment,
@@ -146,9 +144,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         return ids.size();
     }
 
-    /****************************
-     Inner Classes and Interfaces
-     ****************************/
+    /* Inner Classes and Interfaces */
 
     private interface AchievementViewHolderListener {
         void onItemClicked(View view, int adapterPosition);

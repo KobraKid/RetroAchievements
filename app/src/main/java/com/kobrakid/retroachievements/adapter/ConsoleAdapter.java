@@ -17,9 +17,10 @@ import java.util.Random;
 
 public class ConsoleAdapter extends RecyclerView.Adapter {
 
+    public boolean isExpanded = false;
+
     private final ArrayList<String> consoleIDs, consoleNames;
     private final ConsoleViewHolderListenerImpl viewHolderListener;
-    public boolean isExpanded = false;
 
     public ConsoleAdapter(ArrayList<String> consoleIDs, ArrayList<String> consoleNames, Fragment fragment) {
         this.consoleIDs = consoleIDs;
@@ -53,9 +54,7 @@ public class ConsoleAdapter extends RecyclerView.Adapter {
         return consoleIDs.size();
     }
 
-    /****************************
-     Inner Classes and Interfaces
-     ****************************/
+    /* Inner Classes and Interfaces */
 
     private interface ConsoleViewHolderListener {
         void onItemClicked(View view, int adapterPosition);

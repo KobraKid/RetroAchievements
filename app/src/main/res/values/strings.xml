@@ -61,13 +61,6 @@
     <string name="login_username">Username</string>
     <string name="new_login_welcome">Hello, %1$s. Successfully logged in.</string>
 
-    <!-- Preference Keys -->
-    <string name="login_key">com.kobrakid.retroachievements.LOGIN_PREFERENCES_FILE_KEY</string>
-    <string name="ra_user">saved_ra_user</string>
-    <string name="theme_setting">setting_saved_theme</string>
-    <string name="empty_console_hide_setting">setting_hide_empty_consoles</string>
-    <string name="empty_game_hide_setting">setting_hide_empty_games</string>
-
     <!-- ImageView Accessibility Content Descriptions -->
     <string name="cd_masteries">Mastered games</string>
     <string name="cd_achievement_details_badge">Achievement details badge</string>

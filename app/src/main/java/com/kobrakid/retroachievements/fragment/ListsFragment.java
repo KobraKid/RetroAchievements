@@ -29,17 +29,17 @@ import java.util.Collections;
 
 public class ListsFragment extends Fragment implements RAAPICallback {
 
-    private boolean isActive = false;
+    public boolean isShowingGames = false;
 
     private RAAPIConnection apiConnection;
+    private boolean isActive = false;
 
     private RecyclerView consoleListRecyclerView, gameListRecyclerView;
     private LinearLayoutManager consoleListLayoutManager, gameListLayoutManager;
-    ConsoleAdapter consoleAdapter;
+    public ConsoleAdapter consoleAdapter;
     private GameSummaryAdapter gameAdapter;
     private ArrayList<String> consoleIDs, consoleNames, gameImageIcons, gameTitles, gameStats, gameIDs;
     private int scrollPosition = 0;
-    public boolean isShowingGames = false;
 
     public ListsFragment() {
         // Required empty public constructor
@@ -94,73 +94,6 @@ public class ListsFragment extends Fragment implements RAAPICallback {
         getActivity().setTitle("Consoles");
 
         return view;
-    }
-
-    public void onConsoleSelected(int position, String console, String consoleName) {
-        getActivity().setTitle(consoleName);
-
-        // Hide Console List RecyclerView
-        consoleAdapter.isExpanded = !consoleAdapter.isExpanded;
-        Point p = new Point();
-        getActivity().getWindowManager().getDefaultDisplay().getSize(p);
-        consoleListRecyclerView.animate().setDuration(375).translationX(-p.x).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                consoleListRecyclerView.setVisibility(View.GONE);
-            }
-        });
-        scrollPosition = position;
-
-        // Set up Game List RecyclerView
-        apiConnection.GetGameList(console, this);
-        gameImageIcons.clear();
-        gameTitles.clear();
-        gameStats.clear();
-        gameIDs.clear();
-        gameAdapter.notifyDataSetChanged();
-
-        TypedValue typedValue = new TypedValue();
-        if (getActivity().getTheme().resolveAttribute(R.drawable.ic_arrow_back, typedValue, true)) {
-            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(typedValue.resourceId);
-        } else {
-            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
-        }
-
-        isShowingGames = true;
-    }
-
-    public void onBackPressed() {
-        getActivity().setTitle("Consoles");
-
-        TypedValue typedValue = new TypedValue();
-        if (getActivity().getTheme().resolveAttribute(R.drawable.ic_menu, typedValue, true)) {
-            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(typedValue.resourceId);
-        } else {
-            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
-        }
-
-        Point p = new Point();
-        getActivity().getWindowManager().getDefaultDisplay().getSize(p);
-        gameListRecyclerView.animate().setDuration(375).translationX(p.x).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-//                gameListRecyclerView.setVisibility(View.GONE);
-            }
-        });
-
-        consoleAdapter.isExpanded = false;
-        consoleListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
-                consoleListRecyclerView.setVisibility(View.VISIBLE);
-                consoleListLayoutManager.scrollToPositionWithOffset(scrollPosition, 0);
-            }
-        });
-
-        isShowingGames = false;
     }
 
     @Override
@@ -225,6 +158,73 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                 }
             });
         }
+    }
+
+    public void onBackPressed() {
+        getActivity().setTitle("Consoles");
+
+        TypedValue typedValue = new TypedValue();
+        if (getActivity().getTheme().resolveAttribute(R.drawable.ic_menu, typedValue, true)) {
+            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(typedValue.resourceId);
+        } else {
+            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
+        }
+
+        Point p = new Point();
+        getActivity().getWindowManager().getDefaultDisplay().getSize(p);
+        gameListRecyclerView.animate().setDuration(375).translationX(p.x).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+//                gameListRecyclerView.setVisibility(View.GONE);
+            }
+        });
+
+        consoleAdapter.isExpanded = false;
+        consoleListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
+                consoleListRecyclerView.setVisibility(View.VISIBLE);
+                consoleListLayoutManager.scrollToPositionWithOffset(scrollPosition, 0);
+            }
+        });
+
+        isShowingGames = false;
+    }
+
+    public void onConsoleSelected(int position, String console, String consoleName) {
+        getActivity().setTitle(consoleName);
+
+        // Hide Console List RecyclerView
+        consoleAdapter.isExpanded = !consoleAdapter.isExpanded;
+        Point p = new Point();
+        getActivity().getWindowManager().getDefaultDisplay().getSize(p);
+        consoleListRecyclerView.animate().setDuration(375).translationX(-p.x).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                consoleListRecyclerView.setVisibility(View.GONE);
+            }
+        });
+        scrollPosition = position;
+
+        // Set up Game List RecyclerView
+        apiConnection.GetGameList(console, this);
+        gameImageIcons.clear();
+        gameTitles.clear();
+        gameStats.clear();
+        gameIDs.clear();
+        gameAdapter.notifyDataSetChanged();
+
+        TypedValue typedValue = new TypedValue();
+        if (getActivity().getTheme().resolveAttribute(R.drawable.ic_arrow_back, typedValue, true)) {
+            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(typedValue.resourceId);
+        } else {
+            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
+        }
+
+        isShowingGames = true;
     }
 
 }

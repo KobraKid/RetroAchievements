@@ -30,7 +30,7 @@ import org.jsoup.select.Elements;
 public class HomeFragment extends Fragment implements RAAPICallback, View.OnClickListener {
 
     private RAAPIConnection apiConnection;
-    // Only call API when the view is first started, or when the user asks for a manual refresh
+    // TODO Only call API when the view is first started, or when the user asks for a manual refresh
     private boolean hasPopulatedGames = false, hasPopulatedMasteries = false;
     private boolean isActive = false;
 
@@ -81,6 +81,16 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
     public void onPause() {
         super.onPause();
         isActive = false;
+    }
+
+    @Override
+    public void onClick(View view) {
+        Intent intent = new Intent(this.getActivity(), GameDetailsActivity.class);
+        Bundle extras = new Bundle();
+        extras.putString("GameID",
+                "" + view.getId());
+        intent.putExtras(extras);
+        startActivity(intent);
     }
 
     @Override
@@ -171,13 +181,4 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
         }
     }
 
-    @Override
-    public void onClick(View view) {
-        Intent intent = new Intent(this.getActivity(), GameDetailsActivity.class);
-        Bundle extras = new Bundle();
-        extras.putString("GameID",
-                "" + view.getId());
-        intent.putExtras(extras);
-        startActivity(intent);
-    }
 }

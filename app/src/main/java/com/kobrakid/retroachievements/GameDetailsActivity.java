@@ -45,12 +45,12 @@ import java.util.List;
  */
 public class GameDetailsActivity extends AppCompatActivity implements RAAPICallback {
 
+    public static int currentPosition = 0;
+    public RAAPIConnection apiConnection;
+
     private String gameID;
     private String forumTopicID;
     private boolean isActive = false;
-    public static int currentPosition = 0;
-
-    public RAAPIConnection apiConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +59,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
 
         // Set up theme and title bar
         SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
-        setTheme(ThemeToggler.getTheme(this, sharedPref));
+        setTheme(ThemeManager.getTheme(this, sharedPref));
 
         setContentView(R.layout.activity_game_details);
 
@@ -130,6 +130,43 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
     protected void onPause() {
         super.onPause();
         isActive = false;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_overflow, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        boolean handled = false;
+        switch (id) {
+            case android.R.id.home:
+                handled = true;
+                finish();
+                break;
+            case R.id.action_forum:
+                handled = true;
+                String forumUrl = Consts.BASE_URL + "/" + Consts.FORUM_POSTFIX + forumTopicID;
+                Intent forumIntent = new Intent(Intent.ACTION_VIEW);
+                forumIntent.setData(Uri.parse(forumUrl));
+                startActivity(forumIntent);
+                break;
+            case R.id.action_webpage:
+                handled = true;
+                String raUrl = Consts.BASE_URL + "/" + Consts.GAME_POSTFIX + "/" + gameID;
+                Intent raIntent = new Intent(Intent.ACTION_VIEW);
+                raIntent.setData(Uri.parse(raUrl));
+                startActivity(raIntent);
+                break;
+        }
+        if (handled)
+            return true;
+        else
+            return super.onOptionsItemSelected(item);
+
     }
 
     @Override
@@ -210,43 +247,6 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_overflow, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        boolean handled = false;
-        switch (id) {
-            case android.R.id.home:
-                handled = true;
-                finish();
-                break;
-            case R.id.action_forum:
-                handled = true;
-                String forumUrl = Consts.BASE_URL + "/" + Consts.FORUM_POSTFIX + forumTopicID;
-                Intent forumIntent = new Intent(Intent.ACTION_VIEW);
-                forumIntent.setData(Uri.parse(forumUrl));
-                startActivity(forumIntent);
-                break;
-            case R.id.action_webpage:
-                handled = true;
-                String raUrl = Consts.BASE_URL + "/" + Consts.GAME_POSTFIX + "/" + gameID;
-                Intent raIntent = new Intent(Intent.ACTION_VIEW);
-                raIntent.setData(Uri.parse(raUrl));
-                startActivity(raIntent);
-                break;
-        }
-        if (handled)
-            return true;
-        else
-            return super.onOptionsItemSelected(item);
-
     }
 
     private void setupAchievementDistributionChart(ArrayList<Integer> achievementTotals) {

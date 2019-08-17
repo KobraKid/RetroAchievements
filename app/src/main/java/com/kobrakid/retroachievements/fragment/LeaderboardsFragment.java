@@ -48,11 +48,12 @@ import java.util.LinkedHashSet;
 public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
     private RAAPIConnection apiConnection;
+    private boolean isActive = false;
+
     private RecyclerView leaderboardsRecycler;
     private LeaderboardsAdapter adapter;
     private RecyclerView.LayoutManager manager;
     private RowSortedTable<Integer, String, String> table, tableFiltered;
-    private boolean isActive = false;
 
     private Spinner consoleDropdown;
     private EditText leaderboardsFilter;
@@ -127,6 +128,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         super.onStart();
         isActive = true;
         apiConnection.GetTopTenUsers(this);
+        // TODO Progress bar doesn't show up until file is downloaded
         apiConnection.GetLeaderboards(true, this);
     }
 
@@ -227,6 +229,8 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
             AsyncTask task = new LeaderboardsAsyncTask(getActivity(), getContext(), consoleDropdown, adapter, table, tableFiltered).execute(response);
         }
     }
+
+    /* Inner Classes and Interfaces */
 
     private static class LeaderboardsAsyncTask extends AsyncTask<String, Integer, RowSortedTable<Integer, String, String>> {
 

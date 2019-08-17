@@ -18,7 +18,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
-        setTheme(ThemeToggler.getTheme(this, sharedPref));
+        setTheme(ThemeManager.getTheme(this, sharedPref));
 
         setContentView(R.layout.activity_login);
         final EditText login = findViewById(R.id.login_field);
@@ -34,6 +34,12 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        setResult(MainActivity.LOGIN_CANCELLED);
+    }
+
     public void login(View view) {
         String ra_user = ((EditText) findViewById(R.id.login_field)).getText().toString();
         // Successfully logged in, save the new credentials and return
@@ -46,9 +52,4 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        setResult(MainActivity.LOGIN_CANCELLED);
-    }
 }

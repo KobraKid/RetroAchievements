@@ -25,17 +25,6 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
     private final ArrayList<String> stats;
     private final ArrayList<String> ids;
 
-    public static class GameSummaryViewHolder extends RecyclerView.ViewHolder {
-
-        final LinearLayout linearLayout;
-
-        GameSummaryViewHolder(LinearLayout l) {
-            super(l);
-            linearLayout = l;
-        }
-
-    }
-
     public GameSummaryAdapter(ArrayList<String> imageIcons, ArrayList<String> titles, ArrayList<String> stats, ArrayList<String> ids) {
         this.imageIcons = imageIcons;
         this.titles = titles;
@@ -78,6 +67,19 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
     @Override
     public int getItemCount() {
         return ids.size();
+    }
+
+    /* Inner Classes and Interfaces */
+
+    static class GameSummaryViewHolder extends RecyclerView.ViewHolder {
+
+        final LinearLayout linearLayout;
+
+        GameSummaryViewHolder(LinearLayout l) {
+            super(l);
+            linearLayout = l;
+        }
+
     }
 
 }

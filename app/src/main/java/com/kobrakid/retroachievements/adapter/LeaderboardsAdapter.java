@@ -87,9 +87,7 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
         };
     }
 
-    /****************************
-     Inner Classes and Interfaces
-     ****************************/
+    /* Inner Classes and Interfaces */
 
     private interface LeaderboardsViewHolderListener {
         void onItemClicked(View view, int adapterPosition);

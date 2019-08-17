@@ -18,7 +18,9 @@ import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
 
-
+/**
+ * This class is responsible for showing more detailed information on a particular achievement.
+ */
 public class AchievementDetailsFragment extends Fragment implements View.OnClickListener {
 
     public AchievementDetailsFragment() {
@@ -97,6 +99,11 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
         return view;
     }
 
+    @Override
+    public void onClick(View view) {
+        this.getFragmentManager().popBackStack();
+    }
+
     private void prepareSharedElementTransition(final View view) {
         // TODO Figure out why transitions (and/or recycler views) are so awful and hard to work with
 //        Transition transition = TransitionInflater.from(getContext()).inflateTransition(R.transition.image_shared_element_transition);
@@ -107,11 +114,6 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
 //                sharedElements.put(names.get(0), view);
 //            }
 //        });
-    }
-
-    @Override
-    public void onClick(View view) {
-        this.getFragmentManager().popBackStack();
     }
 
 }

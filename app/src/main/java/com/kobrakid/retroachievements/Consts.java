@@ -11,6 +11,7 @@ public final class Consts {
     public static final String USER_PIC_POSTFIX = "UserPic";
     public static final String USER_POSTFIX = "user";
     public static final String LEADERBOARDS_POSTFIX = "leaderboardList.php";
+    public static final String LEADERBOARDS_INFO_POSTFIX = "leaderboardinfo.php?i=";
 
     // Theming
     public static final String[] THEMES = new String[]{"RetroAchievements Themes", "Blank", "TwentySixteen", "Green", "Pony", "Red", "Spooky", "More Themes"};

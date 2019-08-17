@@ -13,6 +13,13 @@
         android:supportsRtl="true"
         android:theme="@style/BlankTheme">
         <activity
+            android:name=".LeaderboardActivity"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
             android:name=".GameDetailsActivity"
             android:parentActivityName=".MainActivity">
             <meta-data

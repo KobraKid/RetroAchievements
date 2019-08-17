@@ -41,7 +41,8 @@ public class RAAPIConnection {
     public static final int RESPONSE_GET_ACHIEVEMENTS_EARNED_ON_DAY = 11;
     public static final int RESPONSE_GET_ACHIEVEMENTS_EARNED_BETWEEN = 12;
     public static final int RESPONSE_GET_LEADERBOARDS = 13;
-    public static final int RESPONSE_GET_USER_WEB_PROFILE = 14;
+    public static final int RESPONSE_GET_LEADERBOARD = 14;
+    public static final int RESPONSE_GET_USER_WEB_PROFILE = 15;
 
     private static final String BASE_URL = Consts.BASE_URL + "/" + Consts.API_URL + "/";
 
@@ -634,6 +635,19 @@ public class RAAPIConnection {
     }
 
     /**
+     * Scrapes the RA website for a single Leaderboard page.
+     *
+     * @param leaderboardID The ID of the corresponding leaderboard.
+     * @param callback      The RAAPICallback that should accept the results of the call.
+     */
+    public void GetLeaderboard(String leaderboardID, final RAAPICallback callback) {
+        if (leaderboardID == null)
+            callback.callback(RESPONSE_ERROR, "No user");
+        else
+            new GetWeb(callback, RESPONSE_GET_LEADERBOARD).execute(Consts.BASE_URL + "/" + Consts.LEADERBOARDS_INFO_POSTFIX + leaderboardID);
+    }
+
+    /**
      * Scrapes the RA website for any of the user's information that is not exposed by the API.
      *
      * @param user     The user whose information should be scraped.
@@ -643,22 +657,28 @@ public class RAAPIConnection {
         if (user == null)
             callback.callback(RESPONSE_ERROR, "No user");
         else
-            new GetWeb(user, callback).execute();
+            new GetWeb(callback, RESPONSE_GET_USER_WEB_PROFILE).execute(Consts.BASE_URL + "/" + Consts.USER_POSTFIX + "/" + user);
     }
 
-    private static class GetWeb extends AsyncTask<Void, Void, Document> {
+    /* Inner Classes and Interfaces */
+
+    private static class GetWeb extends AsyncTask<String, Void, Document> {
 
         final RAAPICallback callback;
-        final String user;
+        final int callbackCode;
 
-        GetWeb(String user, RAAPICallback callback) {
-            this.user = user;
+        GetWeb(RAAPICallback callback, int code) {
             this.callback = callback;
+            this.callbackCode = code;
         }
 
         @Override
-        protected Document doInBackground(Void... voids) {
-            String url = Consts.BASE_URL + "/" + Consts.USER_POSTFIX + "/" + user;
+        protected Document doInBackground(String... urls) {
+            if (urls.length != 1) {
+                Log.e("TAG", "The GetWeb task takes exactly one parameter, the URL to download.");
+                return Jsoup.parse("");
+            }
+            String url = urls[0];
             Document document = null;
             try {
                 document = Jsoup.connect(url).get();
@@ -670,7 +690,7 @@ public class RAAPIConnection {
 
         @Override
         protected void onPostExecute(Document result) {
-            callback.callback(RESPONSE_GET_USER_WEB_PROFILE, result.outerHtml());
+            callback.callback(callbackCode, result.outerHtml());
         }
     }
 
@@ -688,6 +708,7 @@ public class RAAPIConnection {
             String response = "";
             if (useCache) {
                 // Try to fetch cached file
+                // TODO Check timestamp and re-download if file is too old
                 try {
                     File f = new File(context.getFilesDir().getPath() + "/" + context.getString(R.string.file_leaderboards_cache));
                     FileInputStream is = new FileInputStream(f);

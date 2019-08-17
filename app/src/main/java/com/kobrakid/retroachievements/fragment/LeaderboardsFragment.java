@@ -1,7 +1,9 @@
 package com.kobrakid.retroachievements.fragment;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,6 +16,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -26,6 +29,7 @@ import android.widget.TextView;
 
 import com.google.common.collect.RowSortedTable;
 import com.google.common.collect.TreeBasedTable;
+import com.kobrakid.retroachievements.LeaderboardActivity;
 import com.kobrakid.retroachievements.MainActivity;
 import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.RAAPICallback;
@@ -49,6 +53,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
     private RAAPIConnection apiConnection;
     private boolean isActive = false;
+    private boolean hasParsedUsers = false, hasParsedLeaderboards = false;
 
     private RecyclerView leaderboardsRecycler;
     private LeaderboardsAdapter adapter;
@@ -81,7 +86,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         leaderboardsRecycler = view.findViewById(R.id.leaderboards_games);
         table = TreeBasedTable.create();
         tableFiltered = TreeBasedTable.create();
-        adapter = new LeaderboardsAdapter(table, tableFiltered);
+        adapter = new LeaderboardsAdapter(this, table, tableFiltered);
         leaderboardsRecycler.setAdapter(adapter);
         manager = new LinearLayoutManager(getContext());
         leaderboardsRecycler.setLayoutManager(manager);
@@ -127,9 +132,10 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
     public void onStart() {
         super.onStart();
         isActive = true;
-        apiConnection.GetTopTenUsers(this);
-        // TODO Progress bar doesn't show up until file is downloaded
-        apiConnection.GetLeaderboards(true, this);
+        if (!hasParsedUsers)
+            apiConnection.GetTopTenUsers(this);
+        if (!hasParsedLeaderboards)
+            apiConnection.GetLeaderboards(true, this);
     }
 
     @Override
@@ -221,13 +227,26 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
                 tableLayout.addView(row3);
                 tableLayout.addView(row4);
                 tableLayout.addView(row5);
+                hasParsedUsers = true;
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_LEADERBOARDS) {
-            ((ProgressBar) getActivity().findViewById(R.id.leaderboards_progress)).setSecondaryProgress(100);
-            AsyncTask task = new LeaderboardsAsyncTask(getActivity(), getContext(), consoleDropdown, adapter, table, tableFiltered).execute(response);
+            ObjectAnimator animation = ObjectAnimator.ofInt(getActivity().findViewById(R.id.leaderboards_progress), "secondaryProgress", 100);
+            animation.setDuration(1000);
+            animation.setInterpolator(new AccelerateDecelerateInterpolator());
+            animation.start();
+            new LeaderboardsAsyncTask(getActivity(), getContext(), consoleDropdown, adapter, table, tableFiltered).execute(response);
+            hasParsedLeaderboards = true;
         }
+    }
+
+    public void onClick(String id) {
+        Intent intent = new Intent(this.getActivity(), LeaderboardActivity.class);
+        Bundle extras = new Bundle();
+        extras.putString("ID", id);
+        intent.putExtras(extras);
+        startActivity(intent);
     }
 
     /* Inner Classes and Interfaces */
@@ -287,7 +306,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         protected void onPostExecute(RowSortedTable<Integer, String, String> result) {
             super.onPostExecute(result);
             final Activity activity = mActivity.get();
-            if (activity != null) {
+            if (activity != null && result.rowKeySet().size() > 0) {
                 activity.findViewById(R.id.leaderboards_progress).setVisibility(View.GONE);
             }
             final Context context = mContext.get();

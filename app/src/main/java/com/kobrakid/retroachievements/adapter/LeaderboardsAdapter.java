@@ -1,8 +1,8 @@
 package com.kobrakid.retroachievements.adapter;
 
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +13,20 @@ import android.widget.TextView;
 
 import com.google.common.collect.RowSortedTable;
 import com.kobrakid.retroachievements.R;
+import com.kobrakid.retroachievements.fragment.LeaderboardsFragment;
 import com.squareup.picasso.Picasso;
 
 public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filterable {
 
+    private final Fragment fragment;
     private final RowSortedTable<Integer, String, String> table, tableFiltered;
     private final LeaderboardsViewHolderListenerImpl listener;
 
-    public LeaderboardsAdapter(RowSortedTable<Integer, String, String> table, RowSortedTable<Integer, String, String> tableFiltered) {
+    public LeaderboardsAdapter(Fragment fragment, RowSortedTable<Integer, String, String> table, RowSortedTable<Integer, String, String> tableFiltered) {
+        this.fragment = fragment;
         this.table = table;
         this.tableFiltered = tableFiltered;
-        this.listener = new LeaderboardsViewHolderListenerImpl();
+        this.listener = new LeaderboardsViewHolderListenerImpl(fragment, tableFiltered);
     }
 
     @NonNull
@@ -94,10 +97,20 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
     }
 
     private static class LeaderboardsViewHolderListenerImpl implements LeaderboardsViewHolderListener {
+
+        private Fragment fragment;
+        private RowSortedTable<Integer, String, String> table;
+
+        LeaderboardsViewHolderListenerImpl(Fragment fragment, RowSortedTable<Integer, String, String> table) {
+            this.fragment = fragment;
+            this.table = table;
+        }
+
         @Override
         public void onItemClicked(View view, int adapterPosition) {
-            // TODO What should happen on click?
-            Log.i("TAG", "" + adapterPosition);
+            if (fragment instanceof LeaderboardsFragment) {
+                ((LeaderboardsFragment) fragment).onClick(table.get(adapterPosition, "ID"));
+            }
         }
     }
 

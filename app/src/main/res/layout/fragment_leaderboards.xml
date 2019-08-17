@@ -41,7 +41,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/leaderboards_toggle_top_users">
+        app:layout_constraintTop_toBottomOf="@+id/leaderboards_toggle_top_users"
+        tools:layout_height="128dp">
 
     </TableLayout>
 
@@ -99,8 +100,8 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         android:background="@android:color/transparent"
         android:progress="0"
         android:secondaryProgress="0"
@@ -111,6 +112,6 @@
         app:layout_constraintTop_toBottomOf="@id/leaderboards_button_group"
         tools:progress="33"
         tools:secondaryProgress="67"
-        tools:visibility="gone" />
+        tools:visibility="visible" />
 
 </android.support.constraint.ConstraintLayout>

@@ -118,7 +118,8 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                     imageView.setId(Integer.parseInt(gameID));
                 } catch (NumberFormatException e) {
                     // TODO set up logging system
-                    // Crash happens when parsing achievements for connecting account to FB
+                    // This happens when parsing achievements like connecting one's account to FB,
+                    // developing achievements, etc.
                     e.printStackTrace();
                 }
                 imageView.setOnClickListener(this);

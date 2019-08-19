@@ -53,6 +53,8 @@ import java.util.Map;
 
 public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
+    private static final String TAG = LeaderboardsFragment.class.getName();
+
     private RAAPIConnection apiConnection;
     private boolean isActive = false;
     private boolean hasParsedUsers = false, hasParsedLeaderboards = false;
@@ -255,7 +257,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         extras.putString("TYPE", leaderboard.get("TYPE"));
         extras.putString("NUMRESULTS", leaderboard.get("NUMRESULTS"));
         intent.putExtras(extras);
-        Log.i("TAG", leaderboard.toString());
+        Log.v(TAG, leaderboard.toString());
         startActivity(intent);
     }
 

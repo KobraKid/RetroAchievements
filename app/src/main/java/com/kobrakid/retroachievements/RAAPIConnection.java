@@ -25,6 +25,8 @@ import java.util.Date;
 @SuppressWarnings("WeakerAccess")
 public class RAAPIConnection {
 
+    private static final String TAG = RAAPIConnection.class.getName();
+
     // Response Codes
     public static final int RESPONSE_ERROR = -1;
     public static final int RESPONSE_GET_TOP_TEN_USERS = 0;
@@ -693,7 +695,7 @@ public class RAAPIConnection {
         @Override
         protected Document doInBackground(String... urls) {
             if (urls.length != 1) {
-                Log.e("TAG", "The GetWeb task takes exactly one parameter, the URL to download.");
+                Log.e(TAG, "The GetWeb task takes exactly one parameter, the URL to download.");
                 return Jsoup.parse("");
             }
             String url = urls[0];
@@ -708,7 +710,7 @@ public class RAAPIConnection {
 
         @Override
         protected void onPostExecute(Document result) {
-            callback.callback(callbackCode, result.outerHtml());
+            callback.callback(result.outerHtml().length() > 0 ? callbackCode : RESPONSE_ERROR, result.outerHtml());
         }
     }
 
@@ -733,11 +735,11 @@ public class RAAPIConnection {
                     int size = is.available();
                     byte[] buffer = new byte[size];
                     if (is.read(buffer) == -1)
-                        Log.i("TAG", "Retrieved cached data");
+                        Log.i(TAG, "Retrieved cached data");
                     is.close();
                     response = new String(buffer);
                 } catch (IOException e) {
-                    Log.e("TAG", "Error in Reading: " + e.getLocalizedMessage());
+                    Log.e(TAG, "Error reading data", e);
                 }
             }
             if (response.length() == 0) {
@@ -752,9 +754,9 @@ public class RAAPIConnection {
                             writer.write(response);
                             writer.flush();
                             writer.close();
-                            Log.i("TAG", "Wrote cached data");
+                            Log.i(TAG, "Wrote cached data");
                         } catch (IOException e) {
-                            Log.e("TAG", "Error in Writing: " + e.getLocalizedMessage());
+                            Log.e(TAG, "Error writing data", e);
                         }
                         callback.callback(RESPONSE_GET_LEADERBOARDS, response);
                     }

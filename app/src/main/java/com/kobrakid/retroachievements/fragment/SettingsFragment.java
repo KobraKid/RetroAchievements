@@ -35,6 +35,8 @@ import java.util.List;
 
 public class SettingsFragment extends Fragment implements RAAPICallback {
 
+    private static final String TAG = SettingsFragment.class.getName();
+
     // Unused, but guarantees that the parent Activity implements OnFragmentInteractionListener
     private OnFragmentInteractionListener listener;
     private RAAPIConnection apiConnection;
@@ -198,7 +200,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
                     @Override
                     public void run() {
                         db.consoleDao().insertConsole(new Console(Integer.parseInt(currentConsole.toString()), consoleName.toString(), reader.length()));
-                        Log.i("TAG", "Adding console " + consoleName.toString() + "(" + currentConsole.toString() + "): " + reader.length() + " games");
+                        Log.d(TAG, "Adding console " + consoleName.toString() + "(" + currentConsole.toString() + "): " + reader.length() + " games");
                     }
                 });
                 // Recurse until all consoles are added to db

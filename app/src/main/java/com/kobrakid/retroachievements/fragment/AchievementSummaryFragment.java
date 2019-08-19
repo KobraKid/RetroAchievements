@@ -33,6 +33,8 @@ import java.util.Map;
  */
 public class AchievementSummaryFragment extends Fragment implements RAAPICallback {
 
+    private static final String TAG = AchievementSummaryFragment.class.getName();
+
     private RAAPIConnection apiConnection = null;
     private String gameID = null;
     private String gameInfoAndUserProgressResponse = "";
@@ -231,11 +233,10 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
 
                 totalAch++;
             }
-            Log.i("TAG", hardcoreEarnings.toString());
             adapter.notifyDataSetChanged();
         } catch (JSONException e) {
             if (e.toString().contains("Value null at Achievements of type org.json.JSONObject$1 cannot be converted to JSONObject"))
-                Log.i("TAG", "This game has no achievements");
+                Log.d(TAG, "This game has no achievements");
             else
                 e.printStackTrace();
         }

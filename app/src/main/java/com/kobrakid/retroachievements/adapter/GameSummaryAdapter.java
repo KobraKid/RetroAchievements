@@ -20,6 +20,8 @@ import java.util.ArrayList;
 
 public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.GameSummaryViewHolder> {
 
+    private static final String TAG = GameSummaryAdapter.class.getName();
+
     private final ArrayList<String> imageIcons;
     private final ArrayList<String> titles;
     private final ArrayList<String> stats;
@@ -46,7 +48,7 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
     @Override
     public void onBindViewHolder(@NonNull GameSummaryViewHolder holder, int position) {
         if (position >= imageIcons.size()) {
-            Log.e("retroachievements", "Position too big: " + position);
+            Log.e(TAG, "Position too big: " + position);
             return;
         }
         Picasso.get()

@@ -35,6 +35,8 @@ import java.util.List;
 
 public class ListsFragment extends Fragment implements RAAPICallback {
 
+    private static final String TAG = ListsFragment.class.getName();
+
     public boolean isShowingGames = false;
 
     private RAAPIConnection apiConnection;
@@ -156,12 +158,10 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                             public void run() {
                                 // Get current console
                                 List<Console> current = db.consoleDao().getConsoleWithID(Integer.parseInt(id));
-                                Log.i("TAG", current.toString() + "@" + consoleNames.indexOf(name));
-
                                 // If it exists and has 0 games
                                 if (current.size() > 0 && current.get(0).getGameCount() == 0 && consoleNames.contains(name)) {
                                     final int pos = consoleNames.indexOf(name);
-                                    Log.i("TAG", "Removing " + consoleIDs.remove(pos) + ": " + consoleNames.remove(pos) + " @ " + pos);
+                                    Log.d(TAG, "Removing " + consoleIDs.remove(pos) + ": " + consoleNames.remove(pos) + " @ " + pos);
                                     AppExecutors.getInstance().mainThread().execute(new Runnable() {
                                         @Override
                                         public void run() {

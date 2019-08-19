@@ -25,10 +25,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
-        android:text="@string/username"
-        android:visibility="gone"
-        tools:text="KobraKid1337"
-        tools:visibility="visible" />
+        android:text="@string/login_prompt"
+        tools:text="KobraKid1337" />
 
     <TextView
         android:id="@+id/nav_stats"

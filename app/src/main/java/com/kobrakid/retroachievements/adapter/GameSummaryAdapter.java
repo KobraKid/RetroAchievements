@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.GameSummaryViewHolder> {
 
-    private static final String TAG = GameSummaryAdapter.class.getName();
+    private static final String TAG = GameSummaryAdapter.class.getSimpleName();
 
     private final ArrayList<String> imageIcons;
     private final ArrayList<String> titles;

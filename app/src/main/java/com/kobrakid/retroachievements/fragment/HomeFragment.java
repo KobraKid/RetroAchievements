@@ -29,6 +29,8 @@ import org.jsoup.select.Elements;
 
 public class HomeFragment extends Fragment implements RAAPICallback, View.OnClickListener {
 
+    private static final String TAG = HomeFragment.class.getSimpleName();
+
     private RAAPIConnection apiConnection;
     // TODO Only call API when the view is first started, or when the user asks for a manual refresh
     private boolean hasPopulatedGames = false, hasPopulatedMasteries = false;
@@ -122,6 +124,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                         imageView.setBackground(getActivity().getDrawable(R.drawable.image_view_border));
                     Picasso.get()
                             .load(Consts.BASE_URL + imageIcon)
+                            .placeholder(R.drawable.favicon)
                             .into(imageView);
                     masteries.addView(imageView);
                     try {
@@ -189,6 +192,8 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                     recentGames.addView(game, i);
                 }
 
+                // Show View More button
+                getView().findViewById(R.id.home_view_more).setVisibility(View.VISIBLE);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

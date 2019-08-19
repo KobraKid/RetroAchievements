@@ -25,7 +25,7 @@ import java.util.Date;
 @SuppressWarnings("WeakerAccess")
 public class RAAPIConnection {
 
-    private static final String TAG = RAAPIConnection.class.getName();
+    private static final String TAG = RAAPIConnection.class.getSimpleName();
 
     // Response Codes
     public static final int RESPONSE_ERROR = -1;

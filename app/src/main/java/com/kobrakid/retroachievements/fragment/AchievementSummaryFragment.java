@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class AchievementSummaryFragment extends Fragment implements RAAPICallback {
 
-    private static final String TAG = AchievementSummaryFragment.class.getName();
+    private static final String TAG = AchievementSummaryFragment.class.getSimpleName();
 
     private RAAPIConnection apiConnection = null;
     private String gameID = null;

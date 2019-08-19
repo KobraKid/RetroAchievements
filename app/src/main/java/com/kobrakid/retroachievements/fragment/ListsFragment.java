@@ -35,7 +35,7 @@ import java.util.List;
 
 public class ListsFragment extends Fragment implements RAAPICallback {
 
-    private static final String TAG = ListsFragment.class.getName();
+    private static final String TAG = ListsFragment.class.getSimpleName();
 
     public boolean isShowingGames = false;
 

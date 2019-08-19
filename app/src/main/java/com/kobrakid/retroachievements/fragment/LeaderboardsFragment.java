@@ -53,7 +53,7 @@ import java.util.Map;
 
 public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
-    private static final String TAG = LeaderboardsFragment.class.getName();
+    private static final String TAG = LeaderboardsFragment.class.getSimpleName();
 
     private RAAPIConnection apiConnection;
     private boolean isActive = false;

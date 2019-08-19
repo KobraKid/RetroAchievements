@@ -36,19 +36,20 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         setResult(MainActivity.LOGIN_CANCELLED);
+        super.onBackPressed();
     }
 
     public void login(View view) {
         String ra_user = ((EditText) findViewById(R.id.login_field)).getText().toString();
-        // Successfully logged in, save the new credentials and return
-        this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), ra_user).apply();
-
-        setResult(MainActivity.LOGIN_SUCCESS);
-
-        Toast.makeText(getApplicationContext(), getString(R.string.new_login_welcome, ra_user), Toast.LENGTH_SHORT).show();
-
+        if (ra_user.length() > 0) {
+            // Successfully logged in, save the new credentials and return
+            this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), ra_user).apply();
+            setResult(MainActivity.LOGIN_SUCCESS);
+            Toast.makeText(getApplicationContext(), getString(R.string.new_login_welcome, ra_user), Toast.LENGTH_SHORT).show();
+        } else {
+            setResult(MainActivity.LOGIN_FAILURE);
+        }
         finish();
     }
 

@@ -77,12 +77,15 @@
         app:layout_constraintTop_toBottomOf="@+id/masteries_scrollview">
 
         <Button
+            android:id="@+id/home_view_more"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimaryDark"
             android:onClick="showRecentGames"
             android:text="@string/view_more"
-            android:textColor="?attr/colorAccent" />
+            android:textColor="?attr/colorAccent"
+            android:visibility="gone"
+            tools:visibility="visible" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

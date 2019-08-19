@@ -54,9 +54,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:text="@string/settings_toggle_console_lag_warning"
-        android:textColor="@color/blank_colorAccent"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        android:textColor="@color/blank_colorAccent" />
 
     <CheckBox
         android:id="@+id/settings_hide_games"

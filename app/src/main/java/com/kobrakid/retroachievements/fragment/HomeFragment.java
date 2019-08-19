@@ -104,30 +104,36 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
             LinearLayout masteries = getActivity().findViewById(R.id.masteries);
             masteries.removeAllViews();
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            params.setMarginEnd(1);
 
             Document document = Jsoup.parse(response);
             Elements elements = document.select("div[class=trophyimage]");
 
             for (Element element : elements) {
-                String gameID = element.selectFirst("a[href]").attr("href").substring(6);
-                String imageIcon = element.selectFirst("img[src]").attr("src");
-                ImageView imageView = new ImageView(getContext());
-                imageView.setLayoutParams(params);
-                imageView.setAdjustViewBounds(true);
-                imageView.setBackground(getActivity().getDrawable(R.drawable.border));
-                Picasso.get()
-                        .load(Consts.BASE_URL + imageIcon)
-                        .into(imageView);
-                masteries.addView(imageView);
-                try {
-                    imageView.setId(Integer.parseInt(gameID));
-                } catch (NumberFormatException e) {
-                    // TODO set up logging system
-                    // This happens when parsing achievements like connecting one's account to FB,
-                    // developing achievements, etc.
-                    e.printStackTrace();
+                String gameID = element.selectFirst("a[href]").attr("href");
+                if (gameID.length() >= 6) {
+                    gameID = gameID.substring(6);
+                    Element image = element.selectFirst("img[src]");
+                    String imageIcon = image.attr("src");
+                    ImageView imageView = new ImageView(getContext());
+                    imageView.setLayoutParams(params);
+                    imageView.setAdjustViewBounds(true);
+                    if (image.className().equals("goldimage"))
+                        imageView.setBackground(getActivity().getDrawable(R.drawable.image_view_border));
+                    Picasso.get()
+                            .load(Consts.BASE_URL + imageIcon)
+                            .into(imageView);
+                    masteries.addView(imageView);
+                    try {
+                        imageView.setId(Integer.parseInt(gameID));
+                    } catch (NumberFormatException e) {
+                        // TODO set up logging system
+                        // This happens when parsing achievements like connecting one's account to FB,
+                        // developing achievements, etc.
+                        e.printStackTrace();
+                    }
+                    imageView.setOnClickListener(this);
                 }
-                imageView.setOnClickListener(this);
             }
             masteries.setVisibility(View.VISIBLE);
             hasPopulatedMasteries = true;

@@ -130,86 +130,75 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             consoleAdapter.notifyDataSetChanged();
             try {
                 reader = new JSONArray(response);
+                // Loop once to add all consoles to view
                 for (int i = 0; i < reader.length(); i++) {
-                    // Get name and ID of current console
+                    // Get console information
                     JSONObject console = reader.getJSONObject(i);
+                    final String id = console.getString("ID");
+
+                    // Add console information
                     consoleNames.add(console.getString("Name"));
                     Collections.sort(consoleNames);
-                    consoleIDs.add(consoleNames.indexOf(console.getString("Name")), console.getString("ID"));
-
-                    if (hideEmptyConsoles) {
-                        final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
-                        final int id = Integer.parseInt(console.getString("ID"));
+                    consoleIDs.add(consoleNames.indexOf(console.getString("Name")), id);
+                    consoleAdapter.notifyItemInserted(consoleNames.indexOf(console.getString("Name")));
+                }
+                // Loop twice if we wish to hide empty consoles
+                if (hideEmptyConsoles) {
+                    for (int i = 0; i < reader.length(); i++) {
+                        // Get console information
+                        JSONObject console = reader.getJSONObject(i);
+                        final String id = console.getString("ID");
                         final String name = console.getString("Name");
-                        final RAAPICallback callback = this;
+
+                        final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
                         AppExecutors.getInstance().diskIO().execute(new Runnable() {
                             @Override
                             public void run() {
                                 // Get current console
-                                List<Console> current = db.consoleDao().getConsoleWithID(id);
+                                List<Console> current = db.consoleDao().getConsoleWithID(Integer.parseInt(id));
                                 Log.i("TAG", current.toString() + "@" + consoleNames.indexOf(name));
 
-                                if (current.size() == 0) { // If it doesn't exist
-                                    db.consoleDao().insertConsole(new Console(id, name, 0));
-                                    apiConnection.GetGameList("" + id, callback);
-                                } else if (current.get(0).getGameCount() == 0) { // If it exists and has 0 games
-                                    int pos = consoleNames.indexOf(name);
-                                    Log.i("REMOVE", consoleIDs.remove(pos));
-                                    Log.i("REMOVE", consoleNames.remove(pos));
+                                // If it exists and has 0 games
+                                if (current.size() > 0 && current.get(0).getGameCount() == 0 && consoleNames.contains(name)) {
+                                    final int pos = consoleNames.indexOf(name);
+                                    Log.i("TAG", "Removing " + consoleIDs.remove(pos) + ": " + consoleNames.remove(pos) + " @ " + pos);
+                                    AppExecutors.getInstance().mainThread().execute(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            consoleAdapter.notifyItemRemoved(pos);
+                                        }
+                                    });
                                 }
-                                // If it exists and has games > 0, do nothing
                             }
                         });
                     }
                 }
-                consoleAdapter.notifyDataSetChanged();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_LIST) {
             try {
                 reader = new JSONArray(response);
-
-                if (hideEmptyConsoles && isPopulatingConsoles && reader.length() > 0) { // If we have a console with games > 0
-                    final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
-                    final int id = Integer.parseInt(((JSONObject) reader.get(0)).getString("ConsoleID"));
-                    final int count = reader.length();
-                    final String name = consoleNames.get(consoleIDs.indexOf("" + id));
-                    // Bring the DB up to date with game counts
-                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                db.consoleDao().insertConsole(new Console(id, name, count));
-                            } catch (Exception e) {
-                                db.consoleDao().updateConsole(new Console(id, name, count));
-                            }
-                        }
-                    });
-                    // Re-get consoles
-//                     apiConnection.GetConsoleIDs(this);
-                } else {
-                    if (reader.length() > 0) {
-                        getActivity().findViewById(R.id.list_no_games).setVisibility(View.GONE);
-                        for (int i = 0; i < reader.length(); i++) {
-                            JSONObject game = reader.getJSONObject(i);
-                            gameTitles.add(game.getString("Title"));
-                            gameIDs.add(game.getString("ID"));
-                            gameImageIcons.add(game.getString("ImageIcon"));
-                        }
-                    } else {
-                        getActivity().findViewById(R.id.list_no_games).setVisibility(View.VISIBLE);
+                if (reader.length() > 0) {
+                    getActivity().findViewById(R.id.list_no_games).setVisibility(View.GONE);
+                    for (int i = 0; i < reader.length(); i++) {
+                        JSONObject game = reader.getJSONObject(i);
+                        gameTitles.add(game.getString("Title"));
+                        gameIDs.add(game.getString("ID"));
+                        gameImageIcons.add(game.getString("ImageIcon"));
                     }
-                    // Show Game List RecyclerView
-                    gameAdapter.notifyDataSetChanged();
-                    gameListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            gameListRecyclerView.setVisibility(View.VISIBLE);
-                        }
-                    });
+                } else {
+                    getActivity().findViewById(R.id.list_no_games).setVisibility(View.VISIBLE);
                 }
+                // Show Game List RecyclerView
+                gameAdapter.notifyDataSetChanged();
+                gameListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        gameListRecyclerView.setVisibility(View.VISIBLE);
+                    }
+                });
             } catch (JSONException e) {
                 e.printStackTrace();
             }

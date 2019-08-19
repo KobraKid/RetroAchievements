@@ -17,6 +17,9 @@ public interface ConsoleDao {
     @Query("SELECT * FROM console WHERE id == :consoleID")
     List<Console> getConsoleWithID(int consoleID);
 
+    @Query("DELETE FROM console")
+    void clearTable();
+
     @Insert
     void insertConsole(Console console);
 

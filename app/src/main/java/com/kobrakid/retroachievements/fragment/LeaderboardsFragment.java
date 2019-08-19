@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,6 +49,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
@@ -241,11 +243,19 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         }
     }
 
-    public void onClick(String id) {
+    public void onClick(Map<String, String> leaderboard) {
         Intent intent = new Intent(this.getActivity(), LeaderboardActivity.class);
         Bundle extras = new Bundle();
-        extras.putString("ID", id);
+        extras.putString("ID", leaderboard.get("ID"));
+        extras.putString("GAME", leaderboard.get("GAME"));
+        extras.putString("IMAGE", leaderboard.get("IMAGE"));
+        extras.putString("CONSOLE", leaderboard.get("CONSOLE"));
+        extras.putString("TITLE", leaderboard.get("TITLE"));
+        extras.putString("DESCRIPTION", leaderboard.get("DESCRIPTION"));
+        extras.putString("TYPE", leaderboard.get("TYPE"));
+        extras.putString("NUMRESULTS", leaderboard.get("NUMRESULTS"));
         intent.putExtras(extras);
+        Log.i("TAG", leaderboard.toString());
         startActivity(intent);
     }
 
@@ -280,7 +290,8 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
                     Element row = rows.get(i);
                     leaderboards.put(i - 1, "ID", row.select("td").get(0).text());
                     leaderboards.put(i - 1, "IMAGE", row.select("td").get(1).selectFirst("img").attr("src"));
-                    leaderboards.put(i - 1, "GAME", row.select("td").get(1).text());
+                    String attr = row.select("td").get(1).selectFirst("div").attr("onmouseover");
+                    leaderboards.put(i - 1, "GAME", attr.substring(attr.indexOf("<b>") + 3, attr.indexOf("</b>")));
                     leaderboards.put(i - 1, "CONSOLE", row.select("td").get(2).text());
                     leaderboards.put(i - 1, "TITLE", row.select("td").get(3).text());
                     leaderboards.put(i - 1, "DESCRIPTION", row.select("td").get(4).text());

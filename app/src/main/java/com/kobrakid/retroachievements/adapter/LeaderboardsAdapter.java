@@ -109,7 +109,7 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
         @Override
         public void onItemClicked(View view, int adapterPosition) {
             if (fragment instanceof LeaderboardsFragment) {
-                ((LeaderboardsFragment) fragment).onClick(table.get(adapterPosition, "ID"));
+                ((LeaderboardsFragment) fragment).onClick(table.row(adapterPosition));
             }
         }
     }

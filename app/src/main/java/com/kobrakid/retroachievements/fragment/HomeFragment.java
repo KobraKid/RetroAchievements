@@ -57,6 +57,14 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
     @Override
     public void onStart() {
         super.onStart();
+        hasPopulatedMasteries = false;
+        hasPopulatedGames = false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        isActive = true;
 
         apiConnection.GetUserWebProfile(MainActivity.ra_user, HomeFragment.this);
 
@@ -69,12 +77,6 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
             // TODO allow manual repopulation
             hasPopulatedGames = true;
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        isActive = true;
     }
 
     @Override
@@ -102,6 +104,8 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
 
         if (!hasPopulatedMasteries && responseCode == RAAPIConnection.RESPONSE_GET_USER_WEB_PROFILE) {
             LinearLayout masteries = getActivity().findViewById(R.id.masteries);
+            masteries.removeAllViews();
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
             Document document = Jsoup.parse(response);
             Elements elements = document.select("div[class=trophyimage]");
@@ -110,6 +114,9 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                 String gameID = element.selectFirst("a[href]").attr("href").substring(6);
                 String imageIcon = element.selectFirst("img[src]").attr("src");
                 ImageView imageView = new ImageView(getContext());
+                imageView.setLayoutParams(params);
+                imageView.setAdjustViewBounds(true);
+                imageView.setBackground(getActivity().getDrawable(R.drawable.border));
                 Picasso.get()
                         .load(Consts.BASE_URL + imageIcon)
                         .into(imageView);
@@ -140,6 +147,8 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
 
                 // Fill out recently played games list
                 LinearLayout recentGames = getView().findViewById(R.id.home_recent_games);
+                if (recentGames.getChildCount() > 1)
+                    recentGames.removeViews(0, recentGames.getChildCount() - 1);
                 JSONArray recentlyPlayed = reader.getJSONArray("RecentlyPlayed");
                 for (int i = 0; i < recentlyPlayed.length(); i++) {
                     LinearLayout game = (LinearLayout) View.inflate(getContext(), R.layout.view_holder_game_summary, null);

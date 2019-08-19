@@ -47,7 +47,6 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
             ColorMatrix matrix = new ColorMatrix();
             matrix.setSaturation(0);
             ((ImageView) view.findViewById(R.id.achievement_details_badge)).setColorFilter(new ColorMatrixColorFilter(matrix));
-//            view.findViewById(R.id.achievement_details_date).setVisibility(View.GONE);
         } else {
             ((ImageView) view.findViewById(R.id.achievement_details_badge)).clearColorFilter();
             ((TextView) view.findViewById(R.id.achievement_details_date))
@@ -79,9 +78,11 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
 
         postponeEnterTransition();
 
+        // TODO Figure out why some images load in tiny (i.e. It's tough to be a bug - Secret Of Evermore [SNES])
         final ImageView badge = view.findViewById(R.id.achievement_details_badge);
         Picasso.get()
                 .load("http://retroachievements.org/Badge/" + getArguments().getString("ImageIcon") + ".png")
+                .resize(64, 64)
                 .into(badge, new Callback() {
                     @Override
                     public void onSuccess() {

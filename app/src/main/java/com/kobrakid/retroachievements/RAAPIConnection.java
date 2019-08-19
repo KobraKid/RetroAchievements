@@ -43,6 +43,7 @@ public class RAAPIConnection {
     public static final int RESPONSE_GET_LEADERBOARDS = 13;
     public static final int RESPONSE_GET_LEADERBOARD = 14;
     public static final int RESPONSE_GET_USER_WEB_PROFILE = 15;
+    public static final int RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION = 16;
 
     private static final String BASE_URL = Consts.BASE_URL + "/" + Consts.API_URL + "/";
 
@@ -640,24 +641,37 @@ public class RAAPIConnection {
      * @param leaderboardID The ID of the corresponding leaderboard.
      * @param callback      The RAAPICallback that should accept the results of the call.
      */
-    public void GetLeaderboard(String leaderboardID, final RAAPICallback callback) {
+    public void GetLeaderboard(String leaderboardID, String count, final RAAPICallback callback) {
         if (leaderboardID == null)
             callback.callback(RESPONSE_ERROR, "No user");
         else
-            new GetWeb(callback, RESPONSE_GET_LEADERBOARD).execute(Consts.BASE_URL + "/" + Consts.LEADERBOARDS_INFO_POSTFIX + leaderboardID);
+            new GetWeb(callback, RESPONSE_GET_LEADERBOARD).execute(Consts.BASE_URL + "/" + Consts.LEADERBOARDS_INFO_POSTFIX + leaderboardID + "&c=" + count);
     }
 
     /**
      * Scrapes the RA website for any of the user's information that is not exposed by the API.
      *
      * @param user     The user whose information should be scraped.
-     * @param callback he RAAPICallback that should accept the results of the API call.
+     * @param callback The RAAPICallback that should accept the results of the API call.
      */
     public void GetUserWebProfile(String user, final RAAPICallback callback) {
         if (user == null)
             callback.callback(RESPONSE_ERROR, "No user");
         else
             new GetWeb(callback, RESPONSE_GET_USER_WEB_PROFILE).execute(Consts.BASE_URL + "/" + Consts.USER_POSTFIX + "/" + user);
+    }
+
+    /**
+     * Scrapes the RA website for the achievement distribution of a particular game.
+     *
+     * @param gameID   The ID of the game whose distribution is to be fetched.
+     * @param callback The RAAPICallback that should accept the results of the API call.
+     */
+    public void GetAchievementDistribution(String gameID, final RAAPICallback callback) {
+        if (gameID == null)
+            callback.callback(RESPONSE_ERROR, "No user");
+        else
+            new GetWeb(callback, RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION).execute(Consts.BASE_URL + "/" + Consts.GAME_POSTFIX + "/" + gameID);
     }
 
     /* Inner Classes and Interfaces */

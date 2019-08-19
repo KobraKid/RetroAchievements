@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Preference Keys -->
-    <string name="login_key">com.kobrakid.retroachievements.LOGIN_PREFERENCES_FILE_KEY</string>
+    <string name="shared_preferences_key">com.kobrakid.retroachievements.LOGIN_PREFERENCES_FILE_KEY</string>
     <string name="ra_user">saved_ra_user</string>
     <string name="theme_setting">setting_saved_theme</string>
     <string name="empty_console_hide_setting">setting_hide_empty_consoles</string>

@@ -17,7 +17,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
         setTheme(ThemeManager.getTheme(this, sharedPref));
 
         setContentView(R.layout.activity_login);
@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     public void login(View view) {
         String ra_user = ((EditText) findViewById(R.id.login_field)).getText().toString();
         // Successfully logged in, save the new credentials and return
-        this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), ra_user).apply();
+        this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), ra_user).apply();
 
         setResult(MainActivity.LOGIN_SUCCESS);
 

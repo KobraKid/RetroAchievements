@@ -99,9 +99,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
     public void callback(int responseCode, String response) {
         if (!isActive)
             return;
-
         JSONObject reader;
-
         if (!hasPopulatedMasteries && responseCode == RAAPIConnection.RESPONSE_GET_USER_WEB_PROFILE) {
             LinearLayout masteries = getActivity().findViewById(R.id.masteries);
             masteries.removeAllViews();

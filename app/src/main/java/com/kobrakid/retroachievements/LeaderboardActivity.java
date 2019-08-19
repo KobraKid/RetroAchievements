@@ -39,7 +39,7 @@ public class LeaderboardActivity extends AppCompatActivity implements RAAPICallb
         super.onCreate(savedInstanceState);
 
         // Set up theme and title bar
-        SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
         setTheme(ThemeManager.getTheme(this, sharedPref));
 
         setContentView(R.layout.activity_leaderboard);

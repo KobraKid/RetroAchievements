@@ -42,7 +42,7 @@ public class SettingsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Initialize preferences object
-        sharedPref = getActivity().getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
+        sharedPref = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
@@ -81,6 +81,10 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        ((CheckBox) view.findViewById(R.id.settings_hide_consoles)).setChecked(sharedPref.getBoolean(getString(R.string.empty_console_hide_setting), false));
+        if (sharedPref.getBoolean(getString(R.string.empty_console_hide_setting), false))
+            view.findViewById(R.id.settings_hide_consoles_warning).setVisibility(View.VISIBLE);
+        ((CheckBox) view.findViewById(R.id.settings_hide_games)).setChecked(sharedPref.getBoolean(getString(R.string.empty_game_hide_setting), false));
         ((CheckBox) view.findViewById(R.id.settings_hide_consoles)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -118,6 +122,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void hideConsoles(boolean hide) {
+        getActivity().findViewById(R.id.settings_hide_consoles_warning).setVisibility(hide ? View.VISIBLE : View.GONE);
         sharedPref.edit().putBoolean(getString(R.string.empty_console_hide_setting), hide).apply();
     }
 

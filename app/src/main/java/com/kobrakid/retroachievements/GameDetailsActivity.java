@@ -63,7 +63,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
         super.onCreate(savedInstanceState);
 
         // Set up theme and title bar
-        SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
         setTheme(ThemeManager.getTheme(this, sharedPref));
 
         setContentView(R.layout.activity_game_details);
@@ -305,7 +305,6 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
             final Context context = contextReference.get();
             final LineChart chart = lineChartReference.get();
             if (context != null && chart != null) {
-
                 // Set chart data
                 List<Entry> entries = new ArrayList<>();
                 for (int i = 0; i < chartData[0].length; i++) {
@@ -333,6 +332,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
                 chart.getAxisRight().setEnabled(false);
                 chart.getLegend().setEnabled(false);
                 chart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+                chart.getAxisLeft().setAxisMinimum(0f);
                 chart.setClickable(false);
 
                 // Set chart description

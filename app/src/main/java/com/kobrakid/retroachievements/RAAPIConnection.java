@@ -51,6 +51,8 @@ public class RAAPIConnection {
     private final String ra_api_key;
     private final Context context;
 
+    /* Thanks to @RetroAchievements.org for providing RA_API.php */
+
     /**
      * @param context The context which will hold the Request Queue.
      */
@@ -622,6 +624,8 @@ public class RAAPIConnection {
             );
         }
     }
+
+    /* Web Scraping */
 
     /**
      * Scrapes the RA website for all available leaderboards.

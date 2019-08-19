@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         super.onCreate(savedInstanceState);
 
         // Try to get saved preferences and log in
-        sharedPref = this.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
+        sharedPref = this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
         setTheme(ThemeManager.getTheme(this, sharedPref));
         ra_user = sharedPref.getString(getString(R.string.ra_user), null);
 
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         switch (resultCode) {
             case LOGIN_SUCCESS:
                 Context context = MainActivity.this;
-                SharedPreferences sharedPref = context.getSharedPreferences(getString(R.string.login_key), Context.MODE_PRIVATE);
+                SharedPreferences sharedPref = context.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
                 ra_user = sharedPref.getString(getString(R.string.ra_user), null);
 
                 ((TextView) findViewById(R.id.nav_username)).setText(ra_user);

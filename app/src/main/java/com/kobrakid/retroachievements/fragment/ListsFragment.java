@@ -2,6 +2,7 @@ package com.kobrakid.retroachievements.fragment;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -33,6 +34,8 @@ public class ListsFragment extends Fragment implements RAAPICallback {
 
     private RAAPIConnection apiConnection;
     private boolean isActive = false;
+    private boolean hideEmptyConsoles;
+    private boolean isPopulatingConsoles = false;
 
     private RecyclerView consoleListRecyclerView, gameListRecyclerView;
     private LinearLayoutManager consoleListLayoutManager, gameListLayoutManager;
@@ -54,6 +57,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         apiConnection = ((MainActivity) getActivity()).apiConnection;
+        hideEmptyConsoles = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_console_hide_setting), false);
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_lists, container, false);
@@ -115,8 +119,10 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             return;
         JSONArray reader;
         if (responseCode == RAAPIConnection.RESPONSE_GET_CONSOLE_IDS) {
+            isPopulatingConsoles = true;
             consoleIDs.clear();
             consoleNames.clear();
+            consoleAdapter.notifyDataSetChanged();
             try {
                 reader = new JSONArray(response);
                 for (int i = 0; i < reader.length(); i++) {
@@ -124,39 +130,45 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                     consoleNames.add(console.getString("Name"));
                     Collections.sort(consoleNames);
                     consoleIDs.add(consoleNames.indexOf(console.getString("Name")), console.getString("ID"));
+                    if (hideEmptyConsoles)
+                        apiConnection.GetGameList(consoleIDs.get(i), this);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            isPopulatingConsoles = false;
             consoleAdapter.notifyDataSetChanged();
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_LIST) {
             try {
                 reader = new JSONArray(response);
 
-                if (reader.length() > 0) {
-                    getActivity().findViewById(R.id.list_no_games).setVisibility(View.GONE);
-                    for (int i = 0; i < reader.length(); i++) {
-                        JSONObject game = reader.getJSONObject(i);
-                        gameTitles.add(game.getString("Title"));
-                        gameIDs.add(game.getString("ID"));
-                        gameImageIcons.add(game.getString("ImageIcon"));
-                    }
+                if (hideEmptyConsoles && isPopulatingConsoles && reader.length() > 0) {
+                    consoleAdapter.notifyItemInserted(consoleIDs.indexOf(((JSONObject) reader.get(0)).getString("ConsoleID")));
                 } else {
-                    getActivity().findViewById(R.id.list_no_games).setVisibility(View.VISIBLE);
+                    if (reader.length() > 0) {
+                        getActivity().findViewById(R.id.list_no_games).setVisibility(View.GONE);
+                        for (int i = 0; i < reader.length(); i++) {
+                            JSONObject game = reader.getJSONObject(i);
+                            gameTitles.add(game.getString("Title"));
+                            gameIDs.add(game.getString("ID"));
+                            gameImageIcons.add(game.getString("ImageIcon"));
+                        }
+                    } else {
+                        getActivity().findViewById(R.id.list_no_games).setVisibility(View.VISIBLE);
+                    }
+                    // Show Game List RecyclerView
+                    gameAdapter.notifyDataSetChanged();
+                    gameListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            gameListRecyclerView.setVisibility(View.VISIBLE);
+                        }
+                    });
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            gameAdapter.notifyDataSetChanged();
-
-            // Show Game List RecyclerView
-            gameListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    gameListRecyclerView.setVisibility(View.VISIBLE);
-                }
-            });
         }
     }
 

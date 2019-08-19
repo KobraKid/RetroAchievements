@@ -48,6 +48,16 @@
         android:text="@string/settings_toggle_console"
         android:textSize="18sp" />
 
+    <TextView
+        android:id="@+id/settings_hide_consoles_warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/settings_toggle_console_lag_warning"
+        android:textColor="@color/blank_colorAccent"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
     <CheckBox
         android:id="@+id/settings_hide_games"
         android:layout_width="match_parent"

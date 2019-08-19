@@ -9,17 +9,21 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.kobrakid.retroachievements.AppExecutors;
 import com.kobrakid.retroachievements.MainActivity;
 import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.RAAPICallback;
 import com.kobrakid.retroachievements.RAAPIConnection;
 import com.kobrakid.retroachievements.adapter.ConsoleAdapter;
 import com.kobrakid.retroachievements.adapter.GameSummaryAdapter;
+import com.kobrakid.retroachievements.database.Console;
+import com.kobrakid.retroachievements.database.RetroAchievementsDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +31,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class ListsFragment extends Fragment implements RAAPICallback {
 
@@ -126,24 +131,63 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             try {
                 reader = new JSONArray(response);
                 for (int i = 0; i < reader.length(); i++) {
+                    // Get name and ID of current console
                     JSONObject console = reader.getJSONObject(i);
                     consoleNames.add(console.getString("Name"));
                     Collections.sort(consoleNames);
                     consoleIDs.add(consoleNames.indexOf(console.getString("Name")), console.getString("ID"));
-                    if (hideEmptyConsoles)
-                        apiConnection.GetGameList(consoleIDs.get(i), this);
+
+                    if (hideEmptyConsoles) {
+                        final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
+                        final int id = Integer.parseInt(console.getString("ID"));
+                        final String name = console.getString("Name");
+                        final RAAPICallback callback = this;
+                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Get current console
+                                List<Console> current = db.consoleDao().getConsoleWithID(id);
+                                Log.i("TAG", current.toString() + "@" + consoleNames.indexOf(name));
+
+                                if (current.size() == 0) { // If it doesn't exist
+                                    db.consoleDao().insertConsole(new Console(id, name, 0));
+                                    apiConnection.GetGameList("" + id, callback);
+                                } else if (current.get(0).getGameCount() == 0) { // If it exists and has 0 games
+                                    int pos = consoleNames.indexOf(name);
+                                    Log.i("REMOVE", consoleIDs.remove(pos));
+                                    Log.i("REMOVE", consoleNames.remove(pos));
+                                }
+                                // If it exists and has games > 0, do nothing
+                            }
+                        });
+                    }
                 }
+                consoleAdapter.notifyDataSetChanged();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            isPopulatingConsoles = false;
-            consoleAdapter.notifyDataSetChanged();
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_LIST) {
             try {
                 reader = new JSONArray(response);
 
-                if (hideEmptyConsoles && isPopulatingConsoles && reader.length() > 0) {
-                    consoleAdapter.notifyItemInserted(consoleIDs.indexOf(((JSONObject) reader.get(0)).getString("ConsoleID")));
+                if (hideEmptyConsoles && isPopulatingConsoles && reader.length() > 0) { // If we have a console with games > 0
+                    final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
+                    final int id = Integer.parseInt(((JSONObject) reader.get(0)).getString("ConsoleID"));
+                    final int count = reader.length();
+                    final String name = consoleNames.get(consoleIDs.indexOf("" + id));
+                    // Bring the DB up to date with game counts
+                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                db.consoleDao().insertConsole(new Console(id, name, count));
+                            } catch (Exception e) {
+                                db.consoleDao().updateConsole(new Console(id, name, count));
+                            }
+                        }
+                    });
+                    // Re-get consoles
+//                     apiConnection.GetConsoleIDs(this);
                 } else {
                     if (reader.length() > 0) {
                         getActivity().findViewById(R.id.list_no_games).setVisibility(View.GONE);
@@ -207,6 +251,8 @@ public class ListsFragment extends Fragment implements RAAPICallback {
 
     public void onConsoleSelected(int position, String console, String consoleName) {
         getActivity().setTitle(consoleName);
+
+        isPopulatingConsoles = false;
 
         // Hide Console List RecyclerView
         consoleAdapter.isExpanded = !consoleAdapter.isExpanded;

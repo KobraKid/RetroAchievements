@@ -189,7 +189,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         if (applicableSettings.containsKey(hide_games_key)) {
             applicableSettings.remove(hide_games_key);
         } else {
-            applicableSettings.put(hide_consoles_key, new Runnable() {
+            applicableSettings.put(hide_games_key, new Runnable() {
                 @Override
                 public void run() {
                     sharedPref.edit().putBoolean(getString(R.string.empty_game_hide_setting), hide).apply();
@@ -209,14 +209,13 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     }
 
     public void applySettings() {
+        getActivity().findViewById(R.id.settings_applying).setVisibility(View.VISIBLE);
+        getActivity().findViewById(R.id.settings_applying_fade).setVisibility(View.VISIBLE);
         for (int key : applicableSettings.keySet())
             applicableSettings.get(key).run();
         if (!applicableSettings.containsKey(hide_consoles_key))
             // Recreate activity now if no db operations are running
             getActivity().recreate();
-        else {
-            // Lock out settings
-        }
     }
 
     @Override

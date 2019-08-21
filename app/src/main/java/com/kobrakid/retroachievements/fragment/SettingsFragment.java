@@ -45,7 +45,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     private RAAPIConnection apiConnection;
     private SharedPreferences sharedPref;
     private String theme = "";
-    private StringBuilder currentConsole = new StringBuilder(), consoleName = new StringBuilder();
+    private StringBuilder consoleID = new StringBuilder(), consoleName = new StringBuilder();
 
     private Map<Integer, Runnable> applicableSettings = new HashMap<>();
     private final int logout_key = 0, hide_consoles_key = 1, hide_games_key = 2, change_theme_key = 3;
@@ -209,8 +209,8 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     }
 
     public void applySettings() {
-        getActivity().findViewById(R.id.settings_applying).setVisibility(View.VISIBLE);
         getActivity().findViewById(R.id.settings_applying_fade).setVisibility(View.VISIBLE);
+        getActivity().findViewById(R.id.settings_applying).setVisibility(View.VISIBLE);
         for (int key : applicableSettings.keySet())
             applicableSettings.get(key).run();
         if (!applicableSettings.containsKey(hide_consoles_key))
@@ -234,9 +234,9 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
                         for (int i = 0; i < reader.length(); i++) {
                             List<Console> consoles = db.consoleDao().getConsoleWithID(Integer.parseInt(reader.getJSONObject(i).getString("ID")));
                             if (consoles.size() == 0) {
-                                currentConsole.delete(0, currentConsole.length());
+                                consoleID.delete(0, consoleID.length());
                                 consoleName.delete(0, consoleName.length());
-                                currentConsole.append(reader.getJSONObject(i).getString("ID"));
+                                consoleID.append(reader.getJSONObject(i).getString("ID"));
                                 consoleName.append(reader.getJSONObject(i).getString("Name"));
                                 connection.GetGameList(reader.getJSONObject(i).getString("ID"), callback);
                                 return;
@@ -260,8 +260,8 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
                 AppExecutors.getInstance().diskIO().execute(new Runnable() {
                     @Override
                     public void run() {
-                        db.consoleDao().insertConsole(new Console(Integer.parseInt(currentConsole.toString()), consoleName.toString(), reader.length()));
-                        Log.d(TAG, "Adding console " + consoleName.toString() + "(" + currentConsole.toString() + "): " + reader.length() + " games");
+                        db.consoleDao().insertConsole(new Console(Integer.parseInt(consoleID.toString()), consoleName.toString(), reader.length()));
+                        Log.d(TAG, "Adding console " + consoleName.toString() + "(" + consoleID.toString() + "): " + reader.length() + " games");
                     }
                 });
                 // Recurse until all consoles are added to db

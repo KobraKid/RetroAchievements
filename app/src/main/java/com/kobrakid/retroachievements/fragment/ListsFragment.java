@@ -125,14 +125,13 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     public void callback(int responseCode, String response) {
         if (!isActive)
             return;
-        JSONArray reader;
         if (responseCode == RAAPIConnection.RESPONSE_GET_CONSOLE_IDS) {
             isPopulatingConsoles = true;
             consoleIDs.clear();
             consoleNames.clear();
             consoleAdapter.notifyDataSetChanged();
             try {
-                reader = new JSONArray(response);
+                JSONArray reader = new JSONArray(response);
                 // Loop once to add all consoles to view
                 for (int i = 0; i < reader.length(); i++) {
                     // Get console information
@@ -162,7 +161,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                                 // If it exists and has 0 games
                                 if (current.size() > 0 && current.get(0).getGameCount() == 0 && consoleNames.contains(name)) {
                                     final int pos = consoleNames.indexOf(name);
-                                    Log.d(TAG, "Removing " + consoleIDs.remove(pos) + ": " + consoleNames.remove(pos) + " @ " + pos);
+                                    Log.d(TAG, "Removing " + consoleIDs.remove(pos) + ": " + consoleNames.remove(pos) + " @ " + pos + " from view");
                                     AppExecutors.getInstance().mainThread().execute(new Runnable() {
                                         @Override
                                         public void run() {
@@ -170,6 +169,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                                         }
                                     });
                                 }
+                                Log.i(TAG, consoleIDs.toString() + "\n" + consoleNames.toString());
                             }
                         });
                     }
@@ -179,13 +179,14 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             }
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_LIST) {
             try {
-                reader = new JSONArray(response);
+                JSONArray reader = new JSONArray(response);
                 if (reader.length() > 0) {
                     getActivity().findViewById(R.id.list_no_games).setVisibility(View.GONE);
                     for (int i = 0; i < reader.length(); i++) {
                         JSONObject game = reader.getJSONObject(i);
                         gameTitles.add(game.getString("Title"));
                         gameIDs.add(game.getString("ID"));
+                        apiConnection.GetUserProgress(MainActivity.ra_user, game.getString("ID"), this);
                         gameImageIcons.add(game.getString("ImageIcon"));
                     }
                 } else {
@@ -200,6 +201,13 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                         gameListRecyclerView.setVisibility(View.VISIBLE);
                     }
                 });
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else if (responseCode == RAAPIConnection.RESPONSE_GET_USER_PROGRESS) {
+            try {
+                JSONObject reader = new JSONObject(response);
+                Log.d(TAG, reader.getJSONObject(reader.names().getString(0)).getString("NumPossibleAchievements"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }

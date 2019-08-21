@@ -197,7 +197,8 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                         JSONObject game = reader.getJSONObject(i);
                         gameTitles.add(game.getString("Title"));
                         gameIDs.add(game.getString("ID"));
-                        apiConnection.GetUserProgress(MainActivity.ra_user, game.getString("ID"), this);
+                        // TODO The following line spams too many API calls. Find a more efficient place to make this call:
+                        //  apiConnection.GetUserProgress(MainActivity.ra_user, game.getString("ID"), this);
                         gameImageIcons.add(game.getString("ImageIcon"));
                     }
                 } else {

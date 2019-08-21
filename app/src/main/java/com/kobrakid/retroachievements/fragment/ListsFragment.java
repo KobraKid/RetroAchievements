@@ -41,7 +41,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
 
     private RAAPIConnection apiConnection;
     private boolean isActive = false;
-    private boolean hideEmptyConsoles;
+    private boolean hideEmptyConsoles, hideEmptyGames;
     private boolean isPopulatingConsoles = false;
 
     private RecyclerView consoleListRecyclerView, gameListRecyclerView;
@@ -65,6 +65,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                              Bundle savedInstanceState) {
         apiConnection = ((MainActivity) getActivity()).apiConnection;
         hideEmptyConsoles = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_console_hide_setting), false);
+        hideEmptyGames = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_game_hide_setting), false);
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_lists, container, false);

@@ -44,6 +44,8 @@
         app:layout_constraintTop_toBottomOf="@+id/leaderboards_toggle_top_users"
         tools:layout_height="128dp">
 
+        <!-- TODO Should user icons be shown in this section too? -->
+
     </TableLayout>
 
     <TextView

@@ -54,8 +54,10 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
         Picasso.get()
                 .load(Consts.BASE_URL + imageIcons.get(position))
                 .into(((ImageView) holder.linearLayout.findViewById(R.id.game_summary_image_icon)));
-        ((TextView) holder.linearLayout.findViewById(R.id.game_summary_title))
-                .setText(Jsoup.parse(titles.get(position).trim()).text());
+        String title = Jsoup.parse(titles.get(position).trim()).text();
+        if (title.contains(", The"))
+            title = "The " + title.substring(0, title.indexOf(", The")) + title.substring(title.indexOf(", The") + 5);
+        ((TextView) holder.linearLayout.findViewById(R.id.game_summary_title)).setText(title);
         if (stats.size() == 0) {
             holder.linearLayout.findViewById(R.id.game_summary_stats).setVisibility(View.GONE);
         } else {

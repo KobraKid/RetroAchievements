@@ -184,7 +184,10 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
             try {
                 reader = new JSONObject(response);
 
-                setTitle(Jsoup.parse(reader.getString("Title").trim()).text() + " (" + reader.getString("ConsoleName") + ")");
+                String title = Jsoup.parse(reader.getString("Title").trim()).text();
+                if (title.contains(", The"))
+                    title = "The " + title.substring(0, title.indexOf(", The")) + title.substring(title.indexOf(", The") + 5);
+                setTitle(title + " (" + reader.getString("ConsoleName") + ")");
                 Picasso.get()
                         .load(Consts.BASE_URL + reader.getString("ImageIcon"))
                         .into((ImageView) findViewById(R.id.game_details_image_icon));
@@ -207,7 +210,6 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
                     JSONObject achievements = reader.getJSONObject("Achievements");
                     JSONObject achievement;
                     int numEarned = 0, numEarnedHC = 0, totalAch = 0, earnedPts = 0, totalPts = 0, earnedRatio = 0, totalRatio = 0;
-                    ArrayList<Integer> earnedTotals = new ArrayList<>();
                     for (Iterator<String> keys = achievements.keys(); keys.hasNext(); ) {
                         String achievementID = keys.next();
                         achievement = achievements.getJSONObject(achievementID);
@@ -225,7 +227,6 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
                         totalAch++;
                         totalPts += Integer.parseInt(achievement.getString("Points"));
                         totalRatio += Integer.parseInt(achievement.getString("TrueRatio"));
-                        earnedTotals.add(Integer.parseInt(achievement.getString("NumAwarded")));
                     }
 
                     ((TextView) findViewById(R.id.game_details_progress_text))
@@ -244,8 +245,6 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
                                     earnedRatio,
                                     totalPts,
                                     totalRatio)));
-
-//                    setupAchievementDistributionChart(earnedTotals);
 
                     forumTopicID = reader.getString("ForumTopicID");
                 }

@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,8 +83,9 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
             public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
                 TextView textView = (TextView) super.getDropDownView(position, convertView, parent);
                 if (isEnabled(position)) {
-                    // TODO resolve attribute
-                    textView.setTextColor(Color.RED);
+                    TypedValue typedValue = new TypedValue();
+                    getContext().getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
+                    textView.setTextColor(getResources().getColor(typedValue.resourceId));
                 } else {
                     textView.setTextColor(Color.GRAY);
                 }

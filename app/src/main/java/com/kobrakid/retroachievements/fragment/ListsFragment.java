@@ -146,11 +146,14 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                 }
                 // Loop twice if we wish to hide empty consoles
                 if (hideEmptyConsoles) {
+                    getActivity().findViewById(R.id.list_hiding_fade).setVisibility(View.VISIBLE);
+                    getActivity().findViewById(R.id.list_hiding_progress).setVisibility(View.VISIBLE);
                     for (int i = 0; i < reader.length(); i++) {
                         // Get console information
                         JSONObject console = reader.getJSONObject(i);
                         final String id = console.getString("ID");
                         final String name = console.getString("Name");
+                        final int pos = i, max = reader.length() - 1;
 
                         final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
                         AppExecutors.getInstance().diskIO().execute(new Runnable() {
@@ -169,7 +172,15 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                                         }
                                     });
                                 }
-                                Log.i(TAG, consoleIDs.toString() + "\n" + consoleNames.toString());
+                                if (pos == max) {
+                                    AppExecutors.getInstance().mainThread().execute(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            getActivity().findViewById(R.id.list_hiding_fade).setVisibility(View.GONE);
+                                            getActivity().findViewById(R.id.list_hiding_progress).setVisibility(View.GONE);
+                                        }
+                                    });
+                                }
                             }
                         });
                     }

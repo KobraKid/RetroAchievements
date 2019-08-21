@@ -150,7 +150,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                     getActivity().findViewById(R.id.list_hiding_progress).setVisibility(View.VISIBLE);
                     for (int i = 0; i < reader.length(); i++) {
                         // Get console information
-                        JSONObject console = reader.getJSONObject(i);
+                        final JSONObject console = reader.getJSONObject(i);
                         final String id = console.getString("ID");
                         final String name = console.getString("Name");
                         final int pos = i, max = reader.length() - 1;
@@ -163,12 +163,13 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                                 List<Console> current = db.consoleDao().getConsoleWithID(Integer.parseInt(id));
                                 // If it exists and has 0 games
                                 if (current.size() > 0 && current.get(0).getGameCount() == 0 && consoleNames.contains(name)) {
-                                    final int pos = consoleNames.indexOf(name);
-                                    Log.d(TAG, "Removing " + consoleIDs.remove(pos) + ": " + consoleNames.remove(pos) + " @ " + pos + " from view");
+                                    final int namePos = consoleNames.indexOf(name), idPos = consoleIDs.indexOf(id);
+                                    Log.d(TAG, "Removing " + consoleIDs.remove(idPos) + ": " + consoleNames.remove(namePos) + " @ " + namePos + " from view");
                                     AppExecutors.getInstance().mainThread().execute(new Runnable() {
                                         @Override
                                         public void run() {
-                                            consoleAdapter.notifyItemRemoved(pos);
+//                                            consoleAdapter.notifyItemRemoved(namePos);
+                                            consoleAdapter.notifyDataSetChanged();
                                         }
                                     });
                                 }

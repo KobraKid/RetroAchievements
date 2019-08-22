@@ -5,7 +5,7 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
-@Database(entities = {Console.class}, exportSchema = false, version = 2)
+@Database(entities = {Console.class, Game.class}, exportSchema = false, version = 3)
 public abstract class RetroAchievementsDatabase extends RoomDatabase {
     private static final String DB_NAME = "ra_db";
     private static RetroAchievementsDatabase instance;
@@ -18,4 +18,7 @@ public abstract class RetroAchievementsDatabase extends RoomDatabase {
     }
 
     public abstract ConsoleDao consoleDao();
+
+    public abstract GameDao gameDao();
+
 }

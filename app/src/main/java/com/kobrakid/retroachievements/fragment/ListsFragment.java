@@ -88,7 +88,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
         gameTitles = new ArrayList<>();
         gameStats = new ArrayList<>();
         gameIDs = new ArrayList<>();
-        gameAdapter = new GameSummaryAdapter(gameImageIcons, gameTitles, gameStats, gameIDs);
+        gameAdapter = new GameSummaryAdapter(getContext(), gameImageIcons, gameTitles, gameStats, gameIDs);
         gameListRecyclerView.setAdapter(gameAdapter);
         gameListLayoutManager = new LinearLayoutManager(getContext());
         gameListRecyclerView.setLayoutManager(gameListLayoutManager);
@@ -198,8 +198,6 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                         JSONObject game = reader.getJSONObject(i);
                         gameTitles.add(game.getString("Title"));
                         gameIDs.add(game.getString("ID"));
-                        // TODO The following line spams too many API calls. Find a more efficient place to make this call:
-                        //  apiConnection.GetUserProgress(MainActivity.ra_user, game.getString("ID"), this);
                         gameImageIcons.add(game.getString("ImageIcon"));
                     }
                 } else {
@@ -207,6 +205,9 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                 }
                 // Show Game List RecyclerView
                 gameAdapter.notifyDataSetChanged();
+                // TODO API spam causes OutOfMemoryError crash
+                //  gameAdapter.removeEmptyGames();
+
                 gameListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationStart(Animator animation) {

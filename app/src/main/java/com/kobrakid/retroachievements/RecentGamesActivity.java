@@ -69,7 +69,7 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
         stats = new ArrayList<>();
         ids = new ArrayList<>();
 
-        adapter = new GameSummaryAdapter(imageIcons, titles, stats, ids);
+        adapter = new GameSummaryAdapter(this, imageIcons, titles, stats, ids);
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override

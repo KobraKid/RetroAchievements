@@ -58,7 +58,7 @@ public class RAAPIConnection {
     /**
      * @param context The context which will hold the Request Queue.
      */
-    RAAPIConnection(Context context) {
+    public RAAPIConnection(Context context) {
         this.ra_user = MainActivity.ra_api_user;
         this.ra_api_key = MainActivity.ra_api_key;
         this.context = context;

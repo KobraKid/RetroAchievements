@@ -22,7 +22,6 @@ import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.GameDetailsActivity;
 import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.fragment.AchievementDetailsFragment;
-import com.kobrakid.retroachievements.fragment.AchievementSummaryFragment;
 import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
@@ -49,7 +48,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
     private final Context context;
     private final AchievementViewHolderListener viewHolderListener;
 
-    public AchievementAdapter(Fragment fragment,
+    public AchievementAdapter(Context context,
                               ArrayList<String> ids,
                               ArrayList<String> badges,
                               ArrayList<String> titles,
@@ -64,7 +63,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
                               ArrayList<String> datesModified,
                               Map<String, Boolean> hardcoreEarnings,
                               String numDistinctCasual) {
-        this.context = fragment.getContext();
+        this.context = context;
         this.ids = ids;
         this.badges = badges;
         this.titles = titles;
@@ -79,7 +78,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         this.datesModified = datesModified;
         this.hardcoreEarnings = hardcoreEarnings;
         this.numDistinctCasual = numDistinctCasual;
-        this.viewHolderListener = new AchievementViewHolderListenerImpl(fragment, this);
+        this.viewHolderListener = new AchievementViewHolderListenerImpl(context, this);
 
     }
 
@@ -161,24 +160,26 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
 
     private static class AchievementViewHolderListenerImpl implements AchievementViewHolderListener {
 
-        private final Fragment fragment;
+        private final Context context;
         private final AchievementAdapter adapter;
 
-        AchievementViewHolderListenerImpl(Fragment fragment, AchievementAdapter adapter) {
-            this.fragment = fragment;
+        AchievementViewHolderListenerImpl(Context context, AchievementAdapter adapter) {
+            this.context = context;
             this.adapter = adapter;
         }
 
         @Override
         public void onItemClicked(View view, int adapterPosition) {
             GameDetailsActivity.currentPosition = adapterPosition;
+            if (adapterPosition > -1)
+                return;
 
             // Create a new transition
             TransitionSet transitionSet = new TransitionSet();
             transitionSet.setOrdering(TransitionSet.ORDERING_TOGETHER);
             // Get the adapter position of the first child
             int firstChildIndex = Integer.parseInt(
-                    ((TextView) ((AchievementSummaryFragment) fragment)
+                    ((TextView) ((GameDetailsActivity) context)
                             .layoutManager
                             .getChildAt(0)
                             .findViewById(R.id.recycler_view_position))
@@ -187,8 +188,8 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
             // Custom logic to slide higher achievements up, lower ones down
             for (int i = 0; i < adapter.getItemCount(); i++) {
                 Slide slide = new Slide();
-                slide.setDuration(fragment.getActivity().getResources().getInteger(R.integer.animation_duration));
-                slide.addTarget(((AchievementSummaryFragment) fragment).layoutManager.getChildAt(i));
+//                slide.setDuration(fragment.getActivity().getResources().getInteger(R.integer.animation_duration));
+                slide.addTarget(((GameDetailsActivity) context).layoutManager.getChildAt(i));
                 if (i + firstChildIndex < adapterPosition) {
                     slide.setSlideEdge(Gravity.TOP);
                     transitionSet.addTransition(slide);
@@ -197,7 +198,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
                     transitionSet.addTransition(slide);
                 }
             }
-            fragment.setExitTransition(transitionSet);
+//            fragment.setExitTransition(transitionSet);
             // Set up the target fragment
             ImageView transitionBadge = view.findViewById(R.id.achievement_summary_badge);
             Fragment detailsFragment = new AchievementDetailsFragment();
@@ -217,15 +218,15 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
             bundle.putString("DateModified", adapter.datesModified.get(adapterPosition));
             bundle.putString("NumDistinctPlayersCasual", adapter.numDistinctCasual);
             detailsFragment.setArguments(bundle);
-            fragment
-                    .getActivity()
-                    .getSupportFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true)
-                    .addSharedElement(transitionBadge, transitionBadge.getTransitionName())
-                    .replace(R.id.game_details_frame, detailsFragment, AchievementDetailsFragment.class.getSimpleName())
-                    .addToBackStack(null)
-                    .commit();
+//            fragment
+//                    .getActivity()
+//                    .getSupportFragmentManager()
+//                    .beginTransaction()
+//                    .setReorderingAllowed(true)
+//                    .addSharedElement(transitionBadge, transitionBadge.getTransitionName())
+//                    .replace(R.id.game_details_frame, detailsFragment, AchievementDetailsFragment.class.getSimpleName())
+//                    .addToBackStack(null)
+//                    .commit();
         }
     }
 

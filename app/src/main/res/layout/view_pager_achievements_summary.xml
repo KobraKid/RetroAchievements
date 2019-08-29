@@ -13,16 +13,6 @@
         android:layout_height="match_parent">
 
 
-        <ImageButton
-            android:id="@+id/game_details_toggle_achievements"
-            android:layout_width="411dp"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorError"
-            android:src="@drawable/ic_arrow_drop_down"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/game_details_user_summary" />
-
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -112,7 +102,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/game_details_toggle_achievements" />
+            app:layout_constraintTop_toBottomOf="@+id/game_details_user_summary" />
 
     </android.support.constraint.ConstraintLayout>
 </FrameLayout>

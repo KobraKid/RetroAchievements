@@ -65,13 +65,15 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
     public RecyclerView recyclerView = null;
     public RecyclerView.Adapter adapter = null;
     public RecyclerView.LayoutManager layoutManager = null;
+    public ProgressBar achievementDistroLoadingBar = null;
+    public LineChart achievementDistro = null;
 
     // Activity-wide
     public String gameID;
     private String forumTopicID;
 
     // Fragment-Specific
-    private ArrayList<String>
+    public ArrayList<String>
             ids = new ArrayList<>(),
             badges = new ArrayList<>(),
             titles = new ArrayList<>(),
@@ -84,7 +86,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
             authors = new ArrayList<>(),
             datesCreated = new ArrayList<>(),
             datesModified = new ArrayList<>();
-    private final Map<String, Boolean> hardcoreEarnings = new HashMap<>();
+    public final Map<String, Boolean> hardcoreEarnings = new HashMap<>();
 
     private boolean isActive = false;
 
@@ -107,63 +109,8 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
         // Set up API connection
         apiConnection = new RAAPIConnection(this);
 
-        adapter = new AchievementAdapter(
-                this,
-                ids,
-                badges,
-                titles,
-                points,
-                trueRatios,
-                descriptions,
-                datesEarned,
-                numsAwarded,
-                numsAwardedHC,
-                authors,
-                datesCreated,
-                datesModified,
-                hardcoreEarnings,
-                "1");
-
         viewPager = findViewById(R.id.game_details_view_pager);
         viewPager.setAdapter(new GameDetailsPagerAdapter(getSupportFragmentManager(), this, gameID));
-
-        // Set up Achievements toggle
-//        final ImageButton achievementHeaderGroup = findViewById(R.id.game_details_toggle_achievements);
-//        achievementHeaderGroup.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                final View gameDetailsFrame = findViewById(R.id.game_details_frame);
-//                if (gameDetailsFrame.getVisibility() == View.GONE) {
-//                    achievementHeaderGroup.setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_down));
-//                    gameDetailsFrame
-//                            .animate()
-//                            .alpha(1.0f)
-//                            .translationYBy(gameDetailsFrame.getHeight())
-//                            .setDuration(300)
-//                            .setListener(new AnimatorListenerAdapter() {
-//                                @Override
-//                                public void onAnimationStart(Animator animation) {
-//                                    super.onAnimationEnd(animation);
-//                                    gameDetailsFrame.setVisibility(View.VISIBLE);
-//                                }
-//                            });
-//                } else {
-//                    achievementHeaderGroup.setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_up));
-//                    gameDetailsFrame
-//                            .animate()
-//                            .alpha(0.0f)
-//                            .translationYBy(-gameDetailsFrame.getHeight())
-//                            .setDuration(300)
-//                            .setListener(new AnimatorListenerAdapter() {
-//                                @Override
-//                                public void onAnimationEnd(Animator animation) {
-//                                    super.onAnimationEnd(animation);
-//                                    gameDetailsFrame.setVisibility(View.GONE);
-//                                }
-//                            });
-//                }
-//            }
-//        });
 
         // apiConnection.GetGameInfoAndUserProgress(MainActivity.ra_user, gameID, this);
         // apiConnection.GetAchievementDistribution(gameID, this);
@@ -311,10 +258,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
                     datesModified,
                     hardcoreEarnings).execute(response);
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION) {
-            new AchievementDistributionChartAsyncTask(this,
-                    (LineChart) findViewById(R.id.game_details_achievement_distribution),
-                    findViewById(R.id.game_details_achievement_distro_loading))
-                    .execute(response);
+            new AchievementDistributionChartAsyncTask(this, achievementDistro, achievementDistroLoadingBar).execute(response);
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_LINKED_HASHES) {
             // TODO Linked hashes page requires login
         }
@@ -559,6 +503,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
                 chart.setData(lineData);
 
                 // Redraw chart
+                chart.setVisibility(View.VISIBLE);
                 chart.invalidate();
             }
             final View view = loadingBarReference.get();

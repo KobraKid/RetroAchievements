@@ -1,6 +1,5 @@
 package com.kobrakid.retroachievements.adapter;
 
-import android.content.Context;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
@@ -45,10 +44,10 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
     private final ArrayList<String> datesModified;
     private final Map<String, Boolean> hardcoreEarnings;
 
-    private final Context context;
+    private Fragment fragment;
     private final AchievementViewHolderListener viewHolderListener;
 
-    public AchievementAdapter(Context context,
+    public AchievementAdapter(Fragment fragment,
                               ArrayList<String> ids,
                               ArrayList<String> badges,
                               ArrayList<String> titles,
@@ -63,7 +62,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
                               ArrayList<String> datesModified,
                               Map<String, Boolean> hardcoreEarnings,
                               String numDistinctCasual) {
-        this.context = context;
+        this.fragment = fragment;
         this.ids = ids;
         this.badges = badges;
         this.titles = titles;
@@ -78,7 +77,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         this.datesModified = datesModified;
         this.hardcoreEarnings = hardcoreEarnings;
         this.numDistinctCasual = numDistinctCasual;
-        this.viewHolderListener = new AchievementViewHolderListenerImpl(context, this);
+        this.viewHolderListener = new AchievementViewHolderListenerImpl(fragment, this);
 
     }
 
@@ -104,7 +103,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
 
         // Badge
         if (hardcoreEarnings.containsKey(ids.get(position)) && hardcoreEarnings.get(ids.get(position))) {
-            (holder.linearLayout.findViewById(R.id.achievement_summary_badge)).setBackground(context.getDrawable(R.drawable.image_view_border));
+            (holder.linearLayout.findViewById(R.id.achievement_summary_badge)).setBackground(fragment.getContext().getDrawable(R.drawable.image_view_border));
         } else {
             (holder.linearLayout.findViewById(R.id.achievement_summary_badge)).setBackground(null);
         }
@@ -131,10 +130,10 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         } else {
             ((ImageView) holder.linearLayout.findViewById(R.id.achievement_summary_badge)).clearColorFilter();
             ((TextView) holder.linearLayout.findViewById(R.id.achievement_summary_date))
-                    .setText(context.getString(R.string.date_earned, datesEarned.get(position)));
+                    .setText(fragment.getContext().getString(R.string.date_earned, datesEarned.get(position)));
         }
         ((TextView) holder.linearLayout.findViewById(R.id.achievement_summary_stats))
-                .setText(context.getString(R.string.won_by,
+                .setText(fragment.getContext().getString(R.string.won_by,
                         numsAwarded.get(position),
                         numsAwardedHC.get(position),
                         numDistinctCasual,
@@ -160,36 +159,36 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
 
     private static class AchievementViewHolderListenerImpl implements AchievementViewHolderListener {
 
-        private final Context context;
+        private final Fragment fragment;
         private final AchievementAdapter adapter;
 
-        AchievementViewHolderListenerImpl(Context context, AchievementAdapter adapter) {
-            this.context = context;
+        AchievementViewHolderListenerImpl(Fragment fragment, AchievementAdapter adapter) {
+            this.fragment = fragment;
             this.adapter = adapter;
         }
 
         @Override
         public void onItemClicked(View view, int adapterPosition) {
             GameDetailsActivity.currentPosition = adapterPosition;
-            if (adapterPosition > -1)
-                return;
+            GameDetailsActivity context = ((GameDetailsActivity) fragment.getContext());
 
             // Create a new transition
             TransitionSet transitionSet = new TransitionSet();
             transitionSet.setOrdering(TransitionSet.ORDERING_TOGETHER);
             // Get the adapter position of the first child
             int firstChildIndex = Integer.parseInt(
-                    ((TextView) ((GameDetailsActivity) context)
+                    ((TextView) context
                             .layoutManager
                             .getChildAt(0)
                             .findViewById(R.id.recycler_view_position))
                             .getText()
                             .toString());
+            // FIXME Animation no longer occurring 😢 (but was already pretty janky)
             // Custom logic to slide higher achievements up, lower ones down
             for (int i = 0; i < adapter.getItemCount(); i++) {
                 Slide slide = new Slide();
-//                slide.setDuration(fragment.getActivity().getResources().getInteger(R.integer.animation_duration));
-                slide.addTarget(((GameDetailsActivity) context).layoutManager.getChildAt(i));
+                slide.setDuration(fragment.getActivity().getResources().getInteger(R.integer.animation_duration));
+                slide.addTarget(context.layoutManager.getChildAt(i));
                 if (i + firstChildIndex < adapterPosition) {
                     slide.setSlideEdge(Gravity.TOP);
                     transitionSet.addTransition(slide);
@@ -198,7 +197,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
                     transitionSet.addTransition(slide);
                 }
             }
-//            fragment.setExitTransition(transitionSet);
+            fragment.setExitTransition(transitionSet);
             // Set up the target fragment
             ImageView transitionBadge = view.findViewById(R.id.achievement_summary_badge);
             Fragment detailsFragment = new AchievementDetailsFragment();
@@ -218,15 +217,15 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
             bundle.putString("DateModified", adapter.datesModified.get(adapterPosition));
             bundle.putString("NumDistinctPlayersCasual", adapter.numDistinctCasual);
             detailsFragment.setArguments(bundle);
-//            fragment
-//                    .getActivity()
-//                    .getSupportFragmentManager()
-//                    .beginTransaction()
-//                    .setReorderingAllowed(true)
-//                    .addSharedElement(transitionBadge, transitionBadge.getTransitionName())
-//                    .replace(R.id.game_details_frame, detailsFragment, AchievementDetailsFragment.class.getSimpleName())
-//                    .addToBackStack(null)
-//                    .commit();
+            fragment
+                    .getActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .addSharedElement(transitionBadge, transitionBadge.getTransitionName())
+                    .replace(R.id.game_details_frame, detailsFragment, AchievementDetailsFragment.class.getSimpleName())
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 

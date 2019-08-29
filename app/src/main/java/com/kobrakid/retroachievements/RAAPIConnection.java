@@ -25,6 +25,8 @@ import java.util.Date;
 @SuppressWarnings("WeakerAccess")
 public class RAAPIConnection {
 
+    private static final String TAG = RAAPIConnection.class.getSimpleName();
+
     // Response Codes
     public static final int RESPONSE_ERROR = -1;
     public static final int RESPONSE_GET_TOP_TEN_USERS = 0;
@@ -44,6 +46,7 @@ public class RAAPIConnection {
     public static final int RESPONSE_GET_LEADERBOARD = 14;
     public static final int RESPONSE_GET_USER_WEB_PROFILE = 15;
     public static final int RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION = 16;
+    public static final int RESPONSE_GET_LINKED_HASHES = 17;
 
     private static final String BASE_URL = Consts.BASE_URL + "/" + Consts.API_URL + "/";
 
@@ -56,7 +59,7 @@ public class RAAPIConnection {
     /**
      * @param context The context which will hold the Request Queue.
      */
-    RAAPIConnection(Context context) {
+    public RAAPIConnection(Context context) {
         this.ra_user = MainActivity.ra_api_user;
         this.ra_api_key = MainActivity.ra_api_key;
         this.context = context;
@@ -678,6 +681,20 @@ public class RAAPIConnection {
             new GetWeb(callback, RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION).execute(Consts.BASE_URL + "/" + Consts.GAME_POSTFIX + "/" + gameID);
     }
 
+    /**
+     * Scrapes the RA website for the hashes linked to a particular game.
+     * Currently not working, requires login cookie.
+     *
+     * @param gameID   The ID of the game whose linked hashes are to be fetched.
+     * @param callback The RAAPICallback that should accept the results of the API call.
+     */
+    @Deprecated
+    public void GetLinkedHashes(String gameID, final RAAPICallback callback) {
+        String url = Consts.BASE_URL + "/" + Consts.LINKED_HASHES_POSTFIX + gameID;
+        Log.d(TAG, url);
+        new GetWeb(callback, RESPONSE_GET_LINKED_HASHES).execute(url);
+    }
+
     /* Inner Classes and Interfaces */
 
     private static class GetWeb extends AsyncTask<String, Void, Document> {
@@ -693,7 +710,7 @@ public class RAAPIConnection {
         @Override
         protected Document doInBackground(String... urls) {
             if (urls.length != 1) {
-                Log.e("TAG", "The GetWeb task takes exactly one parameter, the URL to download.");
+                Log.e(TAG, "The GetWeb task takes exactly one parameter, the URL to download.");
                 return Jsoup.parse("");
             }
             String url = urls[0];
@@ -708,7 +725,7 @@ public class RAAPIConnection {
 
         @Override
         protected void onPostExecute(Document result) {
-            callback.callback(callbackCode, result.outerHtml());
+            callback.callback(result.outerHtml().length() > 0 ? callbackCode : RESPONSE_ERROR, result.outerHtml());
         }
     }
 
@@ -733,11 +750,11 @@ public class RAAPIConnection {
                     int size = is.available();
                     byte[] buffer = new byte[size];
                     if (is.read(buffer) == -1)
-                        Log.i("TAG", "Retrieved cached data");
+                        Log.i(TAG, "Retrieved cached data");
                     is.close();
                     response = new String(buffer);
                 } catch (IOException e) {
-                    Log.e("TAG", "Error in Reading: " + e.getLocalizedMessage());
+                    Log.e(TAG, "Error reading data", e);
                 }
             }
             if (response.length() == 0) {
@@ -752,9 +769,9 @@ public class RAAPIConnection {
                             writer.write(response);
                             writer.flush();
                             writer.close();
-                            Log.i("TAG", "Wrote cached data");
+                            Log.i(TAG, "Wrote cached data");
                         } catch (IOException e) {
-                            Log.e("TAG", "Error in Writing: " + e.getLocalizedMessage());
+                            Log.e(TAG, "Error writing data", e);
                         }
                         callback.callback(RESPONSE_GET_LEADERBOARDS, response);
                     }

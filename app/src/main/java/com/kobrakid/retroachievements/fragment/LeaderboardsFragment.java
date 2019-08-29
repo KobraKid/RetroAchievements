@@ -53,8 +53,10 @@ import java.util.Map;
 
 public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
+    private static final String TAG = LeaderboardsFragment.class.getSimpleName();
+
     private RAAPIConnection apiConnection;
-    private boolean isActive = false;
+    private static boolean isActive = false;
     private boolean hasParsedUsers = false, hasParsedLeaderboards = false;
 
     private RecyclerView leaderboardsRecycler;
@@ -255,7 +257,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         extras.putString("TYPE", leaderboard.get("TYPE"));
         extras.putString("NUMRESULTS", leaderboard.get("NUMRESULTS"));
         intent.putExtras(extras);
-        Log.i("TAG", leaderboard.toString());
+        Log.v(TAG, leaderboard.toString());
         startActivity(intent);
     }
 
@@ -308,7 +310,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
             final Activity activity = mActivity.get();
-            if (activity != null) {
+            if (activity != null && isActive) {
                 ((ProgressBar) activity.findViewById(R.id.leaderboards_progress)).setProgress(values[0]);
             }
         }
@@ -316,6 +318,8 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         @Override
         protected void onPostExecute(RowSortedTable<Integer, String, String> result) {
             super.onPostExecute(result);
+            if (!isActive)
+                return;
             final Activity activity = mActivity.get();
             if (activity != null && result.rowKeySet().size() > 0) {
                 activity.findViewById(R.id.leaderboards_progress).setVisibility(View.GONE);

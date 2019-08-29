@@ -3,6 +3,7 @@ package com.kobrakid.retroachievements.adapter;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,14 +17,16 @@ import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.fragment.LeaderboardsFragment;
 import com.squareup.picasso.Picasso;
 
+import java.util.Arrays;
+
 public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filterable {
 
-    private final Fragment fragment;
+    private static final String TAG = LeaderboardsAdapter.class.getSimpleName();
+
     private final RowSortedTable<Integer, String, String> table, tableFiltered;
     private final LeaderboardsViewHolderListenerImpl listener;
 
     public LeaderboardsAdapter(Fragment fragment, RowSortedTable<Integer, String, String> table, RowSortedTable<Integer, String, String> tableFiltered) {
-        this.fragment = fragment;
         this.table = table;
         this.tableFiltered = tableFiltered;
         this.listener = new LeaderboardsViewHolderListenerImpl(fragment, tableFiltered);
@@ -56,12 +59,14 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence charSequence) {
-                String[] strings = charSequence.toString().split("\t");
+                String filter = charSequence.toString();
+                String[] strings = new String[]{filter.substring(0, filter.indexOf("\t")), filter.substring(filter.indexOf("\t") + 1)};
                 FilterResults results = new FilterResults();
-                if (strings.length == 0 || strings.length == 1 && strings[0].equals("")) {
+                Log.d(TAG, "Filter: " + Arrays.toString(strings));
+                tableFiltered.clear();
+                if (strings[0].equals("") && strings[1].equals("")) {
                     results.values = false;
                 } else {
-                    tableFiltered.clear();
                     for (int i = 0; i < table.rowKeySet().size(); i++) {
                         if (table.row(i).get("TITLE").contains(strings[1]) && (strings[0].equals("") || table.row(i).get("CONSOLE").equals(strings[0]))) {
                             int row = tableFiltered.rowKeySet().size();

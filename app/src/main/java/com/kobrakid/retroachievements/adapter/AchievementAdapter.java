@@ -27,6 +27,7 @@ import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.AchievementViewHolder> {
 
@@ -43,6 +44,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
     private final ArrayList<String> authors;
     private final ArrayList<String> datesCreated;
     private final ArrayList<String> datesModified;
+    private final Map<String, Boolean> hardcoreEarnings;
 
     private final Context context;
     private final AchievementViewHolderListener viewHolderListener;
@@ -60,6 +62,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
                               ArrayList<String> authors,
                               ArrayList<String> datesCreated,
                               ArrayList<String> datesModified,
+                              Map<String, Boolean> hardcoreEarnings,
                               String numDistinctCasual) {
         this.context = fragment.getContext();
         this.ids = ids;
@@ -74,6 +77,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         this.authors = authors;
         this.datesCreated = datesCreated;
         this.datesModified = datesModified;
+        this.hardcoreEarnings = hardcoreEarnings;
         this.numDistinctCasual = numDistinctCasual;
         this.viewHolderListener = new AchievementViewHolderListenerImpl(fragment, this);
 
@@ -100,6 +104,11 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         ((TextView) holder.linearLayout.findViewById(R.id.achievement_summary_modified)).setText(datesModified.get(position));
 
         // Badge
+        if (hardcoreEarnings.containsKey(ids.get(position)) && hardcoreEarnings.get(ids.get(position))) {
+            (holder.linearLayout.findViewById(R.id.achievement_summary_badge)).setBackground(context.getDrawable(R.drawable.image_view_border));
+        } else {
+            (holder.linearLayout.findViewById(R.id.achievement_summary_badge)).setBackground(null);
+        }
         Picasso.get()
                 .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + badges.get(position) + ".png")
                 .into((ImageView) holder.linearLayout.findViewById(R.id.achievement_summary_badge));

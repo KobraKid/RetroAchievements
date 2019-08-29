@@ -2,6 +2,7 @@
     <!-- Main Activity -->
     <string name="app_name">RetroAchievements</string>
     <string name="username">Not logged in</string>
+    <string name="login_prompt">Click here to log in</string>
 
     <!-- Navigation Drawer -->
     <string name="nav_rank_score">Score: %1$s | Rank: %2$s</string>
@@ -29,7 +30,9 @@
     <string name="settings_toggle_console">Hide Consoles with 0 Games</string>
     <string name="settings_toggle_console_lag_warning">Warning, enabling this setting can cause significant lag.</string>
     <string name="settings_toggle_game">Hide Games with 0 Achievements</string>
+    <string name="settings_current_user">Currently logged in as: %1$s</string>
     <string name="settings_log_out">Log Out</string>
+    <string name="settings_apply">Apply</string>
 
     <!-- Recent Games Activity -->
     <string name="recent_games_title">Recent Games</string>

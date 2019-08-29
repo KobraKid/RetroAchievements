@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,14 +22,18 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class is responsible for displaying summary information on all the achievements for a
  * particular game.
  */
 public class AchievementSummaryFragment extends Fragment implements RAAPICallback {
+
+    private static final String TAG = AchievementSummaryFragment.class.getSimpleName();
 
     private RAAPIConnection apiConnection = null;
     private String gameID = null;
@@ -46,6 +51,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
             authors,
             datesCreated,
             datesModified;
+    private Map<String, Boolean> hardcoreEarnings;
     private boolean isActive = false;
 
     private RecyclerView recyclerView = null;
@@ -92,6 +98,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
         authors = new ArrayList<>();
         datesCreated = new ArrayList<>();
         datesModified = new ArrayList<>();
+        hardcoreEarnings = new HashMap<>();
 
         adapter = new AchievementAdapter(
                 this,
@@ -107,6 +114,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 authors,
                 datesCreated,
                 datesModified,
+                hardcoreEarnings,
                 "1");
         recyclerView.setAdapter(adapter);
 
@@ -169,6 +177,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
             authors.clear();
             datesCreated.clear();
             datesModified.clear();
+            hardcoreEarnings.clear();
 
             ((AchievementAdapter) adapter).numDistinctCasual = reader.getString("NumDistinctPlayersCasual");
 
@@ -189,11 +198,13 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                     displayOrderEarned.add(Integer.parseInt(achievement.getString("DisplayOrder")));
                     Collections.sort(displayOrderEarned);
                     count = displayOrderEarned.indexOf(Integer.parseInt(achievement.getString("DisplayOrder")));
+                    hardcoreEarnings.put(achievementID, true);
                 } else if (achievement.has("DateEarned")) {
                     dateEarned = achievement.getString("DateEarned");
                     displayOrderEarned.add(Integer.parseInt(achievement.getString("DisplayOrder")));
                     Collections.sort(displayOrderEarned);
                     count = displayOrderEarned.indexOf(Integer.parseInt(achievement.getString("DisplayOrder")));
+                    hardcoreEarnings.put(achievementID, false);
                 } else {
                     displayOrder.add(Integer.parseInt(achievement.getString("DisplayOrder")));
                     Collections.sort(displayOrder);
@@ -211,6 +222,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 descriptions.add(count, achievement.getString("Description"));
                 if (dateEarned.equals("")) {
                     dateEarned = "NoDate:" + count;
+                    hardcoreEarnings.put(achievementID, false);
                 }
                 datesEarned.add(count, dateEarned);
                 numsAwarded.add(count, achievement.getString("NumAwarded"));
@@ -223,7 +235,10 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
             }
             adapter.notifyDataSetChanged();
         } catch (JSONException e) {
-            e.printStackTrace();
+            if (e.toString().contains("Value null at Achievements of type org.json.JSONObject$1 cannot be converted to JSONObject"))
+                Log.d(TAG, "This game has no achievements");
+            else
+                e.printStackTrace();
         }
     }
 

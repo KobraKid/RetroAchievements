@@ -69,7 +69,6 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
     private String filteredConsole = "", filteredTitle = "";
 
     public LeaderboardsFragment() {
-        // Required empty public constructor
     }
 
     @Override

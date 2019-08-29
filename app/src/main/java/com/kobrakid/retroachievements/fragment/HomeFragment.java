@@ -37,7 +37,6 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
     private boolean isActive = false;
 
     public HomeFragment() {
-        // Required empty public constructor
     }
 
     @Override

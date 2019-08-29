@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.kobrakid.retroachievements.fragment.AchievementDistributionFragment;
 import com.kobrakid.retroachievements.fragment.AchievementSummaryFragment;
+import com.kobrakid.retroachievements.fragment.GameImagesFragment;
 
 public class GameDetailsPagerAdapter extends FragmentPagerAdapter {
 
@@ -33,6 +34,9 @@ public class GameDetailsPagerAdapter extends FragmentPagerAdapter {
             case 1:
                 fragment = new AchievementDistributionFragment();
                 break;
+            case 2:
+                fragment = new GameImagesFragment();
+                break;
         }
         fragment.setArguments(bundle);
         return fragment;
@@ -40,7 +44,7 @@ public class GameDetailsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 2;
+        return 3;
     }
 
 }

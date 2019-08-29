@@ -51,7 +51,6 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     private final int logout_key = 0, hide_consoles_key = 1, hide_games_key = 2, change_theme_key = 3;
 
     public SettingsFragment() {
-        // Required empty public constructor
     }
 
     @Override

@@ -45,6 +45,7 @@
     <string name="completion">%1$s%% complete</string>
     <string name="no_achievements">No Achievements</string>
     <string name="achievements">Achievements</string>
+    <string name="images">Images</string>
     <string name="user_summary"><![CDATA[You have earned <b>%1$d</b> of <b>%2$d</b> achievements,
     <br/>and a further <b>%3$d</b> HARDCORE achievements,
     <br/>worth <b>%4$d</b> <font color="0xFFFFFF">(%5$d)</font> points of <b>%6$d</b> <font color="0xFFFFFF">(%7$d)</font> possible points.]]></string>
@@ -73,5 +74,8 @@
     <string name="cd_game_summary_image_icon">Game summary image icon</string>
     <string name="cd_achievement_summary_badge">Achievement summary badge</string>
     <string name="cd_console_icon">Console icon</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

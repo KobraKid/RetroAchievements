@@ -51,7 +51,6 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     private int scrollPosition = 0;
 
     public ListsFragment() {
-        // Required empty public constructor
     }
 
     @Override

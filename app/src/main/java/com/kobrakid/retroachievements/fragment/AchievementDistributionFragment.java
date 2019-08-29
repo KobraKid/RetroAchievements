@@ -13,6 +13,9 @@ import com.kobrakid.retroachievements.R;
 
 public class AchievementDistributionFragment extends Fragment {
 
+    public AchievementDistributionFragment() {
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

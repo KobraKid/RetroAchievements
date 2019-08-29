@@ -24,7 +24,6 @@ import java.text.DecimalFormat;
 public class AchievementDetailsFragment extends Fragment implements View.OnClickListener {
 
     public AchievementDetailsFragment() {
-        // Required empty public constructor
     }
 
     @Override

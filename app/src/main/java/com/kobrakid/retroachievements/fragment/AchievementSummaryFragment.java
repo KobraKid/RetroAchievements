@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import com.kobrakid.retroachievements.GameDetailsActivity;
 import com.kobrakid.retroachievements.MainActivity;
 import com.kobrakid.retroachievements.R;
+import com.kobrakid.retroachievements.RAAPICallback;
 import com.kobrakid.retroachievements.adapter.AchievementAdapter;
 import com.kobrakid.retroachievements.manager.AchievementLayoutManager;
 
@@ -17,7 +18,10 @@ import com.kobrakid.retroachievements.manager.AchievementLayoutManager;
  * This class is responsible for displaying summary information on all the achievements for a
  * particular game.
  */
-public class AchievementSummaryFragment extends Fragment {
+public class AchievementSummaryFragment extends Fragment implements RAAPICallback {
+
+    public AchievementSummaryFragment() {
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -56,4 +60,8 @@ public class AchievementSummaryFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void callback(int responseCode, String response) {
+
+    }
 }

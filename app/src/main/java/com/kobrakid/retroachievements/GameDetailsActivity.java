@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -36,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.lang.ref.WeakReference;
@@ -50,6 +52,8 @@ import java.util.regex.Pattern;
  * This class will display detailed information about a single game.
  */
 public class GameDetailsActivity extends AppCompatActivity implements RAAPICallback {
+
+    public static final String TAG = GameDetailsActivity.class.getSimpleName();
 
     public static int currentPosition = 0;
     public RAAPIConnection apiConnection;
@@ -124,6 +128,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
 
         apiConnection.GetGameInfoAndUserProgress(MainActivity.ra_user, gameID, this);
         apiConnection.GetAchievementDistribution(gameID, this);
+        // apiConnection.GetLinkedHashes(gameID, this);
     }
 
     @Override
@@ -253,6 +258,12 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
             }
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION) {
             new AchievementDistributionChartAsyncTask(this, (LineChart) findViewById(R.id.game_details_achievement_distribution), findViewById(R.id.game_details_achievement_distro_loading)).execute(response);
+        } else if (responseCode == RAAPIConnection.RESPONSE_GET_LINKED_HASHES) {
+            Log.i(TAG, response);
+            Elements hashes = Jsoup.parse(response).select("code");
+            for (Element hash : hashes) {
+                Log.v(TAG, hash.html());
+            }
         }
     }
 

@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         // Try to get saved preferences and log in
         SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
         setTheme(ThemeManager.getTheme(this, sharedPref));
-        ra_user = sharedPref.getString(getString(R.string.ra_user), null);
+        ra_user = sharedPref.getString(getString(R.string.ra_user), "blank");
 
         setContentView(R.layout.activity_main);
         setTitle("Home");

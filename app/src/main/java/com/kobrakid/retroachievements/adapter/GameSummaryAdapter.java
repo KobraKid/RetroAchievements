@@ -37,7 +37,6 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
     private final ArrayList<String> stats;
     private final ArrayList<String> ids;
     private Context context;
-    private final boolean hideEmptyGames;
 
     public GameSummaryAdapter(Context context, ArrayList<String> imageIcons, ArrayList<String> titles, ArrayList<String> stats, ArrayList<String> ids) {
         this.context = context;
@@ -45,7 +44,6 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
         this.titles = titles;
         this.stats = stats;
         this.ids = ids;
-        this.hideEmptyGames = context.getSharedPreferences(context.getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(context.getString(R.string.empty_game_hide_setting), false);
     }
 
     @NonNull

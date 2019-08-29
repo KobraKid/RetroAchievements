@@ -96,7 +96,8 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         ((Spinner) view.findViewById(R.id.settings_theme_dropdown)).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
-                changeTheme(adapterView.getItemAtPosition(pos).toString());
+                if (pos > 0)
+                    changeTheme(adapterView.getItemAtPosition(pos).toString());
             }
 
             @Override
@@ -143,17 +144,14 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     private void changeTheme(final String theme) {
         if (applicableSettings.containsKey(change_theme_key)) {
             applicableSettings.remove(change_theme_key);
-        } else {
-            if (!(this.theme.equals(theme) || this.theme.equals(""))) {
-                applicableSettings.put(change_theme_key, new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "Saving theme " + theme);
-                        sharedPref.edit().putString(getString(R.string.theme_setting), theme).apply();
-                    }
-                });
-            }
         }
+        applicableSettings.put(change_theme_key, new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Saving theme " + theme);
+                sharedPref.edit().putString(getString(R.string.theme_setting), theme).apply();
+            }
+        });
     }
 
     private void hideConsoles(final boolean hide) {

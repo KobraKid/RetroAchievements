@@ -46,6 +46,7 @@ public class RAAPIConnection {
     public static final int RESPONSE_GET_LEADERBOARD = 14;
     public static final int RESPONSE_GET_USER_WEB_PROFILE = 15;
     public static final int RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION = 16;
+    public static final int RESPONSE_GET_LINKED_HASHES = 17;
 
     private static final String BASE_URL = Consts.BASE_URL + "/" + Consts.API_URL + "/";
 
@@ -678,6 +679,20 @@ public class RAAPIConnection {
             callback.callback(RESPONSE_ERROR, "No user");
         else
             new GetWeb(callback, RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION).execute(Consts.BASE_URL + "/" + Consts.GAME_POSTFIX + "/" + gameID);
+    }
+
+    /**
+     * Scrapes the RA website for the hashes linked to a particular game.
+     * Currently not working, requires login cookie.
+     *
+     * @param gameID   The ID of the game whose linked hashes are to be fetched.
+     * @param callback The RAAPICallback that should accept the results of the API call.
+     */
+    @Deprecated
+    public void GetLinkedHashes(String gameID, final RAAPICallback callback) {
+        String url = Consts.BASE_URL + "/" + Consts.LINKED_HASHES_POSTFIX + gameID;
+        Log.d(TAG, url);
+        new GetWeb(callback, RESPONSE_GET_LINKED_HASHES).execute(url);
     }
 
     /* Inner Classes and Interfaces */

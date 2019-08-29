@@ -42,7 +42,6 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     private RAAPIConnection apiConnection;
     private boolean isActive = false;
     private boolean hideEmptyConsoles, hideEmptyGames;
-    private boolean isPopulatingConsoles = false;
 
     private RecyclerView consoleListRecyclerView, gameListRecyclerView;
     private LinearLayoutManager consoleListLayoutManager, gameListLayoutManager;
@@ -126,7 +125,6 @@ public class ListsFragment extends Fragment implements RAAPICallback {
         if (!isActive)
             return;
         if (responseCode == RAAPIConnection.RESPONSE_GET_CONSOLE_IDS) {
-            isPopulatingConsoles = true;
             consoleIDs.clear();
             consoleNames.clear();
             consoleAdapter.notifyDataSetChanged();
@@ -259,12 +257,11 @@ public class ListsFragment extends Fragment implements RAAPICallback {
         });
 
         isShowingGames = false;
+        getActivity().findViewById(R.id.list_no_games).setVisibility(View.GONE);
     }
 
     public void onConsoleSelected(int position, String console, String consoleName) {
         getActivity().setTitle(consoleName);
-
-        isPopulatingConsoles = false;
 
         // Hide Console List RecyclerView
         consoleAdapter.isExpanded = !consoleAdapter.isExpanded;

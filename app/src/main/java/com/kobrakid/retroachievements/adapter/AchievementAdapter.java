@@ -21,6 +21,7 @@ import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.GameDetailsActivity;
 import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.fragment.AchievementDetailsFragment;
+import com.kobrakid.retroachievements.fragment.AchievementSummaryFragment;
 import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
@@ -169,15 +170,16 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
 
         @Override
         public void onItemClicked(View view, int adapterPosition) {
+            if (adapterPosition >= 0)
+                return;
             GameDetailsActivity.currentPosition = adapterPosition;
-            GameDetailsActivity context = ((GameDetailsActivity) fragment.getContext());
 
             // Create a new transition
             TransitionSet transitionSet = new TransitionSet();
             transitionSet.setOrdering(TransitionSet.ORDERING_TOGETHER);
             // Get the adapter position of the first child
             int firstChildIndex = Integer.parseInt(
-                    ((TextView) context
+                    ((TextView) ((AchievementSummaryFragment) fragment)
                             .layoutManager
                             .getChildAt(0)
                             .findViewById(R.id.recycler_view_position))
@@ -188,7 +190,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
             for (int i = 0; i < adapter.getItemCount(); i++) {
                 Slide slide = new Slide();
                 slide.setDuration(fragment.getActivity().getResources().getInteger(R.integer.animation_duration));
-                slide.addTarget(context.layoutManager.getChildAt(i));
+                slide.addTarget(((AchievementSummaryFragment) fragment).layoutManager.getChildAt(i));
                 if (i + firstChildIndex < adapterPosition) {
                     slide.setSlideEdge(Gravity.TOP);
                     transitionSet.addTransition(slide);

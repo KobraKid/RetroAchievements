@@ -31,6 +31,7 @@
                 android:max="10000"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
+                android:visibility="invisible"
                 tools:progress="2200" />
 
             <TextView
@@ -49,11 +50,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
+            android:elevation="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="gone" />
+            app:layout_constraintTop_toTopOf="parent" />
 
 
         <TextView
@@ -99,6 +100,7 @@
             android:id="@+id/game_details_achievements_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

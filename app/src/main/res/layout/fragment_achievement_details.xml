@@ -26,21 +26,21 @@
         android:paddingBottom="8dp">
 
         <ImageView
-            android:contentDescription="@string/cd_achievement_details_badge"
             android:id="@+id/achievement_details_badge"
-            android:layout_width="64dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="1"
+            android:layout_weight=".3"
             android:adjustViewBounds="true"
+            android:contentDescription="@string/cd_achievement_details_badge"
             android:src="@drawable/favicon" />
 
         <TextView
             android:id="@+id/achievement_details_description"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="1"
+            android:layout_weight=".7"
             android:padding="8dp"
             android:textSize="18sp"
             tools:text="Earn a 5000 Point Bonus by touching the top of the flagpole" />

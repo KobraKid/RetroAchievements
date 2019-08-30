@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Main Activity -->
     <string name="app_name">RetroAchievements</string>
-    <string name="username">Not logged in</string>
+    <string name="not_logged_in">Not logged in</string>
     <string name="login_prompt">Click here to log in</string>
 
     <!-- Navigation Drawer -->
@@ -49,6 +49,12 @@
     <br/>and a further <b>%3$d</b> HARDCORE achievements,
     <br/>worth <b>%4$d</b> <font color="0xFFFFFF">(%5$d)</font> points of <b>%6$d</b> <font color="0xFFFFFF">(%7$d)</font> possible points.]]></string>
     <string name="achievement_distribution">Achievement Distribution</string>
+    <plurals name="achievement_chart_hints">
+        <!-- Zero quantity does not work as expected, 0 defaults to "other." Keeping it here in case I forget. -->
+        <item quantity="zero">No users have earned %2$d achievement(s)</item>
+        <item quantity="one">%1$d user has earned %2$d achievement(s)</item>
+        <item quantity="other">%1$d users have earned %2$d achievement(s)</item>
+    </plurals>
     <string name="images">Images</string>
     <string name="image_box_art">Box Art</string>
     <string name="image_game_title">Title Screen</string>

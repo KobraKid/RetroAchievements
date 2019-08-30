@@ -170,8 +170,6 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
 
         @Override
         public void onItemClicked(View view, int adapterPosition) {
-            if (adapterPosition >= 0)
-                return;
             GameDetailsActivity.currentPosition = adapterPosition;
 
             // Create a new transition

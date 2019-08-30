@@ -145,10 +145,11 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                 reader = new JSONObject(response);
 
                 // Fill out user summary
+                ((TextView) getView().findViewById(R.id.home_username)).setText(MainActivity.ra_user);
                 ((TextView) getView().findViewById(R.id.home_stats)).setText(getString(R.string.nav_rank_score,
                         reader.getString("TotalPoints"),
                         reader.getString("Rank")));
-                ((TextView) getView().findViewById(R.id.home_username)).setText(MainActivity.ra_user);
+                getView().findViewById(R.id.home_username).setVisibility(View.VISIBLE);
                 getView().findViewById(R.id.home_stats).setVisibility(View.VISIBLE);
 
                 // Fill out recently played games list

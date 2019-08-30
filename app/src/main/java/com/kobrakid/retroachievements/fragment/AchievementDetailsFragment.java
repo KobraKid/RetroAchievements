@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.R;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -42,12 +43,7 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
         // Set fields from transferred data
         ((TextView) view.findViewById(R.id.achievement_details_title)).setText(getArguments().getString("Title"));
         ((TextView) view.findViewById(R.id.achievement_details_description)).setText(getArguments().getString("Description"));
-        if (getArguments().getString("DateEarned").startsWith("NoDate")) {
-            ColorMatrix matrix = new ColorMatrix();
-            matrix.setSaturation(0);
-            ((ImageView) view.findViewById(R.id.achievement_details_badge)).setColorFilter(new ColorMatrixColorFilter(matrix));
-        } else {
-            ((ImageView) view.findViewById(R.id.achievement_details_badge)).clearColorFilter();
+        if (!getArguments().getString("DateEarned").startsWith("NoDate")) {
             ((TextView) view.findViewById(R.id.achievement_details_date))
                     .setText(getContext().getString(R.string.date_earned, getArguments().getString("DateEarned")));
         }
@@ -74,25 +70,31 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
         progressBar = view.findViewById(R.id.achievement_details_completion);
         progressBar.setProgress((int) (Double.parseDouble(getArguments().getString("NumAwarded")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 10000.0));
 
-
-        postponeEnterTransition();
+//        postponeEnterTransition();
 
         // TODO Figure out why some images load in tiny (i.e. It's tough to be a bug - Secret Of Evermore [SNES])
         final ImageView badge = view.findViewById(R.id.achievement_details_badge);
         Picasso.get()
-                .load("http://retroachievements.org/Badge/" + getArguments().getString("ImageIcon") + ".png")
-                .resize(64, 64)
+                .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + getArguments().getString("ImageIcon") + ".png")
+                .placeholder(getResources().getDrawable(R.drawable.favicon))
                 .into(badge, new Callback() {
                     @Override
                     public void onSuccess() {
+                        if (getArguments().getString("DateEarned").startsWith("NoDate")) {
+                            ColorMatrix matrix = new ColorMatrix();
+                            matrix.setSaturation(0);
+                            ((ImageView) view.findViewById(R.id.achievement_details_badge)).setColorFilter(new ColorMatrixColorFilter(matrix));
+                        } else {
+                            ((ImageView) view.findViewById(R.id.achievement_details_badge)).clearColorFilter();
+                        }
                         prepareSharedElementTransition(view);
-                        startPostponedEnterTransition();
+//                        startPostponedEnterTransition();
                     }
 
                     @Override
                     public void onError(Exception e) {
                         prepareSharedElementTransition(view);
-                        startPostponedEnterTransition();
+//                        startPostponedEnterTransition();
                     }
                 });
 

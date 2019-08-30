@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
@@ -20,6 +21,8 @@ import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.RAAPICallback;
 import com.kobrakid.retroachievements.RAAPIConnection;
@@ -36,6 +39,8 @@ import java.util.regex.Pattern;
 
 public class AchievementDistributionFragment extends Fragment implements RAAPICallback {
 
+    private static final String TAG = AchievementDistributionFragment.class.getSimpleName();
+
     private ProgressBar achievementDistroLoadingBar = null;
     private LineChart achievementDistro = null;
     private boolean isActive = false;
@@ -46,12 +51,31 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.view_pager_achievement_distribution, container, false);
+        final View view = inflater.inflate(R.layout.view_pager_achievement_distribution, container, false);
 
         achievementDistroLoadingBar = view.findViewById(R.id.game_details_achievement_distro_loading);
         achievementDistro = view.findViewById(R.id.game_details_achievement_distribution);
         new RAAPIConnection(getContext()).GetAchievementDistribution(getArguments().getString("GameID"), this);
+        achievementDistro.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, Highlight h) {
+                if (isActive) {
+                    ((TextView) view.findViewById(R.id.game_details_chart_hints))
+                            .setText(getResources().getQuantityString(
+                                    R.plurals.achievement_chart_hints,
+                                    (int) e.getY(),
+                                    (int) e.getY(),
+                                    (int) e.getX()));
+                }
+            }
 
+            @Override
+            public void onNothingSelected() {
+                if (isActive) {
+                    ((TextView) view.findViewById(R.id.game_details_chart_hints)).setText("");
+                }
+            }
+        });
         return view;
     }
 

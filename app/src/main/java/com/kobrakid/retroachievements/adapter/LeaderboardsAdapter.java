@@ -3,7 +3,6 @@ package com.kobrakid.retroachievements.adapter;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +16,7 @@ import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.fragment.LeaderboardsFragment;
 import com.squareup.picasso.Picasso;
 
-import java.util.Arrays;
-
 public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filterable {
-
-    private static final String TAG = LeaderboardsAdapter.class.getSimpleName();
 
     private final RowSortedTable<Integer, String, String> table, tableFiltered;
     private final LeaderboardsViewHolderListenerImpl listener;
@@ -62,7 +57,6 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
                 String filter = charSequence.toString();
                 String[] strings = new String[]{filter.substring(0, filter.indexOf("\t")), filter.substring(filter.indexOf("\t") + 1)};
                 FilterResults results = new FilterResults();
-                Log.d(TAG, "Filter: " + Arrays.toString(strings));
                 tableFiltered.clear();
                 if (strings[0].equals("") && strings[1].equals("")) {
                     results.values = false;

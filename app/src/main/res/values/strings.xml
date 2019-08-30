@@ -20,6 +20,7 @@
 
     <!-- Leaderboards Fragment -->
     <string name="top_users">Top Users</string>
+    <string name="score_ratio_format"><![CDATA[%1$s <font color="0xFFFFFF">(%2$s)</font>]]></string>
     <string name="leaderboards_games">Leaderboard List</string>
 
     <!-- Settings Fragment -->

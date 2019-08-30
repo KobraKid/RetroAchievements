@@ -31,7 +31,6 @@ import java.util.Objects;
 
 public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.AchievementViewHolder> {
 
-    private final String numDistinctCasual;
     private final ArrayList<String> ids;
     private final ArrayList<String> badges;
     private final ArrayList<String> titles;
@@ -45,6 +44,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
     private final ArrayList<String> datesCreated;
     private final ArrayList<String> datesModified;
     private final Map<String, Boolean> hardcoreEarnings;
+    private final StringBuilder numDistinctCasual;
 
     private final Fragment fragment;
     private final AchievementViewHolderListener viewHolderListener;
@@ -63,7 +63,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
                               ArrayList<String> datesCreated,
                               ArrayList<String> datesModified,
                               Map<String, Boolean> hardcoreEarnings,
-                              String numDistinctCasual) {
+                              StringBuilder numDistinctCasual) {
         this.fragment = fragment;
         this.ids = ids;
         this.badges = badges;
@@ -94,12 +94,11 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         return new AchievementViewHolder(linearLayout, viewHolderListener);
     }
 
-    //    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull AchievementViewHolder holder, int position) {
 
         // Hidden Text Views
-        ((TextView) holder.linearLayout.findViewById(R.id.recycler_view_position)).setText("" + position);
+        ((TextView) holder.linearLayout.findViewById(R.id.recycler_view_position)).setText(String.valueOf(position));
         ((TextView) holder.linearLayout.findViewById(R.id.achievement_summary_author)).setText(authors.get(position));
         ((TextView) holder.linearLayout.findViewById(R.id.achievement_summary_created)).setText(datesCreated.get(position));
         ((TextView) holder.linearLayout.findViewById(R.id.achievement_summary_modified)).setText(datesModified.get(position));
@@ -139,14 +138,14 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
                 .setText(Objects.requireNonNull(fragment.getContext()).getString(R.string.won_by,
                         numsAwarded.get(position),
                         numsAwardedHC.get(position),
-                        numDistinctCasual,
+                        numDistinctCasual.toString(),
                         new DecimalFormat("@@@@")
-                                .format(Double.parseDouble(numsAwarded.get(position)) / Double.parseDouble(numDistinctCasual) * 100.0)));
+                                .format(Double.parseDouble(numsAwarded.get(position)) / Double.parseDouble(numDistinctCasual.toString()) * 100.0)));
 
         // Double-layered Progress Bar
         ProgressBar progressBar = holder.linearLayout.findViewById(R.id.achievement_summary_progress);
-        progressBar.setProgress((int) (Double.parseDouble(numsAwardedHC.get(position)) / Double.parseDouble(numDistinctCasual) * 10000.0));
-        progressBar.setSecondaryProgress((int) (Double.parseDouble(numsAwarded.get(position)) / Double.parseDouble(numDistinctCasual) * 10000.0));
+        progressBar.setProgress((int) (Double.parseDouble(numsAwardedHC.get(position)) / Double.parseDouble(numDistinctCasual.toString()) * 10000.0));
+        progressBar.setSecondaryProgress((int) (Double.parseDouble(numsAwarded.get(position)) / Double.parseDouble(numDistinctCasual.toString()) * 10000.0));
     }
 
     @Override
@@ -217,7 +216,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
             bundle.putString("Author", adapter.authors.get(adapterPosition));
             bundle.putString("DateCreated", adapter.datesCreated.get(adapterPosition));
             bundle.putString("DateModified", adapter.datesModified.get(adapterPosition));
-            bundle.putString("NumDistinctPlayersCasual", adapter.numDistinctCasual);
+            bundle.putString("NumDistinctPlayersCasual", adapter.numDistinctCasual.toString());
             detailsFragment.setArguments(bundle);
             Objects.requireNonNull(fragment
                     .getActivity())

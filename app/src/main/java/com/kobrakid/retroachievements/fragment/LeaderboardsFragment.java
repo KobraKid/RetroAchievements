@@ -13,7 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,12 +20,8 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 
 import com.google.common.collect.RowSortedTable;
 import com.google.common.collect.TreeBasedTable;
@@ -36,6 +31,7 @@ import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.RAAPICallback;
 import com.kobrakid.retroachievements.RAAPIConnection;
 import com.kobrakid.retroachievements.adapter.LeaderboardsAdapter;
+import com.kobrakid.retroachievements.adapter.UserRankingAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,8 +56,13 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
     private static boolean isActive = false;
     private boolean hasParsedUsers = false, hasParsedLeaderboards = false;
 
-    private LeaderboardsAdapter adapter;
+    private LeaderboardsAdapter leaderboardsAdapter;
     private RowSortedTable<Integer, String, String> table, tableFiltered;
+    private UserRankingAdapter userRankingAdapter;
+    private final ArrayList<String> userRankings = new ArrayList<>();
+    private final ArrayList<String> userNames = new ArrayList<>();
+    private final ArrayList<String> userScores = new ArrayList<>();
+    private final ArrayList<String> userRatios = new ArrayList<>();
 
     private Spinner consoleDropdown;
     private String filteredConsole = "", filteredTitle = "";
@@ -83,14 +84,23 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_leaderboards, container, false);
 
+        // Set up user rankings
+        RecyclerView topUsers = view.findViewById(R.id.leaderboards_users);
+        userRankings.clear();
+        userNames.clear();
+        userScores.clear();
+        userRatios.clear();
+        userRankingAdapter = new UserRankingAdapter(userRankings, userNames, userScores, userRatios);
+        topUsers.setAdapter(userRankingAdapter);
+        topUsers.setLayoutManager(new LinearLayoutManager(getContext()));
+
         // Set up Leaderboards List
         RecyclerView leaderboardsRecycler = view.findViewById(R.id.leaderboards_games);
         table = TreeBasedTable.create();
         tableFiltered = TreeBasedTable.create();
-        adapter = new LeaderboardsAdapter(this, table, tableFiltered);
-        leaderboardsRecycler.setAdapter(adapter);
-        RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
-        leaderboardsRecycler.setLayoutManager(manager);
+        leaderboardsAdapter = new LeaderboardsAdapter(this, table, tableFiltered);
+        leaderboardsRecycler.setAdapter(leaderboardsAdapter);
+        leaderboardsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Set up Filters
         consoleDropdown = view.findViewById(R.id.leaderboards_console_filter);
@@ -99,13 +109,13 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
                 filteredConsole = adapterView.getItemAtPosition(pos).toString();
-                adapter.getFilter().filter(filteredConsole + "\t" + filteredTitle);
+                leaderboardsAdapter.getFilter().filter(filteredConsole + "\t" + filteredTitle);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
                 filteredConsole = "";
-                adapter.getFilter().filter(filteredConsole + "\t" + filteredTitle);
+                leaderboardsAdapter.getFilter().filter(filteredConsole + "\t" + filteredTitle);
             }
         });
         leaderboardsFilter.addTextChangedListener(new TextWatcher() {
@@ -117,7 +127,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 filteredTitle = charSequence.toString();
-                adapter.getFilter().filter(filteredConsole + "\t" + filteredTitle);
+                leaderboardsAdapter.getFilter().filter(filteredConsole + "\t" + filteredTitle);
             }
 
             @Override
@@ -133,8 +143,9 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
     public void onStart() {
         super.onStart();
         isActive = true;
-        if (!hasParsedUsers)
+        if (!hasParsedUsers) {
             apiConnection.GetTopTenUsers(this);
+        }
         if (!hasParsedLeaderboards)
             apiConnection.GetLeaderboards(true, this);
     }
@@ -158,77 +169,33 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         if (responseCode == RAAPIConnection.RESPONSE_GET_TOP_TEN_USERS) {
             try {
                 JSONArray reader = new JSONArray(response);
-
-                TableLayout tableLayout = Objects.requireNonNull(getActivity()).findViewById(R.id.leaderboards_users);
-                TableRow row, row1 = new TableRow(getContext()), row2 = new TableRow(getContext()), row3 = new TableRow(getContext()), row4 = new TableRow(getContext()), row5 = new TableRow(getContext());
-                LinearLayout outerLayout, innerLayout;
-                TextView username, score, ratio;
+                int count = userRankings.size();
+                userRankings.clear();
+                userNames.clear();
+                userScores.clear();
+                userRatios.clear();
+                userRankingAdapter.notifyItemRangeRemoved(0, count);
                 for (int i = 0; i < reader.length(); i++) {
-                    switch (i % 5) {
-                        case 1:
-                            row = row2;
-                            break;
-                        case 2:
-                            row = row3;
-                            break;
-                        case 3:
-                            row = row4;
-                            break;
-                        case 4:
-                            row = row5;
-                            break;
-                        case 0:
-                        default:
-                            row = row1;
-                            break;
-                    }
-
-                    outerLayout = new LinearLayout(getContext());
-                    outerLayout.setOrientation(LinearLayout.HORIZONTAL);
-                    LinearLayout.LayoutParams params = new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.5f);
-                    ((TableRow.LayoutParams) params).gravity = Gravity.START;
-                    ((TableRow.LayoutParams) params).column = (i % 2) + 1;
-                    if (i > 4)
-                        params.setMarginStart(8);
-                    outerLayout.setLayoutParams(params);
-
-                    innerLayout = new LinearLayout(getContext());
-                    innerLayout.setOrientation(LinearLayout.VERTICAL);
-                    innerLayout.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.25f));
-
-                    username = new TextView(getContext());
-                    username.setText((i + 1) + ". " + ((JSONObject) reader.get(i)).getString("1"));
-                    username.setTextSize(14);
-                    username.setSingleLine(true);
-                    params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.75f);
-                    params.gravity = Gravity.CENTER_VERTICAL;
-                    username.setLayoutParams(params);
-
-                    params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    params.gravity = Gravity.END;
-
-                    score = new TextView(getContext());
-                    score.setText(((JSONObject) reader.get(i)).getString("2"));
-                    score.setTextSize(12);
-                    score.setLayoutParams(params);
-
-                    ratio = new TextView(getContext());
-                    ratio.setText(((JSONObject) reader.get(i)).getString("3"));
-                    ratio.setTextSize(12);
-                    ratio.setLayoutParams(params);
-
-                    innerLayout.addView(score);
-                    innerLayout.addView(ratio);
-                    outerLayout.addView(username);
-                    outerLayout.addView(innerLayout);
-                    row.addView(outerLayout);
+                    userRankings.add("" + (i + 1));
+                    userNames.add(((JSONObject) reader.get(i)).getString("1"));
+                    userScores.add(((JSONObject) reader.get(i)).getString("2"));
+                    userRatios.add(((JSONObject) reader.get(i)).getString("3"));
+                    userRankingAdapter.notifyItemInserted(i);
                 }
-                tableLayout.addView(row1);
-                tableLayout.addView(row2);
-                tableLayout.addView(row3);
-                tableLayout.addView(row4);
-                tableLayout.addView(row5);
-                hasParsedUsers = true;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if (!userNames.contains(MainActivity.ra_user))
+                apiConnection.GetUserSummary(MainActivity.ra_user, 0, this);
+            hasParsedUsers = true;
+        } else if (responseCode == RAAPIConnection.RESPONSE_GET_USER_SUMMARY) {
+            try {
+                JSONObject reader = new JSONObject(response);
+                userRankings.add(reader.getString("Rank"));
+                userNames.add(MainActivity.ra_user);
+                userScores.add(reader.getString("TotalPoints"));
+                userRatios.add(reader.getString("TotalTruePoints"));
+                userRankingAdapter.notifyItemInserted(userNames.size() - 1);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -237,7 +204,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
             animation.setDuration(1000);
             animation.setInterpolator(new AccelerateDecelerateInterpolator());
             animation.start();
-            new LeaderboardsAsyncTask(getActivity(), getContext(), consoleDropdown, adapter, table, tableFiltered).execute(response);
+            new LeaderboardsAsyncTask(getActivity(), getContext(), consoleDropdown, leaderboardsAdapter, table, tableFiltered).execute(response);
             hasParsedLeaderboards = true;
         }
     }

@@ -82,7 +82,6 @@ public class ListsFragment extends Fragment implements RAAPICallback {
         consoleListRecyclerView.setLayoutManager(consoleListLayoutManager);
 
         // Set up games list with empty values
-        gameListRecyclerView = view.findViewById(R.id.list_games);
         gameImageIcons = new ArrayList<>();
         gameTitles = new ArrayList<>();
         gameStats = new ArrayList<>();

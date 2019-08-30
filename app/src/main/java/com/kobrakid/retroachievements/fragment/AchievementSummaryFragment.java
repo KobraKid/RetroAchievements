@@ -57,6 +57,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
             datesCreated = new ArrayList<>(),
             datesModified = new ArrayList<>();
     private final Map<String, Boolean> hardcoreEarnings = new HashMap<>();
+    private final StringBuilder numDistinctCasual = new StringBuilder("1");
     private boolean isActive = false;
 
     public AchievementSummaryFragment() {
@@ -82,7 +83,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 datesCreated,
                 datesModified,
                 hardcoreEarnings,
-                "1");
+                numDistinctCasual);
 
         RecyclerView recyclerView = view.findViewById(R.id.game_details_achievements_recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -114,6 +115,8 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
         if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_INFO_AND_USER_PROGRESS) {
             try {
                 JSONObject reader = new JSONObject(response);
+                numDistinctCasual.delete(0, numDistinctCasual.length());
+                numDistinctCasual.append(reader.getString("NumDistinctPlayersCasual"));
                 if (reader.getString("NumAchievements").equals("0")) {
                     Objects.requireNonNull(getView()).findViewById(R.id.game_details_loading_bar).setVisibility(View.GONE);
                     getView().findViewById(R.id.game_details_no_achievements).setVisibility(View.VISIBLE);
@@ -154,7 +157,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                                     numEarnedHC,
                                     earnedPts,
                                     earnedRatio,
-                                    totalPts,
+                                    totalPts * 2, // Account for hardcore achievements worth double
                                     totalRatio)));
                     getView().findViewById(R.id.game_details_progress).setVisibility(View.VISIBLE);
 

@@ -25,6 +25,10 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * Represents a single leaderboard instance. Displays information about the leaderboard
+ * and lists the participating users.
+ */
 public class LeaderboardActivity extends AppCompatActivity implements RAAPICallback {
 
     private RAAPIConnection apiConnection;

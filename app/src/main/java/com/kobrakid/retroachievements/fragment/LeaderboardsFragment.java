@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 
 public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
@@ -59,13 +60,10 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
     private static boolean isActive = false;
     private boolean hasParsedUsers = false, hasParsedLeaderboards = false;
 
-    private RecyclerView leaderboardsRecycler;
     private LeaderboardsAdapter adapter;
-    private RecyclerView.LayoutManager manager;
     private RowSortedTable<Integer, String, String> table, tableFiltered;
 
     private Spinner consoleDropdown;
-    private EditText leaderboardsFilter;
     private String filteredConsole = "", filteredTitle = "";
 
     public LeaderboardsFragment() {
@@ -80,23 +78,23 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Set up API connection
-        apiConnection = ((MainActivity) getActivity()).apiConnection;
+        apiConnection = ((MainActivity) Objects.requireNonNull(getActivity())).apiConnection;
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_leaderboards, container, false);
 
         // Set up Leaderboards List
-        leaderboardsRecycler = view.findViewById(R.id.leaderboards_games);
+        RecyclerView leaderboardsRecycler = view.findViewById(R.id.leaderboards_games);
         table = TreeBasedTable.create();
         tableFiltered = TreeBasedTable.create();
         adapter = new LeaderboardsAdapter(this, table, tableFiltered);
         leaderboardsRecycler.setAdapter(adapter);
-        manager = new LinearLayoutManager(getContext());
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         leaderboardsRecycler.setLayoutManager(manager);
 
         // Set up Filters
         consoleDropdown = view.findViewById(R.id.leaderboards_console_filter);
-        leaderboardsFilter = view.findViewById(R.id.leaderboards_filter);
+        EditText leaderboardsFilter = view.findViewById(R.id.leaderboards_filter);
         consoleDropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
@@ -161,7 +159,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
             try {
                 JSONArray reader = new JSONArray(response);
 
-                TableLayout tableLayout = getActivity().findViewById(R.id.leaderboards_users);
+                TableLayout tableLayout = Objects.requireNonNull(getActivity()).findViewById(R.id.leaderboards_users);
                 TableRow row, row1 = new TableRow(getContext()), row2 = new TableRow(getContext()), row3 = new TableRow(getContext()), row4 = new TableRow(getContext()), row5 = new TableRow(getContext());
                 LinearLayout outerLayout, innerLayout;
                 TextView username, score, ratio;
@@ -235,7 +233,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
                 e.printStackTrace();
             }
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_LEADERBOARDS) {
-            ObjectAnimator animation = ObjectAnimator.ofInt(getActivity().findViewById(R.id.leaderboards_progress), "secondaryProgress", 100);
+            ObjectAnimator animation = ObjectAnimator.ofInt(Objects.requireNonNull(getActivity()).findViewById(R.id.leaderboards_progress), "secondaryProgress", 100);
             animation.setDuration(1000);
             animation.setInterpolator(new AccelerateDecelerateInterpolator());
             animation.start();

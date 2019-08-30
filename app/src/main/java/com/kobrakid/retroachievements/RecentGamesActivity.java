@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * This class will display a more comprehensive list of recent games, rather than the
@@ -35,7 +36,6 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
     private final int gamesPerAPICall = 15;
     private boolean hasParsed = false; // Easy way to prevent spam API calls while scrolling quickly
 
-    private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ArrayList<String> imageIcons, titles, stats, ids;
@@ -57,10 +57,10 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
         // Set up title bar
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
 
         // Set up RecyclerView
-        recyclerView = findViewById(R.id.recent_games_recycler_view);
+        RecyclerView recyclerView = findViewById(R.id.recent_games_recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 

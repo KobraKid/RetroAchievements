@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * This class is responsible for displaying summary information on all the achievements for a
@@ -38,9 +39,8 @@ import java.util.Map;
  */
 public class AchievementSummaryFragment extends Fragment implements RAAPICallback {
 
-    public static final String TAG = AchievementSummaryFragment.class.getSimpleName();
+    private static final String TAG = AchievementSummaryFragment.class.getSimpleName();
 
-    private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     public RecyclerView.LayoutManager layoutManager;
     private final ArrayList<String>
@@ -84,13 +84,13 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 hardcoreEarnings,
                 "1");
 
-        recyclerView = view.findViewById(R.id.game_details_achievements_recycler_view);
+        RecyclerView recyclerView = view.findViewById(R.id.game_details_achievements_recycler_view);
         recyclerView.setHasFixedSize(true);
         layoutManager = new AchievementLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
-        new RAAPIConnection(getContext()).GetGameInfoAndUserProgress(MainActivity.ra_user, getArguments().getString("GameID"), this);
+        new RAAPIConnection(getContext()).GetGameInfoAndUserProgress(MainActivity.ra_user, Objects.requireNonNull(getArguments()).getString("GameID"), this);
 
         return view;
     }
@@ -115,7 +115,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
             try {
                 JSONObject reader = new JSONObject(response);
                 if (reader.getString("NumAchievements").equals("0")) {
-                    getView().findViewById(R.id.game_details_loading_bar).setVisibility(View.GONE);
+                    Objects.requireNonNull(getView()).findViewById(R.id.game_details_loading_bar).setVisibility(View.GONE);
                     getView().findViewById(R.id.game_details_no_achievements).setVisibility(View.VISIBLE);
                 } else {
                     JSONObject achievements = reader.getJSONObject("Achievements");
@@ -140,7 +140,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                         totalRatio += Integer.parseInt(achievement.getString("TrueRatio"));
                     }
 
-                    ((TextView) getView().findViewById(R.id.game_details_progress_text))
+                    ((TextView) Objects.requireNonNull(getView()).findViewById(R.id.game_details_progress_text))
                             .setText(getString(
                                     R.string.completion,
                                     new DecimalFormat("@@@@")
@@ -182,33 +182,33 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
 
     private static class AchievementDetailsAsyncTask extends AsyncTask<String, Integer, String[]> {
 
-        WeakReference<Fragment> fragmentReference;
-        WeakReference<ArrayList<String>> idsReference,
-                badgesReference,
-                titlesReference,
-                pointsReference,
-                trueRatiosReference,
-                descriptionsReference,
-                datesEarnedReference,
-                numsAwardedReference,
-                numsAwardedHCReference,
-                authorsReference,
-                datesCreatedReference,
-                datesModifiedReference;
-        WeakReference<Map<String, Boolean>> hardcoreEarningsReference;
-        private ArrayList<String>
-                asyncIds = new ArrayList<>(),
-                asyncBadges = new ArrayList<>(),
-                asyncTitles = new ArrayList<>(),
-                asyncPoints = new ArrayList<>(),
-                asyncTrueRatios = new ArrayList<>(),
-                asyncDescriptions = new ArrayList<>(),
-                asyncDatesEarned = new ArrayList<>(),
-                asyncNumsAwarded = new ArrayList<>(),
-                asyncNumsAwardedHC = new ArrayList<>(),
-                asyncAuthors = new ArrayList<>(),
-                asyncDatesCreated = new ArrayList<>(),
-                asyncDatesModified = new ArrayList<>();
+        final WeakReference<Fragment> fragmentReference;
+        final WeakReference<ArrayList<String>> idsReference;
+        final WeakReference<ArrayList<String>> badgesReference;
+        final WeakReference<ArrayList<String>> titlesReference;
+        final WeakReference<ArrayList<String>> pointsReference;
+        final WeakReference<ArrayList<String>> trueRatiosReference;
+        final WeakReference<ArrayList<String>> descriptionsReference;
+        final WeakReference<ArrayList<String>> datesEarnedReference;
+        final WeakReference<ArrayList<String>> numsAwardedReference;
+        final WeakReference<ArrayList<String>> numsAwardedHCReference;
+        final WeakReference<ArrayList<String>> authorsReference;
+        final WeakReference<ArrayList<String>> datesCreatedReference;
+        final WeakReference<ArrayList<String>> datesModifiedReference;
+        final WeakReference<Map<String, Boolean>> hardcoreEarningsReference;
+        private final ArrayList<String>
+                asyncIds = new ArrayList<>();
+        private final ArrayList<String> asyncBadges = new ArrayList<>();
+        private final ArrayList<String> asyncTitles = new ArrayList<>();
+        private final ArrayList<String> asyncPoints = new ArrayList<>();
+        private final ArrayList<String> asyncTrueRatios = new ArrayList<>();
+        private final ArrayList<String> asyncDescriptions = new ArrayList<>();
+        private final ArrayList<String> asyncDatesEarned = new ArrayList<>();
+        private final ArrayList<String> asyncNumsAwarded = new ArrayList<>();
+        private final ArrayList<String> asyncNumsAwardedHC = new ArrayList<>();
+        private final ArrayList<String> asyncAuthors = new ArrayList<>();
+        private final ArrayList<String> asyncDatesCreated = new ArrayList<>();
+        private final ArrayList<String> asyncDatesModified = new ArrayList<>();
         private final Map<String, Boolean> asyncHardcoreEarnings = new HashMap<>();
 
         AchievementDetailsAsyncTask(Fragment fragment,
@@ -353,7 +353,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 datesModified.addAll(asyncDatesModified);
                 hardcoreEarnings.putAll(asyncHardcoreEarnings);
 
-                fragment.getView().findViewById(R.id.game_details_loading_bar).setVisibility(View.GONE);
+                Objects.requireNonNull(fragment.getView()).findViewById(R.id.game_details_loading_bar).setVisibility(View.GONE);
                 fragment.getView().findViewById(R.id.game_details_achievements_recycler_view).setVisibility(View.VISIBLE);
                 fragment.adapter.notifyDataSetChanged();
             }

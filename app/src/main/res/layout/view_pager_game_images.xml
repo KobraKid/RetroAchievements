@@ -42,7 +42,6 @@
                         android:layout_marginStart="64dp"
                         android:layout_marginEnd="64dp"
                         android:adjustViewBounds="true"
-                        android:paddingEnd="32dp"
                         android:src="@drawable/favicon" />
 
                     <TextView

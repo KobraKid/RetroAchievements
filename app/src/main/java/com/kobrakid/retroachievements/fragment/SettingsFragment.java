@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,22 +33,22 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
 public class SettingsFragment extends Fragment implements RAAPICallback {
 
     private static final String TAG = SettingsFragment.class.getSimpleName();
 
     // Unused, but guarantees that the parent Activity implements OnFragmentInteractionListener
+    @SuppressWarnings({"unused", "FieldCanBeLocal"})
     private OnFragmentInteractionListener listener;
     private RAAPIConnection apiConnection;
     private SharedPreferences sharedPref;
-    private String theme = "";
-    private StringBuilder consoleID = new StringBuilder(), consoleName = new StringBuilder();
+    private final StringBuilder consoleID = new StringBuilder();
+    private final StringBuilder consoleName = new StringBuilder();
 
-    private Map<Integer, Runnable> applicableSettings = new HashMap<>();
+    private final SparseArray<Runnable> applicableSettings = new SparseArray<>();
     private final int logout_key = 0, hide_consoles_key = 1, hide_games_key = 2, change_theme_key = 3;
 
     public SettingsFragment() {
@@ -62,17 +63,17 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Initialize preferences object
-        sharedPref = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
+        sharedPref = Objects.requireNonNull(getActivity()).getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         // Set up views
-        this.theme = sharedPref.getString(getString(R.string.theme_setting), "");
+        String theme = sharedPref.getString(getString(R.string.theme_setting), "");
         ((TextView) view.findViewById(R.id.settings_current_theme)).setText(getString(R.string.settings_current_theme, theme));
         ((TextView) view.findViewById(R.id.settings_current_user)).setText(getString(R.string.settings_current_user, MainActivity.ra_user == null ? "none" : MainActivity.ra_user));
 
-        ((Spinner) view.findViewById(R.id.settings_theme_dropdown)).setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, Consts.THEMES) {
+        ((Spinner) view.findViewById(R.id.settings_theme_dropdown)).setAdapter(new ArrayAdapter<String>(Objects.requireNonNull(getContext()), android.R.layout.simple_spinner_dropdown_item, Consts.THEMES) {
             @Override
             public boolean isEnabled(int position) {
                 return Consts.THEMES_ENABLE_ARRAY[position];
@@ -133,7 +134,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         try {
             listener = (OnFragmentInteractionListener) getActivity();
         } catch (ClassCastException e) {
-            throw new ClassCastException(getActivity().toString()
+            throw new ClassCastException(Objects.requireNonNull(getActivity()).toString()
                     + " must implement OnHeadlineSelectedListener");
         }
     }
@@ -141,9 +142,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     /* Settings-related Functions */
 
     private void changeTheme(final String theme) {
-        if (applicableSettings.containsKey(change_theme_key)) {
-            applicableSettings.remove(change_theme_key);
-        }
+        applicableSettings.remove(change_theme_key);
         applicableSettings.put(change_theme_key, new Runnable() {
             @Override
             public void run() {
@@ -154,8 +153,8 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     }
 
     private void hideConsoles(final boolean hide) {
-        getActivity().findViewById(R.id.settings_hide_consoles_warning).setVisibility(hide ? View.GONE : View.VISIBLE);
-        if (applicableSettings.containsKey(hide_consoles_key)) {
+        Objects.requireNonNull(getActivity()).findViewById(R.id.settings_hide_consoles_warning).setVisibility(hide ? View.GONE : View.VISIBLE);
+        if (applicableSettings.get(hide_consoles_key) != null) {
             applicableSettings.remove(hide_consoles_key);
         } else {
             final RAAPICallback callback = this;
@@ -175,7 +174,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
                         });
                         apiConnection.GetConsoleIDs(callback);
                     } else {
-                        getActivity().recreate();
+                        Objects.requireNonNull(getActivity()).recreate();
                     }
                 }
             });
@@ -183,7 +182,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     }
 
     private void hideGames(final boolean hide) {
-        if (applicableSettings.containsKey(hide_games_key)) {
+        if (applicableSettings.get(hide_games_key) != null) {
             applicableSettings.remove(hide_games_key);
         } else {
             applicableSettings.put(hide_games_key, new Runnable() {
@@ -196,7 +195,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     }
 
     public void logout() {
-        ((TextView) getActivity().findViewById(R.id.settings_current_user)).setText(getString(R.string.settings_current_user, "none"));
+        ((TextView) Objects.requireNonNull(getActivity()).findViewById(R.id.settings_current_user)).setText(getString(R.string.settings_current_user, "none"));
         applicableSettings.put(logout_key, new Runnable() {
             @Override
             public void run() {
@@ -206,11 +205,11 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     }
 
     public void applySettings() {
-        getActivity().findViewById(R.id.settings_applying_fade).setVisibility(View.VISIBLE);
+        Objects.requireNonNull(getActivity()).findViewById(R.id.settings_applying_fade).setVisibility(View.VISIBLE);
         getActivity().findViewById(R.id.settings_applying).setVisibility(View.VISIBLE);
-        for (int key : applicableSettings.keySet())
-            applicableSettings.get(key).run();
-        if (!applicableSettings.containsKey(hide_consoles_key))
+        for (int key = 0; key < applicableSettings.size(); key++)
+            applicableSettings.valueAt(key).run();
+        if (applicableSettings.get(hide_consoles_key) == null)
             // Recreate activity now if no db operations are running
             getActivity().recreate();
     }
@@ -242,7 +241,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
                         AppExecutors.getInstance().mainThread().execute(new Runnable() {
                             @Override
                             public void run() {
-                                getActivity().recreate();
+                                Objects.requireNonNull(getActivity()).recreate();
                             }
                         });
                     } catch (JSONException e) {

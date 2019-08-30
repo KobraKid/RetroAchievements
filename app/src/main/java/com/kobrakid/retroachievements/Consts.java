@@ -1,5 +1,6 @@
 package com.kobrakid.retroachievements;
 
+@SuppressWarnings("SpellCheckingInspection")
 public final class Consts {
 
     // API

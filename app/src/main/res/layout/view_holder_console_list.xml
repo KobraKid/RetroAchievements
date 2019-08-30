@@ -10,7 +10,9 @@
         android:id="@+id/console_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/console_image"
@@ -19,6 +21,8 @@
         android:adjustViewBounds="true"
         android:contentDescription="@string/cd_console_icon"
         android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/console_placeholder" />
 
     <TextView

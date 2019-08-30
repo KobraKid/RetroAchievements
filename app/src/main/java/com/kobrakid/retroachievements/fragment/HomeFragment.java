@@ -27,9 +27,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class HomeFragment extends Fragment implements RAAPICallback, View.OnClickListener {
+import java.util.Objects;
 
-    private static final String TAG = HomeFragment.class.getSimpleName();
+public class HomeFragment extends Fragment implements RAAPICallback, View.OnClickListener {
 
     private RAAPIConnection apiConnection;
     // TODO Only call API when the view is first started, or when the user asks for a manual refresh
@@ -48,7 +48,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Set up API connection
-        apiConnection = ((MainActivity) getActivity()).apiConnection;
+        apiConnection = ((MainActivity) Objects.requireNonNull(getActivity())).apiConnection;
         hasPopulatedGames = false;
 
         // Inflate the layout for this fragment
@@ -73,7 +73,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
         if (!hasPopulatedGames && MainActivity.ra_user != null) {
             Picasso.get()
                     .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + MainActivity.ra_user + ".png")
-                    .into((ImageView) getView().findViewById(R.id.home_profile_picture));
+                    .into((ImageView) Objects.requireNonNull(getView()).findViewById(R.id.home_profile_picture));
             apiConnection.GetUserSummary(MainActivity.ra_user, 3, HomeFragment.this);
             // TODO allow manual repopulation
             hasPopulatedGames = true;
@@ -102,7 +102,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
             return;
         JSONObject reader;
         if (!hasPopulatedMasteries && responseCode == RAAPIConnection.RESPONSE_GET_USER_WEB_PROFILE) {
-            LinearLayout masteries = getActivity().findViewById(R.id.masteries);
+            LinearLayout masteries = Objects.requireNonNull(getActivity()).findViewById(R.id.masteries);
             masteries.removeAllViews();
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
             params.setMarginEnd(1);
@@ -145,7 +145,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                 reader = new JSONObject(response);
 
                 // Fill out user summary
-                ((TextView) getView().findViewById(R.id.home_username)).setText(MainActivity.ra_user);
+                ((TextView) Objects.requireNonNull(getView()).findViewById(R.id.home_username)).setText(MainActivity.ra_user);
                 ((TextView) getView().findViewById(R.id.home_stats)).setText(getString(R.string.nav_rank_score,
                         reader.getString("TotalPoints"),
                         reader.getString("Rank")));

@@ -18,6 +18,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
+import java.util.Objects;
 
 /**
  * This class is responsible for showing more detailed information on a particular achievement.
@@ -38,17 +39,17 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_achievement_details, container, false);
         view.setOnClickListener(this);
-        view.setTransitionName("achievement_" + getArguments().getString("Position"));
+        view.setTransitionName("achievement_" + Objects.requireNonNull(getArguments()).getString("Position"));
 
         // Set fields from transferred data
         ((TextView) view.findViewById(R.id.achievement_details_title)).setText(getArguments().getString("Title"));
         ((TextView) view.findViewById(R.id.achievement_details_description)).setText(getArguments().getString("Description"));
-        if (!getArguments().getString("DateEarned").startsWith("NoDate")) {
+        if (!Objects.requireNonNull(getArguments().getString("DateEarned")).startsWith("NoDate")) {
             ((TextView) view.findViewById(R.id.achievement_details_date))
-                    .setText(getContext().getString(R.string.date_earned, getArguments().getString("DateEarned")));
+                    .setText(Objects.requireNonNull(getContext()).getString(R.string.date_earned, getArguments().getString("DateEarned")));
         }
         ((TextView) view.findViewById(R.id.achievement_details_completion_text))
-                .setText(getContext().getString(
+                .setText(Objects.requireNonNull(getContext()).getString(
                         R.string.earned_by_details,
                         getArguments().getString("NumAwarded"),
                         getArguments().getString("NumDistinctPlayersCasual"),
@@ -76,11 +77,11 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
         final ImageView badge = view.findViewById(R.id.achievement_details_badge);
         Picasso.get()
                 .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + getArguments().getString("ImageIcon") + ".png")
-                .placeholder(getResources().getDrawable(R.drawable.favicon))
+                .placeholder(getResources().getDrawable(R.drawable.favicon, Objects.requireNonNull(getActivity()).getTheme()))
                 .into(badge, new Callback() {
                     @Override
                     public void onSuccess() {
-                        if (getArguments().getString("DateEarned").startsWith("NoDate")) {
+                        if (Objects.requireNonNull(Objects.requireNonNull(getArguments()).getString("DateEarned")).startsWith("NoDate")) {
                             ColorMatrix matrix = new ColorMatrix();
                             matrix.setSaturation(0);
                             ((ImageView) view.findViewById(R.id.achievement_details_badge)).setColorFilter(new ColorMatrixColorFilter(matrix));
@@ -103,7 +104,7 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
 
     @Override
     public void onClick(View view) {
-        this.getFragmentManager().popBackStack();
+        Objects.requireNonNull(this.getFragmentManager()).popBackStack();
     }
 
     private void prepareSharedElementTransition(final View view) {

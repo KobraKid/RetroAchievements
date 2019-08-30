@@ -31,6 +31,8 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Objects;
+
 /**
  * The entry point for the app, and the Activity that manages most of the basic Fragments used
  * throughout the app.
@@ -73,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         // Set up title bar
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
         TypedValue typedValue = new TypedValue();
         if (getTheme().resolveAttribute(R.drawable.ic_menu, typedValue, true)) {
             actionBar.setHomeAsUpIndicator(typedValue.resourceId);
@@ -199,9 +201,6 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
         // Determine selected Navigation Drawer item
         switch (item.getItemId()) {
-            case R.id.nav_home_fragment:
-                fragmentClass = HomeFragment.class;
-                break;
             case R.id.nav_lists_fragment:
                 fragmentClass = ListsFragment.class;
                 break;
@@ -211,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
             case R.id.nav_settings_fragment:
                 fragmentClass = SettingsFragment.class;
                 break;
+            case R.id.nav_home_fragment:
             default:
                 fragmentClass = HomeFragment.class;
                 break;

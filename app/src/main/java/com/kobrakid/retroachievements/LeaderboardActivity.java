@@ -23,13 +23,14 @@ import org.jsoup.select.Elements;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class LeaderboardActivity extends AppCompatActivity implements RAAPICallback {
 
-    public RAAPIConnection apiConnection;
+    private RAAPIConnection apiConnection;
 
-    private String id, game, image, console, title, description, type, count;
-    private RecyclerView rankedUsers;
+    private String id;
+    private String count;
     private RecyclerView.Adapter adapter;
     private ArrayList<String> users, results, dates;
     private boolean isActive = false;
@@ -46,25 +47,25 @@ public class LeaderboardActivity extends AppCompatActivity implements RAAPICallb
 
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
 
-        id = getIntent().getExtras().getString("ID");
-        game = getIntent().getExtras().getString("GAME");
-        image = getIntent().getExtras().getString("IMAGE");
-        console = getIntent().getExtras().getString("CONSOLE");
-        title = getIntent().getExtras().getString("TITLE");
-        description = getIntent().getExtras().getString("DESCRIPTION");
-        type = getIntent().getExtras().getString("TYPE");
+        id = Objects.requireNonNull(getIntent().getExtras()).getString("ID");
+        String game = getIntent().getExtras().getString("GAME");
+        String image = getIntent().getExtras().getString("IMAGE");
+        String console = getIntent().getExtras().getString("CONSOLE");
+        String title = getIntent().getExtras().getString("TITLE");
+        String description = getIntent().getExtras().getString("DESCRIPTION");
+        String type = getIntent().getExtras().getString("TYPE");
         count = getIntent().getExtras().getString("NUMRESULTS");
         apiConnection = new RAAPIConnection(this);
 
         setTitle(game + ": " + title);
         Picasso.get().load(image).into((ImageView) findViewById(R.id.leaderboard_game_icon));
-        ((TextView) findViewById(R.id.leaderboard_title)).setText(title + " (" + console + ")");
+        ((TextView) findViewById(R.id.leaderboard_title)).setText(getString(R.string.leaderboard_title, title, console));
         ((TextView) findViewById(R.id.leaderboard_description)).setText(description);
         ((TextView) findViewById(R.id.leaderboard_type)).setText(type);
 
-        rankedUsers = findViewById(R.id.leaderboard_participants);
+        RecyclerView rankedUsers = findViewById(R.id.leaderboard_participants);
         users = new ArrayList<>();
         results = new ArrayList<>();
         dates = new ArrayList<>();
@@ -117,8 +118,10 @@ public class LeaderboardActivity extends AppCompatActivity implements RAAPICallb
 
     private static class ParseHTMLAsyncTask extends AsyncTask<String, Integer, Void> {
 
-        private WeakReference<RecyclerView.Adapter> adapterReference;
-        private WeakReference<ArrayList<String>> usersReference, resultsReference, datesReference;
+        private final WeakReference<RecyclerView.Adapter> adapterReference;
+        private final WeakReference<ArrayList<String>> usersReference;
+        private final WeakReference<ArrayList<String>> resultsReference;
+        private final WeakReference<ArrayList<String>> datesReference;
 
         ParseHTMLAsyncTask(RecyclerView.Adapter adapter, ArrayList<String> users, ArrayList<String> results, ArrayList<String> dates) {
             this.adapterReference = new WeakReference<>(adapter);

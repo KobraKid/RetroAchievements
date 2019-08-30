@@ -1,6 +1,5 @@
 package com.kobrakid.retroachievements.adapter;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,12 +11,10 @@ import com.kobrakid.retroachievements.fragment.GameImagesFragment;
 
 public class GameDetailsPagerAdapter extends FragmentPagerAdapter {
 
-    private Context context;
     private final String gameID;
 
-    public GameDetailsPagerAdapter(FragmentManager fm, Context context, String gameID) {
+    public GameDetailsPagerAdapter(FragmentManager fm, String gameID) {
         super(fm);
-        this.context = context;
         this.gameID = gameID;
     }
 

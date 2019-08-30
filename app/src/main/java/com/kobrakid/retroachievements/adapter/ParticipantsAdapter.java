@@ -18,8 +18,10 @@ import java.util.ArrayList;
 
 public class ParticipantsAdapter extends RecyclerView.Adapter {
 
-    private Context context;
-    private ArrayList<String> users, results, dates;
+    private final Context context;
+    private final ArrayList<String> users;
+    private final ArrayList<String> results;
+    private final ArrayList<String> dates;
 
     public ParticipantsAdapter(Context context, ArrayList<String> users, ArrayList<String> results, ArrayList<String> dates) {
         this.context = context;
@@ -39,7 +41,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
         Picasso.get()
                 .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + users.get(position) + ".png")
                 .into(((ImageView) holder.itemView.findViewById(R.id.participant_icon)));
-        ((TextView) holder.itemView.findViewById(R.id.participant_rank)).setText("#" + (position + 1));
+        ((TextView) holder.itemView.findViewById(R.id.participant_rank)).setText(context.getString(R.string.participant, position + 1));
         ((TextView) holder.itemView.findViewById(R.id.participant_username)).setText(users.get(position));
         ((TextView) holder.itemView.findViewById(R.id.participant_result)).setText(results.get(position));
         ((TextView) holder.itemView.findViewById(R.id.participant_date)).setText(dates.get(position));
@@ -54,7 +56,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
 
     private class ParticipantViewHolder extends RecyclerView.ViewHolder {
 
-        public ParticipantViewHolder(View itemView) {
+        ParticipantViewHolder(View itemView) {
             super(itemView);
         }
     }

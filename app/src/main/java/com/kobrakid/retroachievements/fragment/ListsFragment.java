@@ -32,6 +32,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class ListsFragment extends Fragment implements RAAPICallback {
 
@@ -61,7 +62,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        apiConnection = ((MainActivity) getActivity()).apiConnection;
+        apiConnection = ((MainActivity) Objects.requireNonNull(getActivity())).apiConnection;
         hideEmptyConsoles = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_console_hide_setting), false);
         hideEmptyGames = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_game_hide_setting), false);
 
@@ -143,7 +144,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                 }
                 // Loop twice if we wish to hide empty consoles
                 if (hideEmptyConsoles) {
-                    getActivity().findViewById(R.id.list_hiding_fade).setVisibility(View.VISIBLE);
+                    Objects.requireNonNull(getActivity()).findViewById(R.id.list_hiding_fade).setVisibility(View.VISIBLE);
                     getActivity().findViewById(R.id.list_hiding_progress).setVisibility(View.VISIBLE);
                     for (int i = 0; i < reader.length(); i++) {
                         // Get console information
@@ -174,7 +175,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                                     AppExecutors.getInstance().mainThread().execute(new Runnable() {
                                         @Override
                                         public void run() {
-                                            getActivity().findViewById(R.id.list_hiding_fade).setVisibility(View.GONE);
+                                            Objects.requireNonNull(getActivity()).findViewById(R.id.list_hiding_fade).setVisibility(View.GONE);
                                             getActivity().findViewById(R.id.list_hiding_progress).setVisibility(View.GONE);
                                         }
                                     });
@@ -190,7 +191,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             try {
                 JSONArray reader = new JSONArray(response);
                 if (reader.length() > 0) {
-                    getActivity().findViewById(R.id.list_no_games).setVisibility(View.GONE);
+                    Objects.requireNonNull(getActivity()).findViewById(R.id.list_no_games).setVisibility(View.GONE);
                     for (int i = 0; i < reader.length(); i++) {
                         JSONObject game = reader.getJSONObject(i);
                         gameTitles.add(game.getString("Title"));
@@ -198,7 +199,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                         gameImageIcons.add(game.getString("ImageIcon"));
                     }
                 } else {
-                    getActivity().findViewById(R.id.list_no_games).setVisibility(View.VISIBLE);
+                    Objects.requireNonNull(getActivity()).findViewById(R.id.list_no_games).setVisibility(View.VISIBLE);
                 }
                 // Show Game List RecyclerView
                 gameAdapter.notifyDataSetChanged();
@@ -226,13 +227,13 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     }
 
     public void onBackPressed() {
-        getActivity().setTitle("Consoles");
+        Objects.requireNonNull(getActivity()).setTitle("Consoles");
 
         TypedValue typedValue = new TypedValue();
         if (getActivity().getTheme().resolveAttribute(R.drawable.ic_menu, typedValue, true)) {
-            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(typedValue.resourceId);
+            Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).setHomeAsUpIndicator(typedValue.resourceId);
         } else {
-            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
+            Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_menu);
         }
 
         Point p = new Point();
@@ -260,7 +261,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     }
 
     public void onConsoleSelected(int position, String console, String consoleName) {
-        getActivity().setTitle(consoleName);
+        Objects.requireNonNull(getActivity()).setTitle(consoleName);
 
         // Hide Console List RecyclerView
         consoleAdapter.isExpanded = !consoleAdapter.isExpanded;
@@ -285,9 +286,9 @@ public class ListsFragment extends Fragment implements RAAPICallback {
 
         TypedValue typedValue = new TypedValue();
         if (getActivity().getTheme().resolveAttribute(R.drawable.ic_arrow_back, typedValue, true)) {
-            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(typedValue.resourceId);
+            Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).setHomeAsUpIndicator(typedValue.resourceId);
         } else {
-            ((MainActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
+            Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_arrow_back);
         }
 
         isShowingGames = true;

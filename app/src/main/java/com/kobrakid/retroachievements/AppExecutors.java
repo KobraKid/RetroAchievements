@@ -45,7 +45,7 @@ public class AppExecutors {
 
     private static class DatabaseThreadExecutor implements Executor {
 
-        private Handler handler = new Handler(Looper.getMainLooper());
+        private final Handler handler = new Handler(Looper.getMainLooper());
 
         @Override
         public void execute(@NonNull Runnable runnable) {

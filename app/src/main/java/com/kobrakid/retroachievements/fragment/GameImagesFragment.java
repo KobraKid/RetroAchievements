@@ -17,6 +17,8 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Objects;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -35,7 +37,7 @@ public class GameImagesFragment extends Fragment implements RAAPICallback {
         box = view.findViewById(R.id.image_boxart);
         title = view.findViewById(R.id.image_title);
         ingame = view.findViewById(R.id.image_ingame);
-        new RAAPIConnection(getContext()).GetGameInfo(getArguments().getString("GameID", "0"), this);
+        new RAAPIConnection(getContext()).GetGameInfo(Objects.requireNonNull(getArguments()).getString("GameID", "0"), this);
         return view;
     }
 

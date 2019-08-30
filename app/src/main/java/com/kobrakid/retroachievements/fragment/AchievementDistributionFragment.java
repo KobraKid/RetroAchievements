@@ -34,12 +34,11 @@ import org.jsoup.select.Elements;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AchievementDistributionFragment extends Fragment implements RAAPICallback {
-
-    private static final String TAG = AchievementDistributionFragment.class.getSimpleName();
 
     private ProgressBar achievementDistroLoadingBar = null;
     private LineChart achievementDistro = null;
@@ -55,7 +54,7 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
 
         achievementDistroLoadingBar = view.findViewById(R.id.game_details_achievement_distro_loading);
         achievementDistro = view.findViewById(R.id.game_details_achievement_distribution);
-        new RAAPIConnection(getContext()).GetAchievementDistribution(getArguments().getString("GameID"), this);
+        new RAAPIConnection(getContext()).GetAchievementDistribution(Objects.requireNonNull(getArguments()).getString("GameID"), this);
         achievementDistro.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
             @Override
             public void onValueSelected(Entry e, Highlight h) {
@@ -102,9 +101,9 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
 
     private static class AchievementDistributionChartAsyncTask extends AsyncTask<String, Integer, Integer[][]> {
 
-        private WeakReference<Context> contextReference;
-        private WeakReference<LineChart> lineChartReference;
-        private WeakReference<View> loadingBarReference;
+        private final WeakReference<Context> contextReference;
+        private final WeakReference<LineChart> lineChartReference;
+        private final WeakReference<View> loadingBarReference;
 
         AchievementDistributionChartAsyncTask(Context context, LineChart lineChart, View frameLayout) {
             this.contextReference = new WeakReference<>(context);

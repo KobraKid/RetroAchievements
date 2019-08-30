@@ -21,14 +21,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 
+import java.util.Objects;
+
 /**
  * This class will display detailed information about a single game.
  */
 public class GameDetailsActivity extends AppCompatActivity implements RAAPICallback {
 
-    public static final String TAG = GameDetailsActivity.class.getSimpleName();
-
-    public ViewPager viewPager;
     public static int currentPosition = 0;
 
     private String gameID;
@@ -47,15 +46,15 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
 
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
 
-        gameID = getIntent().getExtras().getString("GameID");
+        gameID = Objects.requireNonNull(getIntent().getExtras()).getString("GameID");
 
         // Set up API connection
         RAAPIConnection apiConnection = new RAAPIConnection(this);
 
-        viewPager = findViewById(R.id.game_details_view_pager);
-        viewPager.setAdapter(new GameDetailsPagerAdapter(getSupportFragmentManager(), this, gameID));
+        ViewPager viewPager = findViewById(R.id.game_details_view_pager);
+        viewPager.setAdapter(new GameDetailsPagerAdapter(getSupportFragmentManager(), gameID));
 
         apiConnection.GetGameInfoAndUserProgress(MainActivity.ra_user, gameID, this);
         // TODO Linked hashes requires login

@@ -22,7 +22,7 @@ import java.util.Date;
 /**
  * The RAAPIConnection class exposes the RetroAchievements API.
  */
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class RAAPIConnection {
 
     private static final String TAG = RAAPIConnection.class.getSimpleName();
@@ -646,6 +646,7 @@ public class RAAPIConnection {
      * Scrapes the RA website for a single Leaderboard page.
      *
      * @param leaderboardID The ID of the corresponding leaderboard.
+     * @param count         The number of users participating in this leaderboard.
      * @param callback      The RAAPICallback that should accept the results of the call.
      */
     public void GetLeaderboard(String leaderboardID, String count, final RAAPICallback callback) {

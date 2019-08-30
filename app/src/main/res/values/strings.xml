@@ -37,7 +37,7 @@
     <!-- Recent Games Activity -->
     <string name="recent_games_title">Recent Games</string>
 
-    <!-- Game Details -->
+    <!-- Game Details Activity -->
     <string name="published">Published by: %1$s</string>
     <string name="developed">Developed by: %1$s</string>
     <string name="genre">Genre: %1$s</string>
@@ -47,7 +47,9 @@
     <string name="achievements">Achievements</string>
     <string name="user_summary"><![CDATA[You have earned <b>%1$d</b> of <b>%2$d</b> achievements,
     <br/>and a further <b>%3$d</b> HARDCORE achievements,
-    <br/>worth <b>%4$d</b> <font color="0xFFFFFF">(%5$d)</font> points of <b>%6$d</b> <font color="0xFFFFFF">(%7$d)</font> possible points.]]></string>
+    <br/>worth <b>%4$d</b> <font color="0xFFFFFF">(%5$d)</font> points
+    <br/>out of <b>%6$d</b> <font color="0xFFFFFF">(%7$d)</font> possible points.]]></string>
+    <string name="achievement_summary_title">%1$s (%2$s) (%3$s)</string>
     <string name="achievement_distribution">Achievement Distribution</string>
     <plurals name="achievement_chart_hints">
         <!-- Zero quantity does not work as expected, 0 defaults to "other." Keeping it here in case I forget. -->
@@ -70,7 +72,11 @@
     <string name="not_yet_earned">You have not yet earned this achievement</string>
     <string name="metadata">Created by %1$s on %2$s\nLast modified %3$s</string>
 
-    <!-- Login -->
+    <!-- Leaderboards Activity -->
+    <string name="leaderboard_title">%1$s (%2$s)</string>
+    <string name="participant">#%1$d</string>
+
+    <!-- Login Activity -->
     <string name="login">Login</string>
     <string name="login_username">Username</string>
     <string name="new_login_welcome">Hello, %1$s. Successfully logged in.</string>
@@ -83,8 +89,5 @@
     <string name="cd_game_summary_image_icon">Game summary image icon</string>
     <string name="cd_achievement_summary_badge">Achievement summary badge</string>
     <string name="cd_console_icon">Console icon</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

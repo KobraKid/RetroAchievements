@@ -103,8 +103,8 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
 
     private static class LeaderboardsViewHolderListenerImpl implements LeaderboardsViewHolderListener {
 
-        private Fragment fragment;
-        private RowSortedTable<Integer, String, String> table;
+        private final Fragment fragment;
+        private final RowSortedTable<Integer, String, String> table;
 
         LeaderboardsViewHolderListenerImpl(Fragment fragment, RowSortedTable<Integer, String, String> table) {
             this.fragment = fragment;

@@ -36,7 +36,7 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
     private final ArrayList<String> titles;
     private final ArrayList<String> stats;
     private final ArrayList<String> ids;
-    private Context context;
+    private final Context context;
 
     public GameSummaryAdapter(Context context, ArrayList<String> imageIcons, ArrayList<String> titles, ArrayList<String> stats, ArrayList<String> ids) {
         this.context = context;

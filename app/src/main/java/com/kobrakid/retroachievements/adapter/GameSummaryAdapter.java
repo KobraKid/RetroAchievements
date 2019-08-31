@@ -20,8 +20,10 @@ import com.kobrakid.retroachievements.RAAPICallback;
 import com.kobrakid.retroachievements.RAAPIConnection;
 import com.kobrakid.retroachievements.database.Game;
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase;
+import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller;
 import com.squareup.picasso.Picasso;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -29,7 +31,7 @@ import org.jsoup.Jsoup;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.GameSummaryViewHolder> {
+public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.GameSummaryViewHolder> implements RecyclerViewFastScroller.OnPopupTextUpdate {
 
     private static final String TAG = GameSummaryAdapter.class.getSimpleName();
 
@@ -84,6 +86,12 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
     @Override
     public int getItemCount() {
         return ids.size();
+    }
+
+    @NotNull
+    @Override
+    public CharSequence onChange(int position) {
+        return titles.get(position).substring(0, 1);
     }
 
     public void removeEmptyGames() {

@@ -128,6 +128,10 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             consoleIDs.clear();
             consoleNames.clear();
             consoleAdapter.notifyDataSetChanged();
+            if (hideEmptyConsoles) {
+                Objects.requireNonNull(getActivity()).findViewById(R.id.list_hiding_fade).setVisibility(View.VISIBLE);
+                getActivity().findViewById(R.id.list_hiding_progress).setVisibility(View.VISIBLE);
+            }
             try {
                 JSONArray reader = new JSONArray(response);
                 // Loop once to add all consoles to view
@@ -144,8 +148,6 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                 }
                 // Loop twice if we wish to hide empty consoles
                 if (hideEmptyConsoles) {
-                    Objects.requireNonNull(getActivity()).findViewById(R.id.list_hiding_fade).setVisibility(View.VISIBLE);
-                    getActivity().findViewById(R.id.list_hiding_progress).setVisibility(View.VISIBLE);
                     for (int i = 0; i < reader.length(); i++) {
                         // Get console information
                         final JSONObject console = reader.getJSONObject(i);
@@ -210,7 +212,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                     @Override
                     public void onAnimationStart(Animator animation) {
                         super.onAnimationEnd(animation);
-                        gameListRecyclerView.setVisibility(View.VISIBLE);
+                        Objects.requireNonNull(getView()).findViewById(R.id.list_games_fast_scroller).setVisibility(View.VISIBLE);
                     }
                 });
             } catch (JSONException e) {
@@ -242,7 +244,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-//                gameListRecyclerView.setVisibility(View.GONE);
+                Objects.requireNonNull(getView()).findViewById(R.id.list_games_fast_scroller).setVisibility(View.GONE);
             }
         });
 

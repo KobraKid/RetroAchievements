@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -55,6 +56,16 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
 
         ViewPager viewPager = findViewById(R.id.game_details_view_pager);
         viewPager.setAdapter(new GameDetailsPagerAdapter(getSupportFragmentManager(), gameID));
+
+        ImageButton page0 = findViewById(R.id.game_details_button_page_0);
+        if (page0 != null)
+            page0.setOnClickListener((view) -> viewPager.setCurrentItem(0));
+        ImageButton page1 = findViewById(R.id.game_details_button_page_1);
+        if (page1 != null)
+            page1.setOnClickListener((view) -> viewPager.setCurrentItem(1));
+        ImageButton page2 = findViewById(R.id.game_details_button_page_2);
+        if (page2 != null)
+            page2.setOnClickListener((view) -> viewPager.setCurrentItem(2));
 
         apiConnection.GetGameInfoAndUserProgress(MainActivity.ra_user, gameID, this);
         // TODO Linked hashes requires login

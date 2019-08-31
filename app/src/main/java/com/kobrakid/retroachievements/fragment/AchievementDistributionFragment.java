@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -100,7 +99,6 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
 
     @Override
     public void callback(int responseCode, String response) {
-        Log.i("TESTING", responseCode + "\t" + isActive);
         if (!isActive)
             return;
         if (responseCode == RAAPIConnection.RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION) {
@@ -156,47 +154,49 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
             final Context context = contextReference.get();
             final LineChart chart = lineChartReference.get();
             if (context != null && chart != null) {
-                // Set chart data
-                List<Entry> entries = new ArrayList<>();
-                for (int i = 0; i < chartData[0].length; i++) {
-                    entries.add(new Entry(chartData[0][i], chartData[1][i]));
+                if (chartData[0].length > 0) {
+                    // Set chart data
+                    List<Entry> entries = new ArrayList<>();
+                    for (int i = 0; i < chartData[0].length; i++) {
+                        entries.add(new Entry(chartData[0][i], chartData[1][i]));
+                    }
+                    LineDataSet dataSet = new LineDataSet(entries, "");
+                    dataSet.setDrawFilled(true);
+                    LineData lineData = new LineData(dataSet);
+                    lineData.setDrawValues(false);
+
+                    // Set chart colors
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        TypedValue accentColor = new TypedValue(), primaryColor = new TypedValue();
+                        context.getTheme().resolveAttribute(R.attr.colorAccent, accentColor, true);
+                        context.getTheme().resolveAttribute(R.attr.colorPrimary, primaryColor, true);
+                        chart.getAxisLeft().setTextColor(primaryColor.data);
+                        chart.getXAxis().setTextColor(primaryColor.data);
+                        dataSet.setCircleColor(accentColor.data);
+                        dataSet.setColor(accentColor.data);
+                        dataSet.setCircleHoleColor(accentColor.data);
+                        dataSet.setFillColor(accentColor.data);
+                    }
+
+                    // Set chart axes
+                    chart.getAxisRight().setEnabled(false);
+                    chart.getLegend().setEnabled(false);
+                    chart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+                    chart.getAxisLeft().setAxisMinimum(0f);
+                    chart.setClickable(false);
+
+                    // Set chart description
+                    Description description = new Description();
+                    description.setText("");
+                    chart.setDescription(description);
+
+                    // Set chart finalized data
+                    chart.setData(lineData);
+
+                    // Redraw chart
+                    chart.invalidate();
                 }
-                LineDataSet dataSet = new LineDataSet(entries, "");
-                dataSet.setDrawFilled(true);
-                LineData lineData = new LineData(dataSet);
-                lineData.setDrawValues(false);
-
-                // Set chart colors
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    TypedValue accentColor = new TypedValue(), primaryColor = new TypedValue();
-                    context.getTheme().resolveAttribute(R.attr.colorAccent, accentColor, true);
-                    context.getTheme().resolveAttribute(R.attr.colorPrimary, primaryColor, true);
-                    chart.getAxisLeft().setTextColor(primaryColor.data);
-                    chart.getXAxis().setTextColor(primaryColor.data);
-                    dataSet.setCircleColor(accentColor.data);
-                    dataSet.setColor(accentColor.data);
-                    dataSet.setCircleHoleColor(accentColor.data);
-                    dataSet.setFillColor(accentColor.data);
-                }
-
-                // Set chart axes
-                chart.getAxisRight().setEnabled(false);
-                chart.getLegend().setEnabled(false);
-                chart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-                chart.getAxisLeft().setAxisMinimum(0f);
-                chart.setClickable(false);
-
-                // Set chart description
-                Description description = new Description();
-                description.setText("");
-                chart.setDescription(description);
-
-                // Set chart finalized data
-                chart.setData(lineData);
-
-                // Redraw chart
                 chart.setVisibility(View.VISIBLE);
-                chart.invalidate();
             }
             final View view = loadingBarReference.get();
             if (view != null)

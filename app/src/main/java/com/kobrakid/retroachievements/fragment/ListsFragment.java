@@ -156,32 +156,20 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                         final int pos = i, max = reader.length() - 1;
 
                         final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
-                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                // Get current console
-                                List<Console> current = db.consoleDao().getConsoleWithID(Integer.parseInt(id));
-                                // If it exists and has 0 games
-                                if (current.size() > 0 && current.get(0).getGameCount() == 0 && consoleNames.contains(name)) {
-                                    final int namePos = consoleNames.indexOf(name), idPos = consoleIDs.indexOf(id);
-                                    Log.d(TAG, "Removing " + consoleIDs.remove(idPos) + ": " + consoleNames.remove(namePos) + " @ " + namePos + " from view");
-                                    AppExecutors.getInstance().mainThread().execute(new Runnable() {
-                                        @Override
-                                        public void run() {
-//                                            consoleAdapter.notifyItemRemoved(namePos);
-                                            consoleAdapter.notifyDataSetChanged();
-                                        }
-                                    });
-                                }
-                                if (pos == max) {
-                                    AppExecutors.getInstance().mainThread().execute(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Objects.requireNonNull(getActivity()).findViewById(R.id.list_hiding_fade).setVisibility(View.GONE);
-                                            getActivity().findViewById(R.id.list_hiding_progress).setVisibility(View.GONE);
-                                        }
-                                    });
-                                }
+                        AppExecutors.getInstance().diskIO().execute(() -> {
+                            // Get current console
+                            List<Console> current = db.consoleDao().getConsoleWithID(Integer.parseInt(id));
+                            // If it exists and has 0 games
+                            if (current.size() > 0 && current.get(0).getGameCount() == 0 && consoleNames.contains(name)) {
+                                final int namePos = consoleNames.indexOf(name), idPos = consoleIDs.indexOf(id);
+                                Log.d(TAG, "Removing " + consoleIDs.remove(idPos) + ": " + consoleNames.remove(namePos) + " @ " + namePos + " from view");
+                                AppExecutors.getInstance().mainThread().execute(consoleAdapter::notifyDataSetChanged);
+                            }
+                            if (pos == max) {
+                                AppExecutors.getInstance().mainThread().execute(() -> {
+                                    Objects.requireNonNull(getActivity()).findViewById(R.id.list_hiding_fade).setVisibility(View.GONE);
+                                    getActivity().findViewById(R.id.list_hiding_progress).setVisibility(View.GONE);
+                                });
                             }
                         });
                     }

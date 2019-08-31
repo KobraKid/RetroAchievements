@@ -2,6 +2,7 @@ package com.kobrakid.retroachievements.adapter;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -15,10 +16,11 @@ public class GameDetailsPagerAdapter extends FragmentPagerAdapter {
     private final String gameID;
 
     public GameDetailsPagerAdapter(FragmentManager fm, String gameID) {
-        super(fm);
+        super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         this.gameID = gameID;
     }
 
+    @NonNull
     @Override
     public Fragment getItem(int position) {
         Fragment fragment;

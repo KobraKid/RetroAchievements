@@ -179,9 +179,9 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
             transitionSet.setOrdering(TransitionSet.ORDERING_TOGETHER);
             // Get the adapter position of the first child
             int firstChildIndex = Integer.parseInt(
-                    ((TextView) ((AchievementSummaryFragment) fragment)
+                    ((TextView) Objects.requireNonNull(((AchievementSummaryFragment) fragment)
                             .layoutManager
-                            .getChildAt(0)
+                            .getChildAt(0))
                             .findViewById(R.id.recycler_view_position))
                             .getText()
                             .toString());

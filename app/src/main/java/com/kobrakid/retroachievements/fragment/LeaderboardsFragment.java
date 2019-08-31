@@ -295,7 +295,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
                 // Ugly code used to remove dupes, preserve order, and append a blank option to the beginning
                 ArrayList<Object> uniqueCols = new ArrayList<>(Arrays.asList(new LinkedHashSet<>(result.column("CONSOLE").values()).toArray()));
                 uniqueCols.add(0, "");
-                dropdown.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, uniqueCols.toArray()));
+                dropdown.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, Objects.requireNonNull(uniqueCols.toArray())));
             }
             final LeaderboardsAdapter adapter = mAdapter.get();
             if (adapter != null) {

@@ -5,8 +5,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -101,17 +99,7 @@ public class RAAPIConnection {
         } else {
             final String url = BASE_URL + target + AuthQS() + params;
             RequestQueue queue = Volley.newRequestQueue(context);
-            StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    callback.callback(responseCode, response);
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    callback.callback(RESPONSE_ERROR, "Error!");
-                }
-            });
+            StringRequest stringRequest = new StringRequest(url, response -> callback.callback(responseCode, response), error -> callback.callback(RESPONSE_ERROR, "Error!"));
 
             queue.add(stringRequest);
         }
@@ -761,27 +749,19 @@ public class RAAPIConnection {
             if (response.length() == 0) {
                 final String url = Consts.BASE_URL + "/" + Consts.LEADERBOARDS_POSTFIX;
                 RequestQueue queue = Volley.newRequestQueue(context);
-                StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // Cache result
-                        try {
-                            FileWriter writer = new FileWriter(context.getFilesDir().getPath() + "/" + context.getString(R.string.file_leaderboards_cache));
-                            writer.write(response);
-                            writer.flush();
-                            writer.close();
-                            Log.i(TAG, "Wrote cached data");
-                        } catch (IOException e) {
-                            Log.e(TAG, "Error writing data", e);
-                        }
-                        callback.callback(RESPONSE_GET_LEADERBOARDS, response);
+                StringRequest stringRequest = new StringRequest(url, urlResponse -> {
+                    // Cache result
+                    try {
+                        FileWriter writer = new FileWriter(context.getFilesDir().getPath() + "/" + context.getString(R.string.file_leaderboards_cache));
+                        writer.write(urlResponse);
+                        writer.flush();
+                        writer.close();
+                        Log.i(TAG, "Wrote cached data");
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error writing data", e);
                     }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        callback.callback(RESPONSE_ERROR, "Error!");
-                    }
-                });
+                    callback.callback(RESPONSE_GET_LEADERBOARDS, urlResponse);
+                }, error -> callback.callback(RESPONSE_ERROR, "Error retrieving remote leaderboards"));
 
                 queue.add(stringRequest);
             }
@@ -791,7 +771,8 @@ public class RAAPIConnection {
         @Override
         protected void onPostExecute(String response) {
             super.onPostExecute(response);
-            callback.callback(RESPONSE_GET_LEADERBOARDS, response);
+            if (response.length() > 0)
+                callback.callback(RESPONSE_GET_LEADERBOARDS, response);
         }
     }
 

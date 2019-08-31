@@ -55,22 +55,27 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
                         getArguments().getString("NumAwarded"),
                         getArguments().getString("NumDistinctPlayersCasual"),
                         new DecimalFormat("@@@@")
-                                .format(Double.parseDouble(getArguments().getString("NumAwarded")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 100.0)));
+                                .format(Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumAwarded")))
+                                        / Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumDistinctPlayersCasual"))) * 100.0)));
         ((TextView) view.findViewById(R.id.achievement_details_completion_hardcore_text))
                 .setText(getContext().getString(
                         R.string.earned_by_hc_details,
                         getArguments().getString("NumAwardedHardcore"),
                         new DecimalFormat("@@@@")
-                                .format(Double.parseDouble(getArguments().getString("NumAwardedHardcore")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 100.0)));
+                                .format(Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumAwardedHardcore"))) / Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumDistinctPlayersCasual"))) * 100.0)));
         ((TextView) view.findViewById(R.id.achievement_details_metadata))
                 .setText(getString(R.string.metadata,
                         getArguments().getString("Author"),
                         getArguments().getString("DateCreated"),
                         getArguments().getString("DateModified")));
+
         ProgressBar progressBar = view.findViewById(R.id.achievement_details_completion_hardcore);
-        progressBar.setProgress((int) (Double.parseDouble(getArguments().getString("NumAwardedHardcore")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 10000.0));
+        progressBar.setProgress((int) (Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumAwardedHardcore")))
+                / Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumDistinctPlayersCasual"))) * 10000.0));
+
         progressBar = view.findViewById(R.id.achievement_details_completion);
-        progressBar.setProgress((int) (Double.parseDouble(getArguments().getString("NumAwarded")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 10000.0));
+        progressBar.setProgress((int) (Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumAwarded")))
+                / Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumDistinctPlayersCasual"))) * 10000.0));
 
 //        postponeEnterTransition();
 
@@ -108,7 +113,7 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
         Objects.requireNonNull(this.getFragmentManager()).popBackStack();
     }
 
-    private void prepareSharedElementTransition(final View view) {
+    private void prepareSharedElementTransition(@SuppressWarnings("unused") final View view) {
         // TODO Figure out why transitions (and/or recycler views) are so awful and hard to work with
 //        Transition transition = TransitionInflater.from(getContext()).inflateTransition(R.transition.image_shared_element_transition);
 //        setSharedElementEnterTransition(transition);

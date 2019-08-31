@@ -110,6 +110,12 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        isActive = true;
+    }
+
+    @Override
     public void callback(int responseCode, String response) {
         if (!isActive)
             return;

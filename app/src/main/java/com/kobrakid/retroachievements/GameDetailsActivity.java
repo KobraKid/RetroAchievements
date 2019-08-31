@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
 import com.kobrakid.retroachievements.adapter.GameDetailsPagerAdapter;
@@ -45,7 +44,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
 
         setContentView(R.layout.activity_game_details);
 
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        setSupportActionBar(findViewById(R.id.toolbar));
         final ActionBar actionBar = getSupportActionBar();
         Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
 

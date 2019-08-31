@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -92,7 +93,14 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        isActive = true;
+    }
+
+    @Override
     public void callback(int responseCode, String response) {
+        Log.i("TESTING", responseCode + "\t" + isActive);
         if (!isActive)
             return;
         if (responseCode == RAAPIConnection.RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION) {

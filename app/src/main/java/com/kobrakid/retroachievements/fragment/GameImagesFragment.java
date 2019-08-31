@@ -55,6 +55,12 @@ public class GameImagesFragment extends Fragment implements RAAPICallback {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        isActive = true;
+    }
+
+    @Override
     public void callback(int responseCode, String response) {
         if (!isActive)
             return;

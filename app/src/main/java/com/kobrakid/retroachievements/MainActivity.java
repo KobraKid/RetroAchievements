@@ -14,10 +14,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -43,8 +41,8 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
     private static final String TAG = MainActivity.class.getSimpleName();
 
     // Request Codes
-    public static final int BEGIN_LOGIN = 0;
-    public static final int SHOW_RECENT_GAMES = 1;
+    private static final int BEGIN_LOGIN = 0;
+    private static final int SHOW_RECENT_GAMES = 1;
     // Response Codes
     public static final int LOGIN_SUCCESS = 0;
     public static final int LOGIN_FAILURE = 1;
@@ -74,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         setTitle("Home");
 
         // Set up title bar
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        setSupportActionBar(findViewById(R.id.toolbar));
         final ActionBar actionBar = getSupportActionBar();
         Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
         TypedValue typedValue = new TypedValue();
@@ -86,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
         // Set up navigation drawer
         myDrawer = findViewById(R.id.drawer_layout);
-        setupDrawerContent((NavigationView) findViewById(R.id.nav_view));
+        ((NavigationView) findViewById(R.id.nav_view)).setNavigationItemSelectedListener(this::selectDrawerItem);
 
         // Initialize API connection
         apiConnection = new RAAPIConnection(MainActivity.this);
@@ -94,27 +92,12 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         apiConnection.GetUserRankAndScore(ra_user, this);
 
         // Set up home fragment
-        setupInitialFragment();
-    }
-
-    private void setupDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        selectDrawerItem(item);
-                        return true;
-                    }
-                }
-        );
-    }
-
-    private void setupInitialFragment() {
         getSupportFragmentManager().beginTransaction().replace(R.id.flContent, new HomeFragment()).commit();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         switch (resultCode) {
             case LOGIN_SUCCESS:
                 Context context = MainActivity.this;
@@ -196,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
     /* Navigation-related functions */
 
-    private void selectDrawerItem(MenuItem item) {
+    private boolean selectDrawerItem(MenuItem item) {
         fragment = null;
         Class fragmentClass;
 
@@ -221,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
             fragment = (Fragment) fragmentClass.newInstance();
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
 
         // Show new Fragment in main view
@@ -229,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         item.setChecked(true);
         setTitle(item.getTitle());
         myDrawer.closeDrawers();
+        return true;
     }
 
     public void showGameDetails(View view) {
@@ -242,11 +227,11 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
     /* Home Fragment Interface Implementation */
 
-    public void showLogin(View view) {
+    public void showLogin(@SuppressWarnings("unused") View view) {
         startActivityForResult(new Intent(this, LoginActivity.class), BEGIN_LOGIN);
     }
 
-    public void showRecentGames(View view) {
+    public void showRecentGames(@SuppressWarnings("unused") View view) {
         startActivityForResult(new Intent(this, RecentGamesActivity.class), SHOW_RECENT_GAMES);
     }
 

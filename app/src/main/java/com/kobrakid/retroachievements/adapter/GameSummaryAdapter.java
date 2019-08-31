@@ -16,7 +16,6 @@ import com.kobrakid.retroachievements.AppExecutors;
 import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.MainActivity;
 import com.kobrakid.retroachievements.R;
-import com.kobrakid.retroachievements.RAAPICallback;
 import com.kobrakid.retroachievements.RAAPIConnection;
 import com.kobrakid.retroachievements.database.Game;
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase;
@@ -101,55 +100,40 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
             final String stat = (stats != null && stats.size() > 0) ? stats.get(i) : null;
             final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(context);
             final GameSummaryAdapter adapter = this;
-            AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    List<Game> game = db.gameDao().getGameWithID(Integer.parseInt(id));
-                    Log.d(TAG, game.toString());
-                    if (game.size() == 1) {
-                        if (game.get(0).getAchievementCount() == 0) {
-                            imageIcons.remove(imageIcon);
-                            titles.remove(title);
-                            ids.remove(id);
-                            if (stat != null)
-                                stats.remove(stat);
-                        }
-                    } else {
-                        AppExecutors.getInstance().mainThread().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                new RAAPIConnection(context).GetUserProgress(MainActivity.ra_user, id, new RAAPICallback() {
-                                    @Override
-                                    public void callback(int responseCode, String response) {
-                                        if (responseCode == RAAPIConnection.RESPONSE_GET_USER_PROGRESS) {
-                                            try {
-                                                JSONObject reader = new JSONObject(response);
-                                                final int numAchievements = Integer.parseInt(reader.getJSONObject(id).getString("NumPossibleAchievements"));
-                                                AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Game game = new Game(Integer.parseInt(id), title, numAchievements);
-                                                        Log.d(TAG, "inserting " + game);
-                                                        db.gameDao().insertGame(game);
-                                                    }
-                                                });
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
+            AppExecutors.getInstance().diskIO().execute(() -> {
+                List<Game> game = db.gameDao().getGameWithID(Integer.parseInt(id));
+                Log.d(TAG, game.toString());
+                if (game.size() == 1) {
+                    if (game.get(0).getAchievementCount() == 0) {
+                        imageIcons.remove(imageIcon);
+                        titles.remove(title);
+                        ids.remove(id);
+                        if (stat != null)
+                            stats.remove(stat);
+                    }
+                } else {
+                    AppExecutors.getInstance().mainThread().execute(() -> new RAAPIConnection(context).GetUserProgress(
+                            MainActivity.ra_user,
+                            id,
+                            (responseCode, response) -> {
+                                if (responseCode == RAAPIConnection.RESPONSE_GET_USER_PROGRESS) {
+                                    try {
+                                        JSONObject reader = new JSONObject(response);
+                                        final int numAchievements = Integer.parseInt(reader.getJSONObject(id).getString("NumPossibleAchievements"));
+                                        AppExecutors.getInstance().diskIO().execute(() -> {
+                                            Game game1 = new Game(Integer.parseInt(id), title, numAchievements);
+                                            Log.d(TAG, "inserting " + game1);
+                                            db.gameDao().insertGame(game1);
+                                        });
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
-                                });
+                                }
                             }
-                        });
-                    }
-                    if (id.equals(lastID)) {
-                        AppExecutors.getInstance().mainThread().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-                    }
+                    ));
+                }
+                if (id.equals(lastID)) {
+                    AppExecutors.getInstance().mainThread().execute(adapter::notifyDataSetChanged);
                 }
             });
         }

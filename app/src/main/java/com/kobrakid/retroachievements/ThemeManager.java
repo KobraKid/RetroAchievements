@@ -3,6 +3,8 @@ package com.kobrakid.retroachievements;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.Objects;
+
 /**
  * This class is responsible for translating between Strings and their corresponding themes.
  */
@@ -10,7 +12,7 @@ class ThemeManager {
 
     static int getTheme(Context context, SharedPreferences sharedPreferences) {
         String theme = sharedPreferences.getString(context.getResources().getString(R.string.theme_setting), "Blank");
-        switch (theme) {
+        switch (Objects.requireNonNull(theme)) {
             case "TwentySixteen":
                 return R.style.TwentySixteenTheme;
             case "Green":

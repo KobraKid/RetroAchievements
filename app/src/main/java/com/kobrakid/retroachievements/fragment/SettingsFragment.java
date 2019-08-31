@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -111,18 +110,8 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         if (sharedPref.getBoolean(getString(R.string.empty_console_hide_setting), false))
             view.findViewById(R.id.settings_hide_consoles_warning).setVisibility(View.GONE);
         ((CheckBox) view.findViewById(R.id.settings_hide_games)).setChecked(sharedPref.getBoolean(getString(R.string.empty_game_hide_setting), false));
-        ((CheckBox) view.findViewById(R.id.settings_hide_consoles)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                hideConsoles(b);
-            }
-        });
-        ((CheckBox) view.findViewById(R.id.settings_hide_games)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                hideGames(b);
-            }
-        });
+        ((CheckBox) view.findViewById(R.id.settings_hide_consoles)).setOnCheckedChangeListener((compoundButton, b) -> hideConsoles(b));
+        ((CheckBox) view.findViewById(R.id.settings_hide_games)).setOnCheckedChangeListener((compoundButton, b) -> hideGames(b));
 
         apiConnection = ((MainActivity) getActivity()).apiConnection;
 
@@ -130,7 +119,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             listener = (OnFragmentInteractionListener) getActivity();
@@ -144,12 +133,9 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
 
     private void changeTheme(final String theme) {
         applicableSettings.remove(change_theme_key);
-        applicableSettings.put(change_theme_key, new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Saving theme " + theme);
-                sharedPref.edit().putString(getString(R.string.theme_setting), theme).apply();
-            }
+        applicableSettings.put(change_theme_key, () -> {
+            Log.d(TAG, "Saving theme " + theme);
+            sharedPref.edit().putString(getString(R.string.theme_setting), theme).apply();
         });
     }
 
@@ -159,24 +145,18 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
             applicableSettings.remove(hide_consoles_key);
         } else {
             final RAAPICallback callback = this;
-            applicableSettings.put(hide_consoles_key, new Runnable() {
-                @Override
-                public void run() {
-                    sharedPref.edit().putBoolean(getString(R.string.empty_console_hide_setting), hide).apply();
-                    if (hide) {
-                        // Get all consoles and store their game counts
-                        final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
-                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                db.consoleDao().clearTable();
-                                Log.d(TAG, "Clearing table");
-                            }
-                        });
-                        apiConnection.GetConsoleIDs(callback);
-                    } else {
-                        Objects.requireNonNull(getActivity()).recreate();
-                    }
+            applicableSettings.put(hide_consoles_key, () -> {
+                sharedPref.edit().putBoolean(getString(R.string.empty_console_hide_setting), hide).apply();
+                if (hide) {
+                    // Get all consoles and store their game counts
+                    final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
+                    AppExecutors.getInstance().diskIO().execute(() -> {
+                        db.consoleDao().clearTable();
+                        Log.d(TAG, "Clearing table");
+                    });
+                    apiConnection.GetConsoleIDs(callback);
+                } else {
+                    Objects.requireNonNull(getActivity()).recreate();
                 }
             });
         }
@@ -186,23 +166,13 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         if (applicableSettings.get(hide_games_key) != null) {
             applicableSettings.remove(hide_games_key);
         } else {
-            applicableSettings.put(hide_games_key, new Runnable() {
-                @Override
-                public void run() {
-                    sharedPref.edit().putBoolean(getString(R.string.empty_game_hide_setting), hide).apply();
-                }
-            });
+            applicableSettings.put(hide_games_key, () -> sharedPref.edit().putBoolean(getString(R.string.empty_game_hide_setting), hide).apply());
         }
     }
 
     public void logout() {
         ((TextView) Objects.requireNonNull(getActivity()).findViewById(R.id.settings_current_user)).setText(getString(R.string.settings_current_user, "none"));
-        applicableSettings.put(logout_key, new Runnable() {
-            @Override
-            public void run() {
-                sharedPref.edit().putString(getString(R.string.ra_user), null).apply();
-            }
-        });
+        applicableSettings.put(logout_key, () -> sharedPref.edit().putString(getString(R.string.ra_user), null).apply());
     }
 
     public void applySettings() {
@@ -223,43 +193,32 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
             final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
             final RAAPIConnection connection = apiConnection;
             final RAAPICallback callback = this;
-            AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        JSONArray reader = new JSONArray(response);
-                        for (int i = 0; i < reader.length(); i++) {
-                            List<Console> consoles = db.consoleDao().getConsoleWithID(Integer.parseInt(reader.getJSONObject(i).getString("ID")));
-                            if (consoles.size() == 0) {
-                                consoleID.delete(0, consoleID.length());
-                                consoleName.delete(0, consoleName.length());
-                                consoleID.append(reader.getJSONObject(i).getString("ID"));
-                                consoleName.append(reader.getJSONObject(i).getString("Name"));
-                                connection.GetGameList(reader.getJSONObject(i).getString("ID"), callback);
-                                return;
-                            }
+            AppExecutors.getInstance().diskIO().execute(() -> {
+                try {
+                    JSONArray reader = new JSONArray(response);
+                    for (int i = 0; i < reader.length(); i++) {
+                        List<Console> consoles = db.consoleDao().getConsoleWithID(Integer.parseInt(reader.getJSONObject(i).getString("ID")));
+                        if (consoles.size() == 0) {
+                            consoleID.delete(0, consoleID.length());
+                            consoleName.delete(0, consoleName.length());
+                            consoleID.append(reader.getJSONObject(i).getString("ID"));
+                            consoleName.append(reader.getJSONObject(i).getString("Name"));
+                            connection.GetGameList(reader.getJSONObject(i).getString("ID"), callback);
+                            return;
                         }
-                        AppExecutors.getInstance().mainThread().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                Objects.requireNonNull(getActivity()).recreate();
-                            }
-                        });
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
+                    AppExecutors.getInstance().mainThread().execute(() -> Objects.requireNonNull(getActivity()).recreate());
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             });
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_LIST) {
             try {
                 final JSONArray reader = new JSONArray(response);
                 final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
-                AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        db.consoleDao().insertConsole(new Console(Integer.parseInt(consoleID.toString()), consoleName.toString(), reader.length()));
-                        Log.d(TAG, "Adding console " + consoleName.toString() + "(" + consoleID.toString() + "): " + reader.length() + " games");
-                    }
+                AppExecutors.getInstance().diskIO().execute(() -> {
+                    db.consoleDao().insertConsole(new Console(Integer.parseInt(consoleID.toString()), consoleName.toString(), reader.length()));
+                    Log.d(TAG, "Adding console " + consoleName.toString() + "(" + consoleID.toString() + "): " + reader.length() + " games");
                 });
                 // Recurse until all consoles are added to db
                 apiConnection.GetConsoleIDs(this);
@@ -272,9 +231,9 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     /* Inner Classes and Interfaces */
 
     public interface OnFragmentInteractionListener {
-        void logout(View view);
+        void logout(@SuppressWarnings("unused") View view);
 
-        void applySettings(View view);
+        void applySettings(@SuppressWarnings("unused") View view);
     }
 
 }

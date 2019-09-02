@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:paddingBottom="8dp"
     tools:context=".fragment.AchievementDetailsFragment">
 
     <ImageView
@@ -27,14 +29,19 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:max="10000"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         android:progressTint="?attr/colorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/achievement_details_completion_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/achievement_details_date"
+        app:layout_constraintEnd_toStartOf="@+id/achievement_details_completion_hardcore"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toBottomOf="@+id/achievement_details_description"
+        app:layout_constraintVertical_bias="0.67"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:progress="7000" />
 
     <ProgressBar
@@ -42,14 +49,16 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:max="10000"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         android:progressTint="?attr/colorAccent"
-        app:layout_constraintBottom_toTopOf="@+id/achievement_details_completion_hardcore_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/achievement_details_completion_text"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/achievement_details_completion"
+        app:layout_constraintTop_toTopOf="@+id/achievement_details_completion"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:progress="4000" />
 
     <TextView
@@ -59,11 +68,8 @@
         android:layout_gravity="center"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
         android:padding="8dp"
         android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/achievement_details_badge"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toTopOf="@+id/achievement_details_badge"
@@ -86,9 +92,11 @@
         android:id="@+id/achievement_details_completion_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/achievement_details_completion_hardcore"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:inputType="textMultiLine"
+        app:layout_constraintBottom_toTopOf="@+id/barrier_bottom"
+        app:layout_constraintEnd_toEndOf="@+id/achievement_details_completion"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="@+id/achievement_details_completion"
         app:layout_constraintTop_toBottomOf="@+id/achievement_details_completion"
         tools:text="Earned by 5761 of 8200 players (70%)" />
 
@@ -96,26 +104,26 @@
         android:id="@+id/achievement_details_date"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:gravity="center_horizontal"
         android:text="@string/not_yet_earned"
-        app:layout_constraintBottom_toTopOf="@id/achievement_details_completion"
+        app:layout_constraintBottom_toTopOf="@+id/achievement_details_metadata"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/barrier_bottom"
-        app:layout_constraintVertical_bias="0.0"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
         android:id="@+id/achievement_details_completion_hardcore_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/achievement_details_metadata"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:inputType="textMultiLine"
+        app:layout_constraintBottom_toTopOf="@+id/barrier_bottom"
+        app:layout_constraintEnd_toEndOf="@+id/achievement_details_completion_hardcore"
+        app:layout_constraintStart_toStartOf="@+id/achievement_details_completion_hardcore"
         app:layout_constraintTop_toBottomOf="@+id/achievement_details_completion_hardcore"
-        tools:text="Earned by 3150 hardcore players (40%)" />
+        app:layout_constraintVertical_bias="0.0"
+        tools:text="Earned by 3150 HARDCORE players (40%)" />
 
     <TextView
         android:id="@+id/achievement_details_metadata"
@@ -132,8 +140,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="achievement_details_description,achievement_details_badge"
-        tools:layout_editor_absoluteX="411dp" />
+        app:constraint_referenced_ids="achievement_details_badge,achievement_details_completion_hardcore_text,achievement_details_completion_text"
+        tools:layout_editor_absoluteX="411dp"
+        tools:layout_editor_absoluteY="227dp" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier_top"
@@ -149,6 +158,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.33" />
+        app:layout_constraintGuide_percent="0.25" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

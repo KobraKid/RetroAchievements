@@ -79,6 +79,8 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Objects.requireNonNull(getActivity()).setTitle("Leaderboards");
+
         // Set up API connection
         apiConnection = ((MainActivity) Objects.requireNonNull(getActivity())).apiConnection;
 

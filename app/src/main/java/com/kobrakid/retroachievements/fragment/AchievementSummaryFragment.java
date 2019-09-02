@@ -67,32 +67,40 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        setRetainInstance(true);
+
         View view = inflater.inflate(R.layout.view_pager_achievements_summary, container, false);
 
-        adapter = new AchievementAdapter(
-                this,
-                ids,
-                badges,
-                titles,
-                points,
-                trueRatios,
-                descriptions,
-                datesEarned,
-                numsAwarded,
-                numsAwardedHC,
-                authors,
-                datesCreated,
-                datesModified,
-                hardcoreEarnings,
-                numDistinctCasual);
-
+        boolean callApi = false;
+        if (adapter == null) {
+            adapter = new AchievementAdapter(
+                    this,
+                    ids,
+                    badges,
+                    titles,
+                    points,
+                    trueRatios,
+                    descriptions,
+                    datesEarned,
+                    numsAwarded,
+                    numsAwardedHC,
+                    authors,
+                    datesCreated,
+                    datesModified,
+                    hardcoreEarnings,
+                    numDistinctCasual);
+            callApi = true;
+        } else {
+            view.findViewById(R.id.game_details_loading_bar).setVisibility(View.GONE);
+            view.findViewById(R.id.game_details_achievements_recycler_view).setVisibility(View.VISIBLE);
+        }
         RecyclerView recyclerView = view.findViewById(R.id.game_details_achievements_recycler_view);
         recyclerView.setHasFixedSize(true);
         layoutManager = new AchievementLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
-
-        new RAAPIConnection(getContext()).GetGameInfoAndUserProgress(MainActivity.ra_user, Objects.requireNonNull(getArguments()).getString("GameID"), this);
+        if (callApi)
+            new RAAPIConnection(getContext()).GetGameInfoAndUserProgress(MainActivity.ra_user, Objects.requireNonNull(getArguments()).getString("GameID"), this);
 
         return view;
     }

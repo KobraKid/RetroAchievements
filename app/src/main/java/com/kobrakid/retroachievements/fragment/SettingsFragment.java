@@ -62,6 +62,8 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Objects.requireNonNull(getActivity()).setTitle("Settings");
+
         // Initialize preferences object
         sharedPref = Objects.requireNonNull(getActivity()).getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
 
@@ -178,11 +180,13 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     public void applySettings() {
         Objects.requireNonNull(getActivity()).findViewById(R.id.settings_applying_fade).setVisibility(View.VISIBLE);
         getActivity().findViewById(R.id.settings_applying).setVisibility(View.VISIBLE);
-        for (int key = 0; key < applicableSettings.size(); key++)
+        for (int key = 0; key < applicableSettings.size(); key++) {
             applicableSettings.valueAt(key).run();
-        if (applicableSettings.get(hide_consoles_key) == null)
+        }
+        if (applicableSettings.get(hide_consoles_key) == null) {
             // Recreate activity now if no db operations are running
             getActivity().recreate();
+        }
     }
 
     @Override

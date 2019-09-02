@@ -6,10 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kobrakid.retroachievements.AppExecutors;
@@ -51,12 +51,12 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
     @NonNull
     @Override
     public GameSummaryAdapter.GameSummaryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LinearLayout linearLayout = (LinearLayout) LayoutInflater
+        ConstraintLayout constraintLayout = (ConstraintLayout) LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.view_holder_game_summary,
                         parent,
                         false);
-        return new GameSummaryViewHolder(linearLayout);
+        return new GameSummaryViewHolder(constraintLayout);
     }
 
     @Override
@@ -64,21 +64,30 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
         if (position >= imageIcons.size()) {
             Log.e(TAG, "Position too big: " + position);
             return;
+        } else if (imageIcons.get(position).equals("__loading")) {
+            holder.constraintLayout.findViewById(R.id.game_summary_container).setVisibility(View.INVISIBLE);
+            holder.constraintLayout.findViewById(R.id.separator).setVisibility(View.INVISIBLE);
+            holder.constraintLayout.findViewById(R.id.game_summary_loading).setVisibility(View.VISIBLE);
+            return;
+        } else {
+            holder.constraintLayout.findViewById(R.id.game_summary_loading).setVisibility(View.INVISIBLE);
+            holder.constraintLayout.findViewById(R.id.separator).setVisibility(View.VISIBLE);
+            holder.constraintLayout.findViewById(R.id.game_summary_container).setVisibility(View.VISIBLE);
         }
         Picasso.get()
                 .load(Consts.BASE_URL + imageIcons.get(position))
-                .into(((ImageView) holder.linearLayout.findViewById(R.id.game_summary_image_icon)));
+                .into(((ImageView) holder.constraintLayout.findViewById(R.id.game_summary_image_icon)));
         String title = Jsoup.parse(titles.get(position).trim()).text();
         if (title.contains(", The"))
             title = "The " + title.substring(0, title.indexOf(", The")) + title.substring(title.indexOf(", The") + 5);
-        ((TextView) holder.linearLayout.findViewById(R.id.game_summary_title)).setText(title);
+        ((TextView) holder.constraintLayout.findViewById(R.id.game_summary_title)).setText(title);
         if (stats.size() == 0) {
-            holder.linearLayout.findViewById(R.id.game_summary_stats).setVisibility(View.GONE);
+            holder.constraintLayout.findViewById(R.id.game_summary_stats).setVisibility(View.GONE);
         } else {
-            ((TextView) holder.linearLayout.findViewById(R.id.game_summary_stats))
+            ((TextView) holder.constraintLayout.findViewById(R.id.game_summary_stats))
                     .setText(stats.get(position));
         }
-        ((TextView) holder.linearLayout.findViewById(R.id.game_summary_game_id))
+        ((TextView) holder.constraintLayout.findViewById(R.id.game_summary_game_id))
                 .setText(ids.get(position));
     }
 
@@ -143,11 +152,11 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
 
     static class GameSummaryViewHolder extends RecyclerView.ViewHolder {
 
-        final LinearLayout linearLayout;
+        final ConstraintLayout constraintLayout;
 
-        GameSummaryViewHolder(LinearLayout l) {
+        GameSummaryViewHolder(ConstraintLayout l) {
             super(l);
-            linearLayout = l;
+            constraintLayout = l;
         }
 
     }

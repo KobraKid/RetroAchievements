@@ -63,7 +63,9 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        apiConnection = ((MainActivity) Objects.requireNonNull(getActivity())).apiConnection;
+        Objects.requireNonNull(getActivity()).setTitle("Consoles");
+
+        apiConnection = ((MainActivity) getActivity()).apiConnection;
         hideEmptyConsoles = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_console_hide_setting), false);
         hideEmptyGames = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_game_hide_setting), false);
 
@@ -101,8 +103,6 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                 gameListRecyclerView.setVisibility(View.VISIBLE);
             }
         });
-
-        getActivity().setTitle("Consoles");
 
         return view;
     }

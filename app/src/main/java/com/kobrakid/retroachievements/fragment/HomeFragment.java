@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.kobrakid.retroachievements.Consts;
@@ -48,6 +49,8 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Objects.requireNonNull(getActivity()).setTitle("Home");
+
         // Set up API connection
         apiConnection = ((MainActivity) Objects.requireNonNull(getActivity())).apiConnection;
         hasPopulatedGames = false;
@@ -159,7 +162,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                     recentGames.removeViews(0, recentGames.getChildCount() - 1);
                 JSONArray recentlyPlayed = reader.getJSONArray("RecentlyPlayed");
                 for (int i = 0; i < recentlyPlayed.length(); i++) {
-                    LinearLayout game = (LinearLayout) View.inflate(getContext(), R.layout.view_holder_game_summary, null);
+                    ConstraintLayout game = (ConstraintLayout) View.inflate(getContext(), R.layout.view_holder_game_summary, null);
                     JSONObject gameObj = recentlyPlayed.getJSONObject(i);
 
                     // Image

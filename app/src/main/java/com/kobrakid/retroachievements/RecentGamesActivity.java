@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -35,7 +36,7 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
     private boolean isActive = false;
     private int offset;
     private final int gamesPerAPICall = 15;
-    private boolean hasParsed = false; // Easy way to prevent spam API calls while scrolling quickly
+    private boolean hasParsed = false; // Prevent spam API calls while scrolling repeatedly
 
     private RecyclerView.Adapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -63,20 +64,22 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
         // Set up RecyclerView
         RecyclerView recyclerView = findViewById(R.id.recent_games_recycler_view);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
         imageIcons = new ArrayList<>();
         titles = new ArrayList<>();
         stats = new ArrayList<>();
         ids = new ArrayList<>();
-
         adapter = new GameSummaryAdapter(this, imageIcons, titles, stats, ids);
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (!recyclerView.canScrollVertically(1) && hasParsed) {
+                // Try to catch user reaching end of list early and append past the screen.
+                // If the user has already scrolled to the end, the scrolling will halt while more
+                // entries are added.
+                if (layoutManager.findLastVisibleItemPosition() >= titles.size() - 2 && hasParsed) {
                     hasParsed = false;
                     offset += gamesPerAPICall;
                     apiConnection.GetUserRecentlyPlayedGames(MainActivity.ra_user, gamesPerAPICall, offset, RecentGamesActivity.this);
@@ -88,11 +91,6 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
         swipeRefreshLayout = findViewById(R.id.recent_games_refresh);
         swipeRefreshLayout.setOnRefreshListener(this);
         offset = 0;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         hasParsed = false;
         apiConnection.GetUserRecentlyPlayedGames(MainActivity.ra_user, gamesPerAPICall, offset, this);
     }
@@ -135,8 +133,10 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
 
     @Override
     public void callback(int responseCode, String response) {
-        if (!isActive)
+        if (!isActive) {
+            offset = Math.max(0, offset - gamesPerAPICall);
             return;
+        }
         if (responseCode == RAAPIConnection.RESPONSE_GET_USER_RECENTLY_PLAYED_GAMES) {
             JSONArray reader;
             try {
@@ -144,28 +144,32 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
 
                 if (offset == 0) {
                     ids.clear();
+                    ids.add("__loading");
                     imageIcons.clear();
+                    imageIcons.add("__loading");
                     titles.clear();
+                    titles.add("__loading");
                     stats.clear();
+                    stats.add("__loading");
                 }
 
                 for (int i = 0; i < reader.length(); i++) {
                     JSONObject game = reader.getJSONObject(i);
                     imageIcons.add(i + offset, game.getString("ImageIcon"));
                     titles.add(i + offset, game.getString("Title"));
-
                     stats.add(i + offset, getString(R.string.game_stats,
                             game.getString("NumAchieved"),
                             game.getString("NumPossibleAchievements"),
                             game.getString("ScoreAchieved"),
                             game.getString("PossibleScore")));
-
                     ids.add(i + offset, game.getString("GameID"));
                 }
                 swipeRefreshLayout.setRefreshing(false);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            Log.i("TITLES", titles.toString());
 
             if (offset == 0)
                 adapter.notifyDataSetChanged();

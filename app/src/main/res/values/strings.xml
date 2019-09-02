@@ -12,7 +12,7 @@
     <string name="nav_settings">Settings</string>
 
     <!-- Home Fragment -->
-    <string name="game_stats">%1$s of %2$s\n(%3$s/%4$s)</string>
+    <string name="game_stats">🏆 %1$s of %2$s\n(%3$s/%4$s)</string>
     <string name="view_more">View More</string>
 
     <!-- List Fragment -->

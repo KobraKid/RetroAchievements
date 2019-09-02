@@ -5,13 +5,13 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.kobrakid.retroachievements.fragment.AchievementDistributionFragment;
 import com.kobrakid.retroachievements.fragment.AchievementSummaryFragment;
 import com.kobrakid.retroachievements.fragment.GameImagesFragment;
 
-public class GameDetailsPagerAdapter extends FragmentPagerAdapter {
+public class GameDetailsPagerAdapter extends FragmentStatePagerAdapter {
 
     private final String gameID;
 

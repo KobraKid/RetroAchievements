@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
     static final String ra_api_key = "LrY9UvdmckJWfgTsVC5SdTODrlTcHrkj";
 
     private Fragment fragment;
+    private String activeFragmentTag;
     private boolean isActive = false;
     private DrawerLayout myDrawer;
 
@@ -91,8 +93,14 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
         apiConnection.GetUserRankAndScore(ra_user, this);
 
-        // Set up home fragment
-        getSupportFragmentManager().beginTransaction().replace(R.id.flContent, new HomeFragment()).commit();
+        if (savedInstanceState == null) {
+            // Set up home fragment
+            activeFragmentTag = "HomeFragment";
+            getSupportFragmentManager().beginTransaction().replace(R.id.flContent, new HomeFragment(), activeFragmentTag).commit();
+        } else {
+            activeFragmentTag = savedInstanceState.getString("ActiveFragmentTag");
+            fragment = getSupportFragmentManager().findFragmentByTag(activeFragmentTag);
+        }
     }
 
     @Override
@@ -130,6 +138,12 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
     protected void onPause() {
         super.onPause();
         isActive = false;
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("ActiveFragmentTag", activeFragmentTag);
     }
 
     @Override
@@ -187,16 +201,20 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         switch (item.getItemId()) {
             case R.id.nav_lists_fragment:
                 fragmentClass = ListsFragment.class;
+                activeFragmentTag = "ListsFragment";
                 break;
             case R.id.nav_leaderboards_fragment:
                 fragmentClass = LeaderboardsFragment.class;
+                activeFragmentTag = "LeaderboardsFragment";
                 break;
             case R.id.nav_settings_fragment:
                 fragmentClass = SettingsFragment.class;
+                activeFragmentTag = "SettingsFragment";
                 break;
             case R.id.nav_home_fragment:
             default:
                 fragmentClass = HomeFragment.class;
+                activeFragmentTag = "HomeFragment";
                 break;
         }
 
@@ -208,10 +226,9 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         }
 
         // Show new Fragment in main view
-        getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment, activeFragmentTag).commit();
 
         item.setChecked(true);
-        setTitle(item.getTitle());
         myDrawer.closeDrawers();
         return true;
     }
@@ -232,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
     }
 
     public void showRecentGames(@SuppressWarnings("unused") View view) {
-        startActivityForResult(new Intent(this, RecentGamesActivity.class), SHOW_RECENT_GAMES);
+        startActivity(new Intent(this, RecentGamesActivity.class));
     }
 
     /* Leaderboards Fragment Interface Implementations */

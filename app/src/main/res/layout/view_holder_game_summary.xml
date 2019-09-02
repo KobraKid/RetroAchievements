@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,18 +7,16 @@
     android:onClick="showGameDetails"
     android:orientation="vertical">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray" />
-
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/game_summary_container"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/separator">
 
         <ImageView
-            android:contentDescription="@string/cd_game_summary_image_icon"
             android:id="@+id/game_summary_image_icon"
             android:layout_width="0dp"
             android:layout_height="64dp"
@@ -26,6 +24,7 @@
             android:layout_marginStart="8dp"
             android:layout_weight="0.15"
             android:adjustViewBounds="true"
+            android:contentDescription="@string/cd_game_summary_image_icon"
             app:srcCompat="@drawable/favicon" />
 
         <TextView
@@ -44,7 +43,7 @@
             android:layout_height="match_parent"
             android:layout_weight="0.2"
             android:gravity="center"
-            tools:text="8/72\n(8/400)" />
+            tools:text="🏆 8/72\n(8/400)" />
 
         <TextView
             android:id="@+id/game_summary_game_id"
@@ -54,4 +53,26 @@
 
     </LinearLayout>
 
-</LinearLayout>
+    <View
+        android:id="@+id/separator"
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/game_summary_loading"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

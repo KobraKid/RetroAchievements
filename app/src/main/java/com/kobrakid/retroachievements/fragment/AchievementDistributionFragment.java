@@ -1,5 +1,6 @@
 package com.kobrakid.retroachievements.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -9,7 +10,6 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -36,26 +36,29 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AchievementDistributionFragment extends Fragment implements RAAPICallback {
 
-    private ProgressBar achievementDistroLoadingBar = null;
     private LineChart achievementDistro = null;
+    private SortedMap<Integer, Integer> data;
     private boolean isActive = false;
 
     public AchievementDistributionFragment() {
     }
 
+    @SuppressLint("UseSparseArrays")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        setRetainInstance(true);
+
         final View view = inflater.inflate(R.layout.view_pager_achievement_distribution, container, false);
 
-        achievementDistroLoadingBar = view.findViewById(R.id.game_details_achievement_distro_loading);
         achievementDistro = view.findViewById(R.id.game_details_achievement_distribution);
-        new RAAPIConnection(getContext()).GetAchievementDistribution(Objects.requireNonNull(getArguments()).getString("GameID"), this);
         achievementDistro.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
             @Override
             public void onValueSelected(Entry e, Highlight h) {
@@ -76,6 +79,14 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
                 }
             }
         });
+
+        if (data == null) {
+            data = new TreeMap<>();
+            new RAAPIConnection(getContext()).GetAchievementDistribution(Objects.requireNonNull(getArguments()).getString("GameID"), this);
+        } else {
+            populateChartData(view);
+        }
+
         return view;
     }
 
@@ -102,24 +113,71 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
         if (!isActive)
             return;
         if (responseCode == RAAPIConnection.RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION) {
-            new AchievementDistributionChartAsyncTask(getContext(), achievementDistro, achievementDistroLoadingBar).execute(response);
+            new AchievementDistributionChartAsyncTask(this, data).execute(response);
         }
     }
 
-    private static class AchievementDistributionChartAsyncTask extends AsyncTask<String, Integer, Integer[][]> {
+    private void populateChartData(View view) {
+        final Context context = getContext();
+        if (context != null) {
+            if (data.size() > 0) {
+                // Set chart data
+                List<Entry> entries = new ArrayList<>();
+                for (Integer key : data.keySet()) {
+                    entries.add(new Entry(key, data.get(key)));
+                }
+                LineDataSet dataSet = new LineDataSet(entries, "");
+                dataSet.setDrawFilled(true);
+                LineData lineData = new LineData(dataSet);
+                lineData.setDrawValues(false);
 
-        private final WeakReference<Context> contextReference;
-        private final WeakReference<LineChart> lineChartReference;
-        private final WeakReference<View> loadingBarReference;
+                // Set chart colors
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    TypedValue accentColor = new TypedValue(), primaryColor = new TypedValue();
+                    context.getTheme().resolveAttribute(R.attr.colorAccent, accentColor, true);
+                    context.getTheme().resolveAttribute(R.attr.colorPrimary, primaryColor, true);
+                    achievementDistro.getAxisLeft().setTextColor(primaryColor.data);
+                    achievementDistro.getXAxis().setTextColor(primaryColor.data);
+                    dataSet.setCircleColor(accentColor.data);
+                    dataSet.setColor(accentColor.data);
+                    dataSet.setCircleHoleColor(accentColor.data);
+                    dataSet.setFillColor(accentColor.data);
+                }
 
-        AchievementDistributionChartAsyncTask(Context context, LineChart lineChart, View frameLayout) {
-            this.contextReference = new WeakReference<>(context);
-            this.lineChartReference = new WeakReference<>(lineChart);
-            this.loadingBarReference = new WeakReference<>(frameLayout);
+                // Set chart axes
+                achievementDistro.getAxisRight().setEnabled(false);
+                achievementDistro.getLegend().setEnabled(false);
+                achievementDistro.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+                achievementDistro.getAxisLeft().setAxisMinimum(0f);
+
+                // Set chart description
+                Description description = new Description();
+                description.setText("");
+                achievementDistro.setDescription(description);
+
+                // Set chart finalized data
+                achievementDistro.setData(lineData);
+
+                // Redraw chart
+                achievementDistro.invalidate();
+            }
+            view.findViewById(R.id.game_details_achievement_distro_loading).setVisibility(View.GONE);
+            achievementDistro.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private static class AchievementDistributionChartAsyncTask extends AsyncTask<String, Integer, SortedMap<Integer, Integer>> {
+
+        private final WeakReference<AchievementDistributionFragment> fragmentReference;
+        private final WeakReference<SortedMap<Integer, Integer>> dataReference;
+
+        AchievementDistributionChartAsyncTask(AchievementDistributionFragment fragment, SortedMap<Integer, Integer> data) {
+            this.fragmentReference = new WeakReference<>(fragment);
+            this.dataReference = new WeakReference<>(data);
         }
 
         @Override
-        protected Integer[][] doInBackground(String... strings) {
+        protected SortedMap<Integer, Integer> doInBackground(String... strings) {
             String response = strings[0];
             Document document = Jsoup.parse(response);
             Elements scripts = document.getElementsByTag("script");
@@ -136,71 +194,22 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
                 achievementTotals.put(Integer.parseInt(m1.group(1)), Integer.parseInt(m2.group(1)));
             }
 
-            // Initialize arrays
-            Integer[] achievementCount = new Integer[achievementTotals.size()];
-            Integer[] userCount = new Integer[achievementTotals.size()];
+            @SuppressLint("UseSparseArrays") SortedMap<Integer, Integer> chartData = new TreeMap<>();
             for (int i = 0; i < achievementTotals.size(); i++) {
-                achievementCount[i] = i + 1;
-                userCount[i] = achievementTotals.get(i + 1);
+                chartData.put(i + 1, achievementTotals.get(i + 1));
             }
-
-            return new Integer[][]{achievementCount, userCount};
+            return chartData;
         }
 
         @Override
-        protected void onPostExecute(Integer[][] chartData) {
+        protected void onPostExecute(SortedMap<Integer, Integer> chartData) {
             super.onPostExecute(chartData);
-
-            final Context context = contextReference.get();
-            final LineChart chart = lineChartReference.get();
-            if (context != null && chart != null) {
-                if (chartData[0].length > 0) {
-                    // Set chart data
-                    List<Entry> entries = new ArrayList<>();
-                    for (int i = 0; i < chartData[0].length; i++) {
-                        entries.add(new Entry(chartData[0][i], chartData[1][i]));
-                    }
-                    LineDataSet dataSet = new LineDataSet(entries, "");
-                    dataSet.setDrawFilled(true);
-                    LineData lineData = new LineData(dataSet);
-                    lineData.setDrawValues(false);
-
-                    // Set chart colors
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        TypedValue accentColor = new TypedValue(), primaryColor = new TypedValue();
-                        context.getTheme().resolveAttribute(R.attr.colorAccent, accentColor, true);
-                        context.getTheme().resolveAttribute(R.attr.colorPrimary, primaryColor, true);
-                        chart.getAxisLeft().setTextColor(primaryColor.data);
-                        chart.getXAxis().setTextColor(primaryColor.data);
-                        dataSet.setCircleColor(accentColor.data);
-                        dataSet.setColor(accentColor.data);
-                        dataSet.setCircleHoleColor(accentColor.data);
-                        dataSet.setFillColor(accentColor.data);
-                    }
-
-                    // Set chart axes
-                    chart.getAxisRight().setEnabled(false);
-                    chart.getLegend().setEnabled(false);
-                    chart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-                    chart.getAxisLeft().setAxisMinimum(0f);
-                    chart.setClickable(false);
-
-                    // Set chart description
-                    Description description = new Description();
-                    description.setText("");
-                    chart.setDescription(description);
-
-                    // Set chart finalized data
-                    chart.setData(lineData);
-
-                    // Redraw chart
-                    chart.invalidate();
-                }
-                chart.setVisibility(View.VISIBLE);
+            final AchievementDistributionFragment fragment = fragmentReference.get();
+            final SortedMap<Integer, Integer> data = dataReference.get();
+            if (fragment != null && data != null) {
+                data.putAll(chartData);
+                fragment.populateChartData(fragment.getView());
             }
-            final View view = loadingBarReference.get();
-            if (view != null)
-                view.setVisibility(View.GONE);
         }
     }
 }

@@ -14,8 +14,10 @@
 
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:gravity="center"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="@+id/game_details_user_summary"
@@ -32,7 +34,8 @@
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
                 android:visibility="invisible"
-                tools:progress="2200" />
+                tools:progress="2200"
+                tools:visibility="visible" />
 
             <TextView
                 android:id="@+id/game_details_progress_text"

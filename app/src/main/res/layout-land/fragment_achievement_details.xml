@@ -14,15 +14,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="8dp"
         android:adjustViewBounds="true"
         android:contentDescription="@string/cd_achievement_details_badge"
         android:src="@drawable/favicon"
-        app:layout_constraintBottom_toTopOf="@id/barrier_bottom"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/achievement_details_title" />
+        app:layout_constraintTop_toTopOf="@+id/achievement_details_description" />
 
     <ProgressBar
         android:id="@+id/achievement_details_completion"
@@ -61,24 +59,27 @@
         app:layout_constraintVertical_chainStyle="packed"
         tools:progress="4000" />
 
+    <!-- Not sure why, but this text doesn't want to line up with the top edge of the {@+id/achievement_details_badge} -->
     <TextView
         android:id="@+id/achievement_details_description"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:padding="8dp"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="@+id/achievement_details_badge"
+        app:layout_constraintTop_toBottomOf="@id/barrier_top"
+        app:layout_constraintTop_toTopOf="@+id/barrier_top"
         tools:text="Earn a 5000 Point Bonus by touching the top of the flagpole" />
 
     <TextView
         android:id="@+id/achievement_details_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:textAlignment="center"
         android:textColor="?attr/colorAccent"
         android:textSize="24sp"
@@ -86,13 +87,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
         tools:text="Top of the Flagpole" />
 
     <TextView
         android:id="@+id/achievement_details_completion_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
         app:layout_constraintBottom_toTopOf="@+id/barrier_bottom"
         app:layout_constraintEnd_toEndOf="@+id/achievement_details_completion"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -117,7 +118,6 @@
         android:id="@+id/achievement_details_completion_hardcore_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
         app:layout_constraintBottom_toTopOf="@+id/barrier_bottom"
         app:layout_constraintEnd_toEndOf="@+id/achievement_details_completion_hardcore"
         app:layout_constraintStart_toStartOf="@+id/achievement_details_completion_hardcore"
@@ -150,8 +150,8 @@
         android:layout_height="wrap_content"
         app:barrierDirection="top"
         app:constraint_referenced_ids="achievement_details_description,achievement_details_badge"
-        tools:layout_editor_absoluteX="411dp"
-        tools:layout_editor_absoluteY="9dp" />
+        app:layout_constraintTop_toBottomOf="@id/achievement_details_title"
+        tools:layout_editor_absoluteX="8dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"

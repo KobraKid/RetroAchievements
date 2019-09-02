@@ -59,6 +59,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
             datesModified = new ArrayList<>();
     private final Map<String, Boolean> hardcoreEarnings = new HashMap<>();
     private final StringBuilder numDistinctCasual = new StringBuilder("1");
+    private int numEarned, numEarnedHC, totalAch, earnedPts, totalPts, earnedRatio, totalRatio;
     private boolean isActive = false;
 
     public AchievementSummaryFragment() {
@@ -71,8 +72,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
 
         View view = inflater.inflate(R.layout.view_pager_achievements_summary, container, false);
 
-        boolean callApi = false;
-        if (adapter == null) {
+        if (savedInstanceState == null) {
             adapter = new AchievementAdapter(
                     this,
                     ids,
@@ -89,19 +89,17 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                     datesModified,
                     hardcoreEarnings,
                     numDistinctCasual);
-            callApi = true;
-        } else {
-            view.findViewById(R.id.game_details_loading_bar).setVisibility(View.GONE);
-            view.findViewById(R.id.game_details_achievements_recycler_view).setVisibility(View.VISIBLE);
         }
         RecyclerView recyclerView = view.findViewById(R.id.game_details_achievements_recycler_view);
         recyclerView.setHasFixedSize(true);
         layoutManager = new AchievementLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
-        if (callApi)
+        if (savedInstanceState == null) {
             new RAAPIConnection(getContext()).GetGameInfoAndUserProgress(MainActivity.ra_user, Objects.requireNonNull(getArguments()).getString("GameID"), this);
-
+        } else {
+            populateViews(view);
+        }
         return view;
     }
 
@@ -138,7 +136,13 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 } else {
                     JSONObject achievements = reader.getJSONObject("Achievements");
                     JSONObject achievement;
-                    int numEarned = 0, numEarnedHC = 0, totalAch = 0, earnedPts = 0, totalPts = 0, earnedRatio = 0, totalRatio = 0;
+                    numEarned = 0;
+                    numEarnedHC = 0;
+                    totalAch = 0;
+                    earnedPts = 0;
+                    totalPts = 0;
+                    earnedRatio = 0;
+                    totalRatio = 0;
                     for (Iterator<String> keys = achievements.keys(); keys.hasNext(); ) {
                         String achievementID = keys.next();
                         achievement = achievements.getJSONObject(achievementID);
@@ -157,25 +161,6 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                         totalPts += Integer.parseInt(achievement.getString("Points"));
                         totalRatio += Integer.parseInt(achievement.getString("TrueRatio"));
                     }
-
-                    ((TextView) Objects.requireNonNull(getView()).findViewById(R.id.game_details_progress_text))
-                            .setText(getString(
-                                    R.string.completion,
-                                    new DecimalFormat("@@@@")
-                                            .format(((float) (numEarned + numEarnedHC) / (float) totalAch) * 100.0)));
-                    ((ProgressBar) getView().findViewById(R.id.game_details_progress)).setProgress((int) (((float) numEarned) / ((float) totalAch) * 10000.0));
-                    ((TextView) getView().findViewById(R.id.game_details_user_summary))
-                            .setText(Html.fromHtml(getString(
-                                    R.string.user_summary,
-                                    numEarned,
-                                    totalAch,
-                                    numEarnedHC,
-                                    earnedPts,
-                                    earnedRatio,
-                                    totalPts * 2, // Account for hardcore achievements worth double
-                                    totalRatio)));
-                    getView().findViewById(R.id.game_details_progress).setVisibility(View.VISIBLE);
-
                     new AchievementDetailsAsyncTask(
                             this,
                             ids,
@@ -196,6 +181,31 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 e.printStackTrace();
             }
         }
+    }
+
+    private void populateViews(View view) {
+        ((TextView) view.findViewById(R.id.game_details_progress_text))
+                .setText(getString(
+                        R.string.completion,
+                        new DecimalFormat("@@@@")
+                                .format(((float) (numEarned + numEarnedHC) / (float) totalAch) * 100.0)));
+        ((TextView) view.findViewById(R.id.game_details_user_summary))
+                .setText(Html.fromHtml(getString(
+                        R.string.user_summary,
+                        numEarned,
+                        totalAch,
+                        numEarnedHC,
+                        earnedPts,
+                        earnedRatio,
+                        totalPts * 2, // Account for hardcore achievements worth double
+                        totalRatio)));
+
+        ((ProgressBar) view.findViewById(R.id.game_details_progress)).
+                setProgress((int) (((float) numEarned) / ((float) totalAch) * 10000.0));
+
+        view.findViewById(R.id.game_details_progress).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.game_details_loading_bar).setVisibility(View.GONE);
+        view.findViewById(R.id.game_details_achievements_recycler_view).setVisibility(View.VISIBLE);
     }
 
     private static class AchievementDetailsAsyncTask extends AsyncTask<String, Integer, String[]> {
@@ -371,9 +381,8 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 datesModified.addAll(asyncDatesModified);
                 hardcoreEarnings.putAll(asyncHardcoreEarnings);
 
-                Objects.requireNonNull(fragment.getView()).findViewById(R.id.game_details_loading_bar).setVisibility(View.GONE);
-                fragment.getView().findViewById(R.id.game_details_achievements_recycler_view).setVisibility(View.VISIBLE);
                 fragment.adapter.notifyDataSetChanged();
+                fragment.populateViews(Objects.requireNonNull(fragment.getView()));
             }
         }
     }

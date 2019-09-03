@@ -20,7 +20,7 @@ public class LoginActivity extends AppCompatActivity {
         setTheme(ThemeManager.getTheme(this, sharedPref));
 
         setContentView(R.layout.activity_login);
-        final EditText login = findViewById(R.id.login_field);
+        final EditText login = findViewById(R.id.login_username);
         login.setOnEditorActionListener((textView, actionID, keyEvent) -> {
             if (actionID == EditorInfo.IME_ACTION_SEND) {
                 login(textView);
@@ -37,7 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login(@SuppressWarnings("unused") View view) {
-        String ra_user = ((EditText) findViewById(R.id.login_field)).getText().toString();
+        String ra_user = ((EditText) findViewById(R.id.login_username)).getText().toString();
         if (ra_user.length() > 0) {
             // Successfully logged in, save the new credentials and return
             this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), ra_user).apply();

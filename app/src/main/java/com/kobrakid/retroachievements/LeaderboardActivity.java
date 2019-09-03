@@ -52,6 +52,7 @@ public class LeaderboardActivity extends AppCompatActivity implements RAAPICallb
         setSupportActionBar(findViewById(R.id.toolbar));
         final ActionBar actionBar = getSupportActionBar();
         Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back);
 
         id = Objects.requireNonNull(getIntent().getExtras()).getString("ID");
         String game = getIntent().getExtras().getString("GAME");
@@ -81,6 +82,7 @@ public class LeaderboardActivity extends AppCompatActivity implements RAAPICallb
     @Override
     protected void onStart() {
         super.onStart();
+        // TODO Retain state
         apiConnection.GetLeaderboard(id, count, this);
     }
 

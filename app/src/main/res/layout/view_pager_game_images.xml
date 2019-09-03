@@ -22,12 +22,11 @@
             android:orientation="vertical">
 
             <androidx.cardview.widget.CardView
+                style="@style/CommonThemes.CardView"
                 android:id="@+id/card_0_boxart"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="8dp">
+                android:layout_margin="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -56,12 +55,11 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                style="@style/CommonThemes.CardView"
                 android:id="@+id/card_1_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="8dp">
+                android:layout_margin="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -89,12 +87,11 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                style="@style/CommonThemes.CardView"
                 android:id="@+id/card_2_ingame"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="8dp">
+                android:layout_margin="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"

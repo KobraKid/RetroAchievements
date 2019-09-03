@@ -70,18 +70,23 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
     public void onResume() {
         super.onResume();
         isActive = true;
+        Objects.requireNonNull(getView()).findViewById(R.id.home_username).setVisibility(View.INVISIBLE);
 
+        // TODO Retain state (will make the following code much neater)
         apiConnection.GetUserWebProfile(MainActivity.ra_user, HomeFragment.this);
 
         // Initialize user's home screen if they are logged in
-        if (!hasPopulatedGames && MainActivity.ra_user != null) {
-            Picasso.get()
-                    .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + MainActivity.ra_user + ".png")
-                    .into((ImageView) Objects.requireNonNull(getView()).findViewById(R.id.home_profile_picture));
-            apiConnection.GetUserSummary(MainActivity.ra_user, 3, HomeFragment.this);
-            // TODO allow manual repopulation
-            hasPopulatedGames = true;
-        }
+        if (!hasPopulatedGames)
+            if (MainActivity.ra_user != null) {
+                Picasso.get()
+                        .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + MainActivity.ra_user + ".png")
+                        .into((ImageView) Objects.requireNonNull(getView()).findViewById(R.id.home_profile_picture));
+                apiConnection.GetUserSummary(MainActivity.ra_user, 3, HomeFragment.this);
+                // TODO allow manual repopulation
+                hasPopulatedGames = true;
+            } else {
+                getView().findViewById(R.id.home_username).setVisibility(View.VISIBLE);
+            }
     }
 
     @Override

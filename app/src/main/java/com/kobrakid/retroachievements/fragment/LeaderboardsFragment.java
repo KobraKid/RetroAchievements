@@ -124,7 +124,6 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         leaderboardsFilter.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-
             }
 
             @Override
@@ -135,7 +134,6 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
             }
         });
 

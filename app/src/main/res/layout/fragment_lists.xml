@@ -11,7 +11,6 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
         android:elevation="4dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -24,6 +23,7 @@
         android:id="@+id/list_no_games"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
         android:elevation="2dp"
         android:gravity="center"
         android:padding="8dp"
@@ -68,13 +68,14 @@
         android:id="@+id/list_games_fast_scroller"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         android:visibility="gone"
         app:handleDrawable="@drawable/handle_drawable"
         app:handleHeight="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/list_games_filter"
         app:popupDrawable="@drawable/popup_drawable"
         tools:visibility="visible">
 
@@ -88,5 +89,20 @@
             tools:listitem="@layout/view_holder_game_summary" />
 
     </com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>
+
+    <EditText
+        android:id="@+id/list_games_filter"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:ems="10"
+        android:inputType="textNoSuggestions"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

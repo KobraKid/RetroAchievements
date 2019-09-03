@@ -5,11 +5,14 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -93,6 +96,21 @@ public class ListsFragment extends Fragment implements RAAPICallback {
         gameListRecyclerView.setAdapter(gameAdapter);
         gameListLayoutManager = new LinearLayoutManager(getContext());
         gameListRecyclerView.setLayoutManager(gameListLayoutManager);
+        EditText gamesFilter = view.findViewById(R.id.list_games_filter);
+        gamesFilter.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                gameAdapter.getFilter().filter(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
 
         Point p = new Point();
         getActivity().getWindowManager().getDefaultDisplay().getSize(p);
@@ -111,6 +129,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     public void onResume() {
         super.onResume();
         isActive = true;
+        // TODO Retain state upon rotation. Currently any selected console is forgotten and the API is called again
         apiConnection.GetConsoleIDs(this);
     }
 
@@ -188,21 +207,23 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                         gameIDs.add(game.getString("ID"));
                         gameImageIcons.add(game.getString("ImageIcon"));
                     }
+                    gameAdapter.refreshMappings();
+                    // Show Game List RecyclerView
+                    gameAdapter.notifyDataSetChanged();
+                    // TODO API spam causes OutOfMemoryError crash
+                    //  gameAdapter.removeEmptyGames();
+
+                    gameListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            Objects.requireNonNull(getView()).findViewById(R.id.list_games_fast_scroller).setVisibility(View.VISIBLE);
+                            getView().findViewById(R.id.list_games_filter).setVisibility(View.VISIBLE);
+                        }
+                    });
                 } else {
                     Objects.requireNonNull(getActivity()).findViewById(R.id.list_no_games).setVisibility(View.VISIBLE);
                 }
-                // Show Game List RecyclerView
-                gameAdapter.notifyDataSetChanged();
-                // TODO API spam causes OutOfMemoryError crash
-                //  gameAdapter.removeEmptyGames();
-
-                gameListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        Objects.requireNonNull(getView()).findViewById(R.id.list_games_fast_scroller).setVisibility(View.VISIBLE);
-                    }
-                });
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -241,6 +262,8 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             @Override
             public void onAnimationStart(Animator animation) {
                 super.onAnimationStart(animation);
+                Objects.requireNonNull(getView()).findViewById(R.id.list_games_filter).setVisibility(View.GONE);
+                ((EditText) getView().findViewById(R.id.list_games_filter)).setText("");
                 consoleListRecyclerView.setVisibility(View.VISIBLE);
                 consoleListLayoutManager.scrollToPositionWithOffset(scrollPosition, 0);
             }

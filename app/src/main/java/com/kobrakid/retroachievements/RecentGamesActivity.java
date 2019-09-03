@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -38,7 +37,7 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
     private final int gamesPerAPICall = 15;
     private boolean hasParsed = false; // Prevent spam API calls while scrolling repeatedly
 
-    private RecyclerView.Adapter adapter;
+    private GameSummaryAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ArrayList<String> imageIcons, titles, stats, ids;
 
@@ -57,9 +56,10 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
                 RecentGamesActivity.this);
 
         // Set up title bar
-        setSupportActionBar(findViewById(R.id.toolbar));
+        setSupportActionBar(findViewById(R.id.recent_games_toolbar));
         final ActionBar actionBar = getSupportActionBar();
         Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back);
 
         // Set up RecyclerView
         RecyclerView recyclerView = findViewById(R.id.recent_games_recycler_view);
@@ -169,12 +169,12 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
                 e.printStackTrace();
             }
 
-            Log.i("TITLES", titles.toString());
-
-            if (offset == 0)
+            adapter.refreshMappings();
+            if (offset == 0) {
                 adapter.notifyDataSetChanged();
-            else
+            } else {
                 adapter.notifyItemRangeInserted(offset, gamesPerAPICall);
+            }
             hasParsed = true;
         }
     }

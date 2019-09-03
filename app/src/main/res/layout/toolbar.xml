@@ -9,7 +9,5 @@
     android:elevation="4dp"
     android:fitsSystemWindows="true"
     android:minHeight="?attr/actionBarSize"
-    android:theme="?attr/transparent_title_bg"
-    app:popupTheme="?attr/current_theme"
-    app:titleTextColor="?attr/colorPrimary"
+    app:popupTheme="@style/CommonThemes.Overflow"
     tools:title="RetroAchievements" />

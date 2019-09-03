@@ -48,6 +48,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
         setSupportActionBar(findViewById(R.id.toolbar));
         final ActionBar actionBar = getSupportActionBar();
         Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back);
 
         gameID = Objects.requireNonNull(getIntent().getExtras()).getString("GameID");
 

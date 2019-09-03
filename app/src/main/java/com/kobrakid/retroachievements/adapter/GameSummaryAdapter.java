@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,7 +32,7 @@ import org.jsoup.Jsoup;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.GameSummaryViewHolder> implements RecyclerViewFastScroller.OnPopupTextUpdate {
+public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.GameSummaryViewHolder> implements RecyclerViewFastScroller.OnPopupTextUpdate, Filterable {
 
     private static final String TAG = GameSummaryAdapter.class.getSimpleName();
 
@@ -39,6 +41,7 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
     private final ArrayList<String> stats;
     private final ArrayList<String> ids;
     private final Context context;
+    private List<Integer> mappings = new ArrayList<>();
 
     public GameSummaryAdapter(Context context, ArrayList<String> imageIcons, ArrayList<String> titles, ArrayList<String> stats, ArrayList<String> ids) {
         this.context = context;
@@ -46,6 +49,7 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
         this.titles = titles;
         this.stats = stats;
         this.ids = ids;
+        refreshMappings();
     }
 
     @NonNull
@@ -61,10 +65,11 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull GameSummaryViewHolder holder, int position) {
-        if (position >= imageIcons.size()) {
-            Log.e(TAG, "Position too big: " + position);
+        int mappedPosition = mappings.get(position);
+        if (mappedPosition >= imageIcons.size()) {
+            Log.e(TAG, "Position too big: " + mappedPosition);
             return;
-        } else if (imageIcons.get(position).equals("__loading")) {
+        } else if (imageIcons.get(mappedPosition).equals("__loading")) {
             holder.constraintLayout.findViewById(R.id.game_summary_container).setVisibility(View.INVISIBLE);
             holder.constraintLayout.findViewById(R.id.separator).setVisibility(View.INVISIBLE);
             holder.constraintLayout.findViewById(R.id.game_summary_loading).setVisibility(View.VISIBLE);
@@ -75,9 +80,9 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
             holder.constraintLayout.findViewById(R.id.game_summary_container).setVisibility(View.VISIBLE);
         }
         Picasso.get()
-                .load(Consts.BASE_URL + imageIcons.get(position))
+                .load(Consts.BASE_URL + imageIcons.get(mappedPosition))
                 .into(((ImageView) holder.constraintLayout.findViewById(R.id.game_summary_image_icon)));
-        String title = Jsoup.parse(titles.get(position).trim()).text();
+        String title = Jsoup.parse(titles.get(mappedPosition).trim()).text();
         if (title.contains(", The"))
             title = "The " + title.substring(0, title.indexOf(", The")) + title.substring(title.indexOf(", The") + 5);
         ((TextView) holder.constraintLayout.findViewById(R.id.game_summary_title)).setText(title);
@@ -85,21 +90,57 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
             holder.constraintLayout.findViewById(R.id.game_summary_stats).setVisibility(View.GONE);
         } else {
             ((TextView) holder.constraintLayout.findViewById(R.id.game_summary_stats))
-                    .setText(stats.get(position));
+                    .setText(stats.get(mappedPosition));
         }
         ((TextView) holder.constraintLayout.findViewById(R.id.game_summary_game_id))
-                .setText(ids.get(position));
+                .setText(ids.get(mappedPosition));
     }
 
     @Override
     public int getItemCount() {
-        return ids.size();
+        return mappings.size();
     }
 
     @NotNull
     @Override
     public CharSequence onChange(int position) {
-        return titles.get(position).substring(0, 1);
+        return titles.get(mappings.get(position)).substring(0, 1);
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                FilterResults results = new FilterResults();
+                if (charSequence.length() > 0) {
+                    List<Integer> filterMappings = new ArrayList<>();
+                    for (int i = 0; i < titles.size(); i++)
+                        if (titles.get(i).toLowerCase().contains(charSequence.toString().toLowerCase()))
+                            filterMappings.add(i);
+                    results.count = filterMappings.size();
+                    results.values = filterMappings;
+                }
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                if (filterResults.values instanceof List) {
+                    mappings.clear();
+                    mappings.addAll((List<Integer>) filterResults.values);
+                } else {
+                    refreshMappings();
+                }
+                notifyDataSetChanged();
+            }
+        };
+    }
+
+    public void refreshMappings() {
+        mappings.clear();
+        for (int i = 0; i < titles.size(); i++)
+            mappings.add(i);
     }
 
     public void removeEmptyGames() {

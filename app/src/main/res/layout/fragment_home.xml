@@ -63,7 +63,7 @@
             android:contentDescription="@string/cd_masteries"
             android:gravity="center"
             android:orientation="horizontal"
-            android:visibility="gone"
+            android:visibility="invisible"
             tools:visibility="visible" />
 
     </HorizontalScrollView>
@@ -82,11 +82,11 @@
         <Button
             android:id="@+id/home_view_more"
             android:layout_width="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimaryDark"
             android:onClick="showRecentGames"
             android:text="@string/view_more"
-            android:textColor="?attr/colorAccent"
             android:visibility="gone"
             tools:visibility="visible" />
     </LinearLayout>

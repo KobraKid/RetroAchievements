@@ -9,6 +9,8 @@
     android:paddingEnd="8dp"
     android:paddingBottom="4dp">
 
+    <!-- TODO Determine appropriate height for these items -->
+
     <TextView
         android:id="@+id/participant_rank"
         android:layout_width="wrap_content"

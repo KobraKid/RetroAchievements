@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -68,21 +67,16 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         // Try to get saved preferences and log in
         SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
         setTheme(ThemeManager.getTheme(this, sharedPref));
-        ra_user = sharedPref.getString(getString(R.string.ra_user), "blank");
+        ra_user = sharedPref.getString(getString(R.string.ra_user), null);
 
         setContentView(R.layout.activity_main);
         setTitle("Home");
 
         // Set up title bar
-        setSupportActionBar(findViewById(R.id.toolbar));
+        setSupportActionBar(findViewById(R.id.main_toolbar));
         final ActionBar actionBar = getSupportActionBar();
         Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
-        TypedValue typedValue = new TypedValue();
-        if (getTheme().resolveAttribute(R.drawable.ic_menu, typedValue, true)) {
-            actionBar.setHomeAsUpIndicator(typedValue.resourceId);
-        } else {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
-        }
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
         // Set up navigation drawer
         myDrawer = findViewById(R.id.drawer_layout);
@@ -147,6 +141,27 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            if (fragment instanceof ListsFragment && ((ListsFragment) fragment).isShowingGames) {
+                ((ListsFragment) fragment).onBackPressed();
+            } else {
+                myDrawer.openDrawer(GravityCompat.START);
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (fragment instanceof ListsFragment && ((ListsFragment) fragment).consoleAdapter.isExpanded)
+            ((ListsFragment) fragment).onBackPressed();
+        else
+            super.onBackPressed();
+    }
+
+    @Override
     public void callback(int responseCode, String response) {
         if (!isActive)
             return;
@@ -168,27 +183,6 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            if (fragment instanceof ListsFragment && ((ListsFragment) fragment).isShowingGames) {
-                ((ListsFragment) fragment).onBackPressed();
-            } else {
-                myDrawer.openDrawer(GravityCompat.START);
-            }
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (fragment instanceof ListsFragment && ((ListsFragment) fragment).consoleAdapter.isExpanded)
-            ((ListsFragment) fragment).onBackPressed();
-        else
-            super.onBackPressed();
     }
 
     /* Navigation-related functions */
@@ -245,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
     /* Home Fragment Interface Implementation */
 
     public void showLogin(@SuppressWarnings("unused") View view) {
+        myDrawer.closeDrawers();
         startActivityForResult(new Intent(this, LoginActivity.class), BEGIN_LOGIN);
     }
 

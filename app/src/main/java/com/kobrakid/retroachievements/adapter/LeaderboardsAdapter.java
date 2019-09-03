@@ -68,7 +68,7 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
                     results.values = false;
                 } else {
                     for (int i = 0; i < table.rowKeySet().size(); i++) {
-                        if (Objects.requireNonNull(table.row(i).get("TITLE")).contains(strings[1])
+                        if (Objects.requireNonNull(table.row(i).get("TITLE")).toLowerCase().contains(strings[1].toLowerCase())
                                 && (strings[0].equals("") || Objects.requireNonNull(table.row(i).get("CONSOLE")).equals(strings[0]))) {
                             int row = tableFiltered.rowKeySet().size();
                             tableFiltered.put(row, "ID", Objects.requireNonNull(table.row(i).get("ID")));

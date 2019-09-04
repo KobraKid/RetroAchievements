@@ -45,7 +45,7 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
 
     private LineChart achievementDistro = null;
     private SortedMap<Integer, Integer> data;
-    private boolean isActive = false;
+    private boolean isActive = false, isAPIActive = false;
 
     public AchievementDistributionFragment() {
     }
@@ -80,10 +80,11 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
             }
         });
 
-        if (data == null) {
+        if (savedInstanceState == null) {
             data = new TreeMap<>();
+            isAPIActive = true;
             new RAAPIConnection(getContext()).GetAchievementDistribution(Objects.requireNonNull(getArguments()).getString("GameID"), this);
-        } else {
+        } else if (!isAPIActive) {
             populateChartData(view);
         }
 
@@ -115,6 +116,7 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
         if (responseCode == RAAPIConnection.RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION) {
             new AchievementDistributionChartAsyncTask(this, data).execute(response);
         }
+        isAPIActive = false;
     }
 
     private void populateChartData(View view) {

@@ -60,7 +60,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
     private final Map<String, Boolean> hardcoreEarnings = new HashMap<>();
     private final StringBuilder numDistinctCasual = new StringBuilder("1");
     private int numEarned, numEarnedHC, totalAch, earnedPts, totalPts, earnedRatio, totalRatio;
-    private boolean isActive = false;
+    private boolean isActive = false, isAPIActive = false;
 
     public AchievementSummaryFragment() {
     }
@@ -96,8 +96,9 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
         if (savedInstanceState == null) {
+            isAPIActive = true;
             new RAAPIConnection(getContext()).GetGameInfoAndUserProgress(MainActivity.ra_user, Objects.requireNonNull(getArguments()).getString("GameID"), this);
-        } else {
+        } else if (!isAPIActive) {
             populateViews(view);
         }
         return view;
@@ -181,6 +182,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 e.printStackTrace();
             }
         }
+        isAPIActive = false;
     }
 
     private void populateViews(View view) {
@@ -382,7 +384,8 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 hardcoreEarnings.putAll(asyncHardcoreEarnings);
 
                 fragment.adapter.notifyDataSetChanged();
-                fragment.populateViews(Objects.requireNonNull(fragment.getView()));
+                if (fragment.getView() != null)
+                    fragment.populateViews(fragment.getView());
             }
         }
     }

@@ -12,15 +12,17 @@
 
         <HorizontalScrollView
             android:id="@+id/masteries_scrollview"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
             android:gravity="center"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             app:layout_constraintBottom_toBottomOf="@id/home_profile_picture"
-            app:layout_constraintEnd_toEndOf="@+id/home_stats"
-            app:layout_constraintStart_toStartOf="@+id/home_stats"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/home_profile_picture"
             app:layout_constraintTop_toBottomOf="@+id/home_stats">
 
             <LinearLayout

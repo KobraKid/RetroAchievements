@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,11 +48,13 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     private boolean hideEmptyConsoles, hideEmptyGames;
 
     private RecyclerView consoleListRecyclerView, gameListRecyclerView;
-    private LinearLayoutManager consoleListLayoutManager, gameListLayoutManager;
-    public ConsoleAdapter consoleAdapter;
+    private LinearLayoutManager consoleListLayoutManager;
+    private ConsoleAdapter consoleAdapter;
     private GameSummaryAdapter gameAdapter;
     private ArrayList<String> consoleIDs, consoleNames, gameImageIcons, gameTitles, gameStats, gameIDs;
+    private String consoleName = "";
     private int scrollPosition = 0;
+    private Point p;
 
     public ListsFragment() {
     }
@@ -66,36 +67,39 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Objects.requireNonNull(getActivity()).setTitle("Consoles");
-
-        apiConnection = ((MainActivity) getActivity()).apiConnection;
-        hideEmptyConsoles = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_console_hide_setting), false);
-        hideEmptyGames = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_game_hide_setting), false);
+        setRetainInstance(true);
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_lists, container, false);
 
+        if (savedInstanceState == null) {
+            Objects.requireNonNull(getActivity()).setTitle("Consoles");
+
+            apiConnection = ((MainActivity) getActivity()).apiConnection;
+            hideEmptyConsoles = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_console_hide_setting), false);
+            hideEmptyGames = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_game_hide_setting), false);
+
+            // Set up adapters
+            consoleIDs = new ArrayList<>();
+            consoleNames = new ArrayList<>();
+            consoleAdapter = new ConsoleAdapter(consoleIDs, consoleNames, this);
+
+            gameImageIcons = new ArrayList<>();
+            gameTitles = new ArrayList<>();
+            gameStats = new ArrayList<>();
+            gameIDs = new ArrayList<>();
+            gameAdapter = new GameSummaryAdapter(getContext(), gameImageIcons, gameTitles, gameStats, gameIDs);
+        }
+
         // Initialize views
         consoleListRecyclerView = view.findViewById(R.id.list_console);
-        gameListRecyclerView = view.findViewById(R.id.list_games);
-
-        // Set up console list
-        consoleIDs = new ArrayList<>();
-        consoleNames = new ArrayList<>();
-        consoleAdapter = new ConsoleAdapter(consoleIDs, consoleNames, this);
         consoleListRecyclerView.setAdapter(consoleAdapter);
         consoleListLayoutManager = new LinearLayoutManager(getContext());
         consoleListRecyclerView.setLayoutManager(consoleListLayoutManager);
 
-        // Set up games list with empty values
-        gameImageIcons = new ArrayList<>();
-        gameTitles = new ArrayList<>();
-        gameStats = new ArrayList<>();
-        gameIDs = new ArrayList<>();
-        gameAdapter = new GameSummaryAdapter(getContext(), gameImageIcons, gameTitles, gameStats, gameIDs);
+        gameListRecyclerView = view.findViewById(R.id.list_games);
         gameListRecyclerView.setAdapter(gameAdapter);
-        gameListLayoutManager = new LinearLayoutManager(getContext());
-        gameListRecyclerView.setLayoutManager(gameListLayoutManager);
+        gameListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         EditText gamesFilter = view.findViewById(R.id.list_games_filter);
         gamesFilter.addTextChangedListener(new TextWatcher() {
             @Override
@@ -112,25 +116,35 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             }
         });
 
-        Point p = new Point();
-        getActivity().getWindowManager().getDefaultDisplay().getSize(p);
-        gameListRecyclerView.animate().setDuration(375).translationX(p.x).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                super.onAnimationEnd(animation);
-                gameListRecyclerView.setVisibility(View.VISIBLE);
-            }
-        });
+        p = new Point();
+        Objects.requireNonNull(getActivity()).getWindowManager().getDefaultDisplay().getSize(p);
 
+        if (savedInstanceState == null) {
+            if (hideEmptyConsoles) {
+                view.findViewById(R.id.list_hiding_fade).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.list_hiding_progress).setVisibility(View.VISIBLE);
+            }
+            apiConnection.GetConsoleIDs(this);
+        } else {
+            if (isShowingGames) {
+                populateGamesView(view, false);
+            } else {
+                populateConsolesView(view);
+            }
+        }
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        isActive = true;
     }
 
     @Override
     public void onResume() {
         super.onResume();
         isActive = true;
-        // TODO Retain state upon rotation. Currently any selected console is forgotten and the API is called again
-        apiConnection.GetConsoleIDs(this);
     }
 
     @Override
@@ -147,10 +161,6 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             consoleIDs.clear();
             consoleNames.clear();
             consoleAdapter.notifyDataSetChanged();
-            if (hideEmptyConsoles) {
-                Objects.requireNonNull(getActivity()).findViewById(R.id.list_hiding_fade).setVisibility(View.VISIBLE);
-                getActivity().findViewById(R.id.list_hiding_progress).setVisibility(View.VISIBLE);
-            }
             try {
                 JSONArray reader = new JSONArray(response);
                 // Loop once to add all consoles to view
@@ -186,8 +196,9 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                             }
                             if (pos == max) {
                                 AppExecutors.getInstance().mainThread().execute(() -> {
-                                    Objects.requireNonNull(getActivity()).findViewById(R.id.list_hiding_fade).setVisibility(View.GONE);
-                                    getActivity().findViewById(R.id.list_hiding_progress).setVisibility(View.GONE);
+                                    if (getView() != null) {
+                                        populateConsolesView(getView());
+                                    }
                                 });
                             }
                         });
@@ -200,7 +211,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             try {
                 JSONArray reader = new JSONArray(response);
                 if (reader.length() > 0) {
-                    Objects.requireNonNull(getActivity()).findViewById(R.id.list_no_games).setVisibility(View.GONE);
+                    Objects.requireNonNull(getView()).findViewById(R.id.list_no_games).setVisibility(View.GONE);
                     for (int i = 0; i < reader.length(); i++) {
                         JSONObject game = reader.getJSONObject(i);
                         gameTitles.add(game.getString("Title"));
@@ -208,103 +219,139 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                         gameImageIcons.add(game.getString("ImageIcon"));
                     }
                     gameAdapter.refreshMappings();
-                    // Show Game List RecyclerView
                     gameAdapter.notifyDataSetChanged();
-                    // TODO API spam causes OutOfMemoryError crash
-                    //  gameAdapter.removeEmptyGames();
-
-                    gameListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            Objects.requireNonNull(getView()).findViewById(R.id.list_games_fast_scroller).setVisibility(View.VISIBLE);
-                            getView().findViewById(R.id.list_games_filter).setVisibility(View.VISIBLE);
-                        }
-                    });
-                } else {
-                    Objects.requireNonNull(getActivity()).findViewById(R.id.list_no_games).setVisibility(View.VISIBLE);
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        } else if (responseCode == RAAPIConnection.RESPONSE_GET_USER_PROGRESS) {
-            try {
-                JSONObject reader = new JSONObject(response);
-                Log.d(TAG, reader.getJSONObject(reader.names().getString(0)).getString("NumPossibleAchievements"));
+                if (getView() != null)
+                    populateGamesView(getView(), true);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void onBackPressed() {
-        Objects.requireNonNull(getActivity()).setTitle("Consoles");
+    private void populateConsolesView(View view) {
+        view.findViewById(R.id.list_hiding_fade).setVisibility(View.GONE);
+        view.findViewById(R.id.list_hiding_progress).setVisibility(View.GONE);
+    }
 
-        TypedValue typedValue = new TypedValue();
-        if (getActivity().getTheme().resolveAttribute(R.drawable.ic_menu, typedValue, true)) {
-            Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).setHomeAsUpIndicator(typedValue.resourceId);
+    private void populateGamesView(View view, Boolean animate) {
+        Objects.requireNonNull(getActivity()).setTitle(consoleName);
+        Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_arrow_back);
+        // Show Game List RecyclerView
+        if (animate) {
+            view.findViewById(R.id.list_games_fast_scroller)
+                    .animate()
+                    .setDuration(375)
+                    .translationX(0)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            super.onAnimationStart(animation);
+                            view.findViewById(R.id.list_games_fast_scroller).setVisibility(View.VISIBLE);
+                        }
+                    });
+            view.findViewById(R.id.list_games_filter)
+                    .animate()
+                    .setDuration(375)
+                    .translationX(0)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            super.onAnimationStart(animation);
+                            view.findViewById(R.id.list_games_filter).setVisibility(View.VISIBLE);
+                        }
+                    });
         } else {
-            Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_menu);
+
+            consoleListRecyclerView
+                    .animate()
+                    .setDuration(0)
+                    .translationX(-p.x)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            super.onAnimationStart(animation);
+                            consoleListRecyclerView.setVisibility(View.GONE);
+                        }
+                    });
+            view.findViewById(R.id.list_games_fast_scroller).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.list_games_filter).setVisibility(View.VISIBLE);
         }
+        if (gameIDs.size() == 0)
+            Objects.requireNonNull(getView()).findViewById(R.id.list_no_games).setVisibility(View.VISIBLE);
+    }
 
-        Point p = new Point();
-        getActivity().getWindowManager().getDefaultDisplay().getSize(p);
-        gameListRecyclerView.animate().setDuration(375).translationX(p.x).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                Objects.requireNonNull(getView()).findViewById(R.id.list_games_fast_scroller).setVisibility(View.GONE);
-            }
-        });
-
-        consoleAdapter.isExpanded = false;
-        consoleListRecyclerView.animate().setDuration(375).translationX(0).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
-                Objects.requireNonNull(getView()).findViewById(R.id.list_games_filter).setVisibility(View.GONE);
-                ((EditText) getView().findViewById(R.id.list_games_filter)).setText("");
-                consoleListRecyclerView.setVisibility(View.VISIBLE);
-                consoleListLayoutManager.scrollToPositionWithOffset(scrollPosition, 0);
-            }
-        });
-
+    public void onBackPressed(View view) {
         isShowingGames = false;
-        getActivity().findViewById(R.id.list_no_games).setVisibility(View.GONE);
+        Objects.requireNonNull(getActivity()).setTitle("Consoles");
+        Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_menu);
+
+        view.findViewById(R.id.list_games_fast_scroller)
+                .animate()
+                .setDuration(375)
+                .translationX(p.x)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        view.findViewById(R.id.list_games_fast_scroller).setVisibility(View.GONE);
+                    }
+                });
+
+        view.findViewById(R.id.list_games_filter)
+                .animate()
+                .setDuration(375)
+                .translationX(p.x)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        Objects.requireNonNull(getView()).findViewById(R.id.list_games_filter).setVisibility(View.GONE);
+                        ((EditText) view.findViewById(R.id.list_games_filter)).setText("");
+                    }
+                });
+
+        consoleListRecyclerView
+                .animate()
+                .setDuration(375)
+                .translationX(0)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        super.onAnimationStart(animation);
+                        consoleListRecyclerView.setVisibility(View.VISIBLE);
+                        consoleListLayoutManager.scrollToPositionWithOffset(scrollPosition, 0);
+                    }
+                });
+
+        view.findViewById(R.id.list_no_games).setVisibility(View.GONE);
     }
 
     public void onConsoleSelected(int position, String console, String consoleName) {
-        Objects.requireNonNull(getActivity()).setTitle(consoleName);
+        this.scrollPosition = position;
+        this.consoleName = consoleName;
 
         // Hide Console List RecyclerView
-        consoleAdapter.isExpanded = !consoleAdapter.isExpanded;
-        Point p = new Point();
-        getActivity().getWindowManager().getDefaultDisplay().getSize(p);
-        consoleListRecyclerView.animate().setDuration(375).translationX(-p.x).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                consoleListRecyclerView.setVisibility(View.GONE);
-            }
-        });
-        scrollPosition = position;
+        consoleListRecyclerView
+                .animate()
+                .setDuration(375)
+                .translationX(-p.x)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        consoleListRecyclerView.setVisibility(View.GONE);
+                    }
+                });
 
         // Set up Game List RecyclerView
-        apiConnection.GetGameList(console, this);
+        isShowingGames = true;
         gameImageIcons.clear();
         gameTitles.clear();
         gameStats.clear();
         gameIDs.clear();
         gameAdapter.notifyDataSetChanged();
-
-        TypedValue typedValue = new TypedValue();
-        if (getActivity().getTheme().resolveAttribute(R.drawable.ic_arrow_back, typedValue, true)) {
-            Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).setHomeAsUpIndicator(typedValue.resourceId);
-        } else {
-            Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_arrow_back);
-        }
-
-        isShowingGames = true;
+        apiConnection.GetGameList(console, this);
     }
 
 }

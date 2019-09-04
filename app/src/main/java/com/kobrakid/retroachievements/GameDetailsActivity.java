@@ -32,6 +32,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
 
     public static int currentPosition = 0;
 
+    RAAPIConnection apiConnection;
     private String gameID, console, imageIcon, title, developer, publisher, genre, released, forumTopicID;
     private boolean isActive = false;
 
@@ -53,7 +54,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
         gameID = Objects.requireNonNull(getIntent().getExtras()).getString("GameID");
 
         // Set up API connection
-        RAAPIConnection apiConnection = new RAAPIConnection(this);
+        apiConnection = new RAAPIConnection(this);
 
         ViewPager viewPager = findViewById(R.id.game_details_view_pager);
         viewPager.setAdapter(new GameDetailsPagerAdapter(getSupportFragmentManager(), gameID));
@@ -69,7 +70,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
         if (page2 != null)
             page2.setOnClickListener((view) -> viewPager.setCurrentItem(2));
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null || savedInstanceState.getString("forumTopicID") == null) {
             apiConnection.GetGameInfoAndUserProgress(MainActivity.ra_user, gameID, this);
             // TODO Linked hashes requires login
             //  apiConnection.GetLinkedHashes(gameID, this);
@@ -102,7 +103,8 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
         genre = savedInstanceState.getString("genre");
         released = savedInstanceState.getString("released");
         forumTopicID = savedInstanceState.getString("forumTopicID");
-        populateElements();
+        if (forumTopicID != null)
+            populateElements();
     }
 
     @Override

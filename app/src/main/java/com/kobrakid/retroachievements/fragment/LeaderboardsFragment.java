@@ -1,8 +1,6 @@
 package com.kobrakid.retroachievements.fragment;
 
 import android.animation.ObjectAnimator;
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -44,10 +42,11 @@ import org.jsoup.select.Elements;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
@@ -60,13 +59,14 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
     private LeaderboardsAdapter leaderboardsAdapter;
     private RowSortedTable<Integer, String, String> table, tableFiltered;
     private UserRankingAdapter userRankingAdapter;
-    private final ArrayList<String> userRankings = new ArrayList<>();
-    private final ArrayList<String> userNames = new ArrayList<>();
-    private final ArrayList<String> userScores = new ArrayList<>();
-    private final ArrayList<String> userRatios = new ArrayList<>();
+    private ArrayList<String> userRankings;
+    private ArrayList<String> userNames;
+    private ArrayList<String> userScores;
+    private ArrayList<String> userRatios;
 
     private Spinner consoleDropdown;
     private String filteredConsole = "", filteredTitle = "";
+    private List<String> uniqueColumns;
 
     public LeaderboardsFragment() {
     }
@@ -79,29 +79,34 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Objects.requireNonNull(getActivity()).setTitle("Leaderboards");
-
-        // Set up API connection
-        apiConnection = ((MainActivity) Objects.requireNonNull(getActivity())).apiConnection;
+        setRetainInstance(true);
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_leaderboards, container, false);
+        Objects.requireNonNull(getActivity()).setTitle("Leaderboards");
 
-        // Set up user rankings
         RecyclerView topUsers = view.findViewById(R.id.leaderboards_users);
-        userRankings.clear();
-        userNames.clear();
-        userScores.clear();
-        userRatios.clear();
-        userRankingAdapter = new UserRankingAdapter(userRankings, userNames, userScores, userRatios);
+        RecyclerView leaderboardsRecycler = view.findViewById(R.id.leaderboards_games);
+
+        if (savedInstanceState == null) {
+            apiConnection = ((MainActivity) Objects.requireNonNull(getActivity())).apiConnection;
+
+            userRankings = new ArrayList<>();
+            userNames = new ArrayList<>();
+            userScores = new ArrayList<>();
+            userRatios = new ArrayList<>();
+            userRankingAdapter = new UserRankingAdapter(userRankings, userNames, userScores, userRatios);
+
+            table = TreeBasedTable.create();
+            tableFiltered = TreeBasedTable.create();
+            leaderboardsAdapter = new LeaderboardsAdapter(this, table, tableFiltered);
+
+            uniqueColumns = new ArrayList<>();
+        }
+
         topUsers.setAdapter(userRankingAdapter);
         topUsers.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Set up Leaderboards List
-        RecyclerView leaderboardsRecycler = view.findViewById(R.id.leaderboards_games);
-        table = TreeBasedTable.create();
-        tableFiltered = TreeBasedTable.create();
-        leaderboardsAdapter = new LeaderboardsAdapter(this, table, tableFiltered);
         leaderboardsRecycler.setAdapter(leaderboardsAdapter);
         leaderboardsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -137,6 +142,20 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
             }
         });
 
+        if (savedInstanceState == null) {
+            if (!hasParsedUsers)
+                apiConnection.GetTopTenUsers(this);
+            else
+                populateUserViews(view);
+            if (!hasParsedLeaderboards)
+                apiConnection.GetLeaderboards(true, this);
+            else
+                populateLeaderboardViews(view);
+        } else {
+            populateUserViews(view);
+            populateLeaderboardViews(view);
+        }
+
         return view;
     }
 
@@ -144,11 +163,6 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
     public void onStart() {
         super.onStart();
         isActive = true;
-        if (!hasParsedUsers) {
-            apiConnection.GetTopTenUsers(this);
-        }
-        if (!hasParsedLeaderboards)
-            apiConnection.GetLeaderboards(true, this);
     }
 
     @Override
@@ -201,11 +215,11 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
                 e.printStackTrace();
             }
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_LEADERBOARDS) {
-            ObjectAnimator animation = ObjectAnimator.ofInt(Objects.requireNonNull(getActivity()).findViewById(R.id.leaderboards_progress), "secondaryProgress", 100);
+            ObjectAnimator animation = ObjectAnimator.ofInt(Objects.requireNonNull(getView()).findViewById(R.id.leaderboards_progress), "secondaryProgress", 100);
             animation.setDuration(1000);
             animation.setInterpolator(new AccelerateDecelerateInterpolator());
             animation.start();
-            new LeaderboardsAsyncTask(getActivity(), getContext(), consoleDropdown, leaderboardsAdapter, table, tableFiltered).execute(response);
+            new LeaderboardsAsyncTask(this, uniqueColumns, leaderboardsAdapter, table, tableFiltered).execute(response);
             hasParsedLeaderboards = true;
         }
     }
@@ -230,17 +244,15 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
     private static class LeaderboardsAsyncTask extends AsyncTask<String, Integer, RowSortedTable<Integer, String, String>> {
 
-        private final WeakReference<Activity> mActivity;
-        private final WeakReference<Context> mContext;
-        private final WeakReference<Spinner> mDropdown;
-        private final WeakReference<LeaderboardsAdapter> mAdapter;
+        private final WeakReference<LeaderboardsFragment> fragmentReference;
+        private final WeakReference<List<String>> uniqueColumnsReference;
+        private final WeakReference<LeaderboardsAdapter> adapterReference;
         private final WeakReference<RowSortedTable<Integer, String, String>> mTable, mTableFiltered;
 
-        LeaderboardsAsyncTask(Activity activity, Context context, Spinner dropdown, LeaderboardsAdapter adapter, RowSortedTable<Integer, String, String> table, RowSortedTable<Integer, String, String> tableFiltered) {
-            this.mActivity = new WeakReference<>(activity);
-            this.mContext = new WeakReference<>(context);
-            this.mDropdown = new WeakReference<>(dropdown);
-            this.mAdapter = new WeakReference<>(adapter);
+        LeaderboardsAsyncTask(LeaderboardsFragment fragment, List<String> uniqueColumns, LeaderboardsAdapter adapter, RowSortedTable<Integer, String, String> table, RowSortedTable<Integer, String, String> tableFiltered) {
+            this.fragmentReference = new WeakReference<>(fragment);
+            this.uniqueColumnsReference = new WeakReference<>(uniqueColumns);
+            this.adapterReference = new WeakReference<>(adapter);
             this.mTable = new WeakReference<>(table);
             this.mTableFiltered = new WeakReference<>(tableFiltered);
         }
@@ -274,34 +286,42 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            final Activity activity = mActivity.get();
-            if (activity != null && isActive) {
-                ((ProgressBar) activity.findViewById(R.id.leaderboards_progress)).setProgress(values[0]);
+            final Fragment fragment = fragmentReference.get();
+            if (fragment != null && fragment.getView() != null) {
+                ((ProgressBar) fragment.getView().findViewById(R.id.leaderboards_progress)).setProgress(values[0]);
             }
         }
 
         @Override
         protected void onPostExecute(RowSortedTable<Integer, String, String> result) {
             super.onPostExecute(result);
-            if (!isActive)
-                return;
-            final Activity activity = mActivity.get();
-            if (activity != null && result.rowKeySet().size() > 0) {
-                activity.findViewById(R.id.leaderboards_progress).setVisibility(View.GONE);
-            }
-            final Context context = mContext.get();
-            final Spinner dropdown = mDropdown.get();
-            if (context != null && dropdown != null) {
-                // Ugly code used to remove dupes, preserve order, and append a blank option to the beginning
-                ArrayList<Object> uniqueCols = new ArrayList<>(Arrays.asList(new LinkedHashSet<>(result.column("CONSOLE").values()).toArray()));
-                uniqueCols.add(0, "");
-                dropdown.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, Objects.requireNonNull(uniqueCols.toArray())));
-            }
-            final LeaderboardsAdapter adapter = mAdapter.get();
+
+            final LeaderboardsAdapter adapter = adapterReference.get();
             if (adapter != null) {
                 adapter.notifyDataSetChanged();
             }
+
+            final LeaderboardsFragment fragment = fragmentReference.get();
+            if (fragment != null) {
+                final List<String> uniqueCols = uniqueColumnsReference.get();
+                uniqueCols.clear();
+                uniqueCols.add(0, "");
+                SortedSet<String> consoles = new TreeSet<>(result.column("CONSOLE").values());
+                uniqueCols.addAll(consoles);
+                if (fragment.getView() != null) {
+                    fragment.populateLeaderboardViews(fragment.getView());
+                }
+            }
         }
+    }
+
+    private void populateUserViews(View view) {
+
+    }
+
+    private void populateLeaderboardViews(View view) {
+        view.findViewById(R.id.leaderboards_progress).setVisibility(View.GONE);
+        consoleDropdown.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, uniqueColumns));
     }
 
 }

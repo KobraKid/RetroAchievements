@@ -51,29 +51,31 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
         Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back);
 
-        gameID = Objects.requireNonNull(getIntent().getExtras()).getString("GameID");
+        if (getIntent().getExtras() != null) {
+            gameID = getIntent().getExtras().getString("GameID");
 
-        // Set up API connection
-        apiConnection = new RAAPIConnection(this);
+            // Set up API connection
+            apiConnection = new RAAPIConnection(this);
 
-        ViewPager viewPager = findViewById(R.id.game_details_view_pager);
-        viewPager.setAdapter(new GameDetailsPagerAdapter(getSupportFragmentManager(), gameID));
-        viewPager.setOffscreenPageLimit(2);
+            ViewPager viewPager = findViewById(R.id.game_details_view_pager);
+            viewPager.setAdapter(new GameDetailsPagerAdapter(getSupportFragmentManager(), gameID));
+            viewPager.setOffscreenPageLimit(2);
 
-        ImageButton page0 = findViewById(R.id.game_details_button_page_0);
-        if (page0 != null)
-            page0.setOnClickListener((view) -> viewPager.setCurrentItem(0));
-        ImageButton page1 = findViewById(R.id.game_details_button_page_1);
-        if (page1 != null)
-            page1.setOnClickListener((view) -> viewPager.setCurrentItem(1));
-        ImageButton page2 = findViewById(R.id.game_details_button_page_2);
-        if (page2 != null)
-            page2.setOnClickListener((view) -> viewPager.setCurrentItem(2));
+            ImageButton page0 = findViewById(R.id.game_details_button_page_0);
+            if (page0 != null)
+                page0.setOnClickListener((view) -> viewPager.setCurrentItem(0));
+            ImageButton page1 = findViewById(R.id.game_details_button_page_1);
+            if (page1 != null)
+                page1.setOnClickListener((view) -> viewPager.setCurrentItem(1));
+            ImageButton page2 = findViewById(R.id.game_details_button_page_2);
+            if (page2 != null)
+                page2.setOnClickListener((view) -> viewPager.setCurrentItem(2));
 
-        if (savedInstanceState == null || savedInstanceState.getString("forumTopicID") == null) {
-            apiConnection.GetGameInfoAndUserProgress(MainActivity.ra_user, gameID, this);
-            // TODO Linked hashes requires login
-            //  apiConnection.GetLinkedHashes(gameID, this);
+            if (savedInstanceState == null || savedInstanceState.getString("forumTopicID") == null) {
+                apiConnection.GetGameInfoAndUserProgress(MainActivity.ra_user, gameID, this);
+                // TODO Linked hashes requires login
+                //  apiConnection.GetLinkedHashes(gameID, this);
+            }
         }
     }
 

@@ -128,8 +128,8 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                     masteryGold.add(image.className().equals("goldimage"));
                 }
             }
-
-            populateMasteries(Objects.requireNonNull(getView()));
+            if (getView() != null)
+                populateMasteries(getView());
         }
         if (responseCode == RAAPIConnection.RESPONSE_GET_USER_SUMMARY) {
             try {

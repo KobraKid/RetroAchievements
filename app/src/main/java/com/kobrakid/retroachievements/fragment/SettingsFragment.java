@@ -65,7 +65,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         Objects.requireNonNull(getActivity()).setTitle("Settings");
 
         // Initialize preferences object
-        sharedPref = Objects.requireNonNull(getActivity()).getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
+        sharedPref = Objects.requireNonNull(getContext()).getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
@@ -75,7 +75,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         ((TextView) view.findViewById(R.id.settings_current_theme)).setText(getString(R.string.settings_current_theme, theme));
         ((TextView) view.findViewById(R.id.settings_current_user)).setText(getString(R.string.settings_current_user, MainActivity.ra_user == null ? "none" : MainActivity.ra_user));
 
-        ((Spinner) view.findViewById(R.id.settings_theme_dropdown)).setAdapter(new ArrayAdapter<String>(Objects.requireNonNull(getContext()), android.R.layout.simple_spinner_dropdown_item, Consts.THEMES) {
+        ((Spinner) view.findViewById(R.id.settings_theme_dropdown)).setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, Consts.THEMES) {
             @Override
             public boolean isEnabled(int position) {
                 return Consts.THEMES_ENABLE_ARRAY[position];
@@ -112,8 +112,8 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         if (sharedPref.getBoolean(getString(R.string.empty_console_hide_setting), false))
             view.findViewById(R.id.settings_hide_consoles_warning).setVisibility(View.GONE);
         ((CheckBox) view.findViewById(R.id.settings_hide_games)).setChecked(sharedPref.getBoolean(getString(R.string.empty_game_hide_setting), false));
-        ((CheckBox) view.findViewById(R.id.settings_hide_consoles)).setOnCheckedChangeListener((compoundButton, b) -> hideConsoles(b));
-        ((CheckBox) view.findViewById(R.id.settings_hide_games)).setOnCheckedChangeListener((compoundButton, b) -> hideGames(b));
+        ((CheckBox) view.findViewById(R.id.settings_hide_consoles)).setOnCheckedChangeListener((compoundButton, b) -> hideConsoles(view, b));
+        ((CheckBox) view.findViewById(R.id.settings_hide_games)).setOnCheckedChangeListener((compoundButton, b) -> hideGames(view, b));
 
         apiConnection = ((MainActivity) getActivity()).apiConnection;
 
@@ -133,7 +133,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
 
     /* Settings-related Functions */
 
-    private void changeTheme(final String theme) {
+    private void changeTheme(@NonNull final String theme) {
         applicableSettings.remove(change_theme_key);
         applicableSettings.put(change_theme_key, () -> {
             Log.d(TAG, "Saving theme " + theme);
@@ -141,8 +141,8 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         });
     }
 
-    private void hideConsoles(final boolean hide) {
-        Objects.requireNonNull(getActivity()).findViewById(R.id.settings_hide_consoles_warning).setVisibility(hide ? View.GONE : View.VISIBLE);
+    private void hideConsoles(View view, final boolean hide) {
+        view.findViewById(R.id.settings_hide_consoles_warning).setVisibility(hide ? View.GONE : View.VISIBLE);
         if (applicableSettings.get(hide_consoles_key) != null) {
             applicableSettings.remove(hide_consoles_key);
         } else {
@@ -164,7 +164,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         }
     }
 
-    private void hideGames(final boolean hide) {
+    private void hideGames(View view, final boolean hide) {
         if (applicableSettings.get(hide_games_key) != null) {
             applicableSettings.remove(hide_games_key);
         } else {

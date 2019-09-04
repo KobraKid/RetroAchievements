@@ -18,14 +18,13 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Objects;
-
 /**
  * A simple {@link Fragment} subclass.
  */
 public class GameImagesFragment extends Fragment implements RAAPICallback {
 
     private ImageView box, title, ingame;
+    private String boxURL, titleURL, ingameURL;
     private boolean isActive = false;
 
     public GameImagesFragment() {
@@ -38,7 +37,10 @@ public class GameImagesFragment extends Fragment implements RAAPICallback {
         box = view.findViewById(R.id.image_boxart);
         title = view.findViewById(R.id.image_title);
         ingame = view.findViewById(R.id.image_ingame);
-        new RAAPIConnection(getContext()).GetGameInfo(Objects.requireNonNull(getArguments()).getString("GameID", "0"), this);
+        if (savedInstanceState == null && getArguments() != null)
+            new RAAPIConnection(getContext()).GetGameInfo(getArguments().getString("GameID", "0"), this);
+        else
+            populateViews();
         return view;
     }
 
@@ -67,18 +69,25 @@ public class GameImagesFragment extends Fragment implements RAAPICallback {
         if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_INFO) {
             try {
                 JSONObject reader = new JSONObject(response);
-                Picasso.get()
-                        .load(Consts.BASE_URL + "/" + reader.getString("ImageBoxArt"))
-                        .into(box);
-                Picasso.get()
-                        .load(Consts.BASE_URL + "/" + reader.getString("ImageTitle"))
-                        .into(title);
-                Picasso.get()
-                        .load(Consts.BASE_URL + "/" + reader.getString("ImageIngame"))
-                        .into(ingame);
+                boxURL = reader.getString("ImageBoxArt");
+                titleURL = reader.getString("ImageTitle");
+                ingameURL = reader.getString("ImageIngame");
+                populateViews();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void populateViews() {
+        Picasso.get()
+                .load(Consts.BASE_URL + "/" + boxURL)
+                .into(box);
+        Picasso.get()
+                .load(Consts.BASE_URL + "/" + titleURL)
+                .into(title);
+        Picasso.get()
+                .load(Consts.BASE_URL + "/" + ingameURL)
+                .into(ingame);
     }
 }

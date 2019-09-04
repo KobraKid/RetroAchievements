@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * This class is responsible for displaying summary information on all the achievements for a
@@ -95,9 +94,9 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
         layoutManager = new AchievementLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && getArguments() != null) {
             isAPIActive = true;
-            new RAAPIConnection(getContext()).GetGameInfoAndUserProgress(MainActivity.ra_user, Objects.requireNonNull(getArguments()).getString("GameID"), this);
+            new RAAPIConnection(getContext()).GetGameInfoAndUserProgress(MainActivity.ra_user, getArguments().getString("GameID"), this);
         } else if (!isAPIActive) {
             populateViews(view);
         }
@@ -132,8 +131,10 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 numDistinctCasual.delete(0, numDistinctCasual.length());
                 numDistinctCasual.append(reader.getString("NumDistinctPlayersCasual"));
                 if (reader.getString("NumAchievements").equals("0")) {
-                    Objects.requireNonNull(getView()).findViewById(R.id.game_details_loading_bar).setVisibility(View.GONE);
-                    getView().findViewById(R.id.game_details_no_achievements).setVisibility(View.VISIBLE);
+                    if (getView() != null) {
+                        getView().findViewById(R.id.game_details_loading_bar).setVisibility(View.GONE);
+                        getView().findViewById(R.id.game_details_no_achievements).setVisibility(View.VISIBLE);
+                    }
                 } else {
                     JSONObject achievements = reader.getJSONObject("Achievements");
                     JSONObject achievement;

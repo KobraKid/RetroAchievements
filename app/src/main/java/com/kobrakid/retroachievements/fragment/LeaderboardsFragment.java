@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class LeaderboardsFragment extends Fragment implements RAAPICallback {
@@ -142,19 +141,12 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
             }
         });
 
-        if (savedInstanceState == null) {
-            if (!hasParsedUsers)
-                apiConnection.GetTopTenUsers(this);
-            else
-                populateUserViews(view);
-            if (!hasParsedLeaderboards)
-                apiConnection.GetLeaderboards(true, this);
-            else
-                populateLeaderboardViews(view);
-        } else {
-            populateUserViews(view);
+        if (savedInstanceState == null && !hasParsedUsers)
+            apiConnection.GetTopTenUsers(this);
+        if (savedInstanceState == null && !hasParsedLeaderboards)
+            apiConnection.GetLeaderboards(true, this);
+        else
             populateLeaderboardViews(view);
-        }
 
         return view;
     }
@@ -304,10 +296,11 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
             final LeaderboardsFragment fragment = fragmentReference.get();
             if (fragment != null) {
                 final List<String> uniqueCols = uniqueColumnsReference.get();
-                uniqueCols.clear();
-                uniqueCols.add(0, "");
-                SortedSet<String> consoles = new TreeSet<>(result.column("CONSOLE").values());
-                uniqueCols.addAll(consoles);
+                if (uniqueCols != null) {
+                    uniqueCols.clear();
+                    uniqueCols.add(0, "");
+                    uniqueCols.addAll(new TreeSet<>(result.column("CONSOLE").values()));
+                }
                 if (fragment.getView() != null) {
                     fragment.populateLeaderboardViews(fragment.getView());
                 }
@@ -315,13 +308,9 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
         }
     }
 
-    private void populateUserViews(View view) {
-
-    }
-
     private void populateLeaderboardViews(View view) {
         view.findViewById(R.id.leaderboards_progress).setVisibility(View.GONE);
-        consoleDropdown.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, uniqueColumns));
+        consoleDropdown.setAdapter(new ArrayAdapter<>(Objects.requireNonNull(getContext()), android.R.layout.simple_spinner_dropdown_item, uniqueColumns));
     }
 
 }

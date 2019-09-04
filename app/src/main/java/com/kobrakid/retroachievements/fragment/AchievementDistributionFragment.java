@@ -35,7 +35,6 @@ import org.jsoup.select.Elements;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -80,10 +79,10 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
             }
         });
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && getArguments() != null) {
             data = new TreeMap<>();
             isAPIActive = true;
-            new RAAPIConnection(getContext()).GetAchievementDistribution(Objects.requireNonNull(getArguments()).getString("GameID"), this);
+            new RAAPIConnection(getContext()).GetAchievementDistribution(getArguments().getString("GameID"), this);
         } else if (!isAPIActive) {
             populateChartData(view);
         }

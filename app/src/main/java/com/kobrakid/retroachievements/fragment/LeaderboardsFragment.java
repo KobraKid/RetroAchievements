@@ -53,7 +53,6 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
 
     private RAAPIConnection apiConnection;
     private static boolean isActive = false;
-    private boolean hasParsedUsers = false, hasParsedLeaderboards = false;
 
     private LeaderboardsAdapter leaderboardsAdapter;
     private RowSortedTable<Integer, String, String> table, tableFiltered;
@@ -141,12 +140,13 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
             }
         });
 
-        if (savedInstanceState == null && !hasParsedUsers)
+        if (savedInstanceState == null) {
             apiConnection.GetTopTenUsers(this);
-        if (savedInstanceState == null && !hasParsedLeaderboards)
             apiConnection.GetLeaderboards(true, this);
-        else
+        } else {
+            // Will add `populateTopTenUserViews(view)` here once needed
             populateLeaderboardViews(view);
+        }
 
         return view;
     }
@@ -194,7 +194,6 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
             }
             if (!userNames.contains(MainActivity.ra_user))
                 apiConnection.GetUserSummary(MainActivity.ra_user, 0, this);
-            hasParsedUsers = true;
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_USER_SUMMARY) {
             try {
                 JSONObject reader = new JSONObject(response);
@@ -212,7 +211,6 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
             animation.setInterpolator(new AccelerateDecelerateInterpolator());
             animation.start();
             new LeaderboardsAsyncTask(this, uniqueColumns, leaderboardsAdapter, table, tableFiltered).execute(response);
-            hasParsedLeaderboards = true;
         }
     }
 
@@ -270,6 +268,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
                     leaderboards.put(i - 1, "NUMRESULTS", row.select("td").get(6).text());
                     publishProgress((i * 100) / (rows.size()));
                 }
+                // FIXME Can be concurrently modified, clashing with {@Link LeaderboardsAdapter.java} line 93
                 tableFiltered.putAll(leaderboards);
             }
             return leaderboards;

@@ -89,6 +89,7 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 if (!(filterResults.values instanceof Boolean && (Boolean) filterResults.values)) {
+                    // FIXME Can be concurrently modified, clashing with {@Link LeaderboardsFragment.java} line 272
                     tableFiltered.putAll(table);
                 }
                 notifyDataSetChanged();

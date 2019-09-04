@@ -34,6 +34,7 @@ public class GameImagesFragment extends Fragment implements RAAPICallback {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.view_pager_game_images, container, false);
+        setRetainInstance(true);
         box = view.findViewById(R.id.image_boxart);
         title = view.findViewById(R.id.image_title);
         ingame = view.findViewById(R.id.image_ingame);

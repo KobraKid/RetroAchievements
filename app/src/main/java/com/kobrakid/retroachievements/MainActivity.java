@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
     // Request Codes
     private static final int BEGIN_LOGIN = 0;
-    private static final int SHOW_RECENT_GAMES = 1;
     // Response Codes
     public static final int LOGIN_SUCCESS = 0;
     public static final int LOGIN_FAILURE = 1;
@@ -56,8 +55,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
     static final String ra_api_key = "LrY9UvdmckJWfgTsVC5SdTODrlTcHrkj";
 
     private Fragment fragment;
-    private String activeFragmentTag;
-    private boolean isActive = false;
+    private String activeFragmentTag, rank, score;
     private DrawerLayout myDrawer;
 
     @Override
@@ -85,13 +83,13 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         // Initialize API connection
         apiConnection = new RAAPIConnection(MainActivity.this);
 
-        apiConnection.GetUserRankAndScore(ra_user, this);
-
         if (savedInstanceState == null) {
+            apiConnection.GetUserRankAndScore(ra_user, this);
             // Set up home fragment
             activeFragmentTag = "HomeFragment";
             getSupportFragmentManager().beginTransaction().replace(R.id.flContent, new HomeFragment(), activeFragmentTag).commit();
         } else {
+            // Reclaim reference to active fragment
             activeFragmentTag = savedInstanceState.getString("ActiveFragmentTag");
             fragment = getSupportFragmentManager().findFragmentByTag(activeFragmentTag);
         }
@@ -100,38 +98,33 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (resultCode) {
-            case LOGIN_SUCCESS:
-                Context context = MainActivity.this;
-                SharedPreferences sharedPref = context.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
-                ra_user = sharedPref.getString(getString(R.string.ra_user), null);
+        if (requestCode == BEGIN_LOGIN)
+            switch (resultCode) {
+                case LOGIN_SUCCESS:
+                    ra_user = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getString(getString(R.string.ra_user), null);
 
-                if (ra_user != null) {
-                    Log.v(TAG, "Logging in as " + ra_user);
-                    ((TextView) findViewById(R.id.nav_username)).setText(ra_user);
-                    apiConnection.GetUserRankAndScore(ra_user, this);
-                }
-                break;
-            case LOGIN_CANCELLED:
-                Log.d(TAG, "LOGIN CANCELLED");
-            case LOGIN_FAILURE:
-                Log.d(TAG, "NOT LOGGING IN");
-            default:
-                break;
-        }
+                    if (ra_user != null) {
+                        Log.v(TAG, "Logging in as " + ra_user);
+                        apiConnection.GetUserRankAndScore(ra_user, this);
+                        if (fragment instanceof HomeFragment) {
+                            apiConnection.GetUserWebProfile(ra_user, (HomeFragment) fragment);
+                            apiConnection.GetUserSummary(ra_user, 3, (HomeFragment) fragment);
+                        }
+                    }
+                    break;
+                case LOGIN_CANCELLED:
+                    Log.d(TAG, "LOGIN CANCELLED");
+                case LOGIN_FAILURE:
+                    Log.d(TAG, "NOT LOGGING IN");
+                default:
+                    break;
+            }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         myDrawer.closeDrawers();
-        isActive = true;
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        isActive = false;
     }
 
     @Override
@@ -156,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
     @Override
     public void onBackPressed() {
-        if (fragment instanceof ListsFragment && ((ListsFragment) fragment).isShowingGames)
+        if (fragment instanceof ListsFragment && ((ListsFragment) fragment).isShowingGames && fragment.getView() != null)
             ((ListsFragment) fragment).onBackPressed(fragment.getView());
         else
             super.onBackPressed();
@@ -164,22 +157,13 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
     @Override
     public void callback(int responseCode, String response) {
-        if (!isActive)
-            return;
-        // The user has logged in
         if (responseCode == RAAPIConnection.RESPONSE_GET_USER_RANK_AND_SCORE) {
-            // Parse JSON and plug in information
             JSONObject reader;
             try {
                 reader = new JSONObject(response);
-                ((TextView) findViewById(R.id.nav_stats)).setText(getString(R.string.nav_rank_score,
-                        reader.getString("Score"),
-                        reader.getString("Rank")));
-                ((TextView) findViewById(R.id.nav_username)).setText(ra_user);
-                findViewById(R.id.nav_stats).setVisibility(View.VISIBLE);
-                Picasso.get()
-                        .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + ra_user + ".png")
-                        .into((ImageView) findViewById(R.id.nav_profile_picture));
+                score = reader.getString("Score");
+                rank = reader.getString("Rank");
+                populateViews();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -226,6 +210,19 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         item.setChecked(true);
         myDrawer.closeDrawers();
         return true;
+    }
+
+    private void populateViews() {
+        if (ra_user != null) {
+            ((TextView) findViewById(R.id.nav_username)).setText(ra_user);
+            Picasso.get()
+                    .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + ra_user + ".png")
+                    .into((ImageView) findViewById(R.id.nav_profile_picture));
+        }
+        if (rank != null && score != null) {
+            ((TextView) findViewById(R.id.nav_stats)).setText(getString(R.string.nav_rank_score, score, rank));
+            findViewById(R.id.nav_stats).setVisibility(View.VISIBLE);
+        }
     }
 
     public void showGameDetails(View view) {

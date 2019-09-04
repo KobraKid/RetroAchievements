@@ -519,9 +519,11 @@ public class RAAPIConnection {
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
     public void GetGameInfoAndUserProgress(String user, String gameID, RAAPICallback callback) {
+        // Intentionally fall through to following if condition, because it is possible to
+        // call api without user here, but the caller should still be warned
         if (user == null)
             callback.callback(RESPONSE_ERROR, "No user");
-        else if (gameID == null)
+        if (gameID == null)
             callback.callback(RESPONSE_ERROR, "No game ID");
         else
             GetRAURL(

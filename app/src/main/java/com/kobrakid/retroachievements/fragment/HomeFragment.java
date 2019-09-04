@@ -37,13 +37,17 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
 
     private static final String TAG = HomeFragment.class.getSimpleName();
 
-    private RAAPIConnection apiConnection;
     // TODO Only call API when the view is first started, or when the user asks for a manual refresh
-    private boolean hasPopulatedGames, hasPopulatedMasteries;
-    private ArrayList<String> masteryIDs, masteryIcons, summaryIDs, summaryTitles, summaryIcons, summaryScores;
-    private ArrayList<Boolean> masteryGold;
-    String score, rank;
-    private boolean isActive = false;
+    private boolean hasPopulatedGames = false, hasPopulatedMasteries = false;
+    private ArrayList<String>
+            masteryIDs = new ArrayList<>(),
+            masteryIcons = new ArrayList<>(),
+            summaryIDs = new ArrayList<>(),
+            summaryTitles = new ArrayList<>(),
+            summaryIcons = new ArrayList<>(),
+            summaryScores = new ArrayList<>();
+    private ArrayList<Boolean> masteryGold = new ArrayList<>();
+    private String score = "", rank = "";
 
     public HomeFragment() {
     }
@@ -61,37 +65,24 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         Objects.requireNonNull(getActivity()).setTitle("Home");
 
-        if (savedInstanceState == null) {
-            // Set up API connection
-            apiConnection = ((MainActivity) Objects.requireNonNull(getActivity())).apiConnection;
-            hasPopulatedGames = false;
-            hasPopulatedMasteries = false;
-            apiConnection.GetUserWebProfile(MainActivity.ra_user, HomeFragment.this);
-            apiConnection.GetUserSummary(MainActivity.ra_user, 3, HomeFragment.this);
+        if (MainActivity.ra_user != null) {
+            if (savedInstanceState == null) {
+                // Call API in the case of no saved instance or recreation after login
+                RAAPIConnection apiConnection = ((MainActivity) Objects.requireNonNull(getActivity())).apiConnection;
+                hasPopulatedGames = false;
+                hasPopulatedMasteries = false;
+                apiConnection.GetUserWebProfile(MainActivity.ra_user, this);
+                apiConnection.GetUserSummary(MainActivity.ra_user, 3, this);
+            } else {
+                populateUserInfo(view);
+                populateMasteries(view);
+                populateGames(view);
+            }
         } else {
-            populateMasteries(view);
-            populateGames(view);
+            view.findViewById(R.id.home_username).setVisibility(View.VISIBLE);
         }
 
         return view;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        isActive = true;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        isActive = true;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        isActive = false;
     }
 
     @Override
@@ -106,16 +97,14 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
 
     @Override
     public void callback(int responseCode, String response) {
-        if (!isActive)
-            return;
         JSONObject reader;
-        if (!hasPopulatedMasteries && responseCode == RAAPIConnection.RESPONSE_GET_USER_WEB_PROFILE) {
+        if (responseCode == RAAPIConnection.RESPONSE_GET_USER_WEB_PROFILE) {
             Document document = Jsoup.parse(response);
             Elements elements = document.select("div[class=trophyimage]");
 
-            masteryIDs = new ArrayList<>();
-            masteryIcons = new ArrayList<>();
-            masteryGold = new ArrayList<>();
+            masteryIDs.clear();
+            masteryIcons.clear();
+            masteryGold.clear();
 
             for (Element element : elements) {
                 String gameID = element.selectFirst("a[href]").attr("href");
@@ -128,17 +117,18 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                     masteryGold.add(image.className().equals("goldimage"));
                 }
             }
-            if (getView() != null)
+            if (getView() != null) {
                 populateMasteries(getView());
+            }
         }
         if (responseCode == RAAPIConnection.RESPONSE_GET_USER_SUMMARY) {
             try {
                 reader = new JSONObject(response);
 
-                summaryIDs = new ArrayList<>();
-                summaryIcons = new ArrayList<>();
-                summaryTitles = new ArrayList<>();
-                summaryScores = new ArrayList<>();
+                summaryIDs.clear();
+                summaryIcons.clear();
+                summaryTitles.clear();
+                summaryScores.clear();
 
                 score = reader.getString("TotalPoints");
                 rank = reader.getString("Rank");
@@ -168,8 +158,23 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            populateGames(getView());
+            if (getView() != null) {
+                populateGames(getView());
+                populateUserInfo(getView());
+            }
         }
+    }
+
+    private void populateUserInfo(View view) {
+        if (MainActivity.ra_user != null) {
+            ((TextView) view.findViewById(R.id.home_username)).setText(MainActivity.ra_user);
+            Picasso.get()
+                    .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + MainActivity.ra_user + ".png")
+                    .into((ImageView) view.findViewById(R.id.home_profile_picture));
+        }
+        ((TextView) view.findViewById(R.id.home_stats)).setText(getString(R.string.nav_rank_score, score, rank));
+        view.findViewById(R.id.home_username).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.home_stats).setVisibility(View.VISIBLE);
     }
 
     private void populateMasteries(View view) {
@@ -192,7 +197,6 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
             try {
                 imageView.setId(Integer.parseInt(masteryIDs.get(i)));
             } catch (NumberFormatException e) {
-                // TODO set up logging system
                 // This happens when parsing achievements like connecting one's account to FB,
                 // developing achievements, etc.
                 Log.e(TAG, "Trophy was not a valid RA game.", e);
@@ -205,17 +209,6 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
     }
 
     private void populateGames(View view) {
-        ((TextView) view.findViewById(R.id.home_username)).setText(MainActivity.ra_user);
-        ((TextView) view.findViewById(R.id.home_stats)).setText(getString(R.string.nav_rank_score, score, rank));
-        if (MainActivity.ra_user != null) {
-            Picasso.get()
-                    .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + MainActivity.ra_user + ".png")
-                    .into((ImageView) view.findViewById(R.id.home_profile_picture));
-        }
-        view.findViewById(R.id.home_view_more).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.home_username).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.home_stats).setVisibility(View.VISIBLE);
-
         // Fill out recently played games list
         LinearLayout recentGames = view.findViewById(R.id.home_recent_games);
         if (recentGames.getChildCount() > 1)
@@ -231,6 +224,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
             recentGames.addView(game, i);
         }
 
+        view.findViewById(R.id.home_view_more).setVisibility(View.VISIBLE);
         hasPopulatedGames = true;
     }
 

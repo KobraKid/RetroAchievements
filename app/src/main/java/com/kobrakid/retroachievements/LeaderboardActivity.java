@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,6 +22,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -32,7 +34,7 @@ import java.util.Objects;
 public class LeaderboardActivity extends AppCompatActivity implements RAAPICallback {
 
     private RecyclerView.Adapter adapter;
-    private ArrayList<String> users, results, dates;
+    private ArrayList<String> users = new ArrayList<>(), results = new ArrayList<>(), dates = new ArrayList<>();
     private boolean isActive = false;
 
     @Override
@@ -67,18 +69,41 @@ public class LeaderboardActivity extends AppCompatActivity implements RAAPICallb
             ((TextView) findViewById(R.id.leaderboard_description)).setText(description);
             ((TextView) findViewById(R.id.leaderboard_type)).setText(type);
 
-            if (savedInstanceState == null) {
-                users = new ArrayList<>();
-                results = new ArrayList<>();
-                dates = new ArrayList<>();
-                adapter = new ParticipantsAdapter(this, users, results, dates);
-                new RAAPIConnection(this).GetLeaderboard(id, count, this);
-            }
-
             RecyclerView rankedUsers = findViewById(R.id.leaderboard_participants);
+            users.clear();
+            results.clear();
+            dates.clear();
+            adapter = new ParticipantsAdapter(this, users, results, dates);
             rankedUsers.setAdapter(adapter);
             rankedUsers.setLayoutManager(new LinearLayoutManager(this));
+
+            if (savedInstanceState == null) {
+                new RAAPIConnection(this).GetLeaderboard(id, count, this);
+            }
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("users", users);
+        outState.putSerializable("results", results);
+        outState.putSerializable("dates", dates);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Serializable savedUsers = savedInstanceState.getSerializable("users");
+        Serializable savedResults = savedInstanceState.getSerializable("results");
+        Serializable savedDates = savedInstanceState.getSerializable("dates");
+        if (savedUsers != null)
+            users.addAll((ArrayList<String>) savedUsers);
+        if (savedResults != null)
+            results.addAll((ArrayList<String>) savedResults);
+        if (savedDates != null)
+            dates.addAll((ArrayList<String>) savedDates);
+        adapter.notifyDataSetChanged();
     }
 
     @Override

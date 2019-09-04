@@ -46,7 +46,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
         ((TextView) holder.itemView.findViewById(R.id.participant_username)).setText(users.get(position));
         ((TextView) holder.itemView.findViewById(R.id.participant_result)).setText(results.get(position));
         ((TextView) holder.itemView.findViewById(R.id.participant_date)).setText(dates.get(position));
-        if (MainActivity.ra_user.equals(users.get(position)))
+        if (MainActivity.ra_user != null && MainActivity.ra_user.equals(users.get(position)))
             holder.itemView.setBackground(context.getDrawable(R.drawable.border));
     }
 

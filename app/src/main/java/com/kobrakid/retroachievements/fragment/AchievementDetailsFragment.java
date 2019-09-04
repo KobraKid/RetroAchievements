@@ -79,7 +79,6 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
 
 //        postponeEnterTransition();
 
-        // TODO Figure out why some images load in tiny (i.e. It's tough to be a bug - Secret Of Evermore [SNES])
         final ImageView badge = view.findViewById(R.id.achievement_details_badge);
         Picasso.get()
                 .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + getArguments().getString("ImageIcon") + ".png")

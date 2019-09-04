@@ -279,6 +279,7 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
             super.onProgressUpdate(values);
             final Fragment fragment = fragmentReference.get();
             if (fragment != null && fragment.getView() != null) {
+                fragment.getView().findViewById(R.id.leaderboards_progress).setVisibility(View.VISIBLE);
                 ((ProgressBar) fragment.getView().findViewById(R.id.leaderboards_progress)).setProgress(values[0]);
             }
         }

@@ -59,7 +59,6 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
     private final Map<String, Boolean> hardcoreEarnings = new HashMap<>();
     private final StringBuilder numDistinctCasual = new StringBuilder("1");
     private int numEarned, numEarnedHC, totalAch, earnedPts, totalPts, earnedRatio, totalRatio;
-    private boolean isActive = false, isAPIActive = false;
 
     public AchievementSummaryFragment() {
     }
@@ -95,36 +94,15 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
         if (savedInstanceState == null && getArguments() != null) {
-            isAPIActive = true;
             new RAAPIConnection(getContext()).GetGameInfoAndUserProgress(MainActivity.ra_user, getArguments().getString("GameID"), this);
-        } else if (!isAPIActive) {
+        } else {
             populateViews(view);
         }
         return view;
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        isActive = false;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        isActive = true;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        isActive = true;
-    }
-
-    @Override
     public void callback(int responseCode, String response) {
-        if (!isActive)
-            return;
         if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_INFO_AND_USER_PROGRESS) {
             try {
                 JSONObject reader = new JSONObject(response);
@@ -183,7 +161,6 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
                 e.printStackTrace();
             }
         }
-        isAPIActive = false;
     }
 
     private void populateViews(View view) {
@@ -341,7 +318,7 @@ public class AchievementSummaryFragment extends Fragment implements RAAPICallbac
         @Override
         protected void onPostExecute(String[] strings) {
             final AchievementSummaryFragment fragment = (AchievementSummaryFragment) fragmentReference.get();
-            if (fragment != null && fragment.isActive) {
+            if (fragment != null) {
                 ArrayList<String> ids = idsReference.get();
                 ArrayList<String> badges = badgesReference.get();
                 ArrayList<String> titles = titlesReference.get();

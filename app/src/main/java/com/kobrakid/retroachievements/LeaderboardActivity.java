@@ -22,7 +22,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -79,6 +78,20 @@ public class LeaderboardActivity extends AppCompatActivity implements RAAPICallb
 
             if (savedInstanceState == null) {
                 new RAAPIConnection(this).GetLeaderboard(id, count, this);
+            } else {
+                ArrayList<String> savedUsers = (ArrayList<String>) savedInstanceState.getSerializable("users");
+                ArrayList<String> savedResults = (ArrayList<String>) savedInstanceState.getSerializable("results");
+                ArrayList<String> savedDates = (ArrayList<String>) savedInstanceState.getSerializable("dates");
+                if (savedUsers != null && savedUsers.size() > 0
+                        && savedResults != null && savedResults.size() > 0
+                        && savedDates != null && savedDates.size() > 0) {
+                    users.addAll(savedUsers);
+                    results.addAll(savedResults);
+                    dates.addAll(savedDates);
+                    adapter.notifyDataSetChanged();
+                } else {
+                    new RAAPIConnection(this).GetLeaderboard(id, count, this);
+                }
             }
         }
     }
@@ -89,21 +102,6 @@ public class LeaderboardActivity extends AppCompatActivity implements RAAPICallb
         outState.putSerializable("users", users);
         outState.putSerializable("results", results);
         outState.putSerializable("dates", dates);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        Serializable savedUsers = savedInstanceState.getSerializable("users");
-        Serializable savedResults = savedInstanceState.getSerializable("results");
-        Serializable savedDates = savedInstanceState.getSerializable("dates");
-        if (savedUsers != null)
-            users.addAll((ArrayList<String>) savedUsers);
-        if (savedResults != null)
-            results.addAll((ArrayList<String>) savedResults);
-        if (savedDates != null)
-            dates.addAll((ArrayList<String>) savedDates);
-        adapter.notifyDataSetChanged();
     }
 
     @Override

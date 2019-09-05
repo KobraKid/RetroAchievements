@@ -716,7 +716,8 @@ public class RAAPIConnection {
 
         @Override
         protected void onPostExecute(Document result) {
-            callback.callback(result.outerHtml().length() > 0 ? callbackCode : RESPONSE_ERROR, result.outerHtml());
+            if (result != null)
+                callback.callback(result.outerHtml().length() > 0 ? callbackCode : RESPONSE_ERROR, result.outerHtml());
         }
     }
 

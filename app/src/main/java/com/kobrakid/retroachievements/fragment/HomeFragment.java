@@ -47,7 +47,6 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
             summaryIcons = new ArrayList<>(),
             summaryScores = new ArrayList<>();
     private ArrayList<Boolean> masteryGold = new ArrayList<>();
-    private String score = "", rank = "";
 
     public HomeFragment() {
     }
@@ -130,9 +129,6 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                 summaryTitles.clear();
                 summaryScores.clear();
 
-                score = reader.getString("TotalPoints");
-                rank = reader.getString("Rank");
-
                 JSONArray recentlyPlayed = reader.getJSONArray("RecentlyPlayed");
                 for (int i = 0; i < recentlyPlayed.length(); i++) {
                     JSONObject gameObj = recentlyPlayed.getJSONObject(i);
@@ -172,7 +168,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                     .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + MainActivity.ra_user + ".png")
                     .into((ImageView) view.findViewById(R.id.home_profile_picture));
         }
-        ((TextView) view.findViewById(R.id.home_stats)).setText(getString(R.string.nav_rank_score, score, rank));
+        ((TextView) view.findViewById(R.id.home_stats)).setText(getString(R.string.nav_rank_score, MainActivity.score, MainActivity.rank));
         view.findViewById(R.id.home_username).setVisibility(View.VISIBLE);
         view.findViewById(R.id.home_stats).setVisibility(View.VISIBLE);
     }

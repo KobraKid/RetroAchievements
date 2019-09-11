@@ -49,14 +49,15 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
     public RAAPIConnection apiConnection = null;
 
-    public static String ra_user = null;
+    public static String ra_user = null, rank = null, score = null;
     static final String ra_api_user = "KobraKid1337";
     @SuppressWarnings("SpellCheckingInspection")
     static final String ra_api_key = "LrY9UvdmckJWfgTsVC5SdTODrlTcHrkj";
 
     private Fragment fragment;
-    private String activeFragmentTag, rank, score;
-    private DrawerLayout myDrawer;
+    private String activeFragmentTag;
+    private DrawerLayout drawer;
+    private NavigationView navView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,8 +78,9 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
         // Set up navigation drawer
-        myDrawer = findViewById(R.id.drawer_layout);
-        ((NavigationView) findViewById(R.id.nav_view)).setNavigationItemSelectedListener(this::selectDrawerItem);
+        drawer = findViewById(R.id.drawer_layout);
+        navView = findViewById(R.id.nav_view);
+        navView.setNavigationItemSelectedListener(this::selectDrawerItem);
 
         // Initialize API connection
         apiConnection = new RAAPIConnection(MainActivity.this);
@@ -92,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
             // Reclaim reference to active fragment
             activeFragmentTag = savedInstanceState.getString("ActiveFragmentTag");
             fragment = getSupportFragmentManager().findFragmentByTag(activeFragmentTag);
+            populateViews();
         }
     }
 
@@ -124,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
     @Override
     protected void onResume() {
         super.onResume();
-        myDrawer.closeDrawers();
+        drawer.closeDrawers();
     }
 
     @Override
@@ -140,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
                 if (fragment.getView() != null)
                     ((ListsFragment) fragment).onBackPressed(fragment.getView());
             } else {
-                myDrawer.openDrawer(GravityCompat.START);
+                drawer.openDrawer(GravityCompat.START);
             }
             return true;
         }
@@ -208,20 +211,20 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment, activeFragmentTag).commit();
 
         item.setChecked(true);
-        myDrawer.closeDrawers();
+        drawer.closeDrawers();
         return true;
     }
 
     private void populateViews() {
         if (ra_user != null) {
-            ((TextView) findViewById(R.id.nav_username)).setText(ra_user);
+            ((TextView) navView.getHeaderView(0).findViewById(R.id.nav_username)).setText(ra_user);
             Picasso.get()
                     .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + ra_user + ".png")
-                    .into((ImageView) findViewById(R.id.nav_profile_picture));
+                    .into((ImageView) navView.getHeaderView(0).findViewById(R.id.nav_profile_picture));
         }
         if (rank != null && score != null) {
-            ((TextView) findViewById(R.id.nav_stats)).setText(getString(R.string.nav_rank_score, score, rank));
-            findViewById(R.id.nav_stats).setVisibility(View.VISIBLE);
+            ((TextView) navView.getHeaderView(0).findViewById(R.id.nav_stats)).setText(getString(R.string.nav_rank_score, score, rank));
+            navView.getHeaderView(0).findViewById(R.id.nav_stats).setVisibility(View.VISIBLE);
         }
     }
 
@@ -237,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
     /* Home Fragment Interface Implementation */
 
     public void showLogin(@SuppressWarnings("unused") View view) {
-        myDrawer.closeDrawers();
+        drawer.closeDrawers();
         startActivityForResult(new Intent(this, LoginActivity.class), BEGIN_LOGIN);
     }
 

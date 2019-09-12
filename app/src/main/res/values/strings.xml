@@ -1,29 +1,36 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Main Activity -->
+    <plurals name="achievement_chart_hints">
+        <!-- Zero quantity does not work as expected, 0 defaults to "other." Keeping it here in case I forget. -->
+        <item quantity="zero">No users have earned %2$d achievement(s)</item>
+        <item quantity="one">%1$d user has earned %2$d achievement(s)</item>
+        <item quantity="other">%1$d users have earned %2$d achievement(s)</item>
+    </plurals>
     <string name="app_name">RetroAchievements</string>
     <string name="not_logged_in">Not logged in</string>
-    <string name="login_prompt">Click here to log in</string>
 
     <!-- Navigation Drawer -->
+    <string name="login_prompt">Click here to log in</string>
     <string name="nav_rank_score">Score: %1$s | Rank: %2$s</string>
     <string name="nav_home">Home</string>
     <string name="nav_lists">Game Lists</string>
     <string name="nav_leaderboards">Leaderboards</string>
-    <string name="nav_settings">Settings</string>
+    <string name="nav_about">About</string>
 
     <!-- Home Fragment -->
+    <string name="nav_settings">Settings</string>
     <string name="game_stats">🏆 %1$s of %2$s\n(%3$s/%4$s)</string>
-    <string name="view_more">View More</string>
 
     <!-- List Fragment -->
-    <string name="no_games">No Games</string>
+    <string name="view_more">View More</string>
 
     <!-- Leaderboards Fragment -->
+    <string name="no_games">No Games</string>
     <string name="top_users">Top Users</string>
     <string name="score_ratio_format"><![CDATA[%1$s <font color="0xFFFFFF">(%2$s)</font>]]></string>
-    <string name="leaderboards_games">Leaderboard List</string>
 
     <!-- Settings Fragment -->
+    <string name="leaderboards_games">Leaderboard List</string>
     <string name="settings_category_appearance">Appearance</string>
     <string name="settings_category_account">Account</string>
     <string name="settings_theme">Theme</string>
@@ -33,12 +40,44 @@
     <string name="settings_toggle_game">Hide Games with 0 Achievements</string>
     <string name="settings_current_user">Currently logged in as: %1$s</string>
     <string name="settings_log_out">Log Out</string>
-    <string name="settings_apply">Apply</string>
+
+    <!-- About Fragment -->
+    <string name="about_version">RetroAchievements v1.0.0</string>
+    <string name="about_disclaimer">The RetroAchievements app is in no way affiliated with the
+        <a href="https://retroachievements.org/">RetroAchievements</a> website. All images and other
+        assets belong to their respective owners, and this app makes no claims of ownership of any
+        assets.
+    </string>
+    <string name="about_developer">This app was developed by Michael H.
+        (<a href="https://retroachievements.org/user/KobraKid1337">RA:KobraKid1337</a>)
+        as a personal project. You can find his other works on
+        <a href="https://github.com/KobraKid">Github</a>.
+        If you liked the app and would like to contribute to the developer, he will be setting up a
+        PayPal account soon.
+        \nThank you for your consideration and I hope you enjoy this app!
+    </string>
+    <string name="about_credits_1">RetroAchievements uses quiph\'s
+        <a href="https://github.com/quiph/RecyclerView-FastScroller">RecyclerView&#8209;FastScroller</a>
+        library, which is licensed under the Apache License Version 2.0.
+    </string>
+    <string name="about_credits_2">RetroAchievements uses PhilJay\'s
+        <a href="https://github.com/PhilJay/MPAndroidChart">MPAndroidChart</a>
+        library, which is licensed under the Apache License Version 2.0.
+    </string>
+    <string name="about_credits_3">RetroAchievements uses the
+        <a href="https://jsoup.org">jsoup</a>
+        library, which is licensed under the MIT License.
+    </string>
+    <string name="about_credits_4">RetroAchievements uses the
+        <a href="https://square.github.io/picasso">Picasso</a>
+        library, which is licensed under the Apache License Version 2.0.
+    </string>
 
     <!-- Recent Games Activity -->
-    <string name="recent_games_title">Recent Games</string>
+    <string name="settings_apply">Apply</string>
 
     <!-- Game Details Activity -->
+    <string name="recent_games_title">Recent Games</string>
     <string name="published">Published by: %1$s</string>
     <string name="developed">Developed by: %1$s</string>
     <string name="genre">Genre: %1$s</string>
@@ -52,12 +91,6 @@
     <br/>out of <b>%6$d</b> <font color="0xFFFFFF">(%7$d)</font> possible points.]]></string>
     <string name="achievement_summary_title">%1$s (%2$s) (%3$s)</string>
     <string name="achievement_distribution">Achievement Distribution</string>
-    <plurals name="achievement_chart_hints">
-        <!-- Zero quantity does not work as expected, 0 defaults to "other." Keeping it here in case I forget. -->
-        <item quantity="zero">No users have earned %2$d achievement(s)</item>
-        <item quantity="one">%1$d user has earned %2$d achievement(s)</item>
-        <item quantity="other">%1$d users have earned %2$d achievement(s)</item>
-    </plurals>
     <string name="images">Images</string>
     <string name="image_box_art">Box Art</string>
     <string name="image_game_title">Title Screen</string>
@@ -90,5 +123,8 @@
     <string name="cd_game_summary_image_icon">Game summary image icon</string>
     <string name="cd_achievement_summary_badge">Achievement summary badge</string>
     <string name="cd_console_icon">Console icon</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

@@ -21,6 +21,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.navigation.NavigationView;
+import com.kobrakid.retroachievements.fragment.AboutFragment;
 import com.kobrakid.retroachievements.fragment.HomeFragment;
 import com.kobrakid.retroachievements.fragment.LeaderboardsFragment;
 import com.kobrakid.retroachievements.fragment.ListsFragment;
@@ -192,6 +193,10 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
             case R.id.nav_settings_fragment:
                 fragmentClass = SettingsFragment.class;
                 activeFragmentTag = "SettingsFragment";
+                break;
+            case R.id.nav_about_fragment:
+                fragmentClass = AboutFragment.class;
+                activeFragmentTag = "AboutFragment";
                 break;
             case R.id.nav_home_fragment:
             default:

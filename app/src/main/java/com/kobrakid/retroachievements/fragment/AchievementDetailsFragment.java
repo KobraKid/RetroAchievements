@@ -18,7 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.R;
-import com.kobrakid.retroachievements.viewpager.AchievementViewPager;
+import com.kobrakid.retroachievements.viewpager.ToggleableViewPager;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -121,13 +121,13 @@ public class AchievementDetailsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        ((AchievementViewPager) Objects.requireNonNull(getActivity()).findViewById(R.id.game_details_view_pager)).setPagingEnabled(false);
+        ((ToggleableViewPager) Objects.requireNonNull(getActivity()).findViewById(R.id.game_details_view_pager)).setPagingEnabled(false);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        ((AchievementViewPager) Objects.requireNonNull(getActivity()).findViewById(R.id.game_details_view_pager)).setPagingEnabled(true);
+        ((ToggleableViewPager) Objects.requireNonNull(getActivity()).findViewById(R.id.game_details_view_pager)).setPagingEnabled(true);
     }
 
     private void prepareSharedElementTransition(@SuppressWarnings("unused") final View view) {

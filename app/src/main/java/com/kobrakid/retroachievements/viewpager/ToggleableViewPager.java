@@ -8,15 +8,18 @@ import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.ViewPager;
 
-public class AchievementViewPager extends ViewPager {
+/**
+ * Custom implementation of teh ViewPager widget, useful for when paging should be toggled.
+ */
+public class ToggleableViewPager extends ViewPager {
 
     private boolean pagingEnabled = true;
 
-    public AchievementViewPager(@NonNull Context context) {
+    public ToggleableViewPager(@NonNull Context context) {
         super(context);
     }
 
-    public AchievementViewPager(@NonNull Context context, AttributeSet attrs) {
+    public ToggleableViewPager(@NonNull Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

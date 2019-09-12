@@ -1,9 +1,12 @@
 package com.kobrakid.retroachievements.fragment;
 
+import android.annotation.SuppressLint;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -15,6 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.R;
+import com.kobrakid.retroachievements.viewpager.AchievementViewPager;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -24,7 +28,9 @@ import java.util.Objects;
 /**
  * This class is responsible for showing more detailed information on a particular achievement.
  */
-public class AchievementDetailsFragment extends Fragment implements View.OnClickListener {
+public class AchievementDetailsFragment extends Fragment {
+
+    private GestureDetector tapDetector;
 
     public AchievementDetailsFragment() {
     }
@@ -34,12 +40,12 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
         super.onCreate(savedInstanceState);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_achievement_details, container, false);
-        view.setOnClickListener(this);
         view.setTransitionName("achievement_" + Objects.requireNonNull(getArguments()).getString("Position"));
 
         // Set fields from transferred data
@@ -104,12 +110,24 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
                     }
                 });
 
+        tapDetector = new GestureDetector(getContext(), new GestureTap());
+        view.setOnTouchListener((v, e) -> {
+            tapDetector.onTouchEvent(e);
+            return true;
+        });
         return view;
     }
 
     @Override
-    public void onClick(View view) {
-        Objects.requireNonNull(this.getFragmentManager()).popBackStack();
+    public void onStart() {
+        super.onStart();
+        ((AchievementViewPager) Objects.requireNonNull(getActivity()).findViewById(R.id.game_details_view_pager)).setPagingEnabled(false);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        ((AchievementViewPager) Objects.requireNonNull(getActivity()).findViewById(R.id.game_details_view_pager)).setPagingEnabled(true);
     }
 
     private void prepareSharedElementTransition(@SuppressWarnings("unused") final View view) {
@@ -122,6 +140,15 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
 //                sharedElements.put(names.get(0), view);
 //            }
 //        });
+    }
+
+    private class GestureTap extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            Objects.requireNonNull(getFragmentManager()).popBackStack();
+            return true;
+        }
     }
 
 }

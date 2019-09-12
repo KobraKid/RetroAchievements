@@ -128,7 +128,7 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.viewpager.widget.ViewPager
+        <com.kobrakid.retroachievements.viewpager.AchievementViewPager
             android:id="@+id/game_details_view_pager"
             android:layout_width="0dp"
             android:layout_height="match_parent"

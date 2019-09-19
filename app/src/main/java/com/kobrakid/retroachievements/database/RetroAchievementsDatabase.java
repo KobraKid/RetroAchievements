@@ -1,9 +1,10 @@
 package com.kobrakid.retroachievements.database;
 
-import android.arch.persistence.room.Database;
-import android.arch.persistence.room.Room;
-import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
+
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
 
 @Database(entities = {Console.class, Game.class}, exportSchema = false, version = 3)
 public abstract class RetroAchievementsDatabase extends RoomDatabase {

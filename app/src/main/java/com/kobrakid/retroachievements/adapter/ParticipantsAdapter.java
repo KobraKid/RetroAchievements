@@ -1,13 +1,14 @@
 package com.kobrakid.retroachievements.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.MainActivity;
@@ -45,7 +46,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
         ((TextView) holder.itemView.findViewById(R.id.participant_username)).setText(users.get(position));
         ((TextView) holder.itemView.findViewById(R.id.participant_result)).setText(results.get(position));
         ((TextView) holder.itemView.findViewById(R.id.participant_date)).setText(dates.get(position));
-        if (MainActivity.ra_user.equals(users.get(position)))
+        if (MainActivity.ra_user != null && MainActivity.ra_user.equals(users.get(position)))
             holder.itemView.setBackground(context.getDrawable(R.drawable.border));
     }
 

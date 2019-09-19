@@ -5,14 +5,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 
 import com.kobrakid.retroachievements.adapter.GameDetailsPagerAdapter;
 import com.squareup.picasso.Picasso;
@@ -30,8 +32,8 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
 
     public static int currentPosition = 0;
 
-    private String gameID;
-    private String forumTopicID;
+    RAAPIConnection apiConnection;
+    private String gameID, console, imageIcon, title, developer, publisher, genre, released, forumTopicID;
     private boolean isActive = false;
 
     @Override
@@ -44,21 +46,67 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
 
         setContentView(R.layout.activity_game_details);
 
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        setSupportActionBar(findViewById(R.id.toolbar));
         final ActionBar actionBar = getSupportActionBar();
         Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back);
 
-        gameID = Objects.requireNonNull(getIntent().getExtras()).getString("GameID");
+        if (getIntent().getExtras() != null) {
+            gameID = getIntent().getExtras().getString("GameID");
 
-        // Set up API connection
-        RAAPIConnection apiConnection = new RAAPIConnection(this);
+            // Set up API connection
+            apiConnection = new RAAPIConnection(this);
 
-        ViewPager viewPager = findViewById(R.id.game_details_view_pager);
-        viewPager.setAdapter(new GameDetailsPagerAdapter(getSupportFragmentManager(), gameID));
+            ViewPager viewPager = findViewById(R.id.game_details_view_pager);
+            viewPager.setAdapter(new GameDetailsPagerAdapter(getSupportFragmentManager(), gameID));
+            viewPager.setOffscreenPageLimit(2);
 
-        apiConnection.GetGameInfoAndUserProgress(MainActivity.ra_user, gameID, this);
-        // TODO Linked hashes requires login
-        //  apiConnection.GetLinkedHashes(gameID, this);
+            ImageButton page0 = findViewById(R.id.game_details_button_page_0);
+            if (page0 != null)
+                page0.setOnClickListener((view) -> viewPager.setCurrentItem(0));
+            ImageButton page1 = findViewById(R.id.game_details_button_page_1);
+            if (page1 != null)
+                page1.setOnClickListener((view) -> viewPager.setCurrentItem(1));
+            ImageButton page2 = findViewById(R.id.game_details_button_page_2);
+            if (page2 != null)
+                page2.setOnClickListener((view) -> viewPager.setCurrentItem(2));
+
+            if (savedInstanceState == null || savedInstanceState.getString("forumTopicID") == null) {
+                apiConnection.GetGameInfoAndUserProgress(MainActivity.ra_user, gameID, this);
+                // TODO Linked hashes requires login
+                //  apiConnection.GetLinkedHashes(gameID, this);
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("gameID", gameID);
+        outState.putString("console", console);
+        outState.putString("imageIcon", imageIcon);
+        outState.putString("title", title);
+        outState.putString("developer", developer);
+        outState.putString("publisher", publisher);
+        outState.putString("genre", genre);
+        outState.putString("released", released);
+        outState.putString("forumTopicID", forumTopicID);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        gameID = savedInstanceState.getString("gameID");
+        console = savedInstanceState.getString("console");
+        imageIcon = savedInstanceState.getString("imageIcon");
+        title = savedInstanceState.getString("title");
+        developer = savedInstanceState.getString("developer");
+        publisher = savedInstanceState.getString("publisher");
+        genre = savedInstanceState.getString("genre");
+        released = savedInstanceState.getString("released");
+        forumTopicID = savedInstanceState.getString("forumTopicID");
+        if (forumTopicID != null)
+            populateElements();
     }
 
     @Override
@@ -119,32 +167,36 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
             try {
                 reader = new JSONObject(response);
 
-                String title = Jsoup.parse(reader.getString("Title").trim()).text();
+                title = Jsoup.parse(reader.getString("Title").trim()).text();
                 if (title.contains(", The"))
                     title = "The " + title.substring(0, title.indexOf(", The")) + title.substring(title.indexOf(", The") + 5);
-                setTitle(title + " (" + reader.getString("ConsoleName") + ")");
-
-                Picasso.get()
-                        .load(Consts.BASE_URL + reader.getString("ImageIcon"))
-                        .into((ImageView) findViewById(R.id.game_details_image_icon));
-                String developer = reader.getString("Developer");
+                console = reader.getString("ConsoleName");
+                imageIcon = reader.getString("ImageIcon");
+                developer = reader.getString("Developer");
                 developer = developer.equals("null") ? "????" : Jsoup.parse(developer).text();
-                String publisher = reader.getString("Publisher");
+                publisher = reader.getString("Publisher");
                 publisher = publisher.equals("null") ? "????" : Jsoup.parse(publisher).text();
-                String genre = reader.getString("Genre");
+                genre = reader.getString("Genre");
                 genre = genre.equals("null") ? "????" : Jsoup.parse(genre).text();
-                String released = reader.getString("Released");
+                released = reader.getString("Released");
                 released = released.equals("null") ? "????" : Jsoup.parse(released).text();
-                ((TextView) findViewById(R.id.game_details_developer)).setText(getString(R.string.developed, developer));
-                ((TextView) findViewById(R.id.game_details_publisher)).setText(getString(R.string.published, publisher));
-                ((TextView) findViewById(R.id.game_details_genre)).setText(getString(R.string.genre, genre));
-                ((TextView) findViewById(R.id.game_details_release_date)).setText(getString(R.string.released, released));
-
                 forumTopicID = reader.getString("ForumTopicID");
+                populateElements();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void populateElements() {
+        setTitle(title + " (" + console + ")");
+        Picasso.get()
+                .load(Consts.BASE_URL + imageIcon)
+                .into((ImageView) findViewById(R.id.game_details_image_icon));
+        ((TextView) findViewById(R.id.game_details_developer)).setText(getString(R.string.developed, developer));
+        ((TextView) findViewById(R.id.game_details_publisher)).setText(getString(R.string.published, publisher));
+        ((TextView) findViewById(R.id.game_details_genre)).setText(getString(R.string.genre, genre));
+        ((TextView) findViewById(R.id.game_details_release_date)).setText(getString(R.string.released, released));
     }
 
 }

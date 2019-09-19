@@ -6,8 +6,7 @@
     android:background="?attr/colorPrimaryDark"
     android:gravity="bottom"
     android:orientation="vertical"
-    android:padding="8dp"
-    android:theme="?attr/current_theme">
+    android:padding="8dp">
 
     <ImageView
         android:id="@+id/nav_profile_picture"
@@ -15,7 +14,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:adjustViewBounds="true"
-        android:background="@android:color/transparent"
         android:contentDescription="@string/cd_profile_picture"
         android:onClick="showLogin"
         android:src="@drawable/favicon" />
@@ -24,7 +22,6 @@
         android:id="@+id/nav_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
         android:text="@string/login_prompt"
         tools:text="KobraKid1337" />
 
@@ -32,7 +29,6 @@
         android:id="@+id/nav_stats"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
         android:visibility="gone"
         tools:text="Rank: 1500 | Score: 13587"
         tools:visibility="visible" />

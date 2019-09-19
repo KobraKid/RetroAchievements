@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,6 +8,8 @@
     android:paddingTop="4dp"
     android:paddingEnd="8dp"
     android:paddingBottom="4dp">
+
+    <!-- TODO Determine appropriate height for these items -->
 
     <TextView
         android:id="@+id/participant_rank"
@@ -58,4 +60,4 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/participant_result"
         tools:text="13 Aug 2019, 08:37" />
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

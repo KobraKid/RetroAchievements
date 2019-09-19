@@ -1,94 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/home_profile_picture"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="16dp"
-        android:contentDescription="@string/cd_profile_picture"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/favicon" />
-
-    <TextView
-        android:id="@+id/home_username"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/not_logged_in"
-        android:textSize="30sp"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/home_profile_picture"
-        tools:text="KobraKid1337"
-        tools:visibility="visible" />
+        android:layout_width="match_parent">
 
-    <TextView
-        android:id="@+id/home_stats"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/home_username"
-        app:layout_constraintStart_toStartOf="@+id/home_username"
-        app:layout_constraintTop_toBottomOf="@+id/home_username"
-        tools:text="Score: 5270 | Rank 3478"
-        tools:visibility="visible" />
+        <ImageView
+            android:id="@+id/home_profile_picture"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="16dp"
+            android:contentDescription="@string/cd_profile_picture"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/favicon" />
 
-    <HorizontalScrollView
-        android:id="@+id/masteries_scrollview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="center"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/home_stats">
+        <TextView
+            android:id="@+id/home_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/not_logged_in"
+            android:textSize="30sp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/home_profile_picture"
+            tools:text="KobraKid1337"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/home_stats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@+id/home_username"
+            app:layout_constraintStart_toStartOf="@+id/home_username"
+            app:layout_constraintTop_toBottomOf="@+id/home_username"
+            tools:text="Score: 5270 | Rank 3478"
+            tools:visibility="visible" />
+
+        <HorizontalScrollView
+            android:id="@+id/masteries_scrollview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/home_stats">
+
+            <LinearLayout
+                android:id="@+id/masteries"
+                android:layout_width="wrap_content"
+                android:layout_height="64dp"
+                android:layout_gravity="start"
+                android:contentDescription="@string/cd_masteries"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="invisible"
+                tools:visibility="visible" />
+
+        </HorizontalScrollView>
 
         <LinearLayout
-            android:id="@+id/masteries"
-            android:layout_width="wrap_content"
-            android:layout_height="64dp"
-            android:layout_gravity="start"
-            android:contentDescription="@string/cd_masteries"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-    </HorizontalScrollView>
-
-    <LinearLayout
-        android:id="@+id/home_recent_games"
-        android:layout_width="0dp"
-        android:layout_height="405dp"
-        android:layout_marginTop="8dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/masteries_scrollview">
-
-        <Button
-            android:id="@+id/home_view_more"
-            android:layout_width="match_parent"
+            android:id="@+id/home_recent_games"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimaryDark"
-            android:onClick="showRecentGames"
-            android:text="@string/view_more"
-            android:textColor="?attr/colorAccent"
-            android:visibility="gone"
-            tools:visibility="visible" />
-    </LinearLayout>
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/masteries_scrollview">
 
-</android.support.constraint.ConstraintLayout>
+            <Button
+                android:id="@+id/home_view_more"
+                android:layout_width="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_height="wrap_content"
+                android:onClick="showRecentGames"
+                android:text="@string/view_more"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

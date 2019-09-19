@@ -3,9 +3,6 @@ package com.kobrakid.retroachievements.adapter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
 import android.transition.Slide;
 import android.transition.TransitionSet;
 import android.view.Gravity;
@@ -16,6 +13,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.GameDetailsActivity;
@@ -178,9 +179,9 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
             transitionSet.setOrdering(TransitionSet.ORDERING_TOGETHER);
             // Get the adapter position of the first child
             int firstChildIndex = Integer.parseInt(
-                    ((TextView) ((AchievementSummaryFragment) fragment)
+                    ((TextView) Objects.requireNonNull(((AchievementSummaryFragment) fragment)
                             .layoutManager
-                            .getChildAt(0)
+                            .getChildAt(0))
                             .findViewById(R.id.recycler_view_position))
                             .getText()
                             .toString());

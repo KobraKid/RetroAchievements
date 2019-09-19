@@ -10,6 +10,7 @@ class ThemeManager {
 
     static int getTheme(Context context, SharedPreferences sharedPreferences) {
         String theme = sharedPreferences.getString(context.getResources().getString(R.string.theme_setting), "Blank");
+        assert theme != null; // We provide a default value so theme cannot be null
         switch (theme) {
             case "TwentySixteen":
                 return R.style.TwentySixteenTheme;

@@ -6,22 +6,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.navigation.NavigationView;
+import com.kobrakid.retroachievements.fragment.AboutFragment;
 import com.kobrakid.retroachievements.fragment.HomeFragment;
 import com.kobrakid.retroachievements.fragment.LeaderboardsFragment;
 import com.kobrakid.retroachievements.fragment.ListsFragment;
@@ -42,8 +42,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
     private static final String TAG = MainActivity.class.getSimpleName();
 
     // Request Codes
-    public static final int BEGIN_LOGIN = 0;
-    public static final int SHOW_RECENT_GAMES = 1;
+    private static final int BEGIN_LOGIN = 0;
     // Response Codes
     public static final int LOGIN_SUCCESS = 0;
     public static final int LOGIN_FAILURE = 1;
@@ -51,14 +50,15 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
     public RAAPIConnection apiConnection = null;
 
-    public static String ra_user = null;
+    public static String ra_user = null, rank = null, score = null;
     static final String ra_api_user = "KobraKid1337";
     @SuppressWarnings("SpellCheckingInspection")
     static final String ra_api_key = "LrY9UvdmckJWfgTsVC5SdTODrlTcHrkj";
 
     private Fragment fragment;
-    private boolean isActive = false;
-    private DrawerLayout myDrawer;
+    private String activeFragmentTag;
+    private DrawerLayout drawer;
+    private NavigationView navView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,118 +67,84 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         // Try to get saved preferences and log in
         SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
         setTheme(ThemeManager.getTheme(this, sharedPref));
-        ra_user = sharedPref.getString(getString(R.string.ra_user), "blank");
+        ra_user = sharedPref.getString(getString(R.string.ra_user), null);
 
         setContentView(R.layout.activity_main);
         setTitle("Home");
 
         // Set up title bar
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        setSupportActionBar(findViewById(R.id.main_toolbar));
         final ActionBar actionBar = getSupportActionBar();
         Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
-        TypedValue typedValue = new TypedValue();
-        if (getTheme().resolveAttribute(R.drawable.ic_menu, typedValue, true)) {
-            actionBar.setHomeAsUpIndicator(typedValue.resourceId);
-        } else {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
-        }
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
         // Set up navigation drawer
-        myDrawer = findViewById(R.id.drawer_layout);
-        setupDrawerContent((NavigationView) findViewById(R.id.nav_view));
+        drawer = findViewById(R.id.drawer_layout);
+        navView = findViewById(R.id.nav_view);
+        navView.setNavigationItemSelectedListener(this::selectDrawerItem);
 
         // Initialize API connection
         apiConnection = new RAAPIConnection(MainActivity.this);
 
-        apiConnection.GetUserRankAndScore(ra_user, this);
-
-        // Set up home fragment
-        setupInitialFragment();
-    }
-
-    private void setupDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        selectDrawerItem(item);
-                        return true;
-                    }
-                }
-        );
-    }
-
-    private void setupInitialFragment() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.flContent, new HomeFragment()).commit();
+        if (savedInstanceState == null) {
+            apiConnection.GetUserRankAndScore(ra_user, this);
+            // Set up home fragment
+            activeFragmentTag = "HomeFragment";
+            getSupportFragmentManager().beginTransaction().replace(R.id.flContent, new HomeFragment(), activeFragmentTag).commit();
+        } else {
+            // Reclaim reference to active fragment
+            activeFragmentTag = savedInstanceState.getString("ActiveFragmentTag");
+            fragment = getSupportFragmentManager().findFragmentByTag(activeFragmentTag);
+            populateViews();
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (resultCode) {
-            case LOGIN_SUCCESS:
-                Context context = MainActivity.this;
-                SharedPreferences sharedPref = context.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
-                ra_user = sharedPref.getString(getString(R.string.ra_user), null);
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == BEGIN_LOGIN)
+            switch (resultCode) {
+                case LOGIN_SUCCESS:
+                    ra_user = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getString(getString(R.string.ra_user), null);
 
-                if (ra_user != null) {
-                    Log.v(TAG, "Logging in as " + ra_user);
-                    ((TextView) findViewById(R.id.nav_username)).setText(ra_user);
-                    apiConnection.GetUserRankAndScore(ra_user, this);
-                }
-                break;
-            case LOGIN_CANCELLED:
-                Log.d(TAG, "LOGIN CANCELLED");
-            case LOGIN_FAILURE:
-                Log.d(TAG, "NOT LOGGING IN");
-            default:
-                break;
-        }
+                    if (ra_user != null) {
+                        Log.v(TAG, "Logging in as " + ra_user);
+                        apiConnection.GetUserRankAndScore(ra_user, this);
+                        if (fragment instanceof HomeFragment) {
+                            apiConnection.GetUserWebProfile(ra_user, (HomeFragment) fragment);
+                            apiConnection.GetUserSummary(ra_user, 3, (HomeFragment) fragment);
+                        }
+                    }
+                    break;
+                case LOGIN_CANCELLED:
+                    Log.d(TAG, "LOGIN CANCELLED");
+                case LOGIN_FAILURE:
+                    Log.d(TAG, "NOT LOGGING IN");
+                default:
+                    break;
+            }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        myDrawer.closeDrawers();
-        isActive = true;
+        drawer.closeDrawers();
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        isActive = false;
-    }
-
-    @Override
-    public void callback(int responseCode, String response) {
-        if (!isActive)
-            return;
-        // The user has logged in
-        if (responseCode == RAAPIConnection.RESPONSE_GET_USER_RANK_AND_SCORE) {
-            // Parse JSON and plug in information
-            JSONObject reader;
-            try {
-                reader = new JSONObject(response);
-                ((TextView) findViewById(R.id.nav_stats)).setText(getString(R.string.nav_rank_score,
-                        reader.getString("Score"),
-                        reader.getString("Rank")));
-                ((TextView) findViewById(R.id.nav_username)).setText(ra_user);
-                findViewById(R.id.nav_stats).setVisibility(View.VISIBLE);
-                Picasso.get()
-                        .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + ra_user + ".png")
-                        .into((ImageView) findViewById(R.id.nav_profile_picture));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("ActiveFragmentTag", activeFragmentTag);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             if (fragment instanceof ListsFragment && ((ListsFragment) fragment).isShowingGames) {
-                ((ListsFragment) fragment).onBackPressed();
+                if (fragment.getView() != null)
+                    ((ListsFragment) fragment).onBackPressed(fragment.getView());
             } else {
-                myDrawer.openDrawer(GravityCompat.START);
+                drawer.openDrawer(GravityCompat.START);
             }
             return true;
         }
@@ -187,15 +153,30 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
     @Override
     public void onBackPressed() {
-        if (fragment instanceof ListsFragment && ((ListsFragment) fragment).consoleAdapter.isExpanded)
-            ((ListsFragment) fragment).onBackPressed();
+        if (fragment instanceof ListsFragment && ((ListsFragment) fragment).isShowingGames && fragment.getView() != null)
+            ((ListsFragment) fragment).onBackPressed(fragment.getView());
         else
             super.onBackPressed();
     }
 
+    @Override
+    public void callback(int responseCode, String response) {
+        if (responseCode == RAAPIConnection.RESPONSE_GET_USER_RANK_AND_SCORE) {
+            JSONObject reader;
+            try {
+                reader = new JSONObject(response);
+                score = reader.getString("Score");
+                rank = reader.getString("Rank");
+                populateViews();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     /* Navigation-related functions */
 
-    private void selectDrawerItem(MenuItem item) {
+    private boolean selectDrawerItem(MenuItem item) {
         fragment = null;
         Class fragmentClass;
 
@@ -203,16 +184,24 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         switch (item.getItemId()) {
             case R.id.nav_lists_fragment:
                 fragmentClass = ListsFragment.class;
+                activeFragmentTag = "ListsFragment";
                 break;
             case R.id.nav_leaderboards_fragment:
                 fragmentClass = LeaderboardsFragment.class;
+                activeFragmentTag = "LeaderboardsFragment";
                 break;
             case R.id.nav_settings_fragment:
                 fragmentClass = SettingsFragment.class;
+                activeFragmentTag = "SettingsFragment";
+                break;
+            case R.id.nav_about_fragment:
+                fragmentClass = AboutFragment.class;
+                activeFragmentTag = "AboutFragment";
                 break;
             case R.id.nav_home_fragment:
             default:
                 fragmentClass = HomeFragment.class;
+                activeFragmentTag = "HomeFragment";
                 break;
         }
 
@@ -220,14 +209,28 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
             fragment = (Fragment) fragmentClass.newInstance();
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
 
         // Show new Fragment in main view
-        getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.flContent, fragment, activeFragmentTag).commit();
 
         item.setChecked(true);
-        setTitle(item.getTitle());
-        myDrawer.closeDrawers();
+        drawer.closeDrawers();
+        return true;
+    }
+
+    private void populateViews() {
+        if (ra_user != null) {
+            ((TextView) navView.getHeaderView(0).findViewById(R.id.nav_username)).setText(ra_user);
+            Picasso.get()
+                    .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + ra_user + ".png")
+                    .into((ImageView) navView.getHeaderView(0).findViewById(R.id.nav_profile_picture));
+            if (rank != null && score != null) {
+                ((TextView) navView.getHeaderView(0).findViewById(R.id.nav_stats)).setText(getString(R.string.nav_rank_score, score, rank));
+                navView.getHeaderView(0).findViewById(R.id.nav_stats).setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     public void showGameDetails(View view) {
@@ -241,12 +244,13 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
     /* Home Fragment Interface Implementation */
 
-    public void showLogin(View view) {
+    public void showLogin(@SuppressWarnings("unused") View view) {
+        drawer.closeDrawers();
         startActivityForResult(new Intent(this, LoginActivity.class), BEGIN_LOGIN);
     }
 
-    public void showRecentGames(View view) {
-        startActivityForResult(new Intent(this, RecentGamesActivity.class), SHOW_RECENT_GAMES);
+    public void showRecentGames(@SuppressWarnings("unused") View view) {
+        startActivity(new Intent(this, RecentGamesActivity.class));
     }
 
     /* Leaderboards Fragment Interface Implementations */

@@ -1,23 +1,26 @@
 package com.kobrakid.retroachievements.adapter;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.kobrakid.retroachievements.fragment.AchievementDistributionFragment;
 import com.kobrakid.retroachievements.fragment.AchievementSummaryFragment;
 import com.kobrakid.retroachievements.fragment.GameImagesFragment;
 
-public class GameDetailsPagerAdapter extends FragmentPagerAdapter {
+public class GameDetailsPagerAdapter extends FragmentStatePagerAdapter {
 
     private final String gameID;
 
     public GameDetailsPagerAdapter(FragmentManager fm, String gameID) {
-        super(fm);
+        super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         this.gameID = gameID;
     }
 
+    @NonNull
     @Override
     public Fragment getItem(int position) {
         Fragment fragment;

@@ -1,8 +1,5 @@
 package com.kobrakid.retroachievements.adapter;
 
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +8,21 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.common.collect.RowSortedTable;
 import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.fragment.LeaderboardsFragment;
+import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller;
 import com.squareup.picasso.Picasso;
 
-public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filterable {
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
+
+public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filterable, RecyclerViewFastScroller.OnPopupTextUpdate {
 
     private final RowSortedTable<Integer, String, String> table, tableFiltered;
     private final LeaderboardsViewHolderListenerImpl listener;
@@ -62,16 +68,17 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
                     results.values = false;
                 } else {
                     for (int i = 0; i < table.rowKeySet().size(); i++) {
-                        if (table.row(i).get("TITLE").contains(strings[1]) && (strings[0].equals("") || table.row(i).get("CONSOLE").equals(strings[0]))) {
+                        if (Objects.requireNonNull(table.row(i).get("TITLE")).toLowerCase().contains(strings[1].toLowerCase())
+                                && (strings[0].equals("") || Objects.requireNonNull(table.row(i).get("CONSOLE")).equals(strings[0]))) {
                             int row = tableFiltered.rowKeySet().size();
-                            tableFiltered.put(row, "ID", table.row(i).get("ID"));
-                            tableFiltered.put(row, "IMAGE", table.row(i).get("IMAGE"));
-                            tableFiltered.put(row, "GAME", table.row(i).get("GAME"));
-                            tableFiltered.put(row, "CONSOLE", table.row(i).get("CONSOLE"));
-                            tableFiltered.put(row, "TITLE", table.row(i).get("TITLE"));
-                            tableFiltered.put(row, "DESCRIPTION", table.row(i).get("DESCRIPTION"));
-                            tableFiltered.put(row, "TYPE", table.row(i).get("TYPE"));
-                            tableFiltered.put(row, "NUMRESULTS", table.row(i).get("NUMRESULTS"));
+                            tableFiltered.put(row, "ID", Objects.requireNonNull(table.row(i).get("ID")));
+                            tableFiltered.put(row, "IMAGE", Objects.requireNonNull(table.row(i).get("IMAGE")));
+                            tableFiltered.put(row, "GAME", Objects.requireNonNull(table.row(i).get("GAME")));
+                            tableFiltered.put(row, "CONSOLE", Objects.requireNonNull(table.row(i).get("CONSOLE")));
+                            tableFiltered.put(row, "TITLE", Objects.requireNonNull(table.row(i).get("TITLE")));
+                            tableFiltered.put(row, "DESCRIPTION", Objects.requireNonNull(table.row(i).get("DESCRIPTION")));
+                            tableFiltered.put(row, "TYPE", Objects.requireNonNull(table.row(i).get("TYPE")));
+                            tableFiltered.put(row, "NUMRESULTS", Objects.requireNonNull(table.row(i).get("NUMRESULTS")));
                         }
                     }
                     results.values = true;
@@ -82,6 +89,7 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 if (!(filterResults.values instanceof Boolean && (Boolean) filterResults.values)) {
+                    // FIXME Can be concurrently modified, clashing with {@Link LeaderboardsFragment.java} line 272
                     tableFiltered.putAll(table);
                 }
                 notifyDataSetChanged();
@@ -89,10 +97,16 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
         };
     }
 
+    @NotNull
+    @Override
+    public CharSequence onChange(int position) {
+        return tableFiltered.get(position, "CONSOLE");
+    }
+
     /* Inner Classes and Interfaces */
 
     private interface LeaderboardsViewHolderListener {
-        void onItemClicked(View view, int adapterPosition);
+        void onItemClicked(@SuppressWarnings("unused") View view, int adapterPosition);
     }
 
     private static class LeaderboardsViewHolderListenerImpl implements LeaderboardsViewHolderListener {

@@ -3,13 +3,12 @@ package com.kobrakid.retroachievements;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -21,16 +20,13 @@ public class LoginActivity extends AppCompatActivity {
         setTheme(ThemeManager.getTheme(this, sharedPref));
 
         setContentView(R.layout.activity_login);
-        final EditText login = findViewById(R.id.login_field);
-        login.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if (i == EditorInfo.IME_ACTION_SEND) {
-                    login(textView);
-                    return true;
-                }
-                return false;
+        final EditText login = findViewById(R.id.login_username);
+        login.setOnEditorActionListener((textView, actionID, keyEvent) -> {
+            if (actionID == EditorInfo.IME_ACTION_SEND) {
+                login(textView);
+                return true;
             }
+            return false;
         });
     }
 
@@ -40,8 +36,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    public void login(View view) {
-        String ra_user = ((EditText) findViewById(R.id.login_field)).getText().toString();
+    public void login(@SuppressWarnings("unused") View view) {
+        String ra_user = ((EditText) findViewById(R.id.login_username)).getText().toString();
         if (ra_user.length() > 0) {
             // Successfully logged in, save the new credentials and return
             this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), ra_user).apply();

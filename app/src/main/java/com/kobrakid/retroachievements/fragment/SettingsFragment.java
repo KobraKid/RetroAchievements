@@ -4,9 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -16,9 +13,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.kobrakid.retroachievements.AppExecutors;
 import com.kobrakid.retroachievements.Consts;
@@ -62,8 +62,10 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Objects.requireNonNull(getActivity()).setTitle("Settings");
+
         // Initialize preferences object
-        sharedPref = Objects.requireNonNull(getActivity()).getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
+        sharedPref = Objects.requireNonNull(getContext()).getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
@@ -71,9 +73,9 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         // Set up views
         String theme = sharedPref.getString(getString(R.string.theme_setting), "");
         ((TextView) view.findViewById(R.id.settings_current_theme)).setText(getString(R.string.settings_current_theme, theme));
-        ((TextView) view.findViewById(R.id.settings_current_user)).setText(getString(R.string.settings_current_user, MainActivity.ra_user == null ? "none" : MainActivity.ra_user));
+        ((TextView) view.findViewById(R.id.settings_current_user)).setText(MainActivity.ra_user == null ? getString(R.string.settings_no_current_user) : getString(R.string.settings_current_user, MainActivity.ra_user));
 
-        ((Spinner) view.findViewById(R.id.settings_theme_dropdown)).setAdapter(new ArrayAdapter<String>(Objects.requireNonNull(getContext()), android.R.layout.simple_spinner_dropdown_item, Consts.THEMES) {
+        ((Spinner) view.findViewById(R.id.settings_theme_dropdown)).setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, Consts.THEMES) {
             @Override
             public boolean isEnabled(int position) {
                 return Consts.THEMES_ENABLE_ARRAY[position];
@@ -110,18 +112,8 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         if (sharedPref.getBoolean(getString(R.string.empty_console_hide_setting), false))
             view.findViewById(R.id.settings_hide_consoles_warning).setVisibility(View.GONE);
         ((CheckBox) view.findViewById(R.id.settings_hide_games)).setChecked(sharedPref.getBoolean(getString(R.string.empty_game_hide_setting), false));
-        ((CheckBox) view.findViewById(R.id.settings_hide_consoles)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                hideConsoles(b);
-            }
-        });
-        ((CheckBox) view.findViewById(R.id.settings_hide_games)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                hideGames(b);
-            }
-        });
+        ((CheckBox) view.findViewById(R.id.settings_hide_consoles)).setOnCheckedChangeListener((compoundButton, b) -> hideConsoles(view, b));
+        ((CheckBox) view.findViewById(R.id.settings_hide_games)).setOnCheckedChangeListener((compoundButton, b) -> hideGames(view, b));
 
         apiConnection = ((MainActivity) getActivity()).apiConnection;
 
@@ -129,7 +121,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             listener = (OnFragmentInteractionListener) getActivity();
@@ -141,77 +133,60 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
 
     /* Settings-related Functions */
 
-    private void changeTheme(final String theme) {
+    private void changeTheme(@NonNull final String theme) {
         applicableSettings.remove(change_theme_key);
-        applicableSettings.put(change_theme_key, new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Saving theme " + theme);
-                sharedPref.edit().putString(getString(R.string.theme_setting), theme).apply();
-            }
+        applicableSettings.put(change_theme_key, () -> {
+            Log.d(TAG, "Saving theme " + theme);
+            sharedPref.edit().putString(getString(R.string.theme_setting), theme).apply();
         });
     }
 
-    private void hideConsoles(final boolean hide) {
-        Objects.requireNonNull(getActivity()).findViewById(R.id.settings_hide_consoles_warning).setVisibility(hide ? View.GONE : View.VISIBLE);
+    private void hideConsoles(View view, final boolean hide) {
+        view.findViewById(R.id.settings_hide_consoles_warning).setVisibility(hide ? View.GONE : View.VISIBLE);
         if (applicableSettings.get(hide_consoles_key) != null) {
             applicableSettings.remove(hide_consoles_key);
         } else {
             final RAAPICallback callback = this;
-            applicableSettings.put(hide_consoles_key, new Runnable() {
-                @Override
-                public void run() {
-                    sharedPref.edit().putBoolean(getString(R.string.empty_console_hide_setting), hide).apply();
-                    if (hide) {
-                        // Get all consoles and store their game counts
-                        final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
-                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                db.consoleDao().clearTable();
-                                Log.d(TAG, "Clearing table");
-                            }
-                        });
-                        apiConnection.GetConsoleIDs(callback);
-                    } else {
-                        Objects.requireNonNull(getActivity()).recreate();
-                    }
+            applicableSettings.put(hide_consoles_key, () -> {
+                sharedPref.edit().putBoolean(getString(R.string.empty_console_hide_setting), hide).apply();
+                if (hide) {
+                    // Get all consoles and store their game counts
+                    final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
+                    AppExecutors.getInstance().diskIO().execute(() -> {
+                        db.consoleDao().clearTable();
+                        Log.d(TAG, "Clearing table");
+                    });
+                    apiConnection.GetConsoleIDs(callback);
+                } else {
+                    Objects.requireNonNull(getActivity()).recreate();
                 }
             });
         }
     }
 
-    private void hideGames(final boolean hide) {
+    private void hideGames(View view, final boolean hide) {
         if (applicableSettings.get(hide_games_key) != null) {
             applicableSettings.remove(hide_games_key);
         } else {
-            applicableSettings.put(hide_games_key, new Runnable() {
-                @Override
-                public void run() {
-                    sharedPref.edit().putBoolean(getString(R.string.empty_game_hide_setting), hide).apply();
-                }
-            });
+            applicableSettings.put(hide_games_key, () -> sharedPref.edit().putBoolean(getString(R.string.empty_game_hide_setting), hide).apply());
         }
     }
 
     public void logout() {
         ((TextView) Objects.requireNonNull(getActivity()).findViewById(R.id.settings_current_user)).setText(getString(R.string.settings_current_user, "none"));
-        applicableSettings.put(logout_key, new Runnable() {
-            @Override
-            public void run() {
-                sharedPref.edit().putString(getString(R.string.ra_user), null).apply();
-            }
-        });
+        applicableSettings.put(logout_key, () -> sharedPref.edit().putString(getString(R.string.ra_user), null).apply());
     }
 
     public void applySettings() {
         Objects.requireNonNull(getActivity()).findViewById(R.id.settings_applying_fade).setVisibility(View.VISIBLE);
         getActivity().findViewById(R.id.settings_applying).setVisibility(View.VISIBLE);
-        for (int key = 0; key < applicableSettings.size(); key++)
+        for (int key = 0; key < applicableSettings.size(); key++) {
             applicableSettings.valueAt(key).run();
-        if (applicableSettings.get(hide_consoles_key) == null)
+        }
+        if (applicableSettings.get(hide_consoles_key) == null) {
             // Recreate activity now if no db operations are running
             getActivity().recreate();
+        }
     }
 
     @Override
@@ -222,43 +197,32 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
             final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
             final RAAPIConnection connection = apiConnection;
             final RAAPICallback callback = this;
-            AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        JSONArray reader = new JSONArray(response);
-                        for (int i = 0; i < reader.length(); i++) {
-                            List<Console> consoles = db.consoleDao().getConsoleWithID(Integer.parseInt(reader.getJSONObject(i).getString("ID")));
-                            if (consoles.size() == 0) {
-                                consoleID.delete(0, consoleID.length());
-                                consoleName.delete(0, consoleName.length());
-                                consoleID.append(reader.getJSONObject(i).getString("ID"));
-                                consoleName.append(reader.getJSONObject(i).getString("Name"));
-                                connection.GetGameList(reader.getJSONObject(i).getString("ID"), callback);
-                                return;
-                            }
+            AppExecutors.getInstance().diskIO().execute(() -> {
+                try {
+                    JSONArray reader = new JSONArray(response);
+                    for (int i = 0; i < reader.length(); i++) {
+                        List<Console> consoles = db.consoleDao().getConsoleWithID(Integer.parseInt(reader.getJSONObject(i).getString("ID")));
+                        if (consoles.size() == 0) {
+                            consoleID.delete(0, consoleID.length());
+                            consoleName.delete(0, consoleName.length());
+                            consoleID.append(reader.getJSONObject(i).getString("ID"));
+                            consoleName.append(reader.getJSONObject(i).getString("Name"));
+                            connection.GetGameList(reader.getJSONObject(i).getString("ID"), callback);
+                            return;
                         }
-                        AppExecutors.getInstance().mainThread().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                Objects.requireNonNull(getActivity()).recreate();
-                            }
-                        });
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
+                    AppExecutors.getInstance().mainThread().execute(() -> Objects.requireNonNull(getActivity()).recreate());
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             });
         } else if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_LIST) {
             try {
                 final JSONArray reader = new JSONArray(response);
                 final RetroAchievementsDatabase db = RetroAchievementsDatabase.getInstance(getContext());
-                AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        db.consoleDao().insertConsole(new Console(Integer.parseInt(consoleID.toString()), consoleName.toString(), reader.length()));
-                        Log.d(TAG, "Adding console " + consoleName.toString() + "(" + consoleID.toString() + "): " + reader.length() + " games");
-                    }
+                AppExecutors.getInstance().diskIO().execute(() -> {
+                    db.consoleDao().insertConsole(new Console(Integer.parseInt(consoleID.toString()), consoleName.toString(), reader.length()));
+                    Log.d(TAG, "Adding console " + consoleName.toString() + "(" + consoleID.toString() + "): " + reader.length() + " games");
                 });
                 // Recurse until all consoles are added to db
                 apiConnection.GetConsoleIDs(this);
@@ -271,9 +235,9 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     /* Inner Classes and Interfaces */
 
     public interface OnFragmentInteractionListener {
-        void logout(View view);
+        void logout(@SuppressWarnings("unused") View view);
 
-        void applySettings(View view);
+        void applySettings(@SuppressWarnings("unused") View view);
     }
 
 }

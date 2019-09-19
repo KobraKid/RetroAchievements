@@ -1,19 +1,24 @@
 package com.kobrakid.retroachievements.fragment;
 
+import android.annotation.SuppressLint;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import com.kobrakid.retroachievements.Consts;
 import com.kobrakid.retroachievements.R;
+import com.kobrakid.retroachievements.viewpager.ToggleableViewPager;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -23,7 +28,9 @@ import java.util.Objects;
 /**
  * This class is responsible for showing more detailed information on a particular achievement.
  */
-public class AchievementDetailsFragment extends Fragment implements View.OnClickListener {
+public class AchievementDetailsFragment extends Fragment {
+
+    private GestureDetector tapDetector;
 
     public AchievementDetailsFragment() {
     }
@@ -33,12 +40,12 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
         super.onCreate(savedInstanceState);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_achievement_details, container, false);
-        view.setOnClickListener(this);
         view.setTransitionName("achievement_" + Objects.requireNonNull(getArguments()).getString("Position"));
 
         // Set fields from transferred data
@@ -54,26 +61,30 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
                         getArguments().getString("NumAwarded"),
                         getArguments().getString("NumDistinctPlayersCasual"),
                         new DecimalFormat("@@@@")
-                                .format(Double.parseDouble(getArguments().getString("NumAwarded")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 100.0)));
+                                .format(Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumAwarded")))
+                                        / Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumDistinctPlayersCasual"))) * 100.0)));
         ((TextView) view.findViewById(R.id.achievement_details_completion_hardcore_text))
                 .setText(getContext().getString(
                         R.string.earned_by_hc_details,
                         getArguments().getString("NumAwardedHardcore"),
                         new DecimalFormat("@@@@")
-                                .format(Double.parseDouble(getArguments().getString("NumAwardedHardcore")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 100.0)));
+                                .format(Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumAwardedHardcore"))) / Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumDistinctPlayersCasual"))) * 100.0)));
         ((TextView) view.findViewById(R.id.achievement_details_metadata))
                 .setText(getString(R.string.metadata,
                         getArguments().getString("Author"),
                         getArguments().getString("DateCreated"),
                         getArguments().getString("DateModified")));
+
         ProgressBar progressBar = view.findViewById(R.id.achievement_details_completion_hardcore);
-        progressBar.setProgress((int) (Double.parseDouble(getArguments().getString("NumAwardedHardcore")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 10000.0));
+        progressBar.setProgress((int) (Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumAwardedHardcore")))
+                / Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumDistinctPlayersCasual"))) * 10000.0));
+
         progressBar = view.findViewById(R.id.achievement_details_completion);
-        progressBar.setProgress((int) (Double.parseDouble(getArguments().getString("NumAwarded")) / Double.parseDouble(getArguments().getString("NumDistinctPlayersCasual")) * 10000.0));
+        progressBar.setProgress((int) (Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumAwarded")))
+                / Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumDistinctPlayersCasual"))) * 10000.0));
 
 //        postponeEnterTransition();
 
-        // TODO Figure out why some images load in tiny (i.e. It's tough to be a bug - Secret Of Evermore [SNES])
         final ImageView badge = view.findViewById(R.id.achievement_details_badge);
         Picasso.get()
                 .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + getArguments().getString("ImageIcon") + ".png")
@@ -99,15 +110,27 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
                     }
                 });
 
+        tapDetector = new GestureDetector(getContext(), new GestureTap());
+        view.setOnTouchListener((v, e) -> {
+            tapDetector.onTouchEvent(e);
+            return true;
+        });
         return view;
     }
 
     @Override
-    public void onClick(View view) {
-        Objects.requireNonNull(this.getFragmentManager()).popBackStack();
+    public void onStart() {
+        super.onStart();
+        ((ToggleableViewPager) Objects.requireNonNull(getActivity()).findViewById(R.id.game_details_view_pager)).setPagingEnabled(false);
     }
 
-    private void prepareSharedElementTransition(final View view) {
+    @Override
+    public void onStop() {
+        super.onStop();
+        ((ToggleableViewPager) Objects.requireNonNull(getActivity()).findViewById(R.id.game_details_view_pager)).setPagingEnabled(true);
+    }
+
+    private void prepareSharedElementTransition(@SuppressWarnings("unused") final View view) {
         // TODO Figure out why transitions (and/or recycler views) are so awful and hard to work with
 //        Transition transition = TransitionInflater.from(getContext()).inflateTransition(R.transition.image_shared_element_transition);
 //        setSharedElementEnterTransition(transition);
@@ -117,6 +140,15 @@ public class AchievementDetailsFragment extends Fragment implements View.OnClick
 //                sharedElements.put(names.get(0), view);
 //            }
 //        });
+    }
+
+    private class GestureTap extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            Objects.requireNonNull(getFragmentManager()).popBackStack();
+            return true;
+        }
     }
 
 }

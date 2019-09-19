@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="about_licenses"><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License Version 2.0</a>
+        \n\n<a href="https://jsoup.org/license">jsoup MIT License/Permission Notice</a>
+    </string>
+
     <!-- Preference Keys -->
     <string name="shared_preferences_key">com.kobrakid.retroachievements.LOGIN_PREFERENCES_FILE_KEY</string>
     <string name="ra_user">saved_ra_user</string>

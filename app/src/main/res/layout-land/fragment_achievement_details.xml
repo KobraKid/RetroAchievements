@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/windowBackground"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:paddingBottom="8dp"
+    tools:context=".fragment.AchievementDetailsFragment">
+
+    <ImageView
+        android:id="@+id/achievement_details_badge"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/cd_achievement_details_badge"
+        android:src="@drawable/favicon"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/achievement_details_description" />
+
+    <ProgressBar
+        android:id="@+id/achievement_details_completion"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:max="10000"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:progressTint="?attr/colorPrimary"
+        app:layout_constraintBottom_toTopOf="@+id/achievement_details_completion_text"
+        app:layout_constraintEnd_toStartOf="@+id/achievement_details_completion_hardcore"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toBottomOf="@+id/achievement_details_description"
+        app:layout_constraintVertical_bias="0.67"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:progress="7000" />
+
+    <ProgressBar
+        android:id="@+id/achievement_details_completion_hardcore"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:max="10000"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:progressTint="?attr/colorAccent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/achievement_details_completion"
+        app:layout_constraintTop_toTopOf="@+id/achievement_details_completion"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:progress="4000" />
+
+    <!-- TODO Not sure why, but this text doesn't want to line up with the top edge of the {@+id/achievement_details_badge} -->
+    <TextView
+        android:id="@+id/achievement_details_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="8dp"
+        android:padding="8dp"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toBottomOf="@id/barrier_top"
+        app:layout_constraintTop_toTopOf="@+id/barrier_top"
+        tools:text="Earn a 5000 Point Bonus by touching the top of the flagpole" />
+
+    <TextView
+        android:id="@+id/achievement_details_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:textAlignment="center"
+        android:textColor="?attr/colorAccent"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@id/barrier_top"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:text="Top of the Flagpole" />
+
+    <TextView
+        android:id="@+id/achievement_details_completion_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/barrier_bottom"
+        app:layout_constraintEnd_toEndOf="@+id/achievement_details_completion"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="@+id/achievement_details_completion"
+        app:layout_constraintTop_toBottomOf="@+id/achievement_details_completion"
+        tools:text="Earned by 5761 of 8200 players (70%)" />
+
+    <TextView
+        android:id="@+id/achievement_details_date"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/not_yet_earned"
+        app:layout_constraintBottom_toTopOf="@+id/achievement_details_metadata"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/barrier_bottom"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@+id/achievement_details_completion_hardcore_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/barrier_bottom"
+        app:layout_constraintEnd_toEndOf="@+id/achievement_details_completion_hardcore"
+        app:layout_constraintStart_toStartOf="@+id/achievement_details_completion_hardcore"
+        app:layout_constraintTop_toBottomOf="@+id/achievement_details_completion_hardcore"
+        app:layout_constraintVertical_bias="0.0"
+        tools:text="Earned by 3150 HARDCORE players (40%)" />
+
+    <TextView
+        android:id="@+id/achievement_details_metadata"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="Created by Scott on 15 Oct, 2013 at 20:54\nLast modified: 09 Jan, 2019 22:43" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="achievement_details_badge,achievement_details_completion_hardcore_text,achievement_details_completion_text"
+        tools:layout_editor_absoluteX="411dp"
+        tools:layout_editor_absoluteY="227dp" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="top"
+        app:constraint_referenced_ids="achievement_details_description,achievement_details_badge"
+        app:layout_constraintTop_toBottomOf="@id/achievement_details_title"
+        tools:layout_editor_absoluteX="8dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.25" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

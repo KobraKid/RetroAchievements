@@ -1,0 +1,139 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".GameDetailsActivity">
+
+    <include
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:gravity="start"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/game_details_button_page_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:adjustViewBounds="true"
+                android:background="@drawable/tab_rounded_top_corners"
+                android:elevation="4dp"
+                android:scaleType="fitCenter"
+                android:tint="?attr/colorAccent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/game_details_button_page_2"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/game_details_button_page_0"
+                app:srcCompat="@drawable/ic_show_chart" />
+
+            <ImageButton
+                android:id="@+id/game_details_button_page_0"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:adjustViewBounds="true"
+                android:background="@drawable/tab_rounded_top_corners"
+                android:cropToPadding="false"
+                android:elevation="4dp"
+                android:scaleType="fitCenter"
+                android:tint="?attr/colorAccent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/game_details_button_page_1"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:srcCompat="@drawable/ic_stars" />
+
+            <ImageButton
+                android:id="@+id/game_details_button_page_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:adjustViewBounds="true"
+                android:background="@drawable/tab_rounded_top_corners"
+                android:elevation="4dp"
+                android:scaleType="fitCenter"
+                android:tint="?attr/colorAccent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/game_details_button_page_1"
+                app:srcCompat="@drawable/ic_image" />
+
+            <ImageView
+                android:id="@+id/game_details_image_icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="32dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/cd_game_details_image_icon"
+                android:cropToPadding="false"
+                android:src="@drawable/favicon"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/game_details_developer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/game_details_image_icon"
+                tools:text="Nintendo R&amp;D4" />
+
+            <TextView
+                android:id="@+id/game_details_genre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/game_details_publisher"
+                tools:text="Platformer" />
+
+            <TextView
+                android:id="@+id/game_details_release_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/game_details_genre"
+                tools:text="September 1985" />
+
+            <TextView
+                android:id="@+id/game_details_publisher"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/game_details_developer"
+                tools:text="Nintendo" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.kobrakid.retroachievements.viewpager.ToggleableViewPager
+            android:id="@+id/game_details_view_pager"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.75" />
+
+    </LinearLayout>
+
+</LinearLayout>

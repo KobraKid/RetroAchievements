@@ -4,15 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.kobrakid.retroachievements.adapter.GameSummaryAdapter;
 
@@ -34,9 +35,9 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
     private boolean isActive = false;
     private int offset;
     private final int gamesPerAPICall = 15;
-    private boolean hasParsed = false; // Easy way to prevent spam API calls while scrolling quickly
+    private boolean hasParsed = false; // Prevent spam API calls while scrolling repeatedly
 
-    private RecyclerView.Adapter adapter;
+    private GameSummaryAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ArrayList<String> imageIcons, titles, stats, ids;
 
@@ -55,27 +56,30 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
                 RecentGamesActivity.this);
 
         // Set up title bar
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        setSupportActionBar(findViewById(R.id.recent_games_toolbar));
         final ActionBar actionBar = getSupportActionBar();
         Objects.requireNonNull(actionBar).setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back);
 
         // Set up RecyclerView
         RecyclerView recyclerView = findViewById(R.id.recent_games_recycler_view);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
         imageIcons = new ArrayList<>();
         titles = new ArrayList<>();
         stats = new ArrayList<>();
         ids = new ArrayList<>();
-
         adapter = new GameSummaryAdapter(this, imageIcons, titles, stats, ids);
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (!recyclerView.canScrollVertically(1) && hasParsed) {
+                // Try to catch user reaching end of list early and append past the screen.
+                // If the user has already scrolled to the end, the scrolling will halt while more
+                // entries are added.
+                if (layoutManager.findLastVisibleItemPosition() >= titles.size() - 2 && hasParsed) {
                     hasParsed = false;
                     offset += gamesPerAPICall;
                     apiConnection.GetUserRecentlyPlayedGames(MainActivity.ra_user, gamesPerAPICall, offset, RecentGamesActivity.this);
@@ -87,11 +91,6 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
         swipeRefreshLayout = findViewById(R.id.recent_games_refresh);
         swipeRefreshLayout.setOnRefreshListener(this);
         offset = 0;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         hasParsed = false;
         apiConnection.GetUserRecentlyPlayedGames(MainActivity.ra_user, gamesPerAPICall, offset, this);
     }
@@ -134,8 +133,10 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
 
     @Override
     public void callback(int responseCode, String response) {
-        if (!isActive)
+        if (!isActive) {
+            offset = Math.max(0, offset - gamesPerAPICall);
             return;
+        }
         if (responseCode == RAAPIConnection.RESPONSE_GET_USER_RECENTLY_PLAYED_GAMES) {
             JSONArray reader;
             try {
@@ -143,22 +144,24 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
 
                 if (offset == 0) {
                     ids.clear();
+                    ids.add("__loading");
                     imageIcons.clear();
+                    imageIcons.add("__loading");
                     titles.clear();
+                    titles.add("__loading");
                     stats.clear();
+                    stats.add("__loading");
                 }
 
                 for (int i = 0; i < reader.length(); i++) {
                     JSONObject game = reader.getJSONObject(i);
                     imageIcons.add(i + offset, game.getString("ImageIcon"));
                     titles.add(i + offset, game.getString("Title"));
-
                     stats.add(i + offset, getString(R.string.game_stats,
                             game.getString("NumAchieved"),
                             game.getString("NumPossibleAchievements"),
                             game.getString("ScoreAchieved"),
                             game.getString("PossibleScore")));
-
                     ids.add(i + offset, game.getString("GameID"));
                 }
                 swipeRefreshLayout.setRefreshing(false);
@@ -166,10 +169,12 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
                 e.printStackTrace();
             }
 
-            if (offset == 0)
+            adapter.refreshMappings();
+            if (offset == 0) {
                 adapter.notifyDataSetChanged();
-            else
+            } else {
                 adapter.notifyItemRangeInserted(offset, gamesPerAPICall);
+            }
             hasParsed = true;
         }
     }

@@ -73,7 +73,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
         // Set up views
         String theme = sharedPref.getString(getString(R.string.theme_setting), "");
         ((TextView) view.findViewById(R.id.settings_current_theme)).setText(getString(R.string.settings_current_theme, theme));
-        ((TextView) view.findViewById(R.id.settings_current_user)).setText(getString(R.string.settings_current_user, MainActivity.ra_user == null ? "none" : MainActivity.ra_user));
+        ((TextView) view.findViewById(R.id.settings_current_user)).setText(MainActivity.ra_user == null ? getString(R.string.settings_no_current_user) : getString(R.string.settings_current_user, MainActivity.ra_user));
 
         ((Spinner) view.findViewById(R.id.settings_theme_dropdown)).setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, Consts.THEMES) {
             @Override

@@ -4,8 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
     tools:context=".fragment.AboutFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,6 +15,8 @@
             android:id="@+id/about_ra_logo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:src="@drawable/ra_logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -140,6 +140,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
+            android:paddingBottom="8dp"
             android:text="@string/about_licenses"
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"

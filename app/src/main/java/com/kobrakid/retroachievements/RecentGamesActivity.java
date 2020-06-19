@@ -40,6 +40,7 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
     private GameSummaryAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ArrayList<String> imageIcons, titles, stats, ids;
+    private ArrayList<Boolean> masteries;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +70,9 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
         imageIcons = new ArrayList<>();
         titles = new ArrayList<>();
         stats = new ArrayList<>();
+        masteries = new ArrayList<>();
         ids = new ArrayList<>();
-        adapter = new GameSummaryAdapter(this, imageIcons, titles, stats, ids);
+        adapter = new GameSummaryAdapter(this, imageIcons, titles, stats, masteries, ids);
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -162,6 +164,7 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
                             game.getString("NumPossibleAchievements"),
                             game.getString("ScoreAchieved"),
                             game.getString("PossibleScore")));
+                    masteries.add(i + offset, game.getString("NumAchieved").equals(game.getString("NumPossibleAchievements")));
                     ids.add(i + offset, game.getString("GameID"));
                 }
                 swipeRefreshLayout.setRefreshing(false);

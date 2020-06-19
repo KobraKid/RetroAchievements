@@ -31,6 +31,7 @@ import org.jsoup.Jsoup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.GameSummaryViewHolder> implements RecyclerViewFastScroller.OnPopupTextUpdate, Filterable {
 
@@ -39,15 +40,17 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
     private final ArrayList<String> imageIcons;
     private final ArrayList<String> titles;
     private final ArrayList<String> stats;
+    private final ArrayList<Boolean> masteries;
     private final ArrayList<String> ids;
     private final Context context;
     private List<Integer> mappings = new ArrayList<>();
 
-    public GameSummaryAdapter(Context context, ArrayList<String> imageIcons, ArrayList<String> titles, ArrayList<String> stats, ArrayList<String> ids) {
+    public GameSummaryAdapter(Context context, ArrayList<String> imageIcons, ArrayList<String> titles, ArrayList<String> stats, ArrayList<Boolean> masteries, ArrayList<String> ids) {
         this.context = context;
         this.imageIcons = imageIcons;
         this.titles = titles;
         this.stats = stats;
+        this.masteries = masteries;
         this.ids = ids;
         refreshMappings();
     }
@@ -79,6 +82,8 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
             holder.constraintLayout.findViewById(R.id.separator).setVisibility(View.VISIBLE);
             holder.constraintLayout.findViewById(R.id.game_summary_container).setVisibility(View.VISIBLE);
         }
+        if (masteries != null && masteries.get(mappedPosition))
+            holder.constraintLayout.findViewById(R.id.game_summary_image_icon).setBackground(context.getDrawable(R.drawable.image_view_border));
         Picasso.get()
                 .load(Consts.BASE_URL + imageIcons.get(mappedPosition))
                 .into(((ImageView) holder.constraintLayout.findViewById(R.id.game_summary_image_icon)));

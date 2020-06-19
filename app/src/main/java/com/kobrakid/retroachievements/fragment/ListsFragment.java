@@ -88,7 +88,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             gameTitles = new ArrayList<>();
             gameStats = new ArrayList<>();
             gameIDs = new ArrayList<>();
-            gameAdapter = new GameSummaryAdapter(getContext(), gameImageIcons, gameTitles, gameStats, gameIDs);
+            gameAdapter = new GameSummaryAdapter(getContext(), gameImageIcons, gameTitles, gameStats, null, gameIDs);
         }
 
         // Initialize views

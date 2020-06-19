@@ -48,8 +48,8 @@ public class RAAPIConnection {
 
     private static final String BASE_URL = Consts.BASE_URL + "/" + Consts.API_URL + "/";
 
-    private final String ra_user;
-    private final String ra_api_key;
+    private String ra_user;
+    private String ra_api_key;
     private final Context context;
 
     /* Thanks to @RetroAchievements.org for providing RA_API.php */
@@ -58,9 +58,14 @@ public class RAAPIConnection {
      * @param context The context which will hold the Request Queue.
      */
     public RAAPIConnection(Context context) {
-        this.ra_user = MainActivity.ra_api_user;
-        this.ra_api_key = MainActivity.ra_api_key;
+        this.ra_user = context.getSharedPreferences(context.getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getString(context.getString(R.string.ra_user), "");
+        this.ra_api_key = context.getSharedPreferences(context.getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getString(context.getString(R.string.ra_api_key), "");
         this.context = context;
+    }
+
+    public void reinitializeAPIConnection() {
+        ra_user = context.getSharedPreferences(context.getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getString(context.getString(R.string.ra_user), "");
+        ra_api_key = context.getSharedPreferences(context.getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getString(context.getString(R.string.ra_api_key), "");
     }
 
     /**

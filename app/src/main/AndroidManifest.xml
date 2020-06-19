@@ -13,6 +13,13 @@
         android:supportsRtl="true"
         android:theme="@style/BlankTheme">
         <activity
+            android:name=".ApiPullActivity"
+            android:parentActivityName=".LoginActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LoginActivity" />
+        </activity>
+        <activity
             android:name=".LeaderboardActivity"
             android:parentActivityName=".MainActivity">
             <meta-data

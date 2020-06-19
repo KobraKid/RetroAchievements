@@ -41,19 +41,9 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    // Request Codes
-    private static final int BEGIN_LOGIN = 0;
-    // Response Codes
-    public static final int LOGIN_SUCCESS = 0;
-    public static final int LOGIN_FAILURE = 1;
-    public static final int LOGIN_CANCELLED = 2;
-
     public RAAPIConnection apiConnection = null;
 
     public static String ra_user = null, rank = null, score = null;
-    static final String ra_api_user = "KobraKid1337";
-    @SuppressWarnings("SpellCheckingInspection")
-    static final String ra_api_key = "LrY9UvdmckJWfgTsVC5SdTODrlTcHrkj";
 
     private Fragment fragment;
     private String activeFragmentTag;
@@ -102,13 +92,14 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == BEGIN_LOGIN)
+        if (requestCode == Consts.BEGIN_LOGIN)
             switch (resultCode) {
-                case LOGIN_SUCCESS:
+                case Consts.SUCCESS:
                     ra_user = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getString(getString(R.string.ra_user), null);
 
                     if (ra_user != null) {
                         Log.v(TAG, "Logging in as " + ra_user);
+                        apiConnection.reinitializeAPIConnection();
                         apiConnection.GetUserRankAndScore(ra_user, this);
                         if (fragment instanceof HomeFragment) {
                             apiConnection.GetUserWebProfile(ra_user, (HomeFragment) fragment);
@@ -116,9 +107,9 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
                         }
                     }
                     break;
-                case LOGIN_CANCELLED:
+                case Consts.CANCELLED:
                     Log.d(TAG, "LOGIN CANCELLED");
-                case LOGIN_FAILURE:
+                case Consts.FAILURE:
                     Log.d(TAG, "NOT LOGGING IN");
                 default:
                     break;
@@ -246,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
     public void showLogin(@SuppressWarnings("unused") View view) {
         drawer.closeDrawers();
-        startActivityForResult(new Intent(this, LoginActivity.class), BEGIN_LOGIN);
+        startActivityForResult(new Intent(this, LoginActivity.class), Consts.BEGIN_LOGIN);
     }
 
     public void showRecentGames(@SuppressWarnings("unused") View view) {

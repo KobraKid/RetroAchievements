@@ -113,7 +113,12 @@
 
     <!-- Login Activity -->
     <string name="login">Login</string>
+    <string name="cancel">Cancel</string>
     <string name="login_username">Username</string>
+    <string name="api_detect_dialog_title">Detect API Key</string>
+    <string name="api_detect_dialog_desc">You can find your unique 32-character API Key by logging in at retroachievements.org/APIDemo.php</string>
+    <string name="api_detect_go">Take me there</string>
+    <string name="detect_api_key">Detect API Key</string>
     <string name="new_login_welcome">Hello, %1$s. Successfully logged in.</string>
 
     <!-- ImageView Accessibility Content Descriptions -->

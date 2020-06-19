@@ -6,6 +6,7 @@
     <!-- Common Themes -->
     <style name="CommonThemes.Button" parent="Widget.AppCompat.Button">
         <item name="android:textColor">?attr/colorAccent</item>
+        <item name="android:tint">?attr/colorAccent</item>
     </style>
 
     <style name="CommonThemes.ProgressBar" parent="Widget.AppCompat.ProgressBar">
@@ -43,16 +44,16 @@
 
     <!-- Blank Theme -->
     <style name="BlankTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/blank_colorPrimary</item>
-        <item name="colorPrimaryDark">@color/blank_colorPrimaryDark</item>
-        <item name="colorError">@color/blank_colorError</item>
-        <item name="colorAccent">@color/blank_colorAccent</item>
+        <item name="colorPrimary"><![CDATA[@color/blank_colorPrimary]]></item>
+        <item name="colorPrimaryDark"><![CDATA[@color/blank_colorPrimaryDark]]></item>
+        <item name="colorError"><![CDATA[@color/blank_colorError]]></item>
+        <item name="colorAccent"><![CDATA[@color/blank_colorAccent]]></item>
 
-        <item name="android:windowBackground">@color/blank_colorError</item>
-        <item name="android:textColorPrimary">@color/blank_colorPrimary</item>
-        <item name="android:textColor">@color/blank_colorPrimary</item>
-        <item name="android:textColorHint">@color/blank_colorAccent</item>
-        <item name="colorButtonNormal">@color/blank_colorPrimaryDark</item>
+        <item name="android:windowBackground"><![CDATA[@color/blank_colorError]]></item>
+        <item name="android:textColorPrimary"><![CDATA[@color/blank_colorPrimary]]></item>
+        <item name="android:textColor"><![CDATA[@color/blank_colorPrimary]]></item>
+        <item name="android:textColorHint"><![CDATA[@color/blank_colorAccent]]></item>
+        <item name="colorButtonNormal"><![CDATA[@color/blank_colorPrimaryDark]]></item>
         <item name="android:buttonStyle">@style/CommonThemes.Button</item>
         <item name="android:progressBarStyle">@style/CommonThemes.ProgressBar</item>
         <item name="android:checkboxStyle">@style/CommonThemes.CheckBox</item>

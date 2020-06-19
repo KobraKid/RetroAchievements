@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -182,7 +183,16 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
             String response = strings[0];
             Document document = Jsoup.parse(response);
             Elements scripts = document.getElementsByTag("script");
-            String rows = scripts.get(1).dataNodes().get(0).getWholeData();
+            int scriptIndex = -1;
+            for (int i = 0; i < scripts.size(); i++) {
+                if (scripts.get(i).html().startsWith("google.load('visualization'")){
+                    scriptIndex = i;
+                }
+            }
+            if (scriptIndex == -1) {
+                return new TreeMap<>();
+            }
+            String rows = scripts.get(scriptIndex).dataNodes().get(0).getWholeData();
             rows = rows.substring(rows.indexOf("dataTotalScore.addRows("));
             rows = rows.substring(0, rows.indexOf(");"));
 

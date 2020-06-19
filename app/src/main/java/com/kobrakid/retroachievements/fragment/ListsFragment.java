@@ -27,6 +27,7 @@ import com.kobrakid.retroachievements.adapter.ConsoleAdapter;
 import com.kobrakid.retroachievements.adapter.GameSummaryAdapter;
 import com.kobrakid.retroachievements.database.Console;
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase;
+import com.kobrakid.retroachievements.wrapper.GameSummaryWrapper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,8 +51,8 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     private RecyclerView consoleListRecyclerView, gameListRecyclerView;
     private LinearLayoutManager consoleListLayoutManager;
     private ConsoleAdapter consoleAdapter;
-    private GameSummaryAdapter gameAdapter;
-    private ArrayList<String> consoleIDs, consoleNames, gameImageIcons, gameTitles, gameStats, gameIDs;
+    GameSummaryWrapper gameSummaryWrapper;
+    private ArrayList<String> consoleIDs, consoleNames;
     private String consoleName = "";
     private int scrollPosition = 0;
     private Point p;
@@ -84,11 +85,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             consoleNames = new ArrayList<>();
             consoleAdapter = new ConsoleAdapter(consoleIDs, consoleNames, this);
 
-            gameImageIcons = new ArrayList<>();
-            gameTitles = new ArrayList<>();
-            gameStats = new ArrayList<>();
-            gameIDs = new ArrayList<>();
-            gameAdapter = new GameSummaryAdapter(getContext(), gameImageIcons, gameTitles, gameStats, null, gameIDs);
+            gameSummaryWrapper = new GameSummaryWrapper(getContext());
         }
 
         // Initialize views
@@ -98,7 +95,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
         consoleListRecyclerView.setLayoutManager(consoleListLayoutManager);
 
         gameListRecyclerView = view.findViewById(R.id.list_games);
-        gameListRecyclerView.setAdapter(gameAdapter);
+        gameListRecyclerView.setAdapter(gameSummaryWrapper.getAdapter());
         gameListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         EditText gamesFilter = view.findViewById(R.id.list_games_filter);
         gamesFilter.addTextChangedListener(new TextWatcher() {
@@ -108,7 +105,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                gameAdapter.getFilter().filter(charSequence.toString());
+                gameSummaryWrapper.filter(charSequence.toString());
             }
 
             @Override
@@ -214,12 +211,13 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                     Objects.requireNonNull(getView()).findViewById(R.id.list_no_games).setVisibility(View.GONE);
                     for (int i = 0; i < reader.length(); i++) {
                         JSONObject game = reader.getJSONObject(i);
-                        gameTitles.add(game.getString("Title"));
-                        gameIDs.add(game.getString("ID"));
-                        gameImageIcons.add(game.getString("ImageIcon"));
+                        gameSummaryWrapper.addGame(
+                                game.getString("ID"),
+                                game.getString("ImageIcon"),
+                                game.getString("Title")
+                        );
                     }
-                    gameAdapter.refreshMappings();
-                    gameAdapter.notifyDataSetChanged();
+                    gameSummaryWrapper.updateGameSummaries(0, 0);
                 }
                 if (getView() != null)
                     populateGamesView(getView(), true);
@@ -277,7 +275,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             view.findViewById(R.id.list_games_fast_scroller).setVisibility(View.VISIBLE);
             view.findViewById(R.id.list_games_filter).setVisibility(View.VISIBLE);
         }
-        if (gameIDs.size() == 0)
+        if (gameSummaryWrapper.getNumGames() == 0)
             Objects.requireNonNull(getView()).findViewById(R.id.list_no_games).setVisibility(View.VISIBLE);
     }
 
@@ -346,11 +344,8 @@ public class ListsFragment extends Fragment implements RAAPICallback {
 
         // Set up Game List RecyclerView
         isShowingGames = true;
-        gameImageIcons.clear();
-        gameTitles.clear();
-        gameStats.clear();
-        gameIDs.clear();
-        gameAdapter.notifyDataSetChanged();
+        gameSummaryWrapper.clear();
+        gameSummaryWrapper.updateGameSummaries(0, 0);
         apiConnection.GetGameList(console, this);
     }
 

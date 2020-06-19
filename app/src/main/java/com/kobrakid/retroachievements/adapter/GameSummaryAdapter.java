@@ -82,8 +82,10 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
             holder.constraintLayout.findViewById(R.id.separator).setVisibility(View.VISIBLE);
             holder.constraintLayout.findViewById(R.id.game_summary_container).setVisibility(View.VISIBLE);
         }
-        if (masteries != null && masteries.get(mappedPosition))
+        if (mappedPosition < masteries.size() && masteries.get(mappedPosition))
             holder.constraintLayout.findViewById(R.id.game_summary_image_icon).setBackground(context.getDrawable(R.drawable.image_view_border));
+        else
+            holder.constraintLayout.findViewById(R.id.game_summary_image_icon).setBackground(null);
         Picasso.get()
                 .load(Consts.BASE_URL + imageIcons.get(mappedPosition))
                 .into(((ImageView) holder.constraintLayout.findViewById(R.id.game_summary_image_icon)));

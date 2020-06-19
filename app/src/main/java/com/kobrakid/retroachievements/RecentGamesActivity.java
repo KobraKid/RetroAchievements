@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.kobrakid.retroachievements.adapter.GameSummaryAdapter;
+import com.kobrakid.retroachievements.wrapper.GameSummaryWrapper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,10 +39,8 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
     private final int gamesPerAPICall = 15;
     private boolean hasParsed = false; // Prevent spam API calls while scrolling repeatedly
 
-    private GameSummaryAdapter adapter;
+    private GameSummaryWrapper gameSummaryWrapper;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private ArrayList<String> imageIcons, titles, stats, ids;
-    private ArrayList<Boolean> masteries;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,13 +67,8 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        imageIcons = new ArrayList<>();
-        titles = new ArrayList<>();
-        stats = new ArrayList<>();
-        masteries = new ArrayList<>();
-        ids = new ArrayList<>();
-        adapter = new GameSummaryAdapter(this, imageIcons, titles, stats, masteries, ids);
-        recyclerView.setAdapter(adapter);
+        gameSummaryWrapper = new GameSummaryWrapper(this);
+        recyclerView.setAdapter(gameSummaryWrapper.getAdapter());
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -81,7 +76,7 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
                 // Try to catch user reaching end of list early and append past the screen.
                 // If the user has already scrolled to the end, the scrolling will halt while more
                 // entries are added.
-                if (layoutManager.findLastVisibleItemPosition() >= titles.size() - 2 && hasParsed) {
+                if (layoutManager.findLastVisibleItemPosition() >= (offset + gamesPerAPICall - 2) && hasParsed) {
                     hasParsed = false;
                     offset += gamesPerAPICall;
                     apiConnection.GetUserRecentlyPlayedGames(MainActivity.ra_user, gamesPerAPICall, offset, RecentGamesActivity.this);
@@ -144,40 +139,31 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
             try {
                 reader = new JSONArray(response);
 
-                if (offset == 0) {
-                    ids.clear();
-                    ids.add("__loading");
-                    imageIcons.clear();
-                    imageIcons.add("__loading");
-                    titles.clear();
-                    titles.add("__loading");
-                    stats.clear();
-                    stats.add("__loading");
-                }
+                if (offset == 0)
+                    gameSummaryWrapper.clear();
 
                 for (int i = 0; i < reader.length(); i++) {
                     JSONObject game = reader.getJSONObject(i);
-                    imageIcons.add(i + offset, game.getString("ImageIcon"));
-                    titles.add(i + offset, game.getString("Title"));
-                    stats.add(i + offset, getString(R.string.game_stats,
-                            game.getString("NumAchieved"),
-                            game.getString("NumPossibleAchievements"),
-                            game.getString("ScoreAchieved"),
-                            game.getString("PossibleScore")));
-                    masteries.add(i + offset, game.getString("NumAchieved").equals(game.getString("NumPossibleAchievements")));
-                    ids.add(i + offset, game.getString("GameID"));
+                    gameSummaryWrapper.addGame(
+                            i + offset,
+                            game.getString("GameID"),
+                            game.getString("ImageIcon"),
+                            game.getString("Title"),
+                            getString(R.string.game_stats,
+                                    game.getString("NumAchieved"),
+                                    game.getString("NumPossibleAchievements"),
+                                    game.getString("ScoreAchieved"),
+                                    game.getString("PossibleScore")),
+                            (!game.getString("NumAchieved").equals("0"))
+                                    && game.getString("NumAchieved").equals(game.getString("NumPossibleAchievements"))
+                    );
                 }
                 swipeRefreshLayout.setRefreshing(false);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            adapter.refreshMappings();
-            if (offset == 0) {
-                adapter.notifyDataSetChanged();
-            } else {
-                adapter.notifyItemRangeInserted(offset, gamesPerAPICall);
-            }
+            gameSummaryWrapper.updateGameSummaries(offset, gamesPerAPICall);
             hasParsed = true;
         }
     }

@@ -62,8 +62,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void help(@SuppressWarnings("unused") View view) {
-//        DialogFragment apiHelp = new APIHelpDialogFragment(this);
-//        apiHelp.show(getSupportFragmentManager(), TAG);
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.api_detect_dialog_title))
                 .setMessage(getString(R.string.api_detect_dialog_desc))

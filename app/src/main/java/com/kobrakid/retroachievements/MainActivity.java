@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
                         apiConnection.GetUserRankAndScore(ra_user, this);
                         if (fragment instanceof HomeFragment) {
                             apiConnection.GetUserWebProfile(ra_user, (HomeFragment) fragment);
-                            apiConnection.GetUserSummary(ra_user, 3, (HomeFragment) fragment);
+                            apiConnection.GetUserSummary(ra_user, HomeFragment.NUM_RECENT_GAMES, (HomeFragment) fragment);
                         }
                     }
                     break;

@@ -37,15 +37,19 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
 
     private static final String TAG = HomeFragment.class.getSimpleName();
 
+    public static final int NUM_RECENT_GAMES = 5;
+
     // TODO Only call API when the view is first started, or when the user asks for a manual refresh
     private boolean hasPopulatedGames = false, hasPopulatedMasteries = false;
+    // Mastered games
     private final ArrayList<String> masteryIDs = new ArrayList<>();
     private final ArrayList<String> masteryIcons = new ArrayList<>();
+    private final ArrayList<Boolean> masteryGold = new ArrayList<>();
+    // Recent games summary
     private final ArrayList<String> summaryIDs = new ArrayList<>();
     private final ArrayList<String> summaryTitles = new ArrayList<>();
     private final ArrayList<String> summaryIcons = new ArrayList<>();
     private final ArrayList<String> summaryScores = new ArrayList<>();
-    private final ArrayList<Boolean> masteryGold = new ArrayList<>();
 
     public HomeFragment() {
     }
@@ -53,30 +57,34 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        setRetainInstance(true);
-
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         Objects.requireNonNull(getActivity()).setTitle("Home");
 
         if (MainActivity.ra_user != null) {
+            Log.i(TAG, "ra_user != null");
             if (savedInstanceState == null) {
+                Log.i(TAG, "savedInstanceState == null");
+                Log.i(TAG, masteryIDs.size() + " " + summaryTitles.size());
                 // Call API in the case of no saved instance or recreation after login
                 RAAPIConnection apiConnection = ((MainActivity) Objects.requireNonNull(getActivity())).apiConnection;
                 hasPopulatedGames = false;
                 hasPopulatedMasteries = false;
                 apiConnection.GetUserWebProfile(MainActivity.ra_user, this);
-                apiConnection.GetUserSummary(MainActivity.ra_user, 3, this);
+                apiConnection.GetUserSummary(MainActivity.ra_user, NUM_RECENT_GAMES, this);
             } else {
+                Log.i(TAG, "savedInstanceState != null");
                 populateUserInfo(view);
                 populateMasteries(view);
                 populateGames(view);
             }
         } else {
+            Log.i(TAG, "ra_user == null");
             view.findViewById(R.id.home_username).setVisibility(View.VISIBLE);
         }
 
@@ -93,6 +101,15 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
         startActivity(intent);
     }
 
+    /**
+     * Handled callbacks:
+     * RESPONSE_GET_USER_WEB_PROFILE
+     * RESPONSE_GET_USER_SUMMARY
+     *
+     * @param responseCode The corresponding response code, which informs a callback on what kind of
+     *                     API call was made.
+     * @param response     The raw String response that was retrieved from the API call.
+     */
     @Override
     public void callback(int responseCode, String response) {
         JSONObject reader;
@@ -162,6 +179,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
 
     private void populateUserInfo(View view) {
         if (MainActivity.ra_user != null) {
+            Log.i(TAG, "populateUserInfo");
             ((TextView) view.findViewById(R.id.home_username)).setText(MainActivity.ra_user);
             Picasso.get()
                     .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + MainActivity.ra_user + ".png")

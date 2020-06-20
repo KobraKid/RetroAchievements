@@ -45,7 +45,7 @@
     <string name="settings_log_out">Log Out</string>
 
     <!-- About Fragment -->
-    <string name="about_version">RetroAchievements v1.0.0</string>
+    <string name="about_version">RetroAchievements v0.0.1</string>
     <string name="about_disclaimer">The RetroAchievements app is in no way affiliated with the
         <a href="https://retroachievements.org/">RetroAchievements</a> website. All images and other
         assets belong to their respective owners, and this app makes no claims of ownership of any
@@ -55,17 +55,19 @@
         (<a href="https://retroachievements.org/user/KobraKid1337">RA:KobraKid1337</a>)
         as a personal project. You can find his other works on
         <a href="https://github.com/KobraKid">Github</a>.
-        If you liked the app and would like to contribute to the developer, he will be setting up a
-        PayPal account soon.
-        \nThank you for your consideration and I hope you enjoy this app!
+        <a href="https://venmo.com/Michael-Huyler">Click here</a> if you are
+        enjoying the app and would like to contribute to the developer.
+        \nThank you for your consideration and I hope you continue to enjoy this app!
     </string>
-    <string name="about_credits_1">RetroAchievements uses quiph\'s
+    <string name="about_credits_1">RetroAchievements uses the
         <a href="https://github.com/quiph/RecyclerView-FastScroller">RecyclerView&#8209;FastScroller</a>
-        library, which is licensed under the Apache License Version 2.0.
+        library by <a href="https://github.com/quiph">Quiph</a>,
+        which is licensed under the Apache License Version 2.0.
     </string>
-    <string name="about_credits_2">RetroAchievements uses PhilJay\'s
+    <string name="about_credits_2">RetroAchievements uses the
         <a href="https://github.com/PhilJay/MPAndroidChart">MPAndroidChart</a>
-        library, which is licensed under the Apache License Version 2.0.
+        library by <a href="https://github.com/PhilJay">Philipp Jahoda</a>,
+        which is licensed under the Apache License Version 2.0.
     </string>
     <string name="about_credits_3">RetroAchievements uses the
         <a href="https://jsoup.org">jsoup</a>

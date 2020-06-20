@@ -39,14 +39,13 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
 
     // TODO Only call API when the view is first started, or when the user asks for a manual refresh
     private boolean hasPopulatedGames = false, hasPopulatedMasteries = false;
-    private ArrayList<String>
-            masteryIDs = new ArrayList<>(),
-            masteryIcons = new ArrayList<>(),
-            summaryIDs = new ArrayList<>(),
-            summaryTitles = new ArrayList<>(),
-            summaryIcons = new ArrayList<>(),
-            summaryScores = new ArrayList<>();
-    private ArrayList<Boolean> masteryGold = new ArrayList<>();
+    private final ArrayList<String> masteryIDs = new ArrayList<>();
+    private final ArrayList<String> masteryIcons = new ArrayList<>();
+    private final ArrayList<String> summaryIDs = new ArrayList<>();
+    private final ArrayList<String> summaryTitles = new ArrayList<>();
+    private final ArrayList<String> summaryIcons = new ArrayList<>();
+    private final ArrayList<String> summaryScores = new ArrayList<>();
+    private final ArrayList<Boolean> masteryGold = new ArrayList<>();
 
     public HomeFragment() {
     }
@@ -145,7 +144,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                     summaryIcons.add(gameObj.getString("ImageIcon"));
                     summaryTitles.add(gameObj.getString("Title"));
                     summaryScores.add(getResources().getString(R.string.game_stats,
-                            Integer.toString(awardedAchieve > awardedAchieveHardcore ? awardedAchieve : awardedAchieveHardcore),
+                            Integer.toString(Math.max(awardedAchieve, awardedAchieveHardcore)),
                             possibleAchievements,
                             score,
                             possibleScore));

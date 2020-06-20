@@ -30,8 +30,6 @@ import java.util.Objects;
  */
 public class GameDetailsActivity extends AppCompatActivity implements RAAPICallback {
 
-    public static int currentPosition = 0;
-
     RAAPIConnection apiConnection;
     private String gameID, console, imageIcon, title, developer, publisher, genre, released, forumTopicID;
     private boolean isActive = false;
@@ -105,7 +103,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
         genre = savedInstanceState.getString("genre");
         released = savedInstanceState.getString("released");
         forumTopicID = savedInstanceState.getString("forumTopicID");
-        if (forumTopicID != null)
+        if (gameID != null)
             populateElements();
     }
 

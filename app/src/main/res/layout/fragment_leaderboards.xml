@@ -12,10 +12,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:background="?android:windowBackground"
         android:paddingTop="8dp"
         android:text="@string/top_users"
         android:textSize="24sp"
-        android:background="?android:windowBackground"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -69,7 +69,10 @@
             android:layout_gravity="end"
             android:layout_weight="0.5"
             android:ems="10"
-            android:inputType="textNoSuggestions" />
+            android:imeOptions="actionDone"
+            android:importantForAutofill="no"
+            android:inputType="textNoSuggestions"
+            android:maxLines="1" />
 
         <Spinner
             android:id="@+id/leaderboards_console_filter"
@@ -83,17 +86,17 @@
         android:layout_height="0dp"
         app:handleDrawable="@drawable/handle_drawable"
         app:handleHeight="40dp"
-        app:popupDrawable="@drawable/popup_drawable"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/leaderboards_button_group">
+        app:layout_constraintTop_toBottomOf="@id/leaderboards_button_group"
+        app:popupDrawable="@drawable/popup_drawable">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:layout_marginEnd="10dp"
             android:id="@+id/leaderboards_games"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_width="match_parent" />
+            android:layout_marginEnd="10dp" />
 
     </com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>
 

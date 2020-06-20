@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.viewpager.widget.ViewPager;
 
 /**
- * Custom implementation of teh ViewPager widget, useful for when paging should be toggled.
+ * Custom implementation of the ViewPager widget, allows for toggling paging.
  */
 public class ToggleableViewPager extends ViewPager {
 
@@ -19,14 +19,10 @@ public class ToggleableViewPager extends ViewPager {
         super(context);
     }
 
-    public ToggleableViewPager(@NonNull Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+    public ToggleableViewPager(@NonNull Context context, AttributeSet attrs) { super(context, attrs); }
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return pagingEnabled && super.onInterceptTouchEvent(ev);
-    }
+    public boolean onInterceptTouchEvent(MotionEvent ev) { return pagingEnabled && super.onInterceptTouchEvent(ev); }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override

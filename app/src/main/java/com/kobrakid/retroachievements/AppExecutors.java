@@ -40,6 +40,7 @@ public class AppExecutors {
         return mainThread;
     }
 
+    @SuppressWarnings("unused")
     public Executor networkIO() {
         return networkIO;
     }

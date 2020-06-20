@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -17,13 +16,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.kobrakid.retroachievements.adapter.GameSummaryAdapter;
-import com.kobrakid.retroachievements.wrapper.GameSummaryWrapper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -39,7 +36,7 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
     private final int gamesPerAPICall = 15;
     private boolean hasParsed = false; // Prevent spam API calls while scrolling repeatedly
 
-    private GameSummaryWrapper gameSummaryWrapper;
+    private GameSummaryAdapter gameSummaryAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
@@ -67,8 +64,8 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        gameSummaryWrapper = new GameSummaryWrapper(this);
-        recyclerView.setAdapter(gameSummaryWrapper.getAdapter());
+        gameSummaryAdapter = new GameSummaryAdapter(this);
+        recyclerView.setAdapter(gameSummaryAdapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -140,11 +137,11 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
                 reader = new JSONArray(response);
 
                 if (offset == 0)
-                    gameSummaryWrapper.clear();
+                    gameSummaryAdapter.clear();
 
                 for (int i = 0; i < reader.length(); i++) {
                     JSONObject game = reader.getJSONObject(i);
-                    gameSummaryWrapper.addGame(
+                    gameSummaryAdapter.addGame(
                             i + offset,
                             game.getString("GameID"),
                             game.getString("ImageIcon"),
@@ -163,7 +160,7 @@ public class RecentGamesActivity extends AppCompatActivity implements RAAPICallb
                 e.printStackTrace();
             }
 
-            gameSummaryWrapper.updateGameSummaries(offset, gamesPerAPICall);
+            gameSummaryAdapter.updateGameSummaries(offset, gamesPerAPICall);
             hasParsed = true;
         }
     }

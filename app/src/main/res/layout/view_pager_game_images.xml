@@ -22,99 +22,68 @@
             android:orientation="vertical">
 
             <androidx.cardview.widget.CardView
-                style="@style/CommonThemes.CardView"
                 android:id="@+id/card_0_boxart"
+                style="@style/CommonThemes.CardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp">
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/image_boxart"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:id="@+id/image_boxart"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="64dp"
-                        android:layout_marginEnd="64dp"
-                        android:adjustViewBounds="true"
-                        android:src="@drawable/favicon" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="8dp"
-                        android:text="@string/image_box_art"
-                        android:textSize="24sp" />
-
-                </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:adjustViewBounds="true"
+                    android:drawableTop="@drawable/favicon"
+                    android:drawablePadding="0dp"
+                    android:text="@string/image_box_art"
+                    android:textAlignment="center"
+                    android:textSize="24sp" />
 
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                style="@style/CommonThemes.CardView"
                 android:id="@+id/card_1_title"
+                style="@style/CommonThemes.CardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp">
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/image_title"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:id="@+id/image_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="64dp"
-                        android:layout_marginEnd="64dp"
-                        android:adjustViewBounds="true"
-                        android:src="@drawable/favicon" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="8dp"
-                        android:text="@string/image_game_title"
-                        android:textSize="24sp" />
-                </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:adjustViewBounds="true"
+                    android:drawableTop="@drawable/favicon"
+                    android:drawablePadding="0dp"
+                    android:text="@string/image_game_title"
+                    android:textAlignment="center"
+                    android:textSize="24sp" />
 
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                style="@style/CommonThemes.CardView"
                 android:id="@+id/card_2_ingame"
+                style="@style/CommonThemes.CardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp">
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/image_ingame"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:id="@+id/image_ingame"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="64dp"
-                        android:layout_marginEnd="64dp"
-                        android:adjustViewBounds="true"
-                        android:src="@drawable/favicon" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="8dp"
-                        android:text="@string/image_game_ingame"
-                        android:textSize="24sp" />
-                </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:adjustViewBounds="true"
+                    android:drawableTop="@drawable/favicon"
+                    android:drawablePadding="0dp"
+                    android:text="@string/image_game_ingame"
+                    android:textAlignment="center"
+                    android:textSize="24sp" />
 
             </androidx.cardview.widget.CardView>
 

@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filterable, RecyclerViewFastScroller.OnPopupTextUpdate {
+public class LeaderboardsAdapter extends RecyclerView.Adapter<LeaderboardsAdapter.LeaderboardsViewHolder> implements Filterable, RecyclerViewFastScroller.OnPopupTextUpdate {
 
     private final RowSortedTable<Integer, String, String> table, tableFiltered;
     private final LeaderboardsViewHolderListenerImpl listener;
@@ -40,10 +40,14 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull LeaderboardsViewHolder holder, int position) {
         ((TextView) holder.itemView.findViewById(R.id.id)).setText(tableFiltered.row(position).get("ID"));
-        Picasso.get().load(tableFiltered.row(position).get("IMAGE")).into((ImageView) holder.itemView.findViewById(R.id.game));
-        ((TextView) holder.itemView.findViewById(R.id.console)).setText(tableFiltered.row(position).get("CONSOLE"));
+        Picasso.get().load(tableFiltered.row(position).get("IMAGE")).into((ImageView) holder.itemView.findViewById(R.id.imageIcon));
+        ((TextView) holder.itemView.findViewById(R.id.game)).setText(tableFiltered.row(position).get("GAME"));
+        if (Objects.equals(tableFiltered.row(position).get("CONSOLE"), ""))
+            ((TextView)holder.itemView.findViewById(R.id.console)).setText(null);
+        else
+            ((TextView) holder.itemView.findViewById(R.id.console)).setText(holder.itemView.getContext().getString(R.string.console_parens, tableFiltered.row(position).get("CONSOLE")));
         ((TextView) holder.itemView.findViewById(R.id.title)).setText(tableFiltered.row(position).get("TITLE"));
         ((TextView) holder.itemView.findViewById(R.id.description)).setText(tableFiltered.row(position).get("DESCRIPTION"));
         ((TextView) holder.itemView.findViewById(R.id.type)).setText(tableFiltered.row(position).get("TYPE"));
@@ -127,7 +131,7 @@ public class LeaderboardsAdapter extends RecyclerView.Adapter implements Filtera
         }
     }
 
-    class LeaderboardsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    static class LeaderboardsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         final LeaderboardsViewHolderListenerImpl listener;
 

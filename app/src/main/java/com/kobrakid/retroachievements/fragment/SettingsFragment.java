@@ -49,7 +49,14 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     private final StringBuilder consoleName = new StringBuilder();
 
     private final SparseArray<Runnable> applicableSettings = new SparseArray<>();
-    private final int logout_key = 0, hide_consoles_key = 1, hide_games_key = 2, change_theme_key = 3;
+    // Can be local, but used to index which settings have been modified
+    @SuppressWarnings("FieldCanBeLocal")
+    private final int logout_key = 0;
+    private final int hide_consoles_key = 1;
+    @SuppressWarnings("FieldCanBeLocal")
+    private final int hide_games_key = 2;
+    @SuppressWarnings("FieldCanBeLocal")
+    private final int change_theme_key = 3;
 
     public SettingsFragment() {
     }
@@ -165,6 +172,7 @@ public class SettingsFragment extends Fragment implements RAAPICallback {
     }
 
     private void hideGames(View view, final boolean hide) {
+        view.findViewById(R.id.settings_hide_games_warning).setVisibility(hide ? View.GONE : View.VISIBLE);
         if (applicableSettings.get(hide_games_key) != null) {
             applicableSettings.remove(hide_games_key);
         } else {

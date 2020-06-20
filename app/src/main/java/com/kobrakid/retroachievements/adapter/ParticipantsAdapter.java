@@ -16,29 +16,27 @@ import com.kobrakid.retroachievements.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class ParticipantsAdapter extends RecyclerView.Adapter {
+public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapter.ParticipantViewHolder> {
 
     private final Context context;
-    private final ArrayList<String> users;
-    private final ArrayList<String> results;
-    private final ArrayList<String> dates;
+    public final List<String> users = new ArrayList<>();
+    public final List<String> results = new ArrayList<>();
+    public final List<String> dates = new ArrayList<>();
 
-    public ParticipantsAdapter(Context context, ArrayList<String> users, ArrayList<String> results, ArrayList<String> dates) {
+    public ParticipantsAdapter(Context context) {
         this.context = context;
-        this.users = users;
-        this.results = results;
-        this.dates = dates;
     }
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ParticipantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new ParticipantViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.view_holder_participants, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ParticipantViewHolder holder, int position) {
         Picasso.get()
                 .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + users.get(position) + ".png")
                 .into(((ImageView) holder.itemView.findViewById(R.id.participant_icon)));
@@ -55,7 +53,14 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
         return users.size();
     }
 
-    private class ParticipantViewHolder extends RecyclerView.ViewHolder {
+    public void addParticipant(String user, String result, String date) {
+        users.add(user);
+        results.add(result);
+        dates.add(date);
+        notifyItemInserted(users.size() - 1);
+    }
+
+    static class ParticipantViewHolder extends RecyclerView.ViewHolder {
 
         ParticipantViewHolder(View itemView) {
             super(itemView);

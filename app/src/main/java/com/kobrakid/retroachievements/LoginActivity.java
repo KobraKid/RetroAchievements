@@ -1,13 +1,9 @@
 package com.kobrakid.retroachievements;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,12 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
-
-import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -70,15 +61,13 @@ public class LoginActivity extends AppCompatActivity {
         onBackPressed();
     }
 
-    public void help(@SuppressWarnings("Unused") View view) {
+    public void help(@SuppressWarnings("unused") View view) {
 //        DialogFragment apiHelp = new APIHelpDialogFragment(this);
 //        apiHelp.show(getSupportFragmentManager(), TAG);
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.api_detect_dialog_title))
                 .setMessage(getString(R.string.api_detect_dialog_desc))
-                .setPositiveButton(getString(R.string.api_detect_go), (dialogInterface, i) -> {
-                    startActivityForResult(new Intent(this, ApiPullActivity.class), Consts.PULL_API_KEY);
-                })
+                .setPositiveButton(getString(R.string.api_detect_go), (dialogInterface, i) -> startActivityForResult(new Intent(this, ApiPullActivity.class), Consts.PULL_API_KEY))
                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> { /* Cancel */ })
                 .create()
                 .show();
@@ -91,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
             switch (resultCode) {
                 case Consts.SUCCESS:
                     if (data != null) {
-                        ((TextView) findViewById(R.id.login_username)).setText(data.getStringExtra(getString(R.string.ra_user)).substring(1).replaceFirst(".$",""));
+                        ((TextView) findViewById(R.id.login_username)).setText(data.getStringExtra(getString(R.string.ra_user)).substring(1).replaceFirst(".$", ""));
                         ((TextView) findViewById(R.id.login_api_key)).setText(data.getStringExtra(getString(R.string.ra_api_key)).substring(1, 33));
                     }
                     break;

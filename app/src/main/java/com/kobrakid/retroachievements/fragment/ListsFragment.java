@@ -7,7 +7,6 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,20 +26,15 @@ import com.kobrakid.retroachievements.adapter.ConsoleAdapter;
 import com.kobrakid.retroachievements.adapter.GameSummaryAdapter;
 import com.kobrakid.retroachievements.database.Console;
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase;
-import com.kobrakid.retroachievements.wrapper.GameSummaryWrapper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 public class ListsFragment extends Fragment implements RAAPICallback {
-
-    private static final String TAG = ListsFragment.class.getSimpleName();
 
     public boolean isShowingGames = false;
 
@@ -48,11 +42,10 @@ public class ListsFragment extends Fragment implements RAAPICallback {
     private boolean isActive = false;
     private boolean hideEmptyConsoles, hideEmptyGames;
 
-    private RecyclerView consoleListRecyclerView, gameListRecyclerView;
+    private RecyclerView consoleListRecyclerView;
     private LinearLayoutManager consoleListLayoutManager;
     private ConsoleAdapter consoleAdapter;
-    GameSummaryWrapper gameSummaryWrapper;
-    private ArrayList<String> consoleIDs, consoleNames;
+    private GameSummaryAdapter gameSummaryAdapter;
     private String consoleName = "";
     private int scrollPosition = 0;
     private Point p;
@@ -80,12 +73,8 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             hideEmptyConsoles = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_console_hide_setting), false);
             hideEmptyGames = getActivity().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_game_hide_setting), false);
 
-            // Set up adapters
-            consoleIDs = new ArrayList<>();
-            consoleNames = new ArrayList<>();
-            consoleAdapter = new ConsoleAdapter(consoleIDs, consoleNames, this);
-
-            gameSummaryWrapper = new GameSummaryWrapper(getContext());
+            consoleAdapter = new ConsoleAdapter(this);
+            gameSummaryAdapter = new GameSummaryAdapter(getContext());
         }
 
         // Initialize views
@@ -94,23 +83,21 @@ public class ListsFragment extends Fragment implements RAAPICallback {
         consoleListLayoutManager = new LinearLayoutManager(getContext());
         consoleListRecyclerView.setLayoutManager(consoleListLayoutManager);
 
-        gameListRecyclerView = view.findViewById(R.id.list_games);
-        gameListRecyclerView.setAdapter(gameSummaryWrapper.getAdapter());
+        RecyclerView gameListRecyclerView = view.findViewById(R.id.list_games);
+        gameListRecyclerView.setAdapter(gameSummaryAdapter);
         gameListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         EditText gamesFilter = view.findViewById(R.id.list_games_filter);
         gamesFilter.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                gameSummaryWrapper.filter(charSequence.toString());
+                gameSummaryAdapter.getFilter().filter(charSequence.toString());
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
-            }
+            public void afterTextChanged(Editable editable) {}
         });
 
         p = new Point();
@@ -155,22 +142,14 @@ public class ListsFragment extends Fragment implements RAAPICallback {
         if (!isActive)
             return;
         if (responseCode == RAAPIConnection.RESPONSE_GET_CONSOLE_IDS) {
-            consoleIDs.clear();
-            consoleNames.clear();
-            consoleAdapter.notifyDataSetChanged();
+            consoleAdapter.clear();
             try {
                 JSONArray reader = new JSONArray(response);
                 // Loop once to add all consoles to view
                 for (int i = 0; i < reader.length(); i++) {
                     // Get console information
                     JSONObject console = reader.getJSONObject(i);
-                    final String id = console.getString("ID");
-
-                    // Add console information
-                    consoleNames.add(console.getString("Name"));
-                    Collections.sort(consoleNames);
-                    consoleIDs.add(consoleNames.indexOf(console.getString("Name")), id);
-                    consoleAdapter.notifyItemInserted(consoleNames.indexOf(console.getString("Name")));
+                    consoleAdapter.addConsole(console.getString("ID"), console.getString("Name"));
                 }
                 // Loop twice if we wish to hide empty consoles
                 if (hideEmptyConsoles) {
@@ -186,10 +165,8 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                             // Get current console
                             List<Console> current = db.consoleDao().getConsoleWithID(Integer.parseInt(id));
                             // If it exists and has 0 games
-                            if (current.size() > 0 && current.get(0).getGameCount() == 0 && consoleNames.contains(name)) {
-                                final int namePos = consoleNames.indexOf(name), idPos = consoleIDs.indexOf(id);
-                                Log.d(TAG, "Removing " + consoleIDs.remove(idPos) + ": " + consoleNames.remove(namePos) + " @ " + namePos + " from view");
-                                AppExecutors.getInstance().mainThread().execute(consoleAdapter::notifyDataSetChanged);
+                            if (current.size() > 0 && current.get(0).getGameCount() == 0) {
+                                AppExecutors.getInstance().mainThread().execute(() -> consoleAdapter.removeConsole(name));
                             }
                             if (pos == max) {
                                 AppExecutors.getInstance().mainThread().execute(() -> {
@@ -211,13 +188,13 @@ public class ListsFragment extends Fragment implements RAAPICallback {
                     Objects.requireNonNull(getView()).findViewById(R.id.list_no_games).setVisibility(View.GONE);
                     for (int i = 0; i < reader.length(); i++) {
                         JSONObject game = reader.getJSONObject(i);
-                        gameSummaryWrapper.addGame(
+                        gameSummaryAdapter.addGame(
                                 game.getString("ID"),
                                 game.getString("ImageIcon"),
                                 game.getString("Title")
                         );
                     }
-                    gameSummaryWrapper.updateGameSummaries(0, 0);
+                    gameSummaryAdapter.updateGameSummaries(0, 0);
                 }
                 if (getView() != null)
                     populateGamesView(getView(), true);
@@ -275,7 +252,7 @@ public class ListsFragment extends Fragment implements RAAPICallback {
             view.findViewById(R.id.list_games_fast_scroller).setVisibility(View.VISIBLE);
             view.findViewById(R.id.list_games_filter).setVisibility(View.VISIBLE);
         }
-        if (gameSummaryWrapper.getNumGames() == 0)
+        if (gameSummaryAdapter.getNumGames() == 0)
             Objects.requireNonNull(getView()).findViewById(R.id.list_no_games).setVisibility(View.VISIBLE);
     }
 
@@ -344,8 +321,8 @@ public class ListsFragment extends Fragment implements RAAPICallback {
 
         // Set up Game List RecyclerView
         isShowingGames = true;
-        gameSummaryWrapper.clear();
-        gameSummaryWrapper.updateGameSummaries(0, 0);
+        gameSummaryAdapter.clear();
+        gameSummaryAdapter.updateGameSummaries(0, 0);
         apiConnection.GetGameList(console, this);
     }
 

@@ -14,16 +14,17 @@ import com.kobrakid.retroachievements.R;
 import com.kobrakid.retroachievements.fragment.ListsFragment;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
-public class ConsoleAdapter extends RecyclerView.Adapter {
+public class ConsoleAdapter extends RecyclerView.Adapter<ConsoleAdapter.ConsoleViewHolder> {
 
-    private final ArrayList<String> consoleIDs, consoleNames;
+    private final List<String> consoleIDs = new ArrayList<>();
+    private final List<String> consoleNames = new ArrayList<>();
     private final ConsoleViewHolderListenerImpl viewHolderListener;
 
-    public ConsoleAdapter(ArrayList<String> consoleIDs, ArrayList<String> consoleNames, Fragment fragment) {
-        this.consoleIDs = consoleIDs;
-        this.consoleNames = consoleNames;
+    public ConsoleAdapter(Fragment fragment) {
         this.viewHolderListener = new ConsoleViewHolderListenerImpl(fragment, this);
     }
 
@@ -36,7 +37,7 @@ public class ConsoleAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ConsoleViewHolder holder, int position) {
         ((TextView) holder.itemView.findViewById(R.id.console_id)).setText(consoleIDs.get(position));
         ((TextView) holder.itemView.findViewById(R.id.console_initial)).setText(consoleNames.get(position).substring(0, 1));
         Random random = new Random();
@@ -53,10 +54,31 @@ public class ConsoleAdapter extends RecyclerView.Adapter {
         return consoleIDs.size();
     }
 
+    public void addConsole(String id, String name) {
+        consoleNames.add(name);
+        Collections.sort(consoleNames);
+        consoleIDs.add(consoleNames.indexOf(name), id);
+        notifyItemInserted(consoleNames.indexOf(name));
+    }
+
+    public void removeConsole(String name) {
+        if (!consoleNames.contains(name)) return;
+        int rem = consoleNames.indexOf(name);
+        consoleNames.remove(rem);
+        consoleIDs.remove(rem);
+        notifyItemRemoved(rem);
+    }
+
+    public void clear() {
+        consoleIDs.clear();
+        consoleNames.clear();
+        notifyDataSetChanged();
+    }
+
     /* Inner Classes and Interfaces */
 
     private interface ConsoleViewHolderListener {
-        void onItemClicked(View view, int adapterPosition);
+        void onItemClicked(int adapterPosition);
     }
 
     private static class ConsoleViewHolderListenerImpl implements ConsoleViewHolderListener {
@@ -70,12 +92,12 @@ public class ConsoleAdapter extends RecyclerView.Adapter {
         }
 
         @Override
-        public void onItemClicked(View view, int adapterPosition) {
+        public void onItemClicked(int adapterPosition) {
             ((ListsFragment) fragment).onConsoleSelected(adapterPosition, adapter.consoleIDs.get(adapterPosition), adapter.consoleNames.get(adapterPosition));
         }
     }
 
-    public class ConsoleViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    static class ConsoleViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         final ConsoleViewHolderListener viewHolderListener;
 
@@ -87,7 +109,7 @@ public class ConsoleAdapter extends RecyclerView.Adapter {
 
         @Override
         public void onClick(View view) {
-            viewHolderListener.onItemClicked(view, getAdapterPosition());
+            viewHolderListener.onItemClicked(getAdapterPosition());
         }
     }
 

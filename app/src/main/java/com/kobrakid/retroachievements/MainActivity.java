@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
 
     private boolean selectDrawerItem(MenuItem item) {
         fragment = null;
-        Class fragmentClass;
+        Class<? extends Fragment> fragmentClass;
 
         // Determine selected Navigation Drawer item
         switch (item.getItemId()) {
@@ -197,8 +197,8 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
         }
 
         try {
-            fragment = (Fragment) fragmentClass.newInstance();
-        } catch (Exception e) {
+            fragment = fragmentClass.newInstance();
+        } catch (IllegalAccessException | InstantiationException e) {
             e.printStackTrace();
             return false;
         }

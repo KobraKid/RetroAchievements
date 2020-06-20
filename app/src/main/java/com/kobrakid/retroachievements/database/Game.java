@@ -1,5 +1,6 @@
 package com.kobrakid.retroachievements.database;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -45,6 +46,7 @@ public class Game {
         this.achievementCount = achievementCount;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return getGameName() + " | ID: " + getId() + ", # Achievements " + getAchievementCount();

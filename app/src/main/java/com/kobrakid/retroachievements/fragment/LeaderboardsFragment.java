@@ -261,7 +261,11 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
                     leaderboards.put(i - 1, "IMAGE", row.select("td").get(1).selectFirst("img").attr("src"));
                     String attr = row.select("td").get(1).selectFirst("div").attr("onmouseover");
                     leaderboards.put(i - 1, "GAME", attr.substring(attr.indexOf("<b>") + 3, attr.indexOf("</b>")));
-                    leaderboards.put(i - 1, "CONSOLE", row.select("td").get(2).text());
+                    int start = (attr.indexOf("<br>")) + 5, end = (attr.indexOf("</div>")) - 1;
+                    if (start >= 0 && start < attr.length() && end > start)
+                        leaderboards.put(i - 1, "CONSOLE", attr.substring(start, end));
+                    else
+                        leaderboards.put(i - 1, "CONSOLE", "");
                     leaderboards.put(i - 1, "TITLE", row.select("td").get(3).text());
                     leaderboards.put(i - 1, "DESCRIPTION", row.select("td").get(4).text());
                     leaderboards.put(i - 1, "TYPE", row.select("td").get(5).text());
@@ -300,9 +304,9 @@ public class LeaderboardsFragment extends Fragment implements RAAPICallback {
                     uniqueCols.clear();
                     uniqueCols.add(0, "");
                     uniqueCols.addAll(new TreeSet<>(result.column("CONSOLE").values()));
-                }
-                if (fragment.getView() != null) {
-                    fragment.populateLeaderboardViews(fragment.getView());
+                    if (fragment.getView() != null) {
+                        fragment.populateLeaderboardViews(fragment.getView());
+                    }
                 }
             }
         }

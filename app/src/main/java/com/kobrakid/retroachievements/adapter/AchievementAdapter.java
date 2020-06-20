@@ -27,7 +27,6 @@ import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Objects;
 
 public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.AchievementViewHolder> {
@@ -44,43 +43,28 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
     private final ArrayList<String> authors;
     private final ArrayList<String> datesCreated;
     private final ArrayList<String> datesModified;
-    private final Map<String, Boolean> hardcoreEarnings;
-    private final StringBuilder numDistinctCasual;
+    private final ArrayList<Boolean> hardcoreEarnings;
+    private double numDistinctCasual = 1;
 
     private final Fragment fragment;
     private final AchievementViewHolderListener viewHolderListener;
 
-    public AchievementAdapter(Fragment fragment,
-                              ArrayList<String> ids,
-                              ArrayList<String> badges,
-                              ArrayList<String> titles,
-                              ArrayList<String> points,
-                              ArrayList<String> trueRatios,
-                              ArrayList<String> descriptions,
-                              ArrayList<String> datesEarned,
-                              ArrayList<String> numsAwarded,
-                              ArrayList<String> numsAwardedHC,
-                              ArrayList<String> authors,
-                              ArrayList<String> datesCreated,
-                              ArrayList<String> datesModified,
-                              Map<String, Boolean> hardcoreEarnings,
-                              StringBuilder numDistinctCasual) {
+    public AchievementAdapter(Fragment fragment) {
         this.fragment = fragment;
-        this.ids = ids;
-        this.badges = badges;
-        this.titles = titles;
-        this.points = points;
-        this.trueRatios = trueRatios;
-        this.descriptions = descriptions;
-        this.datesEarned = datesEarned;
-        this.numsAwarded = numsAwarded;
-        this.numsAwardedHC = numsAwardedHC;
-        this.authors = authors;
-        this.datesCreated = datesCreated;
-        this.datesModified = datesModified;
-        this.hardcoreEarnings = hardcoreEarnings;
-        this.numDistinctCasual = numDistinctCasual;
-        this.viewHolderListener = new AchievementViewHolderListenerImpl(fragment, this);
+        ids = new ArrayList<>();
+        badges = new ArrayList<>();
+        titles = new ArrayList<>();
+        points = new ArrayList<>();
+        trueRatios = new ArrayList<>();
+        descriptions = new ArrayList<>();
+        datesEarned = new ArrayList<>();
+        numsAwarded = new ArrayList<>();
+        numsAwardedHC = new ArrayList<>();
+        authors = new ArrayList<>();
+        datesCreated = new ArrayList<>();
+        datesModified = new ArrayList<>();
+        hardcoreEarnings = new ArrayList<>();
+        viewHolderListener = new AchievementViewHolderListenerImpl(fragment, this);
 
     }
 
@@ -105,7 +89,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         ((TextView) holder.linearLayout.findViewById(R.id.achievement_summary_modified)).setText(datesModified.get(position));
 
         // Badge
-        if (hardcoreEarnings.containsKey(ids.get(position)) && hardcoreEarnings.get(ids.get(position))) {
+        if (hardcoreEarnings.get(position)) {
             (holder.linearLayout.findViewById(R.id.achievement_summary_badge)).setBackground(Objects.requireNonNull(fragment.getContext()).getDrawable(R.drawable.image_view_border));
         } else {
             (holder.linearLayout.findViewById(R.id.achievement_summary_badge)).setBackground(null);
@@ -139,19 +123,70 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
                 .setText(Objects.requireNonNull(fragment.getContext()).getString(R.string.won_by,
                         numsAwarded.get(position),
                         numsAwardedHC.get(position),
-                        numDistinctCasual.toString(),
+                        (int) numDistinctCasual,
                         new DecimalFormat("@@@@")
-                                .format(Double.parseDouble(numsAwarded.get(position)) / Double.parseDouble(numDistinctCasual.toString()) * 100.0)));
+                                .format(Double.parseDouble(numsAwarded.get(position)) / numDistinctCasual * 100.0)));
 
         // Double-layered Progress Bar
         ProgressBar progressBar = holder.linearLayout.findViewById(R.id.achievement_summary_progress);
-        progressBar.setProgress((int) (Double.parseDouble(numsAwardedHC.get(position)) / Double.parseDouble(numDistinctCasual.toString()) * 10000.0));
-        progressBar.setSecondaryProgress((int) (Double.parseDouble(numsAwarded.get(position)) / Double.parseDouble(numDistinctCasual.toString()) * 10000.0));
+        progressBar.setProgress((int) (Double.parseDouble(numsAwardedHC.get(position)) / numDistinctCasual * 10000.0));
+        progressBar.setSecondaryProgress((int) (Double.parseDouble(numsAwarded.get(position)) / numDistinctCasual * 10000.0));
     }
 
     @Override
     public int getItemCount() {
         return ids.size();
+    }
+
+    public void addAchievement(
+            int index,
+            String id,
+            String badge,
+            String title,
+            String point,
+            String trueRatio,
+            String description,
+            String dateEarned,
+            boolean earnedHardcore,
+            String numAwarded,
+            String numAwardedHC,
+            String author,
+            String dateCreated,
+            String dateModified) {
+        ids.add(index, id);
+        badges.add(index, badge);
+        titles.add(index, title);
+        points.add(index, point);
+        trueRatios.add(index, trueRatio);
+        descriptions.add(index, description);
+        datesEarned.add(index, dateEarned);
+        hardcoreEarnings.add(index, earnedHardcore);
+        numsAwarded.add(index, numAwarded);
+        numsAwardedHC.add(index, numAwardedHC);
+        authors.add(index, author);
+        datesCreated.add(index, dateCreated);
+        datesModified.add(index, dateModified);
+        notifyItemInserted(index);
+    }
+
+    public void setNumDistinctCasual(double n) {
+        numDistinctCasual = n;
+    }
+
+    public void clear() {
+        ids.clear();
+        badges.clear();
+        titles.clear();
+        points.clear();
+        trueRatios.clear();
+        descriptions.clear();
+        hardcoreEarnings.clear();
+        datesEarned.clear();
+        numsAwarded.clear();
+        numsAwardedHC.clear();
+        authors.clear();
+        datesCreated.clear();
+        datesModified.clear();
     }
 
     /* Inner Classes and Interfaces */
@@ -171,10 +206,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         }
 
         @Override
-        public void onItemClicked(View view, int adapterPosition) {
-            GameDetailsActivity.currentPosition = adapterPosition;
-
-            // Create a new transition
+        public void onItemClicked(View view, int adapterPosition) {// Create a new transition
             TransitionSet transitionSet = new TransitionSet();
             transitionSet.setOrdering(TransitionSet.ORDERING_TOGETHER);
             // Get the adapter position of the first child
@@ -217,7 +249,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
             bundle.putString("Author", adapter.authors.get(adapterPosition));
             bundle.putString("DateCreated", adapter.datesCreated.get(adapterPosition));
             bundle.putString("DateModified", adapter.datesModified.get(adapterPosition));
-            bundle.putString("NumDistinctPlayersCasual", adapter.numDistinctCasual.toString());
+            bundle.putDouble("NumDistinctPlayersCasual", adapter.numDistinctCasual);
             detailsFragment.setArguments(bundle);
             Objects.requireNonNull(fragment
                     .getActivity())
@@ -231,7 +263,7 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         }
     }
 
-    public class AchievementViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class AchievementViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         final LinearLayout linearLayout;
         private final AchievementViewHolderListener viewHolderListener;

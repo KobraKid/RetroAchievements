@@ -17,7 +17,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-public class UserRankingAdapter extends RecyclerView.Adapter {
+public class UserRankingAdapter extends RecyclerView.Adapter<UserRankingAdapter.UserRankingViewHolder> {
 
     private final ArrayList<String> userRankings;
     private final ArrayList<String> userNames;
@@ -33,12 +33,12 @@ public class UserRankingAdapter extends RecyclerView.Adapter {
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public UserRankingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new UserRankingViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.view_holder_participants, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull UserRankingViewHolder holder, int position) {
         holder.itemView.findViewById(R.id.participant_result).setVisibility(View.INVISIBLE);
         Picasso.get()
                 .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + userNames.get(position) + ".png")
@@ -60,7 +60,7 @@ public class UserRankingAdapter extends RecyclerView.Adapter {
         return userRankings.size();
     }
 
-    private class UserRankingViewHolder extends RecyclerView.ViewHolder {
+    static class UserRankingViewHolder extends RecyclerView.ViewHolder {
         UserRankingViewHolder(View view) {
             super(view);
         }

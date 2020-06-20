@@ -59,16 +59,17 @@ public class AchievementDetailsFragment extends Fragment {
                 .setText(Objects.requireNonNull(getContext()).getString(
                         R.string.earned_by_details,
                         getArguments().getString("NumAwarded"),
-                        getArguments().getString("NumDistinctPlayersCasual"),
+                        (int) getArguments().getDouble("NumDistinctPlayersCasual"),
                         new DecimalFormat("@@@@")
                                 .format(Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumAwarded")))
-                                        / Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumDistinctPlayersCasual"))) * 100.0)));
+                                        / getArguments().getDouble("NumDistinctPlayersCasual") * 100.0)));
         ((TextView) view.findViewById(R.id.achievement_details_completion_hardcore_text))
                 .setText(getContext().getString(
                         R.string.earned_by_hc_details,
                         getArguments().getString("NumAwardedHardcore"),
                         new DecimalFormat("@@@@")
-                                .format(Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumAwardedHardcore"))) / Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumDistinctPlayersCasual"))) * 100.0)));
+                                .format(Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumAwardedHardcore")))
+                                        / getArguments().getDouble("NumDistinctPlayersCasual") * 100.0)));
         ((TextView) view.findViewById(R.id.achievement_details_metadata))
                 .setText(getString(R.string.metadata,
                         getArguments().getString("Author"),
@@ -77,11 +78,11 @@ public class AchievementDetailsFragment extends Fragment {
 
         ProgressBar progressBar = view.findViewById(R.id.achievement_details_completion_hardcore);
         progressBar.setProgress((int) (Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumAwardedHardcore")))
-                / Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumDistinctPlayersCasual"))) * 10000.0));
+                / getArguments().getDouble("NumDistinctPlayersCasual") * 10000.0));
 
         progressBar = view.findViewById(R.id.achievement_details_completion);
         progressBar.setProgress((int) (Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumAwarded")))
-                / Double.parseDouble(Objects.requireNonNull(getArguments().getString("NumDistinctPlayersCasual"))) * 10000.0));
+                / getArguments().getDouble("NumDistinctPlayersCasual") * 10000.0));
 
 //        postponeEnterTransition();
 

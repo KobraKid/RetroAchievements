@@ -19,9 +19,9 @@ import com.squareup.picasso.Picasso;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -32,10 +32,10 @@ import java.util.Objects;
  */
 public class LeaderboardActivity extends AppCompatActivity implements RAAPICallback {
 
-    private RecyclerView.Adapter adapter;
-    private ArrayList<String> users = new ArrayList<>(), results = new ArrayList<>(), dates = new ArrayList<>();
+    private ParticipantsAdapter adapter;
     private boolean isActive = false;
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,15 +64,20 @@ public class LeaderboardActivity extends AppCompatActivity implements RAAPICallb
 
             setTitle(game + ": " + title);
             Picasso.get().load(image).into((ImageView) findViewById(R.id.leaderboard_game_icon));
-            ((TextView) findViewById(R.id.leaderboard_title)).setText(getString(R.string.leaderboard_title, title, console));
+            if (console != null && console.equals(""))
+                ((TextView) findViewById(R.id.leaderboard_title)).setText(title);
+            else
+                ((TextView) findViewById(R.id.leaderboard_title)).setText(getString(R.string.leaderboard_title, title, console));
             ((TextView) findViewById(R.id.leaderboard_description)).setText(description);
-            ((TextView) findViewById(R.id.leaderboard_type)).setText(type);
+            if (type != null && type.contains("Score"))
+                ((TextView) findViewById(R.id.leaderboard_type)).setText(getString(R.string.type_score, type));
+            else if (type != null && type.contains("Time"))
+                ((TextView) findViewById(R.id.leaderboard_type)).setText(getString(R.string.type_time, type));
+            else
+                ((TextView) findViewById(R.id.leaderboard_type)).setText(type);
 
             RecyclerView rankedUsers = findViewById(R.id.leaderboard_participants);
-            users.clear();
-            results.clear();
-            dates.clear();
-            adapter = new ParticipantsAdapter(this, users, results, dates);
+            adapter = new ParticipantsAdapter(this);
             rankedUsers.setAdapter(adapter);
             rankedUsers.setLayoutManager(new LinearLayoutManager(this));
 
@@ -85,9 +90,9 @@ public class LeaderboardActivity extends AppCompatActivity implements RAAPICallb
                 if (savedUsers != null && savedUsers.size() > 0
                         && savedResults != null && savedResults.size() > 0
                         && savedDates != null && savedDates.size() > 0) {
-                    users.addAll(savedUsers);
-                    results.addAll(savedResults);
-                    dates.addAll(savedDates);
+                    adapter.users.addAll(savedUsers);
+                    adapter.results.addAll(savedResults);
+                    adapter.dates.addAll(savedDates);
                     adapter.notifyDataSetChanged();
                 } else {
                     new RAAPIConnection(this).GetLeaderboard(id, count, this);
@@ -99,9 +104,9 @@ public class LeaderboardActivity extends AppCompatActivity implements RAAPICallb
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable("users", users);
-        outState.putSerializable("results", results);
-        outState.putSerializable("dates", dates);
+        outState.putSerializable("users", (Serializable) adapter.users);
+        outState.putSerializable("results", (Serializable) adapter.results);
+        outState.putSerializable("dates", (Serializable) adapter.dates);
     }
 
     @Override
@@ -142,51 +147,35 @@ public class LeaderboardActivity extends AppCompatActivity implements RAAPICallb
         if (!isActive)
             return;
         if (responseCode == RAAPIConnection.RESPONSE_GET_LEADERBOARD) {
-            new ParseHTMLAsyncTask(adapter, users, results, dates).execute(response);
+            new ParseHTMLAsyncTask(adapter).execute(response);
         }
     }
 
-    private static class ParseHTMLAsyncTask extends AsyncTask<String, Integer, Void> {
+    private static class ParseHTMLAsyncTask extends AsyncTask<String, String, Void> {
 
-        private final WeakReference<RecyclerView.Adapter> adapterReference;
-        private final WeakReference<ArrayList<String>> usersReference;
-        private final WeakReference<ArrayList<String>> resultsReference;
-        private final WeakReference<ArrayList<String>> datesReference;
+        private final WeakReference<ParticipantsAdapter> adapterReference;
 
-        ParseHTMLAsyncTask(RecyclerView.Adapter adapter, ArrayList<String> users, ArrayList<String> results, ArrayList<String> dates) {
+        ParseHTMLAsyncTask(ParticipantsAdapter adapter) {
             this.adapterReference = new WeakReference<>(adapter);
-            this.usersReference = new WeakReference<>(users);
-            this.resultsReference = new WeakReference<>(results);
-            this.datesReference = new WeakReference<>(dates);
         }
 
         @Override
         protected Void doInBackground(String... strings) {
-            ArrayList<String> users = new ArrayList<>(), results = new ArrayList<>(), dates = new ArrayList<>();
-
             Document document = Jsoup.parse(strings[0]);
-            Elements data = document.select("td.lb_user");
-            for (Element e : data)
-                users.add(e.text());
-            data = document.select("td.lb_result");
-            for (Element e : data)
-                results.add(e.text());
-            data = document.select("td.lb_date");
-            for (Element e : data)
-                dates.add(e.text());
-            final ArrayList<String> u = usersReference.get(), r = resultsReference.get(), d = datesReference.get();
-            u.addAll(users);
-            r.addAll(results);
-            d.addAll(dates);
+            Elements userData = document.select("td.lb_user");
+            Elements resultData = document.select("td.lb_result");
+            Elements dateData = document.select("td.lb_date");
+            for (int i = 0; i < userData.size(); i++) {
+                publishProgress(userData.get(i).text(), resultData.get(i).text(), dateData.get(i).text());
+            }
             return null;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            final RecyclerView.Adapter adapter = adapterReference.get();
+        protected void onProgressUpdate(String... values) {
+            final ParticipantsAdapter adapter = adapterReference.get();
             if (adapter != null) {
-                adapter.notifyDataSetChanged();
+                adapter.addParticipant(values[0], values[1], values[2]);
             }
         }
     }

@@ -59,7 +59,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
 
             ViewPager viewPager = findViewById(R.id.game_details_view_pager);
             viewPager.setAdapter(new GameDetailsPagerAdapter(getSupportFragmentManager(), gameID));
-            viewPager.setOffscreenPageLimit(2);
+            viewPager.setOffscreenPageLimit(GameDetailsPagerAdapter.getPageActiveCount());
 
             ImageButton page0 = findViewById(R.id.game_details_button_page_0);
             if (page0 != null)
@@ -192,6 +192,7 @@ public class GameDetailsActivity extends AppCompatActivity implements RAAPICallb
         setTitle(title + " (" + console + ")");
         Picasso.get()
                 .load(Consts.BASE_URL + imageIcon)
+                .placeholder(R.drawable.game_placeholder)
                 .into((ImageView) findViewById(R.id.game_details_image_icon));
         ((TextView) findViewById(R.id.game_details_developer)).setText(getString(R.string.developed, developer));
         ((TextView) findViewById(R.id.game_details_publisher)).setText(getString(R.string.published, publisher));

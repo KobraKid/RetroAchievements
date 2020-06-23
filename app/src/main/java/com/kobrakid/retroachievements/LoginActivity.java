@@ -37,14 +37,21 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login(@SuppressWarnings("unused") View view) {
-        String ra_user = ((EditText) findViewById(R.id.login_username)).getText().toString();
-        if (ra_user.length() > 0) {
-            // Successfully logged in, save the new credentials and return
-            this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), ra_user).apply();
-            setResult(MainActivity.LOGIN_SUCCESS);
-            Toast.makeText(getApplicationContext(), getString(R.string.new_login_welcome, ra_user), Toast.LENGTH_SHORT).show();
-        } else {
-            setResult(MainActivity.LOGIN_FAILURE);
+        switch (view.getId()) {
+            case R.id.login_button:
+                String ra_user = ((EditText) findViewById(R.id.login_username)).getText().toString();
+                if (ra_user.length() > 0) {
+                    // Successfully logged in, save the new credentials
+                    this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), ra_user).apply();
+                    setResult(MainActivity.LOGIN_SUCCESS);
+                    Toast.makeText(getApplicationContext(), getString(R.string.new_login_welcome, ra_user), Toast.LENGTH_SHORT).show();
+                } else {
+                    setResult(MainActivity.LOGIN_FAILURE);
+                }
+                break;
+            case R.id.cancel_button:
+                setResult(MainActivity.LOGIN_CANCELLED);
+                break;
         }
         finish();
     }

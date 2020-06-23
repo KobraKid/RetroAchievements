@@ -9,9 +9,12 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.kobrakid.retroachievements.fragment.AchievementDistributionFragment;
 import com.kobrakid.retroachievements.fragment.AchievementSummaryFragment;
+import com.kobrakid.retroachievements.fragment.GameCommentsFragment;
 import com.kobrakid.retroachievements.fragment.GameImagesFragment;
 
 public class GameDetailsPagerAdapter extends FragmentStatePagerAdapter {
+
+    private static final int GAME_DETAILS_PAGES = 4;
 
     private final String gameID;
 
@@ -37,6 +40,9 @@ public class GameDetailsPagerAdapter extends FragmentStatePagerAdapter {
             case 2:
                 fragment = new GameImagesFragment();
                 break;
+            case 3:
+                fragment = new GameCommentsFragment();
+                break;
         }
         fragment.setArguments(bundle);
         return fragment;
@@ -44,7 +50,11 @@ public class GameDetailsPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return 3;
+        return GAME_DETAILS_PAGES;
+    }
+
+    public static int getPageActiveCount() {
+        return GAME_DETAILS_PAGES - 1;
     }
 
 }

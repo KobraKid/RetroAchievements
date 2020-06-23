@@ -82,7 +82,7 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
         if (savedInstanceState == null && getArguments() != null) {
             data = new TreeMap<>();
             isAPIActive = true;
-            new RAAPIConnection(getContext()).GetAchievementDistribution(getArguments().getString("GameID"), this);
+            new RAAPIConnection(getContext()).ScrapeGameInfoFromWeb(getArguments().getString("GameID"), this);
         } else if (!isAPIActive) {
             populateChartData(view);
         }
@@ -112,7 +112,7 @@ public class AchievementDistributionFragment extends Fragment implements RAAPICa
     public void callback(int responseCode, String response) {
         if (!isActive)
             return;
-        if (responseCode == RAAPIConnection.RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION) {
+        if (responseCode == RAAPIConnection.RESPONSE_SCRAPE_GAME_PAGE) {
             new AchievementDistributionChartAsyncTask(this, data).execute(response);
         }
         isAPIActive = false;

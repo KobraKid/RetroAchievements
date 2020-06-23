@@ -168,7 +168,7 @@ public class HomeFragment extends Fragment implements RAAPICallback, View.OnClic
                     .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + MainActivity.ra_user + ".png")
                     .into((ImageView) view.findViewById(R.id.home_profile_picture));
         }
-        ((TextView) view.findViewById(R.id.home_stats)).setText(getString(R.string.nav_rank_score, MainActivity.score, MainActivity.rank));
+        ((TextView) view.findViewById(R.id.home_stats)).setText(getString(R.string.score_rank, MainActivity.score, MainActivity.rank));
         view.findViewById(R.id.home_username).setVisibility(View.VISIBLE);
         view.findViewById(R.id.home_stats).setVisibility(View.VISIBLE);
     }

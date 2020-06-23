@@ -25,7 +25,7 @@
             android:layout_weight="0.15"
             android:adjustViewBounds="true"
             android:contentDescription="@string/cd_game_summary_image_icon"
-            app:srcCompat="@drawable/favicon" />
+            app:srcCompat="@drawable/game_placeholder" />
 
         <TextView
             android:id="@+id/game_summary_title"

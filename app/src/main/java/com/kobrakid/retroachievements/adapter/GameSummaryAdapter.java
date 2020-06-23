@@ -81,6 +81,7 @@ public class GameSummaryAdapter extends RecyclerView.Adapter<GameSummaryAdapter.
         }
         Picasso.get()
                 .load(Consts.BASE_URL + imageIcons.get(mappedPosition))
+                .placeholder(R.drawable.game_placeholder)
                 .into(((ImageView) holder.constraintLayout.findViewById(R.id.game_summary_image_icon)));
         String title = Jsoup.parse(titles.get(mappedPosition).trim()).text();
         if (title.contains(", The"))

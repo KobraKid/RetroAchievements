@@ -83,11 +83,11 @@
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/cd_game_details_image_icon"
                 android:cropToPadding="false"
-                android:src="@drawable/favicon"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/game_placeholder" />
 
             <TextView
                 android:id="@+id/game_details_developer"

@@ -43,8 +43,9 @@ public class RAAPIConnection {
     public static final int RESPONSE_GET_LEADERBOARDS = 13;
     public static final int RESPONSE_GET_LEADERBOARD = 14;
     public static final int RESPONSE_GET_USER_WEB_PROFILE = 15;
-    public static final int RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION = 16;
+    public static final int RESPONSE_SCRAPE_GAME_PAGE = 16;
     public static final int RESPONSE_GET_LINKED_HASHES = 17;
+    public static final int RESPONSE_GET_COMMENTS = 18;
 
     private static final String BASE_URL = Consts.BASE_URL + "/" + Consts.API_URL + "/";
 
@@ -670,11 +671,11 @@ public class RAAPIConnection {
      * @param gameID   The ID of the game whose distribution is to be fetched.
      * @param callback The RAAPICallback that should accept the results of the API call.
      */
-    public void GetAchievementDistribution(String gameID, final RAAPICallback callback) {
+    public void ScrapeGameInfoFromWeb(String gameID, final RAAPICallback callback) {
         if (gameID == null)
             callback.callback(RESPONSE_ERROR, "No user");
         else
-            new GetWeb(callback, RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION).execute(Consts.BASE_URL + "/" + Consts.GAME_POSTFIX + "/" + gameID);
+            new GetWeb(callback, RESPONSE_SCRAPE_GAME_PAGE).execute(Consts.BASE_URL + "/" + Consts.GAME_POSTFIX + "/" + gameID);
     }
 
     /**

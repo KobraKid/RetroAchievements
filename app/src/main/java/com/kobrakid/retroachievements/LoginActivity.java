@@ -43,22 +43,23 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login(@SuppressWarnings("unused") View view) {
-        String ra_user = ((EditText) findViewById(R.id.login_username)).getText().toString();
-        String ra_api = ((EditText) findViewById(R.id.login_api_key)).getText().toString();
-        if (ra_user.length() > 0) {
-            // Successfully logged in, save the new credentials and return
-            this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), ra_user).apply();
-            this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_api_key), ra_api).apply();
-            setResult(Consts.SUCCESS);
-            Toast.makeText(getApplicationContext(), getString(R.string.new_login_welcome, ra_user), Toast.LENGTH_SHORT).show();
-        } else {
-            setResult(Consts.FAILURE);
+        switch (view.getId()) {
+            case R.id.login_button:
+                String ra_user = ((EditText) findViewById(R.id.login_username)).getText().toString();
+                if (ra_user.length() > 0) {
+                    // Successfully logged in, save the new credentials
+                    this.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), ra_user).apply();
+                    setResult(Consts.SUCCESS);
+                    Toast.makeText(getApplicationContext(), getString(R.string.new_login_welcome, ra_user), Toast.LENGTH_SHORT).show();
+                } else {
+                    setResult(Consts.FAILURE);
+                }
+                break;
+            case R.id.cancel_button:
+                setResult(Consts.CANCELLED);
+                break;
         }
         finish();
-    }
-
-    public void cancel(@SuppressWarnings("unused") View view) {
-        onBackPressed();
     }
 
     public void help(@SuppressWarnings("unused") View view) {

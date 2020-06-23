@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements RAAPICallback, Se
                     .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + ra_user + ".png")
                     .into((ImageView) navView.getHeaderView(0).findViewById(R.id.nav_profile_picture));
             if (rank != null && score != null) {
-                ((TextView) navView.getHeaderView(0).findViewById(R.id.nav_stats)).setText(getString(R.string.nav_rank_score, score, rank));
+                ((TextView) navView.getHeaderView(0).findViewById(R.id.nav_stats)).setText(getString(R.string.score_rank, score, rank));
                 navView.getHeaderView(0).findViewById(R.id.nav_stats).setVisibility(View.VISIBLE);
             }
         }

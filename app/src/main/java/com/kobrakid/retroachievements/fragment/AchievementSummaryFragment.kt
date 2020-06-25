@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.MainActivity
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RAAPICallback
-import com.kobrakid.retroachievements.RAAPIConnection
+import com.kobrakid.retroachievements.RAAPIConnectionDeprecated
 import com.kobrakid.retroachievements.adapter.AchievementAdapter
 import org.json.JSONException
 import org.json.JSONObject
@@ -28,8 +28,9 @@ import java.util.*
  * particular game.
  */
 class AchievementSummaryFragment : Fragment(), RAAPICallback {
+
     private var adapter: AchievementAdapter? = null
-    var layoutManager: RecyclerView.LayoutManager? = null
+    val layoutManager = LinearLayoutManager(context)
     private var numEarned = 0
     private var numEarnedHC = 0
     private var totalAch = 0
@@ -37,20 +38,21 @@ class AchievementSummaryFragment : Fragment(), RAAPICallback {
     private var totalPts = 0
     private var earnedRatio = 0
     private var totalRatio = 0
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         retainInstance = true
         val view = inflater.inflate(R.layout.view_pager_achievements_summary, container, false)
+        // TODO: See if this really is affected by savedInstanceState
         if (savedInstanceState == null) {
             adapter = AchievementAdapter(this)
         }
         val recyclerView: RecyclerView = view.findViewById(R.id.game_details_achievements_recycler_view)
         recyclerView.setHasFixedSize(true)
-        layoutManager = LinearLayoutManager(context)
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
         if (savedInstanceState == null && arguments != null) {
-            RAAPIConnection(Objects.requireNonNull(context)).GetGameInfoAndUserProgress(MainActivity.ra_user, arguments!!.getString("GameID"), this)
+            RAAPIConnectionDeprecated(context).GetGameInfoAndUserProgress(MainActivity.raUser, arguments?.getString("GameID"), this)
         } else {
             populateViews(view)
         }
@@ -58,14 +60,14 @@ class AchievementSummaryFragment : Fragment(), RAAPICallback {
     }
 
     override fun callback(responseCode: Int, response: String) {
-        if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_INFO_AND_USER_PROGRESS) {
+        if (responseCode == RAAPIConnectionDeprecated.RESPONSE_GET_GAME_INFO_AND_USER_PROGRESS) {
             try {
                 val reader = JSONObject(response)
-                adapter!!.setNumDistinctCasual(reader.getString("NumDistinctPlayersCasual").toDouble())
+                adapter?.setNumDistinctCasual(reader.getString("NumDistinctPlayersCasual").toDouble())
                 if (reader.getString("NumAchievements") == "0") {
                     if (view != null) {
-                        view!!.findViewById<View>(R.id.game_details_loading_bar).visibility = View.GONE
-                        view!!.findViewById<View>(R.id.game_details_no_achievements).visibility = View.VISIBLE
+                        view?.findViewById<View>(R.id.game_details_loading_bar)?.visibility = View.GONE
+                        view?.findViewById<View>(R.id.game_details_no_achievements)?.visibility = View.VISIBLE
                     }
                 } else {
                     val achievements = reader.getJSONObject("Achievements")
@@ -95,7 +97,7 @@ class AchievementSummaryFragment : Fragment(), RAAPICallback {
                         totalPts += achievement.getString("Points").toInt()
                         totalRatio += achievement.getString("TrueRatio").toInt()
                     }
-                    adapter!!.clear()
+                    adapter?.clear()
                     AchievementDetailsAsyncTask(this).execute(response)
                 }
             } catch (e: JSONException) {
@@ -104,12 +106,12 @@ class AchievementSummaryFragment : Fragment(), RAAPICallback {
         }
     }
 
-    private fun populateViews(view: View?) {
-        (view!!.findViewById<View>(R.id.game_details_progress_text) as TextView).text = getString(
+    private fun populateViews(view: View) {
+        view.findViewById<TextView>(R.id.game_details_progress_text).text = getString(
                 R.string.completion,
                 DecimalFormat("@@@@")
                         .format((numEarned + numEarnedHC).toFloat() / totalAch.toFloat() * 100.0))
-        (view.findViewById<View>(R.id.game_details_user_summary) as TextView).text = Html.fromHtml(getString(
+        view.findViewById<TextView>(R.id.game_details_user_summary).text = Html.fromHtml(getString(
                 R.string.user_summary,
                 numEarned,
                 totalAch,
@@ -118,15 +120,16 @@ class AchievementSummaryFragment : Fragment(), RAAPICallback {
                 earnedRatio,
                 totalPts * 2,  // Account for hardcore achievements worth double
                 totalRatio))
-        (view.findViewById<View>(R.id.game_details_progress) as ProgressBar).progress = (numEarned.toFloat() / totalAch.toFloat() * 10000.0).toInt()
+        // TODO: why is this multiplied by 10_000?
+        view.findViewById<ProgressBar>(R.id.game_details_progress).progress = (numEarned.toFloat() / totalAch.toFloat() * 10_000.0).toInt()
         view.findViewById<View>(R.id.game_details_progress).visibility = View.VISIBLE
         view.findViewById<View>(R.id.game_details_loading_bar).visibility = View.GONE
         view.findViewById<View>(R.id.game_details_achievements_recycler_view).visibility = View.VISIBLE
     }
 
-    private class AchievementDetailsAsyncTask internal constructor(fragment: Fragment) : AsyncTask<String?, Any?, Array<String>?>() {
+    private class AchievementDetailsAsyncTask internal constructor(fragment: Fragment) : AsyncTask<String?, Any, Unit>() {
         val fragmentReference: WeakReference<Fragment> = WeakReference(fragment)
-        override fun doInBackground(vararg strings: String?): Array<String>? {
+        override fun doInBackground(vararg strings: String?) {
             try {
                 val reader = JSONObject(strings[0])
                 val achievements = reader.getJSONObject("Achievements")
@@ -186,35 +189,38 @@ class AchievementSummaryFragment : Fragment(), RAAPICallback {
                     totalAch++
                 }
             } catch (e: JSONException) {
-                if (e.toString().contains("Value null at Achievements of type org.json.JSONObject$1 cannot be converted to JSONObject")) Log.d(TAG, "This game has no achievements") else e.printStackTrace()
+                if (e.toString().contains("Value null at Achievements of type org.json.JSONObject$1 cannot be converted to JSONObject"))
+                    Log.d(TAG, "This game has no achievements")
+                else
+                    Log.e(TAG, "An unknown exception has occurred", e)
             }
-            return null
         }
 
-        override fun onProgressUpdate(vararg values: Any?) {
+        override fun onProgressUpdate(vararg values: Any) {
             val fragment = fragmentReference.get() as AchievementSummaryFragment?
             if (fragment != null) {
-                fragment.adapter!!.addAchievement(
+                fragment.adapter?.addAchievement(
                         values[0] as Int,
-                        (values[1] as String),
-                        (values[2] as String),
-                        (values[3] as String),
-                        (values[4] as String),
-                        (values[5] as String),
-                        (values[6] as String),
-                        (values[7] as String),
+                        values[1] as String,
+                        values[2] as String,
+                        values[3] as String,
+                        values[4] as String,
+                        values[5] as String,
+                        values[6] as String,
+                        values[7] as String,
                         values[8] as Boolean,
-                        (values[9] as String),
-                        (values[10] as String),
-                        (values[11] as String),
-                        (values[12] as String),
-                        (values[13] as String))
+                        values[9] as String,
+                        values[10] as String,
+                        values[11] as String,
+                        values[12] as String,
+                        values[13] as String)
             }
         }
 
-        override fun onPostExecute(strings: Array<String>?) {
+        override fun onPostExecute(result: Unit) {
             val fragment = fragmentReference.get() as AchievementSummaryFragment?
-            if (fragment != null && fragment.view != null) fragment.populateViews(fragment.view)
+            if (fragment != null && fragment.view != null)
+                fragment.populateViews(fragment.view!!)
         }
 
     }

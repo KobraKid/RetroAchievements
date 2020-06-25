@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +13,7 @@ import androidx.fragment.app.Fragment
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RAAPICallback
-import com.kobrakid.retroachievements.RAAPIConnection
+import com.kobrakid.retroachievements.RAAPIConnectionDeprecated
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Picasso.LoadedFrom
 import com.squareup.picasso.Target
@@ -23,6 +24,7 @@ import org.json.JSONObject
  * A simple [Fragment] subclass.
  */
 class GameImagesFragment : Fragment(), RAAPICallback {
+
     private var boxURL: String? = null
     private var titleURL: String? = null
     private var ingameURL: String? = null
@@ -34,9 +36,9 @@ class GameImagesFragment : Fragment(), RAAPICallback {
         retainInstance = true
         myView = inflater.inflate(R.layout.view_pager_game_images, container, false)
         if (savedInstanceState == null)
-            RAAPIConnection(context).GetGameInfo(arguments?.getString("GameID", "0"), this)
+            RAAPIConnectionDeprecated(context).GetGameInfo(arguments?.getString("GameID", "0"), this)
         else
-            myView!!.findViewById<View>(R.id.card_0_boxart).post { populateViews() }
+            myView?.findViewById<View>(R.id.card_0_boxart)?.post { populateViews() }
 
         return myView
     }
@@ -58,7 +60,7 @@ class GameImagesFragment : Fragment(), RAAPICallback {
 
     override fun callback(responseCode: Int, response: String) {
         if (!isActive) return
-        if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_INFO) {
+        if (responseCode == RAAPIConnectionDeprecated.RESPONSE_GET_GAME_INFO) {
             try {
                 val reader = JSONObject(response)
                 boxURL = reader.getString("ImageBoxArt")
@@ -66,7 +68,7 @@ class GameImagesFragment : Fragment(), RAAPICallback {
                 ingameURL = reader.getString("ImageIngame")
                 populateViews()
             } catch (e: JSONException) {
-                e.printStackTrace()
+                Log.e(TAG, "Couldn't parse game images", e)
             }
         }
     }
@@ -81,7 +83,7 @@ class GameImagesFragment : Fragment(), RAAPICallback {
                         val scale = ((myView?.findViewById<View>(R.id.card_0_boxart)?.width
                                 ?: 0) - 16) / drawable.intrinsicWidth
                         drawable.setBounds(0, 0, drawable.intrinsicWidth * scale, drawable.intrinsicHeight * scale)
-                        (myView?.findViewById<View>(R.id.image_boxart) as TextView).setCompoundDrawables(null, drawable, null, null)
+                        myView?.findViewById<TextView>(R.id.image_boxart)?.setCompoundDrawables(null, drawable, null, null)
                     }
 
                     override fun onBitmapFailed(e: Exception, errorDrawable: Drawable) {}
@@ -96,7 +98,7 @@ class GameImagesFragment : Fragment(), RAAPICallback {
                         val scale = ((myView?.findViewById<View>(R.id.card_1_title)?.width
                                 ?: 0) - 16) / drawable.intrinsicWidth
                         drawable.setBounds(0, 0, drawable.intrinsicWidth * scale, drawable.intrinsicHeight * scale)
-                        (myView?.findViewById<View>(R.id.image_title) as TextView).setCompoundDrawables(null, drawable, null, null)
+                        myView?.findViewById<TextView>(R.id.image_title)?.setCompoundDrawables(null, drawable, null, null)
                     }
 
                     override fun onBitmapFailed(e: Exception, errorDrawable: Drawable) {}
@@ -110,11 +112,15 @@ class GameImagesFragment : Fragment(), RAAPICallback {
                         val scale = ((myView?.findViewById<View>(R.id.card_2_ingame)?.width
                                 ?: 0) - 16) / drawable.intrinsicWidth
                         drawable.setBounds(0, 0, drawable.intrinsicWidth * scale, drawable.intrinsicHeight * scale)
-                        (myView?.findViewById<View>(R.id.image_ingame) as TextView).setCompoundDrawables(null, drawable, null, null)
+                        myView?.findViewById<TextView>(R.id.image_ingame)?.setCompoundDrawables(null, drawable, null, null)
                     }
 
                     override fun onBitmapFailed(e: Exception, errorDrawable: Drawable) {}
                     override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
                 })
+    }
+
+    companion object {
+        private val TAG = GameImagesFragment::class.java.simpleName
     }
 }

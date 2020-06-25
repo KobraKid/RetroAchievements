@@ -123,7 +123,6 @@
 
     <!-- Login Activity -->
     <string name="login">Login</string>
-    <string name="cancel">Cancel</string>
     <string name="login_username">Username</string>
     <string name="login_api_key">API Key</string>
     <string name="api_detect_dialog_title">Detect API Key</string>

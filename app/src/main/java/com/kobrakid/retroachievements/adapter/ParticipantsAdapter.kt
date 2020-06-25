@@ -14,14 +14,15 @@ import com.kobrakid.retroachievements.adapter.ParticipantsAdapter.ParticipantVie
 import com.squareup.picasso.Picasso
 
 class ParticipantsAdapter(private val context: Context) : RecyclerView.Adapter<ParticipantViewHolder>() {
+
+    // TODO: Make this more Kotlin-oriented (referenced @ LeaderboardActivity.kt)
     @JvmField
     val users = mutableListOf<String>()
-
     @JvmField
     val results = mutableListOf<String>()
-
     @JvmField
     val dates = mutableListOf<String>()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ParticipantViewHolder {
         return ParticipantViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.view_holder_participants, parent, false))
     }
@@ -34,7 +35,7 @@ class ParticipantsAdapter(private val context: Context) : RecyclerView.Adapter<P
         (holder.itemView.findViewById<View>(R.id.participant_username) as TextView).text = users[position]
         (holder.itemView.findViewById<View>(R.id.participant_result) as TextView).text = results[position]
         (holder.itemView.findViewById<View>(R.id.participant_date) as TextView).text = dates[position]
-        if (MainActivity.ra_user != null && MainActivity.ra_user == users[position]) holder.itemView.background = context.getDrawable(R.drawable.border)
+        if (MainActivity.raUser == users[position]) holder.itemView.background = context.getDrawable(R.drawable.border)
     }
 
     override fun getItemCount(): Int {
@@ -48,6 +49,6 @@ class ParticipantsAdapter(private val context: Context) : RecyclerView.Adapter<P
         notifyItemInserted(users.size - 1)
     }
 
-    class ParticipantViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView!!)
+    class ParticipantViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
 }

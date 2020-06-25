@@ -3,6 +3,7 @@ package com.kobrakid.retroachievements.fragment
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.util.SparseArray
@@ -12,23 +13,30 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.kobrakid.retroachievements.*
 import com.kobrakid.retroachievements.AppExecutors.Companion.instance
+import com.kobrakid.retroachievements.Consts
+import com.kobrakid.retroachievements.MainActivity
+import com.kobrakid.retroachievements.R
+import com.kobrakid.retroachievements.RetroAchievementsApi
 import com.kobrakid.retroachievements.database.Console
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
-import java.util.*
 
-class SettingsFragment : Fragment(), RAAPICallback {
+class SettingsFragment : Fragment() {
+
     // Unused, but guarantees that the parent Activity implements OnFragmentInteractionListener
     private var listener: OnFragmentInteractionListener? = null
-    private var apiConnection: RAAPIConnection? = null
     private var sharedPref: SharedPreferences? = null
-    private val consoleID = StringBuilder()
-    private val consoleName = StringBuilder()
     private val applicableSettings = SparseArray<Runnable?>()
+    private var counter = 0
 
     // Can be local, but used to index which settings have been modified
     private val logoutKey = 0
@@ -48,9 +56,9 @@ class SettingsFragment : Fragment(), RAAPICallback {
 
         // Set up views
         val theme = sharedPref?.getString(getString(R.string.theme_setting), "")
-        (view.findViewById<View>(R.id.settings_current_theme) as TextView).text = getString(R.string.settings_current_theme, theme)
-        (view.findViewById<View>(R.id.settings_current_user) as TextView).text = if (MainActivity.ra_user == null) getString(R.string.settings_no_current_user) else getString(R.string.settings_current_user, MainActivity.ra_user)
-        (view.findViewById<View>(R.id.settings_theme_dropdown) as Spinner).adapter = object : ArrayAdapter<String?>(context!!, android.R.layout.simple_spinner_dropdown_item, Consts.THEMES) {
+        view.findViewById<TextView>(R.id.settings_current_theme).text = getString(R.string.settings_current_theme, theme)
+        view.findViewById<TextView>(R.id.settings_current_user).text = if (MainActivity.raUser == "") getString(R.string.settings_no_current_user) else getString(R.string.settings_current_user, MainActivity.raUser)
+        view.findViewById<Spinner>(R.id.settings_theme_dropdown).adapter = object : ArrayAdapter<String?>(context!!, android.R.layout.simple_spinner_dropdown_item, Consts.THEMES) {
             override fun isEnabled(position: Int): Boolean {
                 return Consts.THEMES_ENABLE_ARRAY[position]
             }
@@ -60,27 +68,29 @@ class SettingsFragment : Fragment(), RAAPICallback {
                 if (isEnabled(position)) {
                     val typedValue = TypedValue()
                     context.theme.resolveAttribute(R.attr.colorPrimary, typedValue, true)
-                    textView.setTextColor(resources.getColor(typedValue.resourceId))
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                        textView.setTextColor(context.resources.getColor(typedValue.resourceId, activity?.theme))
+                    else
+                        textView.setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
                 } else {
                     textView.setTextColor(Color.GRAY)
                 }
                 return textView
             }
         }
-        (view.findViewById<View>(R.id.settings_theme_dropdown) as Spinner).setSelection(listOf(*Consts.THEMES).indexOf(theme))
-        (view.findViewById<View>(R.id.settings_theme_dropdown) as Spinner).onItemSelectedListener = object : OnItemSelectedListener {
+        view.findViewById<Spinner>(R.id.settings_theme_dropdown).setSelection(listOf(*Consts.THEMES).indexOf(theme))
+        view.findViewById<Spinner>(R.id.settings_theme_dropdown).onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(adapterView: AdapterView<*>, view: View?, pos: Int, id: Long) {
                 if (pos > 0) changeTheme(adapterView.getItemAtPosition(pos).toString())
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>?) {}
         }
-        (view.findViewById<View>(R.id.settings_hide_consoles) as CheckBox).isChecked = sharedPref?.getBoolean(getString(R.string.empty_console_hide_setting), false)!!
-        if (sharedPref?.getBoolean(getString(R.string.empty_console_hide_setting), false)!!) view.findViewById<View>(R.id.settings_hide_consoles_warning).visibility = View.GONE
-        (view.findViewById<View>(R.id.settings_hide_games) as CheckBox).isChecked = sharedPref?.getBoolean(getString(R.string.empty_game_hide_setting), false)!!
-        (view.findViewById<View>(R.id.settings_hide_consoles) as CheckBox).setOnCheckedChangeListener { _: CompoundButton?, b: Boolean -> hideConsoles(view, b) }
-        (view.findViewById<View>(R.id.settings_hide_games) as CheckBox).setOnCheckedChangeListener { _: CompoundButton?, b: Boolean -> hideGames(view, b) }
-        apiConnection = (activity as MainActivity?)!!.apiConnection
+        view.findViewById<CheckBox>(R.id.settings_hide_consoles).isChecked = sharedPref?.getBoolean(getString(R.string.empty_console_hide_setting), false)!!
+        if (sharedPref?.getBoolean(getString(R.string.empty_console_hide_setting), false) != false) view.findViewById<View>(R.id.settings_hide_consoles_warning).visibility = View.GONE
+        view.findViewById<CheckBox>(R.id.settings_hide_games).isChecked = sharedPref?.getBoolean(getString(R.string.empty_game_hide_setting), false)!!
+        view.findViewById<CheckBox>(R.id.settings_hide_consoles).setOnCheckedChangeListener { _: CompoundButton?, b: Boolean -> hideConsoles(view, b) }
+        view.findViewById<CheckBox>(R.id.settings_hide_games).setOnCheckedChangeListener { _: CompoundButton?, b: Boolean -> hideGames(view, b) }
         return view
     }
 
@@ -89,8 +99,7 @@ class SettingsFragment : Fragment(), RAAPICallback {
         listener = try {
             activity as OnFragmentInteractionListener?
         } catch (e: ClassCastException) {
-            throw ClassCastException(Objects.requireNonNull(activity).toString()
-                    + " must implement OnHeadlineSelectedListener")
+            throw ClassCastException(activity.toString() + " must implement OnFragmentInteractionListener")
         }
     }
 
@@ -99,7 +108,7 @@ class SettingsFragment : Fragment(), RAAPICallback {
         applicableSettings.remove(changeThemeKey)
         applicableSettings.put(changeThemeKey, Runnable {
             Log.d(TAG, "Saving theme $theme")
-            sharedPref!!.edit().putString(getString(R.string.theme_setting), theme).apply()
+            sharedPref?.edit()?.putString(getString(R.string.theme_setting), theme)?.apply()
         })
     }
 
@@ -108,17 +117,19 @@ class SettingsFragment : Fragment(), RAAPICallback {
         if (applicableSettings[hideConsolesKey] != null) {
             applicableSettings.remove(hideConsolesKey)
         } else {
-            val callback: RAAPICallback = this
             applicableSettings.put(hideConsolesKey, Runnable {
-                sharedPref!!.edit().putBoolean(getString(R.string.empty_console_hide_setting), hide).apply()
+                sharedPref?.edit()?.putBoolean(getString(R.string.empty_console_hide_setting), hide)?.apply()
                 if (hide) {
                     // Get all consoles and store their game counts
-                    val db = RetroAchievementsDatabase.getInstance(context)
+                    val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
                     instance!!.diskIO().execute {
-                        db.consoleDao().clearTable()
-                        Log.d(TAG, "Clearing table")
+                        db?.consoleDao()?.clearTable()
+                        Log.d(TAG, "Clearing console table")
                     }
-                    apiConnection!!.GetConsoleIDs(callback)
+                    CoroutineScope(IO).launch {
+                        if (this@SettingsFragment.context != null)
+                            RetroAchievementsApi.GetConsoleIDs(this@SettingsFragment.context!!) { removeConsoles(view, it) }
+                    }
                 } else {
                     activity?.recreate()
                 }
@@ -131,64 +142,76 @@ class SettingsFragment : Fragment(), RAAPICallback {
         if (applicableSettings[hideGamesKey] != null) {
             applicableSettings.remove(hideGamesKey)
         } else {
-            applicableSettings.put(hideGamesKey, Runnable { sharedPref!!.edit().putBoolean(getString(R.string.empty_game_hide_setting), hide).apply() })
+            applicableSettings.put(hideGamesKey, Runnable { sharedPref?.edit()?.putBoolean(getString(R.string.empty_game_hide_setting), hide)?.apply() })
         }
     }
 
     fun logout() {
         (activity?.findViewById<View>(R.id.settings_current_user) as TextView).text = getString(R.string.settings_current_user, "none")
-        applicableSettings.put(logoutKey, Runnable { sharedPref!!.edit().putString(getString(R.string.ra_user), null).apply() })
+        applicableSettings.put(logoutKey, Runnable { sharedPref?.edit()?.putString(getString(R.string.ra_user), "")?.apply() })
     }
 
     fun applySettings() {
         activity?.findViewById<View>(R.id.settings_applying_fade)?.visibility = View.VISIBLE
         activity?.findViewById<View>(R.id.settings_applying)?.visibility = View.VISIBLE
         for (key in 0 until applicableSettings.size()) {
-            applicableSettings.valueAt(key)!!.run()
+            applicableSettings.valueAt(key)?.run()
         }
         if (applicableSettings[hideConsolesKey] == null) {
             // Recreate activity now if no db operations are running
-            activity!!.recreate()
+            activity?.recreate()
         }
     }
 
-    override fun callback(responseCode: Int, response: String) {
-        if (responseCode == RAAPIConnection.RESPONSE_ERROR) return
-        if (responseCode == RAAPIConnection.RESPONSE_GET_CONSOLE_IDS) {
-            val db = RetroAchievementsDatabase.getInstance(context)
-            val connection = apiConnection
-            val callback: RAAPICallback = this
-            instance?.diskIO()?.execute {
+    private suspend fun removeConsoles(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
+        when (response.first) {
+            RetroAchievementsApi.RESPONSE.ERROR -> {
+                Log.w(TAG, response.second)
+            }
+            RetroAchievementsApi.RESPONSE.GET_CONSOLE_IDS -> {
+                val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
                 try {
-                    val reader = JSONArray(response)
-                    for (i in 0 until reader.length()) {
-                        val consoles = db.consoleDao().getConsoleWithID(reader.getJSONObject(i).getString("ID").toInt())
-                        if (consoles.size == 0) {
-                            consoleID.delete(0, consoleID.length)
-                            consoleName.delete(0, consoleName.length)
-                            consoleID.append(reader.getJSONObject(i).getString("ID"))
-                            consoleName.append(reader.getJSONObject(i).getString("Name"))
-                            connection!!.GetGameList(reader.getJSONObject(i).getString("ID"), callback)
-                            return@execute
+                    val reader = JSONArray(response.second)
+                    counter = reader.length()
+                    for (i in 0 until counter) {
+                        if (db != null) {
+                            CoroutineScope(IO).launch {
+                                // Set each console to have 0 games
+                                db.consoleDao()?.insertConsole(Console(reader.getJSONObject(i).getString("ID").toInt(), reader.getJSONObject(i).getString("Name"), 0))
+                                if (this@SettingsFragment.context != null)
+                                    RetroAchievementsApi.GetGameList(this@SettingsFragment.context!!, reader.getJSONObject(i).getString("ID")) {
+                                        removeConsoles(view, it)
+                                    }
+                            }
                         }
+                        Log.i(TAG, "calling api on $i")
                     }
-                    instance!!.mainThread().execute { activity?.recreate() }
                 } catch (e: JSONException) {
-                    e.printStackTrace()
+                    Log.e(TAG, "Couldn't parse console IDs", e)
                 }
             }
-        } else if (responseCode == RAAPIConnection.RESPONSE_GET_GAME_LIST) {
-            try {
-                val reader = JSONArray(response)
-                val db = RetroAchievementsDatabase.getInstance(context)
-                instance!!.diskIO().execute {
-                    db.consoleDao().insertConsole(Console(consoleID.toString().toInt(), consoleName.toString(), reader.length()))
-                    Log.d(TAG, "Adding console " + consoleName.toString() + "(" + consoleID.toString() + "): " + reader.length() + " games")
+            RetroAchievementsApi.RESPONSE.GET_GAME_LIST -> {
+                try {
+                    val reader = JSONArray(response.second)
+                    val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
+                    if (reader.length() > 0 && db != null) {
+                        CoroutineScope(IO).launch {
+                            // Only update a console if it has more than 0 games
+                            val id = reader.getJSONObject(0).getString("ConsoleID").toInt()
+                            val name = reader.getJSONObject(0).getString("ConsoleName")
+                            db.consoleDao()?.updateConsole(Console(id, name, reader.length()))
+                            Log.d(TAG, "Updating console $id ($name): ${reader.length()} games")
+                        }
+                    }
+                } catch (e: JSONException) {
+                    Log.e(TAG, "Couldn't parse game list", e)
+                } finally {
+                    counter--
                 }
-                // Recurse until all consoles are added to db
-                apiConnection!!.GetConsoleIDs(this)
-            } catch (e: JSONException) {
-                e.printStackTrace()
+                if (counter == 0)
+                    withContext(Main) { activity?.recreate() }
+            }
+            else -> {
             }
         }
     }

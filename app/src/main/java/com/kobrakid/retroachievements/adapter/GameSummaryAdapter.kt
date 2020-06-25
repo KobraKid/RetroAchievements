@@ -20,13 +20,15 @@ import org.jsoup.Jsoup
 import java.util.*
 
 class GameSummaryAdapter(private val context: Context) : RecyclerView.Adapter<GameSummaryViewHolder>(), OnPopupTextUpdate, Filterable {
-    private val ids = ArrayList<String>()
-    private val imageIcons = ArrayList<String>()
-    private val titles = ArrayList<String>()
-    private val stats = ArrayList<String>()
-    private val masteries = ArrayList<Boolean>()
-    private val loading = ArrayList<Boolean>()
-    private val mappings: MutableList<Int> = mutableListOf()
+
+    private val ids = mutableListOf<String>()
+    private val imageIcons = mutableListOf<String>()
+    private val titles = mutableListOf<String>()
+    private val stats = mutableListOf<String>()
+    private val masteries = mutableListOf<Boolean>()
+    private val loading = mutableListOf<Boolean>()
+    private val mappings = mutableListOf<Int>()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameSummaryViewHolder {
         val constraintLayout = LayoutInflater
                 .from(parent.context)
@@ -55,17 +57,21 @@ class GameSummaryAdapter(private val context: Context) : RecyclerView.Adapter<Ga
                         holder.constraintLayout.findViewById<View>(R.id.game_summary_loading).visibility = View.INVISIBLE
                         holder.constraintLayout.findViewById<View>(R.id.separator).visibility = View.VISIBLE
                         holder.constraintLayout.findViewById<View>(R.id.game_summary_container).visibility = View.VISIBLE
-                        if (masteries.size != 0 && masteries[mappedPosition]) holder.constraintLayout.findViewById<View>(R.id.game_summary_image_icon).background = context.getDrawable(R.drawable.image_view_border) else holder.constraintLayout.findViewById<View>(R.id.game_summary_image_icon).background = null
+                        if (masteries.size != 0 && masteries[mappedPosition])
+                            holder.constraintLayout.findViewById<View>(R.id.game_summary_image_icon).background = context.getDrawable(R.drawable.image_view_border)
+                        else
+                            holder.constraintLayout.findViewById<View>(R.id.game_summary_image_icon).background = null
                         var title = Jsoup.parse(titles[mappedPosition].trim { it <= ' ' }).text()
                         // Fix titles with an appended ", The"
-                        if (title.contains(", The")) title = "The " + title.substring(0, title.indexOf(", The")) + title.substring(title.indexOf(", The") + 5)
-                        (holder.constraintLayout.findViewById<View>(R.id.game_summary_title) as TextView).text = title
+                        if (title.contains(", The"))
+                            title = "The " + title.substring(0, title.indexOf(", The")) + title.substring(title.indexOf(", The") + 5)
+                        holder.constraintLayout.findViewById<TextView>(R.id.game_summary_title).text = title
                         if (stats.size == 0) {
                             holder.constraintLayout.findViewById<View>(R.id.game_summary_stats).visibility = View.GONE
                         } else {
-                            (holder.constraintLayout.findViewById<View>(R.id.game_summary_stats) as TextView).text = stats[mappedPosition]
+                            holder.constraintLayout.findViewById<TextView>(R.id.game_summary_stats).text = stats[mappedPosition]
                         }
-                        (holder.constraintLayout.findViewById<View>(R.id.game_summary_game_id) as TextView).text = ids[mappedPosition]
+                        holder.constraintLayout.findViewById<TextView>(R.id.game_summary_game_id).text = ids[mappedPosition]
                     }
 
                     override fun onError(e: Exception) {}
@@ -92,7 +98,9 @@ class GameSummaryAdapter(private val context: Context) : RecyclerView.Adapter<Ga
                 val results = FilterResults()
                 if (charSequence.isNotEmpty()) {
                     val filterMappings: MutableList<Int> = ArrayList()
-                    for (i in titles.indices) if (titles[i].toLowerCase(Locale.ROOT).contains(charSequence.toString().toLowerCase(Locale.ROOT))) filterMappings.add(i)
+                    for (i in titles.indices)
+                        if (titles[i].toLowerCase(Locale.ROOT).contains(charSequence.toString().toLowerCase(Locale.ROOT)))
+                            filterMappings.add(i)
                     results.count = filterMappings.size
                     results.values = filterMappings
                 }
@@ -159,9 +167,5 @@ class GameSummaryAdapter(private val context: Context) : RecyclerView.Adapter<Ga
 
     companion object {
         private val TAG = GameSummaryAdapter::class.java.simpleName
-    }
-
-    init {
-        refreshMappings()
     }
 }

@@ -10,10 +10,11 @@ import androidx.viewpager.widget.ViewPager
  * Custom implementation of the ViewPager widget, allows for toggling paging.
  */
 class ToggleableViewPager : ViewPager {
+
     private var pagingEnabled = true
 
-    constructor(context: Context) : super(context) {}
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {}
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         return pagingEnabled && super.onInterceptTouchEvent(ev)

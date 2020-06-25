@@ -18,26 +18,34 @@ import com.squareup.picasso.Picasso
 import java.util.*
 
 class LeaderboardsAdapter(fragment: Fragment, private val table: RowSortedTable<Int, String, String>, private val tableFiltered: RowSortedTable<Int, String, String>) : RecyclerView.Adapter<LeaderboardsViewHolder>(), Filterable, OnPopupTextUpdate {
-    private val listener: LeaderboardsViewHolderListenerImpl
+
+    private val listener = LeaderboardsViewHolderListenerImpl(fragment, tableFiltered)
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LeaderboardsViewHolder {
         return LeaderboardsViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.view_holder_leaderboard, parent, false), listener)
     }
 
     override fun onBindViewHolder(holder: LeaderboardsViewHolder, position: Int) {
-        (holder.itemView.findViewById<View>(R.id.id) as TextView).text = tableFiltered.row(position)["ID"]
-        Picasso.get().load(tableFiltered.row(position)["IMAGE"]).into(holder.itemView.findViewById<View>(R.id.imageIcon) as ImageView)
-        (holder.itemView.findViewById<View>(R.id.game) as TextView).text = tableFiltered.row(position)["GAME"]
-        if (tableFiltered.row(position)["CONSOLE"] == "") (holder.itemView.findViewById<View>(R.id.console) as TextView).text = null else (holder.itemView.findViewById<View>(R.id.console) as TextView).text = holder.itemView.context.getString(R.string.console_parens, tableFiltered.row(position)["CONSOLE"])
-        (holder.itemView.findViewById<View>(R.id.title) as TextView).text = tableFiltered.row(position)["TITLE"]
-        (holder.itemView.findViewById<View>(R.id.description) as TextView).text = tableFiltered.row(position)["DESCRIPTION"]
-        (holder.itemView.findViewById<View>(R.id.type) as TextView).text = tableFiltered.row(position)["TYPE"]
-        (holder.itemView.findViewById<View>(R.id.numresults) as TextView).text = tableFiltered.row(position)["NUMRESULTS"]
+        holder.itemView.findViewById<TextView>(R.id.id).text = tableFiltered.row(position)["ID"]
+        Picasso.get()
+                .load(tableFiltered.row(position)["IMAGE"])
+                .into(holder.itemView.findViewById<ImageView>(R.id.imageIcon))
+        holder.itemView.findViewById<TextView>(R.id.game).text = tableFiltered.row(position)["GAME"]
+        if (tableFiltered.row(position)["CONSOLE"] == "")
+            holder.itemView.findViewById<TextView>(R.id.console).text = null
+        else
+            holder.itemView.findViewById<TextView>(R.id.console).text = holder.itemView.context.getString(R.string.console_parens, tableFiltered.row(position)["CONSOLE"])
+        holder.itemView.findViewById<TextView>(R.id.title).text = tableFiltered.row(position)["TITLE"]
+        holder.itemView.findViewById<TextView>(R.id.description).text = tableFiltered.row(position)["DESCRIPTION"]
+        holder.itemView.findViewById<TextView>(R.id.type).text = tableFiltered.row(position)["TYPE"]
+        holder.itemView.findViewById<TextView>(R.id.numresults).text = tableFiltered.row(position)["NUMRESULTS"]
     }
 
     override fun getItemCount(): Int {
         return tableFiltered.rowKeySet().size
     }
 
+    // TODO: Find more elegant solution than to split string by tabs
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(charSequence: CharSequence): FilterResults {
@@ -45,12 +53,12 @@ class LeaderboardsAdapter(fragment: Fragment, private val table: RowSortedTable<
                 val strings = arrayOf(filter.substring(0, filter.indexOf("\t")), filter.substring(filter.indexOf("\t") + 1))
                 val results = FilterResults()
                 tableFiltered.clear()
-                if (strings[0] == "" && strings[1] == "") {
+                if (strings[0].isEmpty() && strings[1].isEmpty()) {
                     results.values = false
                 } else {
                     for (i in table.rowKeySet().indices) {
                         if (table.row(i)["TITLE"]!!.toLowerCase(Locale.ROOT).contains(strings[1].toLowerCase(Locale.ROOT))
-                                && (strings[0] == "" || Objects.requireNonNull(table.row(i)["CONSOLE"]) == strings[0])) {
+                                && (strings[0].isEmpty() || table.row(i)["CONSOLE"] == strings[0])) {
                             val row = tableFiltered.rowKeySet().size
                             tableFiltered.put(row, "ID", table.row(i)["ID"]!!)
                             tableFiltered.put(row, "IMAGE", table.row(i)["IMAGE"]!!)
@@ -105,9 +113,5 @@ class LeaderboardsAdapter(fragment: Fragment, private val table: RowSortedTable<
             itemView.setOnClickListener(this)
             this.listener = listener
         }
-    }
-
-    init {
-        listener = LeaderboardsViewHolderListenerImpl(fragment, tableFiltered)
     }
 }

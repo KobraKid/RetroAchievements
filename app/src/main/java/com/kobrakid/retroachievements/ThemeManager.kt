@@ -7,6 +7,7 @@ import android.content.SharedPreferences
  * This class is responsible for translating between Strings and their corresponding themes.
  */
 internal object ThemeManager {
+   // TODO: Move this to Consts? Maybe have a const Map instead of a function?
     @JvmStatic
     fun getTheme(context: Context, sharedPreferences: SharedPreferences): Int {
         // A default value is provided so theme is not null

@@ -13,13 +13,14 @@ import com.kobrakid.retroachievements.R
  * This fragment holds static info about the app.
  */
 class AboutFragment : Fragment() {
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         activity?.title = "About RetroAchievements"
         val view = inflater.inflate(R.layout.fragment_about, container, false)
-        for (i in 0 until (view.findViewById<View>(R.id.about_container) as ViewGroup).childCount) {
-            if ((view.findViewById<View>(R.id.about_container) as ViewGroup).getChildAt(i) is TextView)
-                ((view.findViewById<View>(R.id.about_container) as ViewGroup).getChildAt(i) as TextView).movementMethod =
+        for (i in 0 until view.findViewById<ViewGroup>(R.id.about_container).childCount) {
+            if (view.findViewById<ViewGroup>(R.id.about_container).getChildAt(i) is TextView)
+                (view.findViewById<ViewGroup>(R.id.about_container).getChildAt(i) as TextView).movementMethod =
                         LinkMovementMethod.getInstance()
         }
         return view

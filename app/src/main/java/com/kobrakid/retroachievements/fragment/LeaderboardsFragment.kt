@@ -29,22 +29,20 @@ import java.lang.ref.WeakReference
 import java.util.*
 
 class LeaderboardsFragment : Fragment(), RAAPICallback {
-    private var apiConnection: RAAPIConnection? = null
-    private var leaderboardsAdapter: LeaderboardsAdapter? = null
+
+    private var apiConnectionDeprecated: RAAPIConnectionDeprecated? = null
+    private val userRankings = mutableListOf<String>()
+    private val userNames = mutableListOf<String>()
+    private val userScores = mutableListOf<String>()
+    private val userRatios = mutableListOf<String>()
+    private val userRankingAdapter = UserRankingAdapter(userRankings, userNames, userScores, userRatios)
     private var table: RowSortedTable<Int, String, String>? = null
     private var tableFiltered: RowSortedTable<Int, String, String>? = null
-    private var userRankingAdapter: UserRankingAdapter? = null
-    private var userRankings: ArrayList<String>? = null
-    private var userNames: ArrayList<String>? = null
-    private var userScores: ArrayList<String>? = null
-    private var userRatios: ArrayList<String>? = null
-    private var consoleDropdown: Spinner? = null
+    private var leaderboardsAdapter: LeaderboardsAdapter? = null
+    private var consoleSpinner: Spinner? = null
     private var filteredConsole = ""
     private var filteredTitle = ""
     private var uniqueColumns: MutableList<String>? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -56,12 +54,8 @@ class LeaderboardsFragment : Fragment(), RAAPICallback {
         val topUsers: RecyclerView = view.findViewById(R.id.leaderboards_users)
         val leaderboardsRecycler: RecyclerView = view.findViewById(R.id.leaderboards_games)
         if (savedInstanceState == null) {
-            apiConnection = (Objects.requireNonNull(activity) as MainActivity).apiConnection
-            userRankings = ArrayList()
-            userNames = ArrayList()
-            userScores = ArrayList()
-            userRatios = ArrayList()
-            userRankingAdapter = UserRankingAdapter(userRankings!!, userNames!!, userScores!!, userRatios!!)
+            apiConnectionDeprecated = (activity as MainActivity).apiConnectionDeprecated
+            // TODO: remove the need to create these lists here, generate them in their respective adapters
             table = TreeBasedTable.create()
             tableFiltered = TreeBasedTable.create()
             leaderboardsAdapter = LeaderboardsAdapter(this, table!!, tableFiltered!!)
@@ -73,31 +67,31 @@ class LeaderboardsFragment : Fragment(), RAAPICallback {
         leaderboardsRecycler.layoutManager = LinearLayoutManager(context)
 
         // Set up Filters
-        consoleDropdown = view.findViewById(R.id.leaderboards_console_filter)
+        consoleSpinner = view.findViewById(R.id.leaderboards_console_filter)
         val leaderboardsFilter = view.findViewById<EditText>(R.id.leaderboards_filter)
-        consoleDropdown!!.onItemSelectedListener = object : OnItemSelectedListener {
+        consoleSpinner?.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(adapterView: AdapterView<*>, view: View?, pos: Int, id: Long) {
                 filteredConsole = adapterView.getItemAtPosition(pos).toString()
-                leaderboardsAdapter!!.filter.filter(filteredConsole + "\t" + filteredTitle)
+                leaderboardsAdapter?.filter?.filter(filteredConsole + "\t" + filteredTitle)
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>?) {
                 filteredConsole = ""
-                leaderboardsAdapter!!.filter.filter(filteredConsole + "\t" + filteredTitle)
+                leaderboardsAdapter?.filter?.filter(filteredConsole + "\t" + filteredTitle)
             }
         }
         leaderboardsFilter.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(charSequence: CharSequence, start: Int, before: Int, count: Int) {
                 filteredTitle = charSequence.toString()
-                leaderboardsAdapter!!.filter.filter(filteredConsole + "\t" + filteredTitle)
+                leaderboardsAdapter?.filter?.filter(filteredConsole + "\t" + filteredTitle)
             }
 
             override fun afterTextChanged(editable: Editable) {}
         })
         if (savedInstanceState == null) {
-            apiConnection!!.GetTopTenUsers(this)
-            apiConnection!!.GetLeaderboards(true, this)
+            apiConnectionDeprecated?.GetTopTenUsers(this)
+            apiConnectionDeprecated?.GetLeaderboards(true, this)
         } else {
             // Will add `populateTopTenUserViews(view)` here once needed
             populateLeaderboardViews(view)
@@ -122,38 +116,38 @@ class LeaderboardsFragment : Fragment(), RAAPICallback {
 
     override fun callback(responseCode: Int, response: String) {
         if (!isActive) return
-        if (responseCode == RAAPIConnection.RESPONSE_GET_TOP_TEN_USERS) {
+        if (responseCode == RAAPIConnectionDeprecated.RESPONSE_GET_TOP_TEN_USERS) {
             try {
                 val reader = JSONArray(response)
-                val count = userRankings!!.size
-                userRankings!!.clear()
-                userNames!!.clear()
-                userScores!!.clear()
-                userRatios!!.clear()
-                userRankingAdapter!!.notifyItemRangeRemoved(0, count)
+                val count = userRankings.size
+                userRankings.clear()
+                userNames.clear()
+                userScores.clear()
+                userRatios.clear()
+                userRankingAdapter.notifyItemRangeRemoved(0, count)
                 for (i in 0 until reader.length()) {
-                    userRankings!!.add("" + (i + 1))
-                    userNames!!.add((reader[i] as JSONObject).getString("1"))
-                    userScores!!.add((reader[i] as JSONObject).getString("2"))
-                    userRatios!!.add((reader[i] as JSONObject).getString("3"))
-                    userRankingAdapter!!.notifyItemInserted(i)
+                    userRankings.add((i + 1).toString())
+                    userNames.add((reader[i] as JSONObject).getString("1"))
+                    userScores.add((reader[i] as JSONObject).getString("2"))
+                    userRatios.add((reader[i] as JSONObject).getString("3"))
+                    userRankingAdapter.notifyItemInserted(i)
                 }
             } catch (e: JSONException) {
-                e.printStackTrace()
+                Log.e(TAG, "Couldn't parse top ten users", e)
             }
-            if (!userNames!!.contains(MainActivity.ra_user)) apiConnection!!.GetUserSummary(MainActivity.ra_user, 0, this)
-        } else if (responseCode == RAAPIConnection.RESPONSE_GET_USER_SUMMARY) {
+            if (!userNames.contains(MainActivity.raUser)) apiConnectionDeprecated?.GetUserSummary(MainActivity.raUser, 0, this)
+        } else if (responseCode == RAAPIConnectionDeprecated.RESPONSE_GET_USER_SUMMARY) {
             try {
                 val reader = JSONObject(response)
-                userRankings!!.add(reader.getString("Rank"))
-                userNames!!.add(MainActivity.ra_user)
-                userScores!!.add(reader.getString("TotalPoints"))
-                userRatios!!.add(reader.getString("TotalTruePoints"))
-                userRankingAdapter!!.notifyItemInserted(userNames!!.size - 1)
+                userRankings.add(reader.getString("Rank"))
+                userNames.add(MainActivity.raUser)
+                userScores.add(reader.getString("TotalPoints"))
+                userRatios.add(reader.getString("TotalTruePoints"))
+                userRankingAdapter.notifyItemInserted(userNames.size - 1)
             } catch (e: JSONException) {
-                e.printStackTrace()
+                Log.e(TAG, "Couldn't parse user summary", e)
             }
-        } else if (responseCode == RAAPIConnection.RESPONSE_GET_LEADERBOARDS) {
+        } else if (responseCode == RAAPIConnectionDeprecated.RESPONSE_GET_LEADERBOARDS) {
             val animation = ObjectAnimator.ofInt(view?.findViewById(R.id.leaderboards_progress), "secondaryProgress", 100)
             animation.duration = 1000
             animation.interpolator = AccelerateDecelerateInterpolator()
@@ -234,7 +228,7 @@ class LeaderboardsFragment : Fragment(), RAAPICallback {
                     uniqueCols.add(0, "")
                     uniqueCols.addAll(TreeSet(result!!.column("CONSOLE").values))
                     if (fragment.view != null) {
-                        fragment.populateLeaderboardViews(fragment.view)
+                        fragment.populateLeaderboardViews(fragment.view!!)
                     }
                 }
             }
@@ -242,9 +236,9 @@ class LeaderboardsFragment : Fragment(), RAAPICallback {
 
     }
 
-    private fun populateLeaderboardViews(view: View?) {
-        view!!.findViewById<View>(R.id.leaderboards_progress).visibility = View.GONE
-        consoleDropdown!!.adapter = context?.let { ArrayAdapter(it, android.R.layout.simple_spinner_dropdown_item, uniqueColumns!!) }
+    private fun populateLeaderboardViews(view: View) {
+        view.findViewById<View>(R.id.leaderboards_progress).visibility = View.GONE
+        consoleSpinner?.adapter = context?.let { ArrayAdapter(it, android.R.layout.simple_spinner_dropdown_item, uniqueColumns!!) }
     }
 
     companion object {

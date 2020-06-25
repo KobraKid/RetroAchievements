@@ -13,9 +13,11 @@ import com.kobrakid.retroachievements.fragment.ListsFragment
 import java.util.*
 
 class ConsoleAdapter(fragment: Fragment) : RecyclerView.Adapter<ConsoleViewHolder>() {
-    private val consoleIDs: MutableList<String> = ArrayList()
-    private val consoleNames: MutableList<String> = ArrayList()
-    private val viewHolderListener: ConsoleViewHolderListenerImpl
+
+    private val consoleIDs = mutableListOf<String>()
+    private val consoleNames = mutableListOf<String>()
+    private val viewHolderListener = ConsoleViewHolderListenerImpl(fragment, this)
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConsoleViewHolder {
         return ConsoleViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.view_holder_console_list, parent, false),
@@ -23,15 +25,15 @@ class ConsoleAdapter(fragment: Fragment) : RecyclerView.Adapter<ConsoleViewHolde
     }
 
     override fun onBindViewHolder(holder: ConsoleViewHolder, position: Int) {
-        (holder.itemView.findViewById<View>(R.id.console_id) as TextView).text = consoleIDs[position]
-        (holder.itemView.findViewById<View>(R.id.console_initial) as TextView).text = consoleNames[position].substring(0, 1)
+        holder.itemView.findViewById<TextView>(R.id.console_id).text = consoleIDs[position]
+        holder.itemView.findViewById<TextView>(R.id.console_initial).text = consoleNames[position].substring(0, 1)
         val random = Random()
-        (holder.itemView.findViewById<View>(R.id.console_initial) as TextView)
+        holder.itemView.findViewById<TextView>(R.id.console_initial)
                 .setTextColor(Color.parseColor("#"
                         + String.format("#%02X", random.nextInt(255)).substring(1)
                         + String.format("#%02X", random.nextInt(255)).substring(1)
                         + String.format("#%02X", random.nextInt(255)).substring(1)))
-        (holder.itemView.findViewById<View>(R.id.console_name) as TextView).text = consoleNames[position]
+        holder.itemView.findViewById<TextView>(R.id.console_name).text = consoleNames[position]
     }
 
     override fun getItemCount(): Int {
@@ -81,9 +83,5 @@ class ConsoleAdapter(fragment: Fragment) : RecyclerView.Adapter<ConsoleViewHolde
             itemView.setOnClickListener(this)
             this.viewHolderListener = viewHolderListener
         }
-    }
-
-    init {
-        viewHolderListener = ConsoleViewHolderListenerImpl(fragment, this)
     }
 }

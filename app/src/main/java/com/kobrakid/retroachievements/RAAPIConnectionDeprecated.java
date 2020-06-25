@@ -21,9 +21,10 @@ import java.util.Date;
  * The RAAPIConnection class exposes the RetroAchievements API.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-public class RAAPIConnection {
+@Deprecated
+public class RAAPIConnectionDeprecated {
 
-    private static final String TAG = RAAPIConnection.class.getSimpleName();
+    private static final String TAG = RAAPIConnectionDeprecated.class.getSimpleName();
 
     // Response Codes
     public static final int RESPONSE_ERROR = -1;
@@ -58,7 +59,7 @@ public class RAAPIConnection {
     /**
      * @param context The context which will hold the Request Queue.
      */
-    public RAAPIConnection(Context context) {
+    public RAAPIConnectionDeprecated(Context context) {
         this.ra_user = context.getSharedPreferences(context.getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getString(context.getString(R.string.ra_user), "");
         this.ra_api_key = context.getSharedPreferences(context.getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getString(context.getString(R.string.ra_api_key), "");
         this.context = context;
@@ -784,5 +785,4 @@ public class RAAPIConnection {
                 callback.callback(RESPONSE_GET_LEADERBOARDS, response);
         }
     }
-
 }

@@ -9,6 +9,7 @@ import com.kobrakid.retroachievements.fragment.AchievementSummaryFragment
 import com.kobrakid.retroachievements.fragment.GameImagesFragment
 
 class GameDetailsPagerAdapter(fm: FragmentManager, private val gameID: String) : FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+
     override fun getItem(position: Int): Fragment {
         val bundle = Bundle()
         bundle.putString("GameID", gameID)
@@ -28,7 +29,11 @@ class GameDetailsPagerAdapter(fm: FragmentManager, private val gameID: String) :
      * @return 3 (fragments)
      */
     override fun getCount(): Int {
-        return 3
+        return GAME_DETAILS_PAGES
+    }
+
+    companion object {
+        const val GAME_DETAILS_PAGES = 3
     }
 
 }

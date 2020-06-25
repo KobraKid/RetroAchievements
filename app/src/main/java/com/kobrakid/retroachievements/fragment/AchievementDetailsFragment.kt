@@ -21,7 +21,8 @@ import java.text.DecimalFormat
  * This class is responsible for showing more detailed information on a particular achievement.
  */
 class AchievementDetailsFragment : Fragment() {
-    private var tapDetector: GestureDetector? = null
+
+    private val tapDetector: GestureDetector = GestureDetector(context, GestureTap())
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -31,34 +32,32 @@ class AchievementDetailsFragment : Fragment() {
         view.transitionName = "achievement_" + arguments?.getString("Position")
 
         // Set fields from transferred data
-        (view.findViewById<View>(R.id.achievement_details_title) as TextView).text = arguments!!.getString("Title")
-        (view.findViewById<View>(R.id.achievement_details_description) as TextView).text = arguments!!.getString("Description")
-        if (!arguments!!.getString("DateEarned")?.startsWith("NoDate")!!) {
-            (view.findViewById<View>(R.id.achievement_details_date) as TextView).text = context?.getString(R.string.date_earned, arguments!!.getString("DateEarned"))
+        view.findViewById<TextView>(R.id.achievement_details_title).text = arguments?.getString("Title")
+        view.findViewById<TextView>(R.id.achievement_details_description).text = arguments?.getString("Description")
+        if (arguments?.getString("DateEarned")?.startsWith("NoDate") != true) {
+            view.findViewById<TextView>(R.id.achievement_details_date).text = context?.getString(R.string.date_earned, arguments?.getString("DateEarned"))
         }
-        (view.findViewById<View>(R.id.achievement_details_completion_text) as TextView).text = context?.getString(
+        view.findViewById<TextView>(R.id.achievement_details_completion_text).text = context?.getString(
                 R.string.earned_by_details,
-                arguments!!.getString("NumAwarded"),
-                arguments!!.getDouble("NumDistinctPlayersCasual").toInt(),
+                arguments?.getString("NumAwarded"),
+                arguments?.getDouble("NumDistinctPlayersCasual")?.toInt(),
                 DecimalFormat("@@@@")
-                        .format(arguments!!.getString("NumAwarded")?.toDouble()
-                                ?: 0 / arguments!!.getDouble("NumDistinctPlayersCasual") * 100.0))
-        (view.findViewById<View>(R.id.achievement_details_completion_hardcore_text) as TextView).text = context!!.getString(
+                        .format(arguments?.getString("NumAwarded")?.toDouble()?.div(arguments?.getDouble("NumDistinctPlayersCasual") ?: 1.0)?.times(100.0)))
+        view.findViewById<TextView>(R.id.achievement_details_completion_hardcore_text).text = context!!.getString(
                 R.string.earned_by_hc_details,
-                arguments!!.getString("NumAwardedHardcore"),
+                arguments?.getString("NumAwardedHardcore"),
                 DecimalFormat("@@@@")
-                        .format(arguments!!.getString("NumAwardedHardcore")?.toDouble()
-                                ?: 0 / arguments!!.getDouble("NumDistinctPlayersCasual") * 100.0))
-        (view.findViewById<View>(R.id.achievement_details_metadata) as TextView).text = getString(R.string.metadata,
-                arguments!!.getString("Author"),
-                arguments!!.getString("DateCreated"),
-                arguments!!.getString("DateModified"))
+                        .format(arguments?.getString("NumAwardedHardcore")?.toDouble()?.div(arguments?.getDouble("NumDistinctPlayersCasual") ?: 1.0)?.times(100.0)))
+        view.findViewById<TextView>(R.id.achievement_details_metadata).text = getString(R.string.metadata,
+                arguments?.getString("Author"),
+                arguments?.getString("DateCreated"),
+                arguments?.getString("DateModified"))
         var progressBar = view.findViewById<ProgressBar>(R.id.achievement_details_completion_hardcore)
-        progressBar.progress = (arguments!!.getString("NumAwardedHardcore")?.toDouble()
-                ?: 0 / arguments!!.getDouble("NumDistinctPlayersCasual") * 10000.0).toInt()
+        progressBar.max = arguments?.getDouble("NumDistinctPlayersCasual")?.toInt() ?: 0
+        progressBar.progress = arguments?.getString("NumAwardedHardcore")?.toInt() ?: 0
         progressBar = view.findViewById(R.id.achievement_details_completion)
-        progressBar.progress = (arguments!!.getString("NumAwarded")?.toDouble()
-                ?: 0 / arguments!!.getDouble("NumDistinctPlayersCasual") * 10000.0).toInt()
+        progressBar.max = arguments?.getDouble("NumDistinctPlayersCasual")?.toInt() ?: 0
+        progressBar.progress = arguments?.getString("NumAwarded")?.toInt() ?: 0
 
         // postponeEnterTransition();
         val badge = view.findViewById<ImageView>(R.id.achievement_details_badge)
@@ -67,12 +66,12 @@ class AchievementDetailsFragment : Fragment() {
                 .placeholder(resources.getDrawable(R.drawable.favicon, activity?.theme))
                 .into(badge, object : Callback {
                     override fun onSuccess() {
-                        if (arguments!!.getString("DateEarned")?.startsWith("NoDate") == true) {
+                        if (arguments?.getString("DateEarned")?.startsWith("NoDate") == true) {
                             val matrix = ColorMatrix()
                             matrix.setSaturation(0f)
-                            (view.findViewById<View>(R.id.achievement_details_badge) as ImageView).colorFilter = ColorMatrixColorFilter(matrix)
+                            (view.findViewById<ImageView>(R.id.achievement_details_badge)).colorFilter = ColorMatrixColorFilter(matrix)
                         } else {
-                            (view.findViewById<View>(R.id.achievement_details_badge) as ImageView).clearColorFilter()
+                            (view.findViewById<ImageView>(R.id.achievement_details_badge)).clearColorFilter()
                         }
                         prepareSharedElementTransition(view)
                         // startPostponedEnterTransition();
@@ -83,9 +82,8 @@ class AchievementDetailsFragment : Fragment() {
                         // startPostponedEnterTransition();
                     }
                 })
-        tapDetector = GestureDetector(context, GestureTap())
         view.setOnTouchListener { _: View?, e: MotionEvent? ->
-            tapDetector?.onTouchEvent(e)
+            tapDetector.onTouchEvent(e)
             true
         }
         return view
@@ -93,15 +91,15 @@ class AchievementDetailsFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        (activity?.findViewById<View>(R.id.game_details_view_pager) as ToggleableViewPager).setPagingEnabled(false)
+        activity?.findViewById<ToggleableViewPager>(R.id.game_details_view_pager)?.setPagingEnabled(false)
     }
 
     override fun onStop() {
         super.onStop()
-        (activity?.findViewById<View>(R.id.game_details_view_pager) as ToggleableViewPager).setPagingEnabled(true)
+        activity?.findViewById<ToggleableViewPager>(R.id.game_details_view_pager)?.setPagingEnabled(true)
     }
 
-    private fun prepareSharedElementTransition(view: View) {
+    private fun prepareSharedElementTransition(@Suppress("UNUSED_PARAMETER") view: View) {
 //         TODO Figure out why transitions (and/or recycler views) are so awful and hard to work with
 //        Transition transition = TransitionInflater.from(getContext()).inflateTransition(R.transition.image_shared_element_transition);
 //        setSharedElementEnterTransition(transition);

@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/BlankTheme">
         <activity
-            android:name=".ApiPullActivity"
+            android:name=".ApiKeyDetectorActivity"
             android:parentActivityName=".LoginActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

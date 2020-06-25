@@ -15,9 +15,9 @@ import com.kobrakid.retroachievements.MainActivity
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.adapter.UserRankingAdapter.UserRankingViewHolder
 import com.squareup.picasso.Picasso
-import java.util.*
 
-class UserRankingAdapter(private val userRankings: ArrayList<String>, private val userNames: ArrayList<String>, private val userScores: ArrayList<String>, private val userRatios: ArrayList<String>) : RecyclerView.Adapter<UserRankingViewHolder>() {
+class UserRankingAdapter(private val userRankings: MutableList<String>, private val userNames: MutableList<String>, private val userScores: MutableList<String>, private val userRatios: MutableList<String>) : RecyclerView.Adapter<UserRankingViewHolder>() {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserRankingViewHolder {
         return UserRankingViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.view_holder_participants, parent, false))
     }
@@ -27,14 +27,17 @@ class UserRankingAdapter(private val userRankings: ArrayList<String>, private va
         holder.itemView.findViewById<View>(R.id.participant_result).visibility = View.INVISIBLE
         Picasso.get()
                 .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + userNames[position] + ".png")
-                .into(holder.itemView.findViewById<View>(R.id.participant_icon) as ImageView)
-        (holder.itemView.findViewById<View>(R.id.participant_rank) as TextView).text = userRankings[position]
-        (holder.itemView.findViewById<View>(R.id.participant_username) as TextView).text = userNames[position]
-        (holder.itemView.findViewById<View>(R.id.participant_date) as TextView).text =
+                .into(holder.itemView.findViewById<ImageView>(R.id.participant_icon))
+        holder.itemView.findViewById<TextView>(R.id.participant_rank).text = userRankings[position]
+        holder.itemView.findViewById<TextView>(R.id.participant_username).text = userNames[position]
+        holder.itemView.findViewById<TextView>(R.id.participant_date).text =
                 Html.fromHtml(
                         holder.itemView.context.getString(R.string.score_ratio_format, userScores[position], userRatios[position]),
                         TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
-        if (userNames[position] == MainActivity.ra_user) holder.itemView.background = holder.itemView.context.getDrawable(R.drawable.border) else holder.itemView.background = null
+        if (userNames[position] == MainActivity.raUser)
+            holder.itemView.background = holder.itemView.context.getDrawable(R.drawable.border)
+        else
+            holder.itemView.background = null
     }
 
     override fun getItemCount(): Int {

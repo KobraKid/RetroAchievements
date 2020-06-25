@@ -21,15 +21,16 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RAAPICallback
-import com.kobrakid.retroachievements.RAAPIConnection
+import com.kobrakid.retroachievements.RAAPIConnectionDeprecated
 import org.jsoup.Jsoup
 import java.lang.ref.WeakReference
 import java.util.*
 import java.util.regex.Pattern
 
 class AchievementDistributionFragment : Fragment(), RAAPICallback {
+
     private var achievementDistro: LineChart? = null
-    private var data: SortedMap<Int, Int>? = null
+    private var data = TreeMap<Int, Int>()
     private var isActive = false
     private var isAPIActive = false
 
@@ -41,7 +42,7 @@ class AchievementDistributionFragment : Fragment(), RAAPICallback {
         achievementDistro?.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
             override fun onValueSelected(e: Entry, h: Highlight) {
                 if (isActive) {
-                    (view.findViewById<View>(R.id.game_details_chart_hints) as TextView).text = resources.getQuantityString(
+                    view.findViewById<TextView>(R.id.game_details_chart_hints).text = resources.getQuantityString(
                             R.plurals.achievement_chart_hints,
                             e.y.toInt(),
                             e.y.toInt(),
@@ -51,14 +52,13 @@ class AchievementDistributionFragment : Fragment(), RAAPICallback {
 
             override fun onNothingSelected() {
                 if (isActive) {
-                    (view.findViewById<View>(R.id.game_details_chart_hints) as TextView).text = ""
+                    view.findViewById<TextView>(R.id.game_details_chart_hints).text = ""
                 }
             }
         })
         if (savedInstanceState == null && arguments != null) {
-            data = TreeMap()
             isAPIActive = true
-            RAAPIConnection(Objects.requireNonNull(context)).GetAchievementDistribution(arguments!!.getString("GameID"), this)
+            RAAPIConnectionDeprecated(context).ScrapeGameInfoFromWeb(arguments!!.getString("GameID"), this)
         } else if (!isAPIActive) {
             populateChartData(view)
         }
@@ -82,20 +82,20 @@ class AchievementDistributionFragment : Fragment(), RAAPICallback {
 
     override fun callback(responseCode: Int, response: String) {
         if (!isActive) return
-        if (responseCode == RAAPIConnection.RESPONSE_GET_ACHIEVEMENT_DISTRIBUTION) {
+        if (responseCode == RAAPIConnectionDeprecated.RESPONSE_SCRAPE_GAME_PAGE) {
             AchievementDistributionChartAsyncTask(this, data).execute(response)
         }
         isAPIActive = false
     }
 
-    private fun populateChartData(view: View?) {
+    private fun populateChartData(view: View) {
         val context = context
         if (context != null) {
-            if (data!!.size > 0) {
+            if (data.size > 0) {
                 // Set chart data
                 val entries: MutableList<Entry> = ArrayList()
-                for (key in data!!.keys) {
-                    data!![key]?.let { entries.add(Entry(key.toFloat(), it.toFloat())) }
+                for (key in data.keys) {
+                    data[key]?.let { entries.add(Entry(key.toFloat(), it.toFloat())) }
                 }
                 val dataSet = LineDataSet(entries, "")
                 dataSet.setDrawFilled(true)
@@ -108,8 +108,8 @@ class AchievementDistributionFragment : Fragment(), RAAPICallback {
                     val primaryColor = TypedValue()
                     context.theme.resolveAttribute(R.attr.colorAccent, accentColor, true)
                     context.theme.resolveAttribute(R.attr.colorPrimary, primaryColor, true)
-                    achievementDistro!!.axisLeft.textColor = primaryColor.data
-                    achievementDistro!!.xAxis.textColor = primaryColor.data
+                    achievementDistro?.axisLeft?.textColor = primaryColor.data
+                    achievementDistro?.xAxis?.textColor = primaryColor.data
                     dataSet.setCircleColor(accentColor.data)
                     dataSet.color = accentColor.data
                     dataSet.circleHoleColor = accentColor.data
@@ -117,24 +117,24 @@ class AchievementDistributionFragment : Fragment(), RAAPICallback {
                 }
 
                 // Set chart axes
-                achievementDistro!!.axisRight.isEnabled = false
-                achievementDistro!!.legend.isEnabled = false
-                achievementDistro!!.xAxis.position = XAxis.XAxisPosition.BOTTOM
-                achievementDistro!!.axisLeft.axisMinimum = 0f
+                achievementDistro?.axisRight?.isEnabled = false
+                achievementDistro?.legend?.isEnabled = false
+                achievementDistro?.xAxis?.position = XAxis.XAxisPosition.BOTTOM
+                achievementDistro?.axisLeft?.axisMinimum = 0f
 
                 // Set chart description
                 val description = Description()
                 description.text = ""
-                achievementDistro!!.description = description
+                achievementDistro?.description = description
 
                 // Set chart finalized data
-                achievementDistro!!.data = lineData
+                achievementDistro?.data = lineData
 
                 // Redraw chart
-                achievementDistro!!.invalidate()
+                achievementDistro?.invalidate()
             }
-            view!!.findViewById<View>(R.id.game_details_achievement_distro_loading).visibility = View.GONE
-            achievementDistro!!.visibility = View.VISIBLE
+            view.findViewById<View>(R.id.game_details_achievement_distro_loading).visibility = View.GONE
+            achievementDistro?.visibility = View.VISIBLE
         }
     }
 
@@ -163,9 +163,10 @@ class AchievementDistributionFragment : Fragment(), RAAPICallback {
             val m2 = p2.matcher(rows)
             val achievementTotals = SparseIntArray()
             while (m1.find() && m2.find()) {
+                @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
                 achievementTotals.put(m1.group(1).toInt(), m2.group(1).toInt())
             }
-            @SuppressLint("UseSparseArrays") val chartData: SortedMap<Int, Int> = TreeMap()
+            val chartData: SortedMap<Int, Int> = TreeMap()
             for (i in 0 until achievementTotals.size()) {
                 chartData[i + 1] = achievementTotals[i + 1]
             }
@@ -178,7 +179,8 @@ class AchievementDistributionFragment : Fragment(), RAAPICallback {
             val data = dataReference.get()
             if (fragment != null && data != null) {
                 data.putAll(chartData)
-                fragment.populateChartData(fragment.view)
+                if (fragment.view != null)
+                    fragment.populateChartData(fragment.view!!)
             }
         }
 

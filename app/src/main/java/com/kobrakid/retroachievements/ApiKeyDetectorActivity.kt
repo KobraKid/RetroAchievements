@@ -9,7 +9,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 
-class ApiPullActivity : AppCompatActivity() {
+class ApiKeyDetectorActivity : AppCompatActivity() {
     private var username: String? = null
     private var apiKey: String? = null
 

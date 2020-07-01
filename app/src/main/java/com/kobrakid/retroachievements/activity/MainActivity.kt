@@ -1,4 +1,4 @@
-package com.kobrakid.retroachievements
+package com.kobrakid.retroachievements.activity
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -16,13 +16,19 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.google.android.material.navigation.NavigationView
+import com.kobrakid.retroachievements.Consts
+import com.kobrakid.retroachievements.R
+import com.kobrakid.retroachievements.RetroAchievementsApi
 import com.kobrakid.retroachievements.ThemeManager.getTheme
 import com.kobrakid.retroachievements.fragment.*
 import com.kobrakid.retroachievements.fragment.SettingsFragment.OnFragmentInteractionListener
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -30,41 +36,43 @@ import org.json.JSONObject
  * The entry point for the app, and the Activity that manages most of the basic Fragments used
  * throughout the app.
  */
-class MainActivity : AppCompatActivity(), RAAPICallback, OnFragmentInteractionListener {
+class MainActivity : AppCompatActivity(), OnFragmentInteractionListener {
 
-    val apiConnectionDeprecated: RAAPIConnectionDeprecated by lazy { RAAPIConnectionDeprecated(this) }
     private var fragment: Fragment? = null
-    private var activeFragmentTag: String? = null
+    private var activeFragmentTag = "HomeFragment"
     private val drawer: DrawerLayout by lazy { findViewById<DrawerLayout>(R.id.drawer_layout) }
     private val navView: NavigationView by lazy { findViewById<NavigationView>(R.id.nav_view) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Try to get saved preferences and log in
+        // Set up UI
+        title = "Home"
+        setContentView(R.layout.activity_main)
+        setSupportActionBar(findViewById(R.id.main_toolbar))
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu)
+        navView.setNavigationItemSelectedListener { item: MenuItem -> selectDrawerItem(item) }
+
+        // Get saved preferences
         val sharedPref = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
         setTheme(getTheme(this, sharedPref))
         raUser = sharedPref.getString(getString(R.string.ra_user), "")!!
-        setContentView(R.layout.activity_main)
-        title = "Home"
-
-        // Set up UI
-        setSupportActionBar(findViewById(R.id.main_toolbar))
-        val actionBar = supportActionBar
-        actionBar?.setDisplayHomeAsUpEnabled(true)
-        actionBar?.setHomeAsUpIndicator(R.drawable.ic_menu)
-        navView.setNavigationItemSelectedListener { item: MenuItem -> selectDrawerItem(item) }
+        raApiKey = sharedPref.getString(getString(R.string.ra_api_key), "")!!
+        RetroAchievementsApi.setCredentials(raUser, raApiKey)
 
         if (savedInstanceState == null) {
-            RetroAchievementsApi.setCredentials(this)
-            if (raUser.isNotEmpty())
-                apiConnectionDeprecated.GetUserRankAndScore(raUser, this)
             // Set up home fragment
             activeFragmentTag = "HomeFragment"
             supportFragmentManager.beginTransaction().replace(R.id.flContent, HomeFragment(), activeFragmentTag).commit()
+            // Set up drawer
+            if (raUser.isNotEmpty())
+                CoroutineScope(IO).launch {
+                    RetroAchievementsApi.GetUserRankAndScore(applicationContext, raUser) { parseRankScore(it) }
+                }
         } else {
             // Reclaim reference to active fragment
-            activeFragmentTag = savedInstanceState.getString("ActiveFragmentTag")
+            activeFragmentTag = savedInstanceState.getString("ActiveFragmentTag") ?: "HomeFragment"
             fragment = supportFragmentManager.findFragmentByTag(activeFragmentTag)
             populateViews()
         }
@@ -76,16 +84,18 @@ class MainActivity : AppCompatActivity(), RAAPICallback, OnFragmentInteractionLi
             Consts.SUCCESS -> {
                 Log.d(TAG, "LOGIN SUCCESS")
                 raUser = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getString(getString(R.string.ra_user), "")!!
+                raApiKey = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getString(getString(R.string.ra_api_key), "")!!
                 Log.v(TAG, "Logging in as $raUser")
-                RetroAchievementsApi.setCredentials(this)
-                apiConnectionDeprecated.reinitializeAPIConnection()
-                apiConnectionDeprecated.GetUserRankAndScore(raUser, this)
+                RetroAchievementsApi.setCredentials(raUser, raApiKey)
+                CoroutineScope(IO).launch {
+                    RetroAchievementsApi.GetUserRankAndScore(applicationContext, raUser) { parseRankScore(it) }
+                }
                 if (fragment is HomeFragment) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        RetroAchievementsApi.GetUserWebProfile((fragment as HomeFragment).context!!, raUser) {
+                    CoroutineScope(IO).launch {
+                        RetroAchievementsApi.GetUserWebProfile(applicationContext, raUser) {
                             (fragment as HomeFragment).parseUserWebProfile(findViewById(R.id.home_scrollview), it)
                         }
-                        RetroAchievementsApi.GetUserSummary((fragment as HomeFragment).context!!, raUser, HomeFragment.NUM_RECENT_GAMES) {
+                        RetroAchievementsApi.GetUserSummary(applicationContext, raUser, HomeFragment.NUM_RECENT_GAMES) {
                             (fragment as HomeFragment).parseUserSummary(findViewById(R.id.home_scrollview), it)
                         }
                     }
@@ -110,107 +120,73 @@ class MainActivity : AppCompatActivity(), RAAPICallback, OnFragmentInteractionLi
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
-            if (fragment is ListsFragment && (fragment as ListsFragment).isShowingGames) {
-                if (fragment?.view != null)
-                    (fragment as ListsFragment).onBackPressed(fragment?.view!!)
-            } else {
-                drawer.openDrawer(GravityCompat.START)
-            }
+            drawer.openDrawer(GravityCompat.START)
             return true
         }
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onBackPressed() {
-        // Special case for when showing a list of games -> back pressed returns to list of consoles
-        if (fragment is ListsFragment && (fragment as ListsFragment).isShowingGames && fragment?.view != null)
-            (fragment as ListsFragment).onBackPressed(fragment?.view!!)
-        else
-            super.onBackPressed()
-    }
-
-    override fun callback(responseCode: Int, response: String) {
-        if (responseCode == RAAPIConnectionDeprecated.RESPONSE_GET_USER_RANK_AND_SCORE) {
-            val reader: JSONObject
-            try {
-                reader = JSONObject(response)
-                score = reader.getString("Score")
-                rank = reader.getString("Rank")
-                populateViews()
-            } catch (e: JSONException) {
-                Log.e(TAG, response, e)
-            }
-        }
-    }
-
     /* Navigation-related functions */
     private fun selectDrawerItem(item: MenuItem): Boolean {
-        fragment = null
-        val fragmentClass: Class<out Fragment>
-        when (item.itemId) {
-            R.id.nav_lists_fragment -> {
-                fragmentClass = ListsFragment::class.java
-                activeFragmentTag = "ListsFragment"
-            }
-            R.id.nav_leaderboards_fragment -> {
-                fragmentClass = LeaderboardsFragment::class.java
-                activeFragmentTag = "LeaderboardsFragment"
-            }
-            R.id.nav_settings_fragment -> {
-                fragmentClass = SettingsFragment::class.java
-                activeFragmentTag = "SettingsFragment"
-            }
-            R.id.nav_about_fragment -> {
-                fragmentClass = AboutFragment::class.java
-                activeFragmentTag = "AboutFragment"
-            }
-            R.id.nav_home_fragment -> {
-                fragmentClass = HomeFragment::class.java
-                activeFragmentTag = "HomeFragment"
-            }
-            else -> {
-                fragmentClass = HomeFragment::class.java
-                activeFragmentTag = "HomeFragment"
-            }
-        }
-        fragment = try {
-            fragmentClass.newInstance()
-        } catch (e: IllegalAccessException) {
-            Log.e(TAG, "Error accessing Fragment's newInstance() method", e)
-            return false
-        } catch (e: InstantiationException) {
-            Log.e(TAG, "Error instantiating the Fragment", e)
-            return false
-        }
-
-        // Show new Fragment in main view
-        supportFragmentManager.beginTransaction().replace(R.id.flContent, fragment!!, activeFragmentTag).commit()
+        val fragment: Fragment =
+                when (item.itemId) {
+                    R.id.nav_console_list_fragment -> ConsoleListFragment()
+                    R.id.nav_leaderboards_fragment -> LeaderboardsFragment()
+                    R.id.nav_settings_fragment -> SettingsFragment()
+                    R.id.nav_about_fragment -> AboutFragment()
+                    else -> HomeFragment()
+                }
+        activeFragmentTag = fragment.javaClass.simpleName
+        supportFragmentManager.beginTransaction().replace(R.id.flContent, fragment, activeFragmentTag).commit()
         item.isChecked = true
         drawer.closeDrawers()
         return true
+    }
+
+    private suspend fun parseRankScore(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
+        when (response.first) {
+            RetroAchievementsApi.RESPONSE.ERROR -> {
+                Log.w(TAG, response.second)
+            }
+            RetroAchievementsApi.RESPONSE.GET_USER_RANK_AND_SCORE -> {
+                withContext(Default) {
+                    try {
+                        val reader = JSONObject(response.second)
+                        score = reader.getString("Score")
+                        rank = reader.getString("Rank")
+                    } catch (e: JSONException) {
+                        Log.e(TAG, "Couldn't parse user rank/score", e)
+                    }
+                }
+                withContext(Main) {
+                    populateViews()
+                }
+            }
+            else -> {
+                Log.v(TAG, "${response.first}: ${response.second}")
+            }
+        }
     }
 
     private fun populateViews() {
         navView.getHeaderView(0).findViewById<TextView>(R.id.nav_username).text = raUser
         Picasso.get()
                 .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + raUser + ".png")
+                .placeholder(R.drawable.user_placeholder)
                 .into(navView.getHeaderView(0).findViewById<ImageView>(R.id.nav_profile_picture))
-        if (rank != null && score != null) {
-            navView.getHeaderView(0).findViewById<TextView>(R.id.nav_stats).text = getString(R.string.score_rank, score, rank)
+        navView.getHeaderView(0).findViewById<TextView>(R.id.nav_stats).text = getString(R.string.score_rank, score, rank)
+        if (rank.isNotEmpty() && score.isNotEmpty())
             navView.getHeaderView(0).findViewById<View>(R.id.nav_stats).visibility = View.VISIBLE
-        }
+        else
+            navView.getHeaderView(0).findViewById<View>(R.id.nav_stats).visibility = View.GONE
     }
 
     fun showGameDetails(view: View) {
-        val intent = Intent(this, GameDetailsActivity::class.java)
-        val extras = Bundle()
-        extras.putString("GameID",
-                view.findViewById<TextView>(R.id.game_summary_game_id).text.toString())
-        intent.putExtras(extras)
-        startActivity(intent)
+        startActivity(Intent(this, GameDetailsActivity::class.java).apply {
+            putExtra("GameID", view.findViewById<TextView>(R.id.game_summary_game_id).text.toString())
+        })
     }
 
-    /* Home Fragment Interface Implementation */
     fun showLogin(@Suppress("UNUSED_PARAMETER") view: View?) {
         drawer.closeDrawers()
         startActivityForResult(Intent(this, LoginActivity::class.java), Consts.BEGIN_LOGIN)
@@ -220,7 +196,6 @@ class MainActivity : AppCompatActivity(), RAAPICallback, OnFragmentInteractionLi
         startActivity(Intent(this, RecentGamesActivity::class.java))
     }
 
-    /* Leaderboards Fragment Interface Implementations */
     fun toggleUsers(topTenUsersToggle: View) {
         val topTenUsers = findViewById<View>(R.id.leaderboards_users)
         topTenUsers.z = -1f
@@ -253,7 +228,6 @@ class MainActivity : AppCompatActivity(), RAAPICallback, OnFragmentInteractionLi
         }
     }
 
-    /* Settings Fragment Interface implementations */
     override fun logout(view: View?) {
         (fragment as SettingsFragment).logout()
     }
@@ -265,7 +239,8 @@ class MainActivity : AppCompatActivity(), RAAPICallback, OnFragmentInteractionLi
     companion object {
         private val TAG = MainActivity::class.java.simpleName
         var raUser: String = ""
-        var rank: String? = null
-        var score: String? = null
+        private var raApiKey: String = ""
+        var rank: String = ""
+        var score: String = ""
     }
 }

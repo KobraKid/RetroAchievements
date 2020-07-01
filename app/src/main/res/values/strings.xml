@@ -32,6 +32,7 @@
     <string name="no_games">No Games</string>
     <string name="top_users">Top Users</string>
     <string name="score_ratio_format"><![CDATA[%1$s <font color="0xFFFFFF">(%2$s)</font>]]></string>
+    <string name="title">Title</string>
     <string name="console_parens">(%1$s)</string>
 
     <!-- Settings Fragment -->
@@ -109,14 +110,15 @@
 
     <!-- Achievement Details -->
     <string name="won_by">won by %1$s (%2$s) of %3$d (%4$s%%)</string>
-    <string name="date_earned">earned on %1$s</string>
+    <string name="date_earned_upper">Earned on %1$s</string>
+    <string name="date_earned_lower">earned on %1$s</string>
     <string name="earned_by_details">Earned by %1$s of %2$d players (%3$s%%)</string>
     <string name="earned_by_hc_details">Earned by %1$s HARDCORE players (%2$s%%)</string>
     <string name="not_yet_earned">You have not yet earned this achievement</string>
     <string name="metadata">Created by %1$s on %2$s\nLast modified %3$s</string>
 
     <!-- Leaderboards Activity -->
-    <string name="leaderboard_title">%1$s (%2$s)</string>
+    <string name="leaderboard_title_template">%1$s (%2$s)</string>
     <string name="type_score">🏆 %1$s</string>
     <string name="type_time">⏳ %1$s</string>
     <string name="participant">#%1$d</string>

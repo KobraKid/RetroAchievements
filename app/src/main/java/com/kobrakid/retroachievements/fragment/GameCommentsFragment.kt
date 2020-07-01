@@ -1,7 +1,7 @@
 package com.kobrakid.retroachievements.fragment
 
-import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,85 +9,73 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.R
-import com.kobrakid.retroachievements.RAAPICallback
-import com.kobrakid.retroachievements.RAAPIConnectionDeprecated
+import com.kobrakid.retroachievements.RetroAchievementsApi
 import com.kobrakid.retroachievements.adapter.GameCommentsAdapter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.jsoup.parser.Parser
-import java.lang.ref.WeakReference
-import java.util.*
 
 /**
  * A Fragment to hold recent game comments.
  */
-class GameCommentsFragment : Fragment(), RAAPICallback {
+class GameCommentsFragment : Fragment() {
 
-    private var gameCommentsAdapter: RecyclerView.Adapter<*>? = null
-    private val comments = mutableMapOf<String, List<String>>()
+    private val gameCommentsAdapter = GameCommentsAdapter()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
+        retainInstance = true
         val view = inflater.inflate(R.layout.fragment_game_comments, container, false)
         if (arguments != null) {
-            val commentsRecyclerView: RecyclerView = view.findViewById(R.id.game_comments_recycler_view)
+            val commentsRecyclerView = view.findViewById<RecyclerView>(R.id.game_comments_recycler_view)
             commentsRecyclerView.layoutManager = LinearLayoutManager(context)
-            gameCommentsAdapter = context?.let { GameCommentsAdapter(it, comments) }
             commentsRecyclerView.adapter = gameCommentsAdapter
-            RAAPIConnectionDeprecated(context).ScrapeGameInfoFromWeb(arguments?.getString("GameID"), this)
+            val ctx = context?.applicationContext
+            val id = arguments?.getString("GameID") ?: "0"
+            CoroutineScope(IO).launch {
+                if (ctx != null)
+                    RetroAchievementsApi.ScrapeGameInfoFromWeb(ctx, id) {
+                        parseGameComments(it)
+                    }
+            }
         }
         return view
     }
 
-    override fun callback(responseCode: Int, response: String) {
-        if (responseCode == RAAPIConnectionDeprecated.RESPONSE_SCRAPE_GAME_PAGE) {
-            ParseCommentsAsyncTask(this).execute(response)
+    private suspend fun parseGameComments(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
+        when (response.first) {
+            RetroAchievementsApi.RESPONSE.ERROR -> {
+                Log.w(TAG, response.second)
+            }
+            RetroAchievementsApi.RESPONSE.SCRAPE_GAME_PAGE -> {
+                withContext(Default) {
+                    for (comment in Jsoup.parse(response.second).getElementsByClass("feed_comment")) {
+                        val tooltip = comment.selectFirst("td.iconscommentsingle").selectFirst("div").attr("onmouseover")
+                        val userCard = Jsoup.parse(Parser.unescapeEntities(tooltip.substring(5, tooltip.length - 2).replace("\\", ""), false))
+                        gameCommentsAdapter.addComment(
+                                comment.selectFirst("td.commenttext").html().trim { it <= ' ' },
+                                comment.selectFirst("td.iconscommentsingle").selectFirst("img").attr("title").trim { it <= ' ' },
+                                userCard.selectFirst("td.usercardaccounttype").html().trim { it <= ' ' },
+                                userCard.select("td.usercardbasictext")[0].html().substring(15),
+                                userCard.select("td.usercardbasictext")[1].html().substring(18),
+                                if (userCard.selectFirst("span") != null) userCard.selectFirst("span").html() else "_RA_NO_TAG",
+                                comment.selectFirst("td.smalldate").html().trim { it <= ' ' }
+                        )
+                    }
+                }
+            }
+            else -> {
+                Log.v(TAG, "${response.first}: ${response.second}")
+            }
         }
     }
 
-    class ParseCommentsAsyncTask internal constructor(fragment: GameCommentsFragment) : AsyncTask<String?, Void?, Map<String, List<String>>>() {
-        private val fragmentReference: WeakReference<GameCommentsFragment> = WeakReference(fragment)
-        override fun doInBackground(vararg strings: String?): Map<String, List<String>> {
-            val response = strings[0]
-            val document = Jsoup.parse(response)
-            val elements = document.getElementsByClass("feed_comment")
-            val comments: MutableMap<String, List<String>> = HashMap()
-            val text: MutableList<String> = ArrayList()
-            val user: MutableList<String> = ArrayList()
-            val acct: MutableList<String> = ArrayList()
-            val score: MutableList<String> = ArrayList()
-            val rank: MutableList<String> = ArrayList()
-            val tag: MutableList<String> = ArrayList()
-            val date: MutableList<String> = ArrayList()
-            for (i in elements.indices) {
-                val e = elements[i]
-                text.add(e.selectFirst("td.commenttext").html().trim { it <= ' ' })
-                user.add(e.selectFirst("td.iconscommentsingle").selectFirst("img").attr("title").trim { it <= ' ' })
-                val tooltip = e.selectFirst("td.iconscommentsingle").selectFirst("div").attr("onmouseover")
-                val userCard = Jsoup.parse(Parser.unescapeEntities(tooltip.substring(5, tooltip.length - 2).replace("\\", ""), false))
-                acct.add(userCard.selectFirst("td.usercardaccounttype").html().trim { it <= ' ' })
-                score.add(userCard.select("td.usercardbasictext")[0].html().substring(15))
-                rank.add(userCard.select("td.usercardbasictext")[1].html().substring(18))
-                tag.add(if (userCard.selectFirst("span") != null) userCard.selectFirst("span").html() else "RA_NO_TAG_$i")
-                date.add(e.selectFirst("td.smalldate").html().trim { it <= ' ' })
-            }
-            comments["text"] = text
-            comments["user"] = user
-            comments["acct"] = acct
-            comments["score"] = score
-            comments["rank"] = rank
-            comments["tag"] = tag
-            comments["date"] = date
-            return comments
-        }
-
-        override fun onPostExecute(strings: Map<String, List<String>>) {
-            val fragment = fragmentReference.get()
-            if (fragment?.gameCommentsAdapter != null) {
-                fragment.comments.putAll(strings)
-                fragment.gameCommentsAdapter?.notifyDataSetChanged()
-            }
-        }
-
+    companion object {
+        private val TAG = GameCommentsFragment::class.java.simpleName
     }
+
 }

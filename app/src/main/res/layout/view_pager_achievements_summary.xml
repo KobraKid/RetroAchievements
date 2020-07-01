@@ -32,8 +32,11 @@
                 android:max="10000"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
+                android:secondaryProgressTint="?attr/colorPrimary"
+                android:secondaryProgressTintMode="src_over"
                 android:visibility="invisible"
                 tools:progress="2200"
+                tools:secondaryProgress="4000"
                 tools:visibility="visible" />
 
             <TextView

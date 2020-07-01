@@ -35,19 +35,21 @@ class AchievementDetailsFragment : Fragment() {
         view.findViewById<TextView>(R.id.achievement_details_title).text = arguments?.getString("Title")
         view.findViewById<TextView>(R.id.achievement_details_description).text = arguments?.getString("Description")
         if (arguments?.getString("DateEarned")?.startsWith("NoDate") != true) {
-            view.findViewById<TextView>(R.id.achievement_details_date).text = context?.getString(R.string.date_earned, arguments?.getString("DateEarned"))
+            view.findViewById<TextView>(R.id.achievement_details_date).text = context?.getString(R.string.date_earned_upper, arguments?.getString("DateEarned"))
         }
         view.findViewById<TextView>(R.id.achievement_details_completion_text).text = context?.getString(
                 R.string.earned_by_details,
                 arguments?.getString("NumAwarded"),
                 arguments?.getDouble("NumDistinctPlayersCasual")?.toInt(),
                 DecimalFormat("@@@@")
-                        .format(arguments?.getString("NumAwarded")?.toDouble()?.div(arguments?.getDouble("NumDistinctPlayersCasual") ?: 1.0)?.times(100.0)))
+                        .format(arguments?.getString("NumAwarded")?.toDouble()?.div(arguments?.getDouble("NumDistinctPlayersCasual")
+                                ?: 1.0)?.times(100.0)))
         view.findViewById<TextView>(R.id.achievement_details_completion_hardcore_text).text = context!!.getString(
                 R.string.earned_by_hc_details,
                 arguments?.getString("NumAwardedHardcore"),
                 DecimalFormat("@@@@")
-                        .format(arguments?.getString("NumAwardedHardcore")?.toDouble()?.div(arguments?.getDouble("NumDistinctPlayersCasual") ?: 1.0)?.times(100.0)))
+                        .format(arguments?.getString("NumAwardedHardcore")?.toDouble()?.div(arguments?.getDouble("NumDistinctPlayersCasual")
+                                ?: 1.0)?.times(100.0)))
         view.findViewById<TextView>(R.id.achievement_details_metadata).text = getString(R.string.metadata,
                 arguments?.getString("Author"),
                 arguments?.getString("DateCreated"),

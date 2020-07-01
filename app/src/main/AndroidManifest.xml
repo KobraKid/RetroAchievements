@@ -14,42 +14,43 @@
         android:supportsRtl="true"
         android:theme="@style/BlankTheme">
         <activity
-            android:name=".ApiKeyDetectorActivity"
-            android:parentActivityName=".LoginActivity">
+            android:name=".activity.ConsoleGamesActivity"
+            android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".LoginActivity" />
+                android:value=".activity.MainActivity" />
         </activity>
         <activity
-            android:name=".LeaderboardActivity"
-            android:parentActivityName=".MainActivity">
+            android:name=".activity.ApiKeyDetectorActivity"
+            android:parentActivityName=".activity.LoginActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".activity.LoginActivity" />
         </activity>
         <activity
-            android:name=".GameDetailsActivity"
-            android:parentActivityName=".MainActivity">
+            android:name=".activity.LeaderboardActivity"
+            android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".activity.MainActivity" />
         </activity>
+        <activity android:name=".activity.GameDetailsActivity" />
         <activity
-            android:name=".RecentGamesActivity"
-            android:parentActivityName=".MainActivity">
+            android:name=".activity.RecentGamesActivity"
+            android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".activity.MainActivity" />
         </activity>
         <activity
-            android:name=".LoginActivity"
-            android:parentActivityName=".MainActivity"
+            android:name=".activity.LoginActivity"
+            android:parentActivityName=".activity.MainActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".activity.MainActivity" />
         </activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>

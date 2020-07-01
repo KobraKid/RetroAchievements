@@ -1,4 +1,4 @@
-package com.kobrakid.retroachievements
+package com.kobrakid.retroachievements.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -8,6 +8,8 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import com.kobrakid.retroachievements.Consts
+import com.kobrakid.retroachievements.R
 
 class ApiKeyDetectorActivity : AppCompatActivity() {
     private var username: String? = null

@@ -15,11 +15,10 @@ import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.kobrakid.retroachievements.AppExecutors.Companion.instance
 import com.kobrakid.retroachievements.Consts
-import com.kobrakid.retroachievements.MainActivity
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
+import com.kobrakid.retroachievements.activity.MainActivity
 import com.kobrakid.retroachievements.database.Console
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -122,13 +121,16 @@ class SettingsFragment : Fragment() {
                 if (hide) {
                     // Get all consoles and store their game counts
                     val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
-                    instance!!.diskIO().execute {
-                        db?.consoleDao()?.clearTable()
-                        Log.d(TAG, "Clearing console table")
+                    db?.let {
+                        CoroutineScope(IO).launch {
+                            db.consoleDao()?.clearTable()
+                            Log.d(TAG, "Clearing console table")
+                        }
                     }
+                    val ctx = context?.applicationContext
                     CoroutineScope(IO).launch {
-                        if (this@SettingsFragment.context != null)
-                            RetroAchievementsApi.GetConsoleIDs(this@SettingsFragment.context!!) { removeConsoles(view, it) }
+                        if (ctx != null)
+                            RetroAchievementsApi.GetConsoleIDs(ctx) { removeConsoles(view, it) }
                     }
                 } else {
                     activity?.recreate()
@@ -174,12 +176,13 @@ class SettingsFragment : Fragment() {
                     val reader = JSONArray(response.second)
                     counter = reader.length()
                     for (i in 0 until counter) {
+                        val ctx = context?.applicationContext
                         if (db != null) {
                             CoroutineScope(IO).launch {
                                 // Set each console to have 0 games
                                 db.consoleDao()?.insertConsole(Console(reader.getJSONObject(i).getString("ID").toInt(), reader.getJSONObject(i).getString("Name"), 0))
-                                if (this@SettingsFragment.context != null)
-                                    RetroAchievementsApi.GetGameList(this@SettingsFragment.context!!, reader.getJSONObject(i).getString("ID")) {
+                                if (ctx != null)
+                                    RetroAchievementsApi.GetGameList(ctx, reader.getJSONObject(i).getString("ID")) {
                                         removeConsoles(view, it)
                                     }
                             }
@@ -212,6 +215,7 @@ class SettingsFragment : Fragment() {
                     withContext(Main) { activity?.recreate() }
             }
             else -> {
+                Log.v(TAG, "${response.first}: ${response.second}")
             }
         }
     }

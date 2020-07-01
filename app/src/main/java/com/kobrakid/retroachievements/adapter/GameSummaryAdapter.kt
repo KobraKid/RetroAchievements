@@ -1,6 +1,6 @@
 package com.kobrakid.retroachievements.adapter
 
-import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,10 +16,12 @@ import com.kobrakid.retroachievements.adapter.GameSummaryAdapter.GameSummaryView
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller.OnPopupTextUpdate
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import java.util.*
 
-class GameSummaryAdapter(private val context: Context) : RecyclerView.Adapter<GameSummaryViewHolder>(), OnPopupTextUpdate, Filterable {
+class GameSummaryAdapter(private val masteredBorder: Drawable?) : RecyclerView.Adapter<GameSummaryViewHolder>(), OnPopupTextUpdate, Filterable {
 
     private val ids = mutableListOf<String>()
     private val imageIcons = mutableListOf<String>()
@@ -27,6 +29,10 @@ class GameSummaryAdapter(private val context: Context) : RecyclerView.Adapter<Ga
     private val stats = mutableListOf<String>()
     private val masteries = mutableListOf<Boolean>()
     private val loading = mutableListOf<Boolean>()
+    val numGames: Int
+        get() = ids.size
+
+    // For filtering
     private val mappings = mutableListOf<Int>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameSummaryViewHolder {
@@ -51,6 +57,7 @@ class GameSummaryAdapter(private val context: Context) : RecyclerView.Adapter<Ga
         }
         Picasso.get()
                 .load(Consts.BASE_URL + imageIcons[mappedPosition])
+                .placeholder(R.drawable.game_placeholder)
                 .into(holder.constraintLayout.findViewById(R.id.game_summary_image_icon), object : Callback {
                     override fun onSuccess() {
                         loading[mappedPosition] = false
@@ -58,7 +65,7 @@ class GameSummaryAdapter(private val context: Context) : RecyclerView.Adapter<Ga
                         holder.constraintLayout.findViewById<View>(R.id.separator).visibility = View.VISIBLE
                         holder.constraintLayout.findViewById<View>(R.id.game_summary_container).visibility = View.VISIBLE
                         if (masteries.size != 0 && masteries[mappedPosition])
-                            holder.constraintLayout.findViewById<View>(R.id.game_summary_image_icon).background = context.getDrawable(R.drawable.image_view_border)
+                            holder.constraintLayout.findViewById<View>(R.id.game_summary_image_icon).background = masteredBorder
                         else
                             holder.constraintLayout.findViewById<View>(R.id.game_summary_image_icon).background = null
                         var title = Jsoup.parse(titles[mappedPosition].trim { it <= ' ' }).text()
@@ -97,7 +104,7 @@ class GameSummaryAdapter(private val context: Context) : RecyclerView.Adapter<Ga
             override fun performFiltering(charSequence: CharSequence): FilterResults {
                 val results = FilterResults()
                 if (charSequence.isNotEmpty()) {
-                    val filterMappings: MutableList<Int> = ArrayList()
+                    val filterMappings = mutableListOf<Int>()
                     for (i in titles.indices)
                         if (titles[i].toLowerCase(Locale.ROOT).contains(charSequence.toString().toLowerCase(Locale.ROOT)))
                             filterMappings.add(i)
@@ -108,10 +115,9 @@ class GameSummaryAdapter(private val context: Context) : RecyclerView.Adapter<Ga
             }
 
             override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
-                if (filterResults.values is List<*> && (filterResults.values as List<*>)[0] is Int) {
+                if (filterResults.values is List<*> && (filterResults.values as List<*>).isNotEmpty()) {
                     mappings.clear()
-                    @Suppress("UNCHECKED_CAST")
-                    mappings.addAll(filterResults.values as List<Int>)
+                    mappings.addAll((filterResults.values as List<*>).filterIsInstance<Int>())
                 } else {
                     refreshMappings()
                 }
@@ -120,46 +126,46 @@ class GameSummaryAdapter(private val context: Context) : RecyclerView.Adapter<Ga
         }
     }
 
+    suspend fun addGame(index: Int, id: String, imageIcon: String, title: String, stat: String, mastered: Boolean) {
+        withContext(Main) {
+            ids.add(index, id)
+            imageIcons.add(index, imageIcon)
+            titles.add(index, title)
+            stats.add(index, stat)
+            masteries.add(index, mastered)
+            loading.add(index, true)
+            refreshMappings()
+            notifyItemInserted(index)
+        }
+    }
+
+    suspend fun addGame(id: String, imageIcon: String, title: String) {
+        withContext(Main) {
+            ids.add(id)
+            imageIcons.add(imageIcon)
+            titles.add(title)
+            loading.add(false)
+            refreshMappings()
+            notifyItemInserted(mappings.size - 1)
+        }
+    }
+
     fun refreshMappings() {
         mappings.clear()
         for (i in ids.indices) mappings.add(i)
     }
 
-    fun addGame(index: Int, id: String, imageIcon: String, title: String, stat: String, mastered: Boolean) {
-        ids.add(index, id)
-        imageIcons.add(index, imageIcon)
-        titles.add(index, title)
-        stats.add(index, stat)
-        masteries.add(index, mastered)
-        loading.add(index, true)
-    }
-
-    fun addGame(id: String, imageIcon: String, title: String) {
-        ids.add(id)
-        imageIcons.add(imageIcon)
-        titles.add(title)
-        loading.add(false)
-    }
-
-    val numGames: Int
-        get() = ids.size
-
-    fun updateGameSummaries(start: Int, length: Int) {
-        refreshMappings()
-        if (start == 0) {
+    suspend fun clear() {
+        withContext(Main) {
+            ids.clear()
+            imageIcons.clear()
+            titles.clear()
+            stats.clear()
+            masteries.clear()
+            loading.clear()
+            mappings.clear()
             notifyDataSetChanged()
-        } else {
-            notifyItemRangeInserted(start, length)
         }
-    }
-
-    fun clear() {
-        ids.clear()
-        imageIcons.clear()
-        titles.clear()
-        stats.clear()
-        masteries.clear()
-        loading.clear()
     }
 
     /* Inner Classes and Interfaces */

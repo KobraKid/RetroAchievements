@@ -1,4 +1,4 @@
-package com.kobrakid.retroachievements
+package com.kobrakid.retroachievements.activity
 
 import android.app.AlertDialog
 import android.content.Context
@@ -13,6 +13,8 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.kobrakid.retroachievements.Consts
+import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.ThemeManager.getTheme
 
 class LoginActivity : AppCompatActivity() {

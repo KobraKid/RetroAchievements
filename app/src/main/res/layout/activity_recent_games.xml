@@ -4,7 +4,7 @@
     android:id="@+id/recent_games"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RecentGamesActivity">
+    tools:context=".activity.RecentGamesActivity">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/recent_games_refresh"

@@ -1,228 +1,211 @@
 package com.kobrakid.retroachievements.fragment
 
-import android.os.AsyncTask
+import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import android.text.Html
+import android.text.Spanned
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.kobrakid.retroachievements.MainActivity
 import com.kobrakid.retroachievements.R
-import com.kobrakid.retroachievements.RAAPICallback
-import com.kobrakid.retroachievements.RAAPIConnectionDeprecated
+import com.kobrakid.retroachievements.RetroAchievementsApi
+import com.kobrakid.retroachievements.activity.MainActivity
 import com.kobrakid.retroachievements.adapter.AchievementAdapter
+import com.kobrakid.retroachievements.ra.Achievement
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
-import java.lang.ref.WeakReference
 import java.text.DecimalFormat
-import java.util.*
 
 /**
  * This class is responsible for displaying summary information on all the achievements for a
  * particular game.
  */
-class AchievementSummaryFragment : Fragment(), RAAPICallback {
+class AchievementSummaryFragment : Fragment() {
 
-    private var adapter: AchievementAdapter? = null
-    val layoutManager = LinearLayoutManager(context)
-    private var numEarned = 0
-    private var numEarnedHC = 0
-    private var totalAch = 0
-    private var earnedPts = 0
-    private var totalPts = 0
-    private var earnedRatio = 0
-    private var totalRatio = 0
+    private data class AchievementTotals(
+            var numEarned: Int,
+            var numEarnedHC: Int,
+            var totalAch: Int,
+            var earnedPts: Int,
+            var totalPts: Int,
+            var earnedRatio: Int,
+            var totalRatio: Int
+    ) {
+        fun print(resources: Resources): Spanned {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                return Html.fromHtml(resources.getString(
+                        R.string.user_summary,
+                        numEarned,
+                        totalAch,
+                        numEarnedHC,
+                        earnedPts,
+                        earnedRatio,
+                        totalPts * 2,  // Account for hardcore achievements worth double
+                        totalRatio), Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH)
+            else
+                return HtmlCompat.fromHtml(resources.getString(
+                        R.string.user_summary,
+                        numEarned,
+                        totalAch,
+                        numEarnedHC,
+                        earnedPts,
+                        earnedRatio,
+                        totalPts * 2,
+                        totalRatio), HtmlCompat.FROM_HTML_MODE_LEGACY)
+        }
+    }
+
+    private val adapter = AchievementAdapter(this)
+    private val achievementTotals = AchievementTotals(0, 0, 0, 0, 0, 0, 0)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         retainInstance = true
         val view = inflater.inflate(R.layout.view_pager_achievements_summary, container, false)
-        // TODO: See if this really is affected by savedInstanceState
-        if (savedInstanceState == null) {
-            adapter = AchievementAdapter(this)
-        }
         val recyclerView: RecyclerView = view.findViewById(R.id.game_details_achievements_recycler_view)
         recyclerView.setHasFixedSize(true)
-        recyclerView.layoutManager = layoutManager
+        recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
         if (savedInstanceState == null && arguments != null) {
-            RAAPIConnectionDeprecated(context).GetGameInfoAndUserProgress(MainActivity.raUser, arguments?.getString("GameID"), this)
+            val ctx = context?.applicationContext
+            val id = arguments?.getString("GameID", "0")
+            CoroutineScope(IO).launch {
+                if (ctx != null && id != null)
+                    RetroAchievementsApi.GetGameInfoAndUserProgress(ctx, MainActivity.raUser, id) { parseGameInfoAndUserProgress(view, it) }
+            }
         } else {
             populateViews(view)
         }
         return view
     }
 
-    override fun callback(responseCode: Int, response: String) {
-        if (responseCode == RAAPIConnectionDeprecated.RESPONSE_GET_GAME_INFO_AND_USER_PROGRESS) {
-            try {
-                val reader = JSONObject(response)
-                adapter?.setNumDistinctCasual(reader.getString("NumDistinctPlayersCasual").toDouble())
-                if (reader.getString("NumAchievements") == "0") {
-                    if (view != null) {
-                        view?.findViewById<View>(R.id.game_details_loading_bar)?.visibility = View.GONE
-                        view?.findViewById<View>(R.id.game_details_no_achievements)?.visibility = View.VISIBLE
-                    }
-                } else {
-                    val achievements = reader.getJSONObject("Achievements")
-                    var achievement: JSONObject
-                    numEarned = 0
-                    numEarnedHC = 0
-                    totalAch = 0
-                    earnedPts = 0
-                    totalPts = 0
-                    earnedRatio = 0
-                    totalRatio = 0
-                    val keys = achievements.keys()
-                    while (keys.hasNext()) {
-                        val achievementID = keys.next()
-                        achievement = achievements.getJSONObject(achievementID)
-                        if (achievement.has("DateEarnedHardcore")) {
-                            numEarned++
-                            numEarnedHC++
-                            earnedPts += 2 * achievement.getString("Points").toInt()
-                            earnedRatio += achievement.getString("TrueRatio").toInt()
-                        } else if (achievement.has("DateEarned")) {
-                            numEarned++
-                            earnedPts += achievement.getString("Points").toInt()
-                            earnedRatio += achievement.getString("TrueRatio").toInt()
+    private suspend fun parseGameInfoAndUserProgress(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
+        when (response.first) {
+            RetroAchievementsApi.RESPONSE.ERROR -> {
+                Log.w(TAG, response.second)
+            }
+            RetroAchievementsApi.RESPONSE.GET_GAME_INFO_AND_USER_PROGRESS -> {
+                withContext(Default) {
+                    try {
+                        val reader = JSONObject(response.second)
+                        if (reader.getString("NumAchievements") == "0") {
+                            withContext(Main) {
+                                view.findViewById<View>(R.id.game_details_loading_bar)?.visibility = View.GONE
+                                view.findViewById<View>(R.id.game_details_no_achievements)?.visibility = View.VISIBLE
+                            }
+                        } else {
+                            adapter.setNumDistinctCasual(reader.getString("NumDistinctPlayersCasual").toDouble())
+                            val achievements = reader.getJSONObject("Achievements")
+                            val displayOrder = mutableListOf<Int>()
+                            val displayOrderEarned = mutableListOf<Int>()
+                            var count: Int
+                            var dateEarned: String
+                            var earnedHC: Boolean
+                            for (achievementID in achievements.keys()) {
+                                val achievement = achievements.getJSONObject(achievementID)
+                                when {
+                                    achievement.has("DateEarnedHardcore") -> {
+                                        achievementTotals.numEarned++
+                                        achievementTotals.numEarnedHC++
+                                        achievementTotals.earnedPts += 2 * achievement.getString("Points").toInt()
+                                        achievementTotals.earnedRatio += achievement.getString("TrueRatio").toInt()
+                                        dateEarned = achievement.getString("DateEarnedHardcore")
+                                        displayOrderEarned.add(achievement.getString("DisplayOrder").toInt())
+                                        displayOrderEarned.sort()
+                                        count = displayOrderEarned.indexOf(achievement.getString("DisplayOrder").toInt())
+                                        earnedHC = true
+                                    }
+                                    achievement.has("DateEarned") -> {
+                                        achievementTotals.numEarned++
+                                        achievementTotals.earnedPts += achievement.getString("Points").toInt()
+                                        achievementTotals.earnedRatio += achievement.getString("TrueRatio").toInt()
+                                        dateEarned = achievement.getString("DateEarned")
+                                        displayOrderEarned.add(achievement.getString("DisplayOrder").toInt())
+                                        displayOrderEarned.sort()
+                                        count = displayOrderEarned.indexOf(achievement.getString("DisplayOrder").toInt())
+                                        earnedHC = false
+                                    }
+                                    else -> {
+                                        dateEarned = ""
+                                        displayOrder.add(achievement.getString("DisplayOrder").toInt())
+                                        displayOrder.sort()
+                                        count = displayOrder.indexOf(achievement.getString("DisplayOrder").toInt()) + displayOrderEarned.size
+                                        earnedHC = false
+                                    }
+                                }
+                                if (dateEarned.isEmpty()) {
+                                    dateEarned = "NoDate:$count"
+                                    earnedHC = false
+                                }
+                                if (count == 0)
+                                    count = achievementTotals.totalAch
+
+                                // Workaround to avoid `Verifier rejected class` error
+                                val newAchievement = Achievement(
+                                        achievementID,
+                                        achievement.getString("BadgeName"),
+                                        achievement.getString("Title"),
+                                        achievement.getString("Points"),
+                                        achievement.getString("TrueRatio"),
+                                        achievement.getString("Description"),
+                                        dateEarned,
+                                        earnedHC,
+                                        achievement.getString("NumAwarded"),
+                                        achievement.getString("NumAwardedHardcore"),
+                                        achievement.getString("Author"),
+                                        achievement.getString("DateCreated"),
+                                        achievement.getString("DateModified"))
+
+                                withContext(Main) {
+                                    adapter.addAchievement(count, newAchievement)
+                                }
+
+                                achievementTotals.totalAch++
+                                achievementTotals.totalPts += achievement.getString("Points").toInt()
+                                achievementTotals.totalRatio += achievement.getString("TrueRatio").toInt()
+                            }
                         }
-                        totalAch++
-                        totalPts += achievement.getString("Points").toInt()
-                        totalRatio += achievement.getString("TrueRatio").toInt()
+                    } catch (e: JSONException) {
+                        if (e.toString().contains("Value null at Achievements of type org.json.JSONObject$1 cannot be converted to JSONObject"))
+                            Log.d(TAG, "This game has no achievements")
+                        else
+                            Log.e(TAG, response.second, e)
                     }
-                    adapter?.clear()
-                    AchievementDetailsAsyncTask(this).execute(response)
                 }
-            } catch (e: JSONException) {
-                e.printStackTrace()
+                withContext(Main) {
+                    populateViews(view)
+                }
+            }
+            else -> {
+                Log.v(TAG, "${response.first}: ${response.second}")
             }
         }
     }
 
     private fun populateViews(view: View) {
-        view.findViewById<TextView>(R.id.game_details_progress_text).text = getString(
-                R.string.completion,
-                DecimalFormat("@@@@")
-                        .format((numEarned + numEarnedHC).toFloat() / totalAch.toFloat() * 100.0))
-        view.findViewById<TextView>(R.id.game_details_user_summary).text = Html.fromHtml(getString(
-                R.string.user_summary,
-                numEarned,
-                totalAch,
-                numEarnedHC,
-                earnedPts,
-                earnedRatio,
-                totalPts * 2,  // Account for hardcore achievements worth double
-                totalRatio))
-        // TODO: why is this multiplied by 10_000?
-        view.findViewById<ProgressBar>(R.id.game_details_progress).progress = (numEarned.toFloat() / totalAch.toFloat() * 10_000.0).toInt()
+        val progress = (achievementTotals.numEarned + achievementTotals.numEarnedHC).toFloat() / achievementTotals.totalAch.toFloat() * 100.0
+        if (progress >= 0)
+            view.findViewById<TextView>(R.id.game_details_progress_text).text = getString(R.string.completion, DecimalFormat("@@@@").format(progress))
+        view.findViewById<TextView>(R.id.game_details_user_summary).text = context?.resources?.let { achievementTotals.print(it) }
+        view.findViewById<ProgressBar>(R.id.game_details_progress).max = achievementTotals.totalAch
+        view.findViewById<ProgressBar>(R.id.game_details_progress).progress = achievementTotals.numEarned
         view.findViewById<View>(R.id.game_details_progress).visibility = View.VISIBLE
         view.findViewById<View>(R.id.game_details_loading_bar).visibility = View.GONE
         view.findViewById<View>(R.id.game_details_achievements_recycler_view).visibility = View.VISIBLE
-    }
-
-    private class AchievementDetailsAsyncTask internal constructor(fragment: Fragment) : AsyncTask<String?, Any, Unit>() {
-        val fragmentReference: WeakReference<Fragment> = WeakReference(fragment)
-        override fun doInBackground(vararg strings: String?) {
-            try {
-                val reader = JSONObject(strings[0])
-                val achievements = reader.getJSONObject("Achievements")
-                var achievement: JSONObject
-                var count: Int
-                val displayOrder: MutableList<Int> = ArrayList()
-                val displayOrderEarned: MutableList<Int> = ArrayList()
-                var totalAch = 0
-                val keys = achievements.keys()
-                while (keys.hasNext()) {
-                    val achievementID = keys.next()
-                    achievement = achievements.getJSONObject(achievementID)
-
-                    // Set up ordering of achievements
-                    var dateEarned = ""
-                    var earnedHC = false
-                    when {
-                        achievement.has("DateEarnedHardcore") -> {
-                            dateEarned = achievement.getString("DateEarnedHardcore")
-                            displayOrderEarned.add(achievement.getString("DisplayOrder").toInt())
-                            displayOrderEarned.sort()
-                            count = displayOrderEarned.indexOf(achievement.getString("DisplayOrder").toInt())
-                            earnedHC = true
-                        }
-                        achievement.has("DateEarned") -> {
-                            dateEarned = achievement.getString("DateEarned")
-                            displayOrderEarned.add(achievement.getString("DisplayOrder").toInt())
-                            displayOrderEarned.sort()
-                            count = displayOrderEarned.indexOf(achievement.getString("DisplayOrder").toInt())
-                        }
-                        else -> {
-                            displayOrder.add(achievement.getString("DisplayOrder").toInt())
-                            displayOrder.sort()
-                            count = displayOrder.indexOf(achievement.getString("DisplayOrder").toInt()) + displayOrderEarned.size
-                        }
-                    }
-                    if (dateEarned == "") {
-                        dateEarned = "NoDate:$count"
-                        earnedHC = false
-                    }
-                    if (count == 0) count = totalAch
-                    publishProgress(
-                            count,
-                            achievementID,
-                            achievement.getString("BadgeName"),
-                            achievement.getString("Title"),
-                            achievement.getString("Points"),
-                            achievement.getString("TrueRatio"),
-                            achievement.getString("Description"),
-                            dateEarned,
-                            earnedHC,
-                            achievement.getString("NumAwarded"),
-                            achievement.getString("NumAwardedHardcore"),
-                            achievement.getString("Author"),
-                            achievement.getString("DateCreated"),
-                            achievement.getString("DateModified"))
-                    totalAch++
-                }
-            } catch (e: JSONException) {
-                if (e.toString().contains("Value null at Achievements of type org.json.JSONObject$1 cannot be converted to JSONObject"))
-                    Log.d(TAG, "This game has no achievements")
-                else
-                    Log.e(TAG, "An unknown exception has occurred", e)
-            }
-        }
-
-        override fun onProgressUpdate(vararg values: Any) {
-            val fragment = fragmentReference.get() as AchievementSummaryFragment?
-            if (fragment != null) {
-                fragment.adapter?.addAchievement(
-                        values[0] as Int,
-                        values[1] as String,
-                        values[2] as String,
-                        values[3] as String,
-                        values[4] as String,
-                        values[5] as String,
-                        values[6] as String,
-                        values[7] as String,
-                        values[8] as Boolean,
-                        values[9] as String,
-                        values[10] as String,
-                        values[11] as String,
-                        values[12] as String,
-                        values[13] as String)
-            }
-        }
-
-        override fun onPostExecute(result: Unit) {
-            val fragment = fragmentReference.get() as AchievementSummaryFragment?
-            if (fragment != null && fragment.view != null)
-                fragment.populateViews(fragment.view!!)
-        }
-
     }
 
     companion object {

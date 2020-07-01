@@ -9,84 +9,112 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
-import com.google.common.collect.RowSortedTable
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.adapter.LeaderboardsAdapter.LeaderboardsViewHolder
 import com.kobrakid.retroachievements.fragment.LeaderboardsFragment
+import com.kobrakid.retroachievements.ra.Leaderboard
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller.OnPopupTextUpdate
 import com.squareup.picasso.Picasso
-import java.util.*
 
-class LeaderboardsAdapter(fragment: Fragment, private val table: RowSortedTable<Int, String, String>, private val tableFiltered: RowSortedTable<Int, String, String>) : RecyclerView.Adapter<LeaderboardsViewHolder>(), Filterable, OnPopupTextUpdate {
+class LeaderboardsAdapter(fragment: Fragment) : RecyclerView.Adapter<LeaderboardsViewHolder>(), Filterable, OnPopupTextUpdate {
 
-    private val listener = LeaderboardsViewHolderListenerImpl(fragment, tableFiltered)
+    private val leaderboardMap = mutableMapOf<Int, Leaderboard>()
+    private val leaderboardMapFiltered = mutableMapOf<Int, Leaderboard>()
+    private val uniqueConsoles = mutableSetOf<String>()
+    private val listener = LeaderboardsViewHolderListenerImpl(fragment, leaderboardMapFiltered)
+
+    @Suppress("ConvertToStringTemplate")
+    var consoleFilter = "console:"
+        set(value) {
+            field = "console:" + value
+        }
+
+    @Suppress("ConvertToStringTemplate")
+    var titleFilter = "title:"
+        set(value) {
+            field = "title:" + value
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LeaderboardsViewHolder {
         return LeaderboardsViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.view_holder_leaderboard, parent, false), listener)
     }
 
     override fun onBindViewHolder(holder: LeaderboardsViewHolder, position: Int) {
-        holder.itemView.findViewById<TextView>(R.id.id).text = tableFiltered.row(position)["ID"]
+        holder.itemView.findViewById<TextView>(R.id.id).text = leaderboardMapFiltered[position]?.id
         Picasso.get()
-                .load(tableFiltered.row(position)["IMAGE"])
+                .load(leaderboardMapFiltered[position]?.image)
+                .placeholder(R.drawable.game_placeholder)
                 .into(holder.itemView.findViewById<ImageView>(R.id.imageIcon))
-        holder.itemView.findViewById<TextView>(R.id.game).text = tableFiltered.row(position)["GAME"]
-        if (tableFiltered.row(position)["CONSOLE"] == "")
-            holder.itemView.findViewById<TextView>(R.id.console).text = null
-        else
-            holder.itemView.findViewById<TextView>(R.id.console).text = holder.itemView.context.getString(R.string.console_parens, tableFiltered.row(position)["CONSOLE"])
-        holder.itemView.findViewById<TextView>(R.id.title).text = tableFiltered.row(position)["TITLE"]
-        holder.itemView.findViewById<TextView>(R.id.description).text = tableFiltered.row(position)["DESCRIPTION"]
-        holder.itemView.findViewById<TextView>(R.id.type).text = tableFiltered.row(position)["TYPE"]
-        holder.itemView.findViewById<TextView>(R.id.numresults).text = tableFiltered.row(position)["NUMRESULTS"]
+        holder.itemView.findViewById<TextView>(R.id.game).text = leaderboardMapFiltered[position]?.game
+        holder.itemView.findViewById<TextView>(R.id.console).text = holder.itemView.context.getString(R.string.console_parens, leaderboardMapFiltered[position]?.console
+                ?: "")
+        holder.itemView.findViewById<TextView>(R.id.title).text = leaderboardMapFiltered[position]?.title
+        holder.itemView.findViewById<TextView>(R.id.description).text = leaderboardMapFiltered[position]?.description
+        holder.itemView.findViewById<TextView>(R.id.type).text = leaderboardMapFiltered[position]?.type
+        holder.itemView.findViewById<TextView>(R.id.numresults).text = leaderboardMapFiltered[position]?.numResults
     }
 
     override fun getItemCount(): Int {
-        return tableFiltered.rowKeySet().size
+        return leaderboardMapFiltered.size
     }
 
-    // TODO: Find more elegant solution than to split string by tabs
+    override fun onChange(position: Int): CharSequence {
+        return leaderboardMapFiltered[position]?.console ?: " "
+    }
+
     override fun getFilter(): Filter {
         return object : Filter() {
-            override fun performFiltering(charSequence: CharSequence): FilterResults {
-                val filter = charSequence.toString()
-                val strings = arrayOf(filter.substring(0, filter.indexOf("\t")), filter.substring(filter.indexOf("\t") + 1))
+            override fun performFiltering(charSequence: CharSequence?): FilterResults {
                 val results = FilterResults()
-                tableFiltered.clear()
-                if (strings[0].isEmpty() && strings[1].isEmpty()) {
-                    results.values = false
-                } else {
-                    for (i in table.rowKeySet().indices) {
-                        if (table.row(i)["TITLE"]!!.toLowerCase(Locale.ROOT).contains(strings[1].toLowerCase(Locale.ROOT))
-                                && (strings[0].isEmpty() || table.row(i)["CONSOLE"] == strings[0])) {
-                            val row = tableFiltered.rowKeySet().size
-                            tableFiltered.put(row, "ID", table.row(i)["ID"]!!)
-                            tableFiltered.put(row, "IMAGE", table.row(i)["IMAGE"]!!)
-                            tableFiltered.put(row, "GAME", (table.row(i)["GAME"])!!)
-                            tableFiltered.put(row, "CONSOLE", table.row(i)["CONSOLE"]!!)
-                            tableFiltered.put(row, "TITLE", table.row(i)["TITLE"]!!)
-                            tableFiltered.put(row, "DESCRIPTION", table.row(i)["DESCRIPTION"]!!)
-                            tableFiltered.put(row, "TYPE", table.row(i)["TYPE"]!!)
-                            tableFiltered.put(row, "NUMRESULTS", table.row(i)["NUMRESULTS"]!!)
-                        }
+                if (charSequence != null) {
+                    val constraint = charSequence.split(';')
+                    val consoleFilter = constraint[CONSOLE].substring(8)
+                    val titleFilter = constraint[TITLE].substring(6)
+                    val res = mutableListOf<Int>()
+                    leaderboardMap.forEach { (i, leaderboard) ->
+                        if ((consoleFilter.isEmpty() || leaderboard.console == consoleFilter)
+                                && (titleFilter.isEmpty() || leaderboard.title.contains(titleFilter)))
+                            res.add(i)
                     }
-                    results.values = true
+                    results.values = res
+                    results.count = res.size
                 }
                 return results
             }
 
-            override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
-                if (!(filterResults.values is Boolean && filterResults.values as Boolean)) {
-                    // FIXME Can be concurrently modified, clashing with {@Link LeaderboardsFragment.java} line 272
-                    tableFiltered.putAll(table)
+            override fun publishResults(charSequerce: CharSequence?, results: FilterResults?) {
+                if (results?.count != null) {
+                    leaderboardMapFiltered.clear()
+                    if (results.count > 0) {
+                        var count = 0
+                        (results.values as MutableList<*>).forEach {
+                            val leaderboard = leaderboardMap[it as Int]
+                            if (leaderboard != null) {
+                                leaderboardMapFiltered[count] = leaderboard
+                                count++
+                            }
+                        }
+                    }
+                    notifyDataSetChanged()
                 }
-                notifyDataSetChanged()
             }
+
         }
     }
 
-    override fun onChange(position: Int): CharSequence {
-        return tableFiltered[position, "CONSOLE"]
+    fun addLeaderboard(index: Int, leaderboard: Leaderboard) {
+        leaderboardMap[index] = leaderboard
+        leaderboardMapFiltered[index] = leaderboard
+        uniqueConsoles.add(leaderboard.console)
+        notifyItemInserted(index)
+    }
+
+    fun getUniqueConsoles(): List<String> {
+        return uniqueConsoles.toList()
+    }
+
+    fun buildFilter(): String {
+        return "$consoleFilter;$titleFilter"
     }
 
     /* Inner Classes and Interfaces */
@@ -94,10 +122,10 @@ class LeaderboardsAdapter(fragment: Fragment, private val table: RowSortedTable<
         fun onItemClicked(view: View?, adapterPosition: Int)
     }
 
-    class LeaderboardsViewHolderListenerImpl internal constructor(private val fragment: Fragment, private val table: RowSortedTable<Int, String, String>) : LeaderboardsViewHolderListener {
+    class LeaderboardsViewHolderListenerImpl internal constructor(private val fragment: Fragment, private val table: MutableMap<Int, Leaderboard>) : LeaderboardsViewHolderListener {
         override fun onItemClicked(view: View?, adapterPosition: Int) {
             if (fragment is LeaderboardsFragment) {
-                fragment.onClick(table.row(adapterPosition))
+                table[adapterPosition]?.let { fragment.onClick(it) }
             }
         }
 
@@ -113,5 +141,10 @@ class LeaderboardsAdapter(fragment: Fragment, private val table: RowSortedTable<
             itemView.setOnClickListener(this)
             this.listener = listener
         }
+    }
+
+    companion object {
+        const val CONSOLE = 0
+        const val TITLE = 1
     }
 }

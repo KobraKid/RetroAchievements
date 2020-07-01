@@ -9,7 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.adapter.ConsoleAdapter.ConsoleViewHolder
-import com.kobrakid.retroachievements.fragment.ListsFragment
+import com.kobrakid.retroachievements.fragment.ConsoleListFragment
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class ConsoleAdapter(fragment: Fragment) : RecyclerView.Adapter<ConsoleViewHolder>() {
@@ -40,25 +42,23 @@ class ConsoleAdapter(fragment: Fragment) : RecyclerView.Adapter<ConsoleViewHolde
         return consoleIDs.size
     }
 
-    fun addConsole(id: String, name: String) {
-        consoleNames.add(name)
-        consoleNames.sort()
-        consoleIDs.add(consoleNames.indexOf(name), id)
-        notifyItemInserted(consoleNames.indexOf(name))
+    suspend fun addConsole(id: String, name: String) {
+        withContext(Main) {
+            consoleNames.add(name)
+            consoleNames.sort()
+            consoleIDs.add(consoleNames.indexOf(name), id)
+            notifyItemInserted(consoleNames.indexOf(name))
+        }
     }
 
-    fun removeConsole(name: String) {
-        if (!consoleNames.contains(name)) return
-        val rem = consoleNames.indexOf(name)
-        consoleNames.removeAt(rem)
-        consoleIDs.removeAt(rem)
-        notifyItemRemoved(rem)
-    }
-
-    fun clear() {
-        consoleIDs.clear()
-        consoleNames.clear()
-        notifyDataSetChanged()
+    suspend fun removeConsole(name: String) {
+        withContext(Main) {
+            if (!consoleNames.contains(name)) return@withContext
+            val rem = consoleNames.indexOf(name)
+            consoleNames.removeAt(rem)
+            consoleIDs.removeAt(rem)
+            notifyItemRemoved(rem)
+        }
     }
 
     /* Inner Classes and Interfaces */
@@ -68,7 +68,7 @@ class ConsoleAdapter(fragment: Fragment) : RecyclerView.Adapter<ConsoleViewHolde
 
     class ConsoleViewHolderListenerImpl internal constructor(private val fragment: Fragment, private val adapter: ConsoleAdapter) : ConsoleViewHolderListener {
         override fun onItemClicked(adapterPosition: Int) {
-            (fragment as ListsFragment).onConsoleSelected(adapterPosition, adapter.consoleIDs[adapterPosition], adapter.consoleNames[adapterPosition])
+            (fragment as ConsoleListFragment).onConsoleSelected(adapter.consoleIDs[adapterPosition], adapter.consoleNames[adapterPosition])
         }
 
     }

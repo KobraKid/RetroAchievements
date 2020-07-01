@@ -26,6 +26,7 @@ class Consts private constructor() {
 
         // Theming
         // TODO: Come up with some fun new themes
+        // TODO: Make this NOT @JvmField
         @JvmField
         val THEMES = arrayOf("RetroAchievements Themes", "Blank", "TwentySixteen", "Green", "Pony", "Red", "Spooky", "More Themes")
 

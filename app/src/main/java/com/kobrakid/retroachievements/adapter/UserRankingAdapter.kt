@@ -11,12 +11,19 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.Consts
-import com.kobrakid.retroachievements.MainActivity
 import com.kobrakid.retroachievements.R
+import com.kobrakid.retroachievements.activity.MainActivity
 import com.kobrakid.retroachievements.adapter.UserRankingAdapter.UserRankingViewHolder
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.withContext
 
-class UserRankingAdapter(private val userRankings: MutableList<String>, private val userNames: MutableList<String>, private val userScores: MutableList<String>, private val userRatios: MutableList<String>) : RecyclerView.Adapter<UserRankingViewHolder>() {
+class UserRankingAdapter : RecyclerView.Adapter<UserRankingViewHolder>() {
+
+    private val userRankings = mutableListOf<String>()
+    private val userNames = mutableListOf<String>()
+    private val userScores = mutableListOf<String>()
+    private val userRatios = mutableListOf<String>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserRankingViewHolder {
         return UserRankingViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.view_holder_participants, parent, false))
@@ -27,6 +34,7 @@ class UserRankingAdapter(private val userRankings: MutableList<String>, private 
         holder.itemView.findViewById<View>(R.id.participant_result).visibility = View.INVISIBLE
         Picasso.get()
                 .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + userNames[position] + ".png")
+                .placeholder(R.drawable.user_placeholder)
                 .into(holder.itemView.findViewById<ImageView>(R.id.participant_icon))
         holder.itemView.findViewById<TextView>(R.id.participant_rank).text = userRankings[position]
         holder.itemView.findViewById<TextView>(R.id.participant_username).text = userNames[position]
@@ -42,6 +50,17 @@ class UserRankingAdapter(private val userRankings: MutableList<String>, private 
 
     override fun getItemCount(): Int {
         return userRankings.size
+    }
+
+    suspend fun addUser(rank: String, name: String, score: String, ratio: String) {
+        if (userRankings.contains(rank)) return
+        userRankings.add(rank)
+        userNames.add(name)
+        userScores.add(score)
+        userRatios.add(ratio)
+        withContext(Main) {
+            notifyDataSetChanged()
+        }
     }
 
     class UserRankingViewHolder(view: View) : RecyclerView.ViewHolder(view)

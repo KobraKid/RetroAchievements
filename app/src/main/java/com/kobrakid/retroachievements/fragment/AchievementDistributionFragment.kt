@@ -1,10 +1,9 @@
 package com.kobrakid.retroachievements.fragment
 
 import android.annotation.SuppressLint
-import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
-import android.util.SparseIntArray
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -20,26 +19,28 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.kobrakid.retroachievements.R
-import com.kobrakid.retroachievements.RAAPICallback
-import com.kobrakid.retroachievements.RAAPIConnectionDeprecated
+import com.kobrakid.retroachievements.RetroAchievementsApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
-import java.lang.ref.WeakReference
-import java.util.*
 import java.util.regex.Pattern
 
-class AchievementDistributionFragment : Fragment(), RAAPICallback {
+class AchievementDistributionFragment : Fragment() {
 
-    private var achievementDistro: LineChart? = null
-    private var data = TreeMap<Int, Int>()
+    private var achievementDistributionChart: LineChart? = null
+    private var chartData = mutableListOf<Entry>()
     private var isActive = false
-    private var isAPIActive = false
 
     @SuppressLint("UseSparseArrays")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         retainInstance = true
         val view = inflater.inflate(R.layout.view_pager_achievement_distribution, container, false)
-        achievementDistro = view.findViewById(R.id.game_details_achievement_distribution)
-        achievementDistro?.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
+        achievementDistributionChart = view.findViewById(R.id.game_details_achievement_distribution)
+        achievementDistributionChart?.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
             override fun onValueSelected(e: Entry, h: Highlight) {
                 if (isActive) {
                     view.findViewById<TextView>(R.id.game_details_chart_hints).text = resources.getQuantityString(
@@ -57,9 +58,13 @@ class AchievementDistributionFragment : Fragment(), RAAPICallback {
             }
         })
         if (savedInstanceState == null && arguments != null) {
-            isAPIActive = true
-            RAAPIConnectionDeprecated(context).ScrapeGameInfoFromWeb(arguments!!.getString("GameID"), this)
-        } else if (!isAPIActive) {
+            val ctx = context?.applicationContext
+            val id = arguments?.getString("GameID", "0")
+            CoroutineScope(IO).launch {
+                if (ctx != null && id != null)
+                    RetroAchievementsApi.ScrapeGameInfoFromWeb(ctx, id) { parseAchievementDistribution(view, it) }
+            }
+        } else {
             populateChartData(view)
         }
         return view
@@ -80,109 +85,84 @@ class AchievementDistributionFragment : Fragment(), RAAPICallback {
         isActive = true
     }
 
-    override fun callback(responseCode: Int, response: String) {
-        if (!isActive) return
-        if (responseCode == RAAPIConnectionDeprecated.RESPONSE_SCRAPE_GAME_PAGE) {
-            AchievementDistributionChartAsyncTask(this, data).execute(response)
+    private suspend fun parseAchievementDistribution(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
+        when (response.first) {
+            RetroAchievementsApi.RESPONSE.ERROR -> {
+                Log.w(TAG, response.second)
+            }
+            RetroAchievementsApi.RESPONSE.SCRAPE_GAME_PAGE -> {
+                withContext(Default) {
+                    Jsoup.parse(response.second)
+                            .getElementsByTag("script")
+                            .filter { it.html().startsWith("google.load('visualization'") }
+                            .map {
+                                val rows = it.dataNodes()[0].wholeData
+                                val p1 = Pattern.compile("v:(\\d+),")
+                                val m1 = p1.matcher(rows)
+                                val p2 = Pattern.compile(",\\s(\\d+)\\s]")
+                                val m2 = p2.matcher(rows)
+                                while (m1.find() && m2.find()) {
+                                    chartData.add(
+                                            Entry(
+                                                    m1.group(1)?.toFloat() ?: 0f,
+                                                    m2.group(1)?.toFloat() ?: 0f
+                                            )
+                                    )
+                                }
+                            }
+                }
+                withContext(Main) {
+                    populateChartData(view)
+                }
+            }
+            else -> {
+                Log.v(TAG, "${response.first}: ${response.second}")
+            }
         }
-        isAPIActive = false
     }
 
     private fun populateChartData(view: View) {
-        val context = context
-        if (context != null) {
-            if (data.size > 0) {
-                // Set chart data
-                val entries: MutableList<Entry> = ArrayList()
-                for (key in data.keys) {
-                    data[key]?.let { entries.add(Entry(key.toFloat(), it.toFloat())) }
-                }
-                val dataSet = LineDataSet(entries, "")
-                dataSet.setDrawFilled(true)
-                val lineData = LineData(dataSet)
-                lineData.setDrawValues(false)
+        val dataSet = LineDataSet(chartData, "")
+        dataSet.setDrawFilled(true)
+        val lineData = LineData(dataSet)
+        lineData.setDrawValues(false)
 
-                // Set chart colors
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    val accentColor = TypedValue()
-                    val primaryColor = TypedValue()
-                    context.theme.resolveAttribute(R.attr.colorAccent, accentColor, true)
-                    context.theme.resolveAttribute(R.attr.colorPrimary, primaryColor, true)
-                    achievementDistro?.axisLeft?.textColor = primaryColor.data
-                    achievementDistro?.xAxis?.textColor = primaryColor.data
-                    dataSet.setCircleColor(accentColor.data)
-                    dataSet.color = accentColor.data
-                    dataSet.circleHoleColor = accentColor.data
-                    dataSet.fillColor = accentColor.data
-                }
-
-                // Set chart axes
-                achievementDistro?.axisRight?.isEnabled = false
-                achievementDistro?.legend?.isEnabled = false
-                achievementDistro?.xAxis?.position = XAxis.XAxisPosition.BOTTOM
-                achievementDistro?.axisLeft?.axisMinimum = 0f
-
-                // Set chart description
-                val description = Description()
-                description.text = ""
-                achievementDistro?.description = description
-
-                // Set chart finalized data
-                achievementDistro?.data = lineData
-
-                // Redraw chart
-                achievementDistro?.invalidate()
-            }
-            view.findViewById<View>(R.id.game_details_achievement_distro_loading).visibility = View.GONE
-            achievementDistro?.visibility = View.VISIBLE
+        // Set chart colors
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val accentColor = TypedValue()
+            val primaryColor = TypedValue()
+            context?.theme?.resolveAttribute(R.attr.colorAccent, accentColor, true)
+            context?.theme?.resolveAttribute(R.attr.colorPrimary, primaryColor, true)
+            achievementDistributionChart?.axisLeft?.textColor = primaryColor.data
+            achievementDistributionChart?.xAxis?.textColor = primaryColor.data
+            dataSet.setCircleColor(accentColor.data)
+            dataSet.color = accentColor.data
+            dataSet.circleHoleColor = accentColor.data
+            dataSet.fillColor = accentColor.data
         }
+
+        // Set chart axes
+        achievementDistributionChart?.axisRight?.isEnabled = false
+        achievementDistributionChart?.legend?.isEnabled = false
+        achievementDistributionChart?.xAxis?.position = XAxis.XAxisPosition.BOTTOM
+        achievementDistributionChart?.axisLeft?.axisMinimum = 0f
+
+        // Set chart description
+        val description = Description()
+        description.text = ""
+        achievementDistributionChart?.description = description
+
+        // Set chart finalized data
+        achievementDistributionChart?.data = lineData
+
+        // Redraw chart
+        achievementDistributionChart?.invalidate()
+
+        view.findViewById<View>(R.id.game_details_achievement_distro_loading).visibility = View.GONE
+        achievementDistributionChart?.visibility = View.VISIBLE
     }
 
-    private class AchievementDistributionChartAsyncTask internal constructor(fragment: AchievementDistributionFragment, data: SortedMap<Int, Int>?) : AsyncTask<String?, Int?, SortedMap<Int, Int>>() {
-        private val fragmentReference: WeakReference<AchievementDistributionFragment> = WeakReference(fragment)
-        private val dataReference: WeakReference<SortedMap<Int, Int>?> = WeakReference(data)
-        override fun doInBackground(vararg strings: String?): SortedMap<Int, Int> {
-            val response = strings[0]
-            val document = Jsoup.parse(response)
-            val scripts = document.getElementsByTag("script")
-            var scriptIndex = -1
-            for (i in scripts.indices) {
-                if (scripts[i].html().startsWith("google.load('visualization'")) {
-                    scriptIndex = i
-                }
-            }
-            if (scriptIndex == -1) {
-                return TreeMap()
-            }
-            var rows = scripts[scriptIndex].dataNodes()[0].wholeData
-            rows = rows.substring(rows.indexOf("dataTotalScore.addRows("))
-            rows = rows.substring(0, rows.indexOf(");"))
-            val p1 = Pattern.compile("v:(\\d+),")
-            val m1 = p1.matcher(rows)
-            val p2 = Pattern.compile(",\\s(\\d+)\\s]")
-            val m2 = p2.matcher(rows)
-            val achievementTotals = SparseIntArray()
-            while (m1.find() && m2.find()) {
-                @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-                achievementTotals.put(m1.group(1).toInt(), m2.group(1).toInt())
-            }
-            val chartData: SortedMap<Int, Int> = TreeMap()
-            for (i in 0 until achievementTotals.size()) {
-                chartData[i + 1] = achievementTotals[i + 1]
-            }
-            return chartData
-        }
-
-        override fun onPostExecute(chartData: SortedMap<Int, Int>) {
-            super.onPostExecute(chartData)
-            val fragment = fragmentReference.get()
-            val data = dataReference.get()
-            if (fragment != null && data != null) {
-                data.putAll(chartData)
-                if (fragment.view != null)
-                    fragment.populateChartData(fragment.view!!)
-            }
-        }
-
+    companion object {
+        private val TAG = AchievementDistributionFragment::class.java.simpleName
     }
 }

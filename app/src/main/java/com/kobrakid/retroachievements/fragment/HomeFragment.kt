@@ -11,7 +11,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
-import com.kobrakid.retroachievements.*
+import com.kobrakid.retroachievements.Consts
+import com.kobrakid.retroachievements.R
+import com.kobrakid.retroachievements.RetroAchievementsApi
+import com.kobrakid.retroachievements.activity.GameDetailsActivity
+import com.kobrakid.retroachievements.activity.MainActivity
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
@@ -24,10 +28,6 @@ import org.json.JSONObject
 import org.jsoup.Jsoup
 
 class HomeFragment : Fragment(), View.OnClickListener {
-
-    // TODO Only call API when the view is first started, or when the user asks for a manual refresh
-    private var hasPopulatedGames = false
-    private var hasPopulatedMasteries = false
 
     // Mastered games
     private val masteryIDs = mutableListOf<String>()
@@ -51,14 +51,11 @@ class HomeFragment : Fragment(), View.OnClickListener {
         activity?.title = "Home"
         if (MainActivity.raUser.isNotEmpty()) {
             if (savedInstanceState == null) {
-                // Call API in the case of no saved instance or recreation after login
-                hasPopulatedGames = false
-                hasPopulatedMasteries = false
-
+                val ctx = context?.applicationContext
                 CoroutineScope(IO).launch {
-                    if (this@HomeFragment.context != null) {
-                        RetroAchievementsApi.GetUserWebProfile(this@HomeFragment.context!!, MainActivity.raUser) { parseUserWebProfile(view, it) }
-                        RetroAchievementsApi.GetUserSummary(this@HomeFragment.context!!, MainActivity.raUser, NUM_RECENT_GAMES) { parseUserSummary(view, it) }
+                    if (ctx != null) {
+                        RetroAchievementsApi.GetUserWebProfile(ctx, MainActivity.raUser) { parseUserWebProfile(view, it) }
+                        RetroAchievementsApi.GetUserSummary(ctx, MainActivity.raUser, NUM_RECENT_GAMES) { parseUserSummary(view, it) }
                     }
                 }
             } else {
@@ -100,7 +97,9 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     fillUserWebProfile(view)
                 }
             }
-            else -> return
+            else -> {
+                Log.v(TAG, "${response.first}: ${response.second}")
+            }
         }
     }
 
@@ -144,7 +143,9 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     fillUserSummary(view)
                 }
             }
-            else -> return
+            else -> {
+                Log.v(TAG, "${response.first}: ${response.second}")
+            }
         }
     }
 
@@ -154,14 +155,16 @@ class HomeFragment : Fragment(), View.OnClickListener {
         masteries.removeAllViews()
         val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT)
         params.marginEnd = 1
+        val ctx = context
         for (i in masteryIDs.indices) {
+            if (ctx == null) break
             val imageView = ImageView(context)
             imageView.layoutParams = params
             imageView.adjustViewBounds = true
             if (masteryGold[i]) imageView.background = activity?.getDrawable(R.drawable.image_view_border)
             Picasso.get()
                     .load(Consts.BASE_URL + masteryIcons[i])
-                    .placeholder(R.drawable.favicon)
+                    .placeholder(R.drawable.game_placeholder)
                     .into(imageView)
             masteries.addView(imageView)
             try {
@@ -174,13 +177,13 @@ class HomeFragment : Fragment(), View.OnClickListener {
             imageView.setOnClickListener(this@HomeFragment)
         }
         masteries.visibility = View.VISIBLE
-        hasPopulatedMasteries = true
     }
 
     private fun fillUserSummary(view: View) {
         view.findViewById<TextView>(R.id.home_username).text = MainActivity.raUser
         Picasso.get()
                 .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + MainActivity.raUser + ".png")
+                .placeholder(R.drawable.favicon)
                 .into(view.findViewById<ImageView>(R.id.home_profile_picture))
         view.findViewById<TextView>(R.id.home_stats).text = getString(R.string.score_rank, MainActivity.score, MainActivity.rank)
         view.findViewById<View>(R.id.home_username).visibility = View.VISIBLE
@@ -193,6 +196,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
             val game = View.inflate(context, R.layout.view_holder_game_summary, null) as ConstraintLayout
             Picasso.get()
                     .load(Consts.BASE_URL + summaryIcons[i])
+                    .placeholder(R.drawable.game_placeholder)
                     .into(game.findViewById<ImageView>(R.id.game_summary_image_icon))
             game.findViewById<TextView>(R.id.game_summary_title).text = summaryTitles[i]
             game.findViewById<TextView>(R.id.game_summary_stats).text = summaryScores[i]
@@ -200,7 +204,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
             recentGames.addView(game, i)
         }
         view.findViewById<View>(R.id.home_view_more).visibility = View.VISIBLE
-        hasPopulatedGames = true
     }
 
     override fun onClick(view: View) {

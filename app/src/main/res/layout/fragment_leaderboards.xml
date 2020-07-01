@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".activity.MainActivity">
 
     <TextView
         android:id="@+id/textView2"
@@ -69,6 +69,7 @@
             android:layout_gravity="end"
             android:layout_weight="0.5"
             android:ems="10"
+            android:hint="@string/title"
             android:imeOptions="actionDone"
             android:importantForAutofill="no"
             android:inputType="textNoSuggestions"
@@ -82,8 +83,10 @@
     </LinearLayout>
 
     <com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
+        android:id="@+id/leaderboard_fast_scroller"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        app:fastScrollEnabled="false"
         app:handleDrawable="@drawable/handle_drawable"
         app:handleHeight="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -100,6 +103,20 @@
 
     </com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>
 
+    <View
+        android:id="@+id/leaderboard_populating_fade"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0.6"
+        android:background="?attr/colorError"
+        android:clickable="true"
+        android:elevation="2dp"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/leaderboards_button_group" />
+
     <ProgressBar
         android:id="@+id/leaderboards_progress"
         style="?android:attr/progressBarStyleHorizontal"
@@ -107,6 +124,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:elevation="4dp"
         android:progress="0"
         android:secondaryProgress="0"
         android:secondaryProgressTint="?attr/colorPrimary"

@@ -2,65 +2,68 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/game_summary_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:onClick="showGameDetails"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/game_summary_container"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/separator">
-
-        <ImageView
-            android:id="@+id/game_summary_image_icon"
-            android:layout_width="0dp"
-            android:layout_height="64dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="8dp"
-            android:layout_weight="0.15"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/cd_game_summary_image_icon"
-            app:srcCompat="@drawable/game_placeholder" />
-
-        <TextView
-            android:id="@+id/game_summary_title"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.65"
-            android:gravity="center"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            tools:text="Super Mario Bros." />
-
-        <TextView
-            android:id="@+id/game_summary_stats"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.2"
-            android:gravity="center"
-            tools:text="🏆 8/72\n(8/400)" />
-
-        <TextView
-            android:id="@+id/game_summary_game_id"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
-
-    </LinearLayout>
-
-    <!-- TODO Determine if I actually like this divider -->
     <View
         android:id="@+id/separator"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="?attr/colorPrimaryDark"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/game_summary_title"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="0.65"
+        android:gravity="center"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/game_summary_image_icon"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintStart_toEndOf="@+id/game_summary_image_icon"
+        app:layout_constraintTop_toBottomOf="@id/separator"
+        tools:text="Super Mario Bros." />
+
+    <TextView
+        android:id="@+id/game_summary_stats"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="0.2"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline5"
+        app:layout_constraintTop_toBottomOf="@id/separator"
+        tools:text="🏆 8/72\n(8/400)" />
+
+    <ImageView
+        android:id="@+id/game_summary_image_icon"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="8dp"
+        android:layout_weight="0.15"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/cd_game_summary_image_icon"
+        app:layout_constraintEnd_toStartOf="@+id/game_summary_title"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/separator"
+        app:srcCompat="@drawable/game_placeholder" />
+
+    <TextView
+        android:id="@+id/game_summary_game_id"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -74,5 +77,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

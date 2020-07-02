@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Attributes -->
     <attr name="current_theme" format="reference" />
@@ -10,7 +10,7 @@
     </style>
 
     <style name="CommonThemes.ProgressBar" parent="Widget.AppCompat.ProgressBar">
-        <item name="android:background">@android:color/transparent</item>
+        <item name="android:background"><![CDATA[@android:color/transparent]]></item>
     </style>
 
     <style name="CommonThemes.CheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox">
@@ -42,6 +42,11 @@
         <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
+    <style name="AlertDialogLogin" parent="Widget.AppCompat.ButtonBar.AlertDialog">
+        <item name="android:background">?attr/colorError</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
     <!-- Blank Theme -->
     <style name="BlankTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary"><![CDATA[@color/blank_colorPrimary]]></item>
@@ -66,67 +71,67 @@
 
     <!-- 2016 theme -->
     <style name="TwentySixteenTheme" parent="BlankTheme">
-        <item name="colorPrimary">@color/twentySixteen_colorPrimary</item>
-        <item name="colorPrimaryDark">@color/twentySixteen_colorPrimaryDark</item>
-        <item name="colorError">@color/twentySixteen_colorError</item>
-        <item name="colorAccent">@color/twentySixteen_colorAccent</item>
+        <item name="colorPrimary"><![CDATA[@color/twentySixteen_colorPrimary]]></item>
+        <item name="colorPrimaryDark"><![CDATA[@color/twentySixteen_colorPrimaryDark]]></item>
+        <item name="colorError"><![CDATA[@color/twentySixteen_colorError]]></item>
+        <item name="colorAccent"><![CDATA[@color/twentySixteen_colorAccent]]></item>
 
-        <item name="android:windowBackground">@color/twentySixteen_colorError</item>
-        <item name="android:textColorPrimary">@color/twentySixteen_colorPrimary</item>
-        <item name="android:textColor">@color/twentySixteen_colorPrimary</item>
-        <item name="android:textColorHint">@color/twentySixteen_colorAccent</item>
-        <item name="colorButtonNormal">@color/twentySixteen_colorPrimaryDark</item>
+        <item name="android:windowBackground"><![CDATA[@color/twentySixteen_colorError]]></item>
+        <item name="android:textColorPrimary"><![CDATA[@color/twentySixteen_colorPrimary]]></item>
+        <item name="android:textColor"><![CDATA[@color/twentySixteen_colorPrimary]]></item>
+        <item name="android:textColorHint"><![CDATA[@color/twentySixteen_colorAccent]]></item>
+        <item name="colorButtonNormal"><![CDATA[@color/twentySixteen_colorPrimaryDark]]></item>
 
         <item name="current_theme">@style/TwentySixteenTheme</item>
     </style>
 
     <!-- Green Theme -->
     <style name="GreenTheme" parent="BlankTheme">
-        <item name="colorPrimary">@color/green_colorPrimary</item>
+        <item name="colorPrimary"><![CDATA[@color/green_colorPrimary]]></item>
 
-        <item name="android:textColorPrimary">@color/green_colorPrimary</item>
-        <item name="android:textColor">@color/green_colorPrimary</item>
+        <item name="android:textColorPrimary"><![CDATA[@color/green_colorPrimary]]></item>
+        <item name="android:textColor"><![CDATA[@color/green_colorPrimary]]></item>
 
         <item name="current_theme">@style/GreenTheme</item>
     </style>
 
     <!-- Pony Theme -->
     <style name="PonyTheme" parent="BlankTheme">
-        <item name="colorPrimary">@color/pony_colorPrimary</item>
-        <item name="colorAccent">@color/pony_colorAccent</item>
+        <item name="colorPrimary"><![CDATA[@color/pony_colorPrimary]]></item>
+        <item name="colorAccent"><![CDATA[@color/pony_colorAccent]]></item>
 
-        <item name="android:textColorPrimary">@color/pony_colorPrimary</item>
-        <item name="android:textColor">@color/pony_colorPrimary</item>
-        <item name="android:textColorHint">@color/pony_colorAccent</item>
+        <item name="android:textColorPrimary"><![CDATA[@color/pony_colorPrimary]]></item>
+        <item name="android:textColor"><![CDATA[@color/pony_colorPrimary]]></item>
+        <item name="android:textColorHint"><![CDATA[@color/pony_colorAccent]]></item>
 
         <item name="current_theme">@style/PonyTheme</item>
     </style>
 
     <!-- Red Theme -->
     <style name="RedTheme" parent="BlankTheme">
-        <item name="colorPrimary">@color/red_colorPrimary</item>
-        <item name="colorAccent">@color/red_colorAccent</item>
+        <item name="colorPrimary"><![CDATA[@color/red_colorPrimary]]></item>
+        <item name="colorAccent"><![CDATA[@color/red_colorAccent]]></item>
 
-        <item name="android:textColorPrimary">@color/red_colorPrimary</item>
-        <item name="android:textColor">@color/red_colorPrimary</item>
-        <item name="android:textColorHint">@color/red_colorAccent</item>
+        <item name="android:textColorPrimary"><![CDATA[@color/red_colorPrimary]]></item>
+        <item name="android:textColor"><![CDATA[@color/red_colorPrimary]]></item>
+        <item name="android:textColorHint"><![CDATA[@color/red_colorAccent]]></item>
 
         <item name="current_theme">@style/RedTheme</item>
     </style>
 
     <!-- Spooky Theme -->
     <style name="SpookyTheme" parent="BlankTheme">
-        <item name="colorPrimary">@color/spooky_colorPrimary</item>
-        <item name="colorPrimaryDark">@color/spooky_colorPrimaryDark</item>
-        <item name="colorError">@color/spooky_colorError</item>
-        <item name="colorAccent">@color/spooky_colorAccent</item>
+        <item name="colorPrimary"><![CDATA[@color/spooky_colorPrimary]]></item>
+        <item name="colorPrimaryDark"><![CDATA[@color/spooky_colorPrimaryDark]]></item>
+        <item name="colorError"><![CDATA[@color/spooky_colorError]]></item>
+        <item name="colorAccent"><![CDATA[@color/spooky_colorAccent]]></item>
 
-        <item name="android:windowBackground">@color/spooky_colorError</item>
-        <item name="android:textColorPrimary">@color/spooky_colorPrimary</item>
-        <item name="android:textColor">@color/spooky_colorPrimary</item>
-        <item name="android:textColorHint">@color/spooky_colorAccent</item>
-        <item name="colorButtonNormal">@color/spooky_colorPrimaryDark</item>
-
+        <item name="android:windowBackground"><![CDATA[@color/spooky_colorError]]></item>
+        <item name="android:textColorPrimary"><![CDATA[@color/spooky_colorPrimary]]></item>
+        <item name="android:textColor"><![CDATA[@color/spooky_colorPrimary]]></item>
+        <item name="android:textColorHint"><![CDATA[@color/spooky_colorAccent]]></item>
+        <item name="colorButtonNormal"><![CDATA[@color/spooky_colorPrimaryDark]]></item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <item name="current_theme">@style/SpookyTheme</item>
     </style>
 

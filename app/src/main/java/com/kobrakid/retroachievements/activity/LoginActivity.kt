@@ -6,6 +6,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.ContextThemeWrapper
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -60,7 +61,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     fun help(@Suppress("UNUSED_PARAMETER") view: View?) {
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(ContextThemeWrapper(this, R.style.AlertDialogLogin))
                 .setTitle(getString(R.string.api_detect_dialog_title))
                 .setMessage(getString(R.string.api_detect_dialog_desc))
                 .setPositiveButton(getString(R.string.api_detect_go)) { _: DialogInterface?, _: Int -> startActivityForResult(Intent(this, ApiKeyDetectorActivity::class.java), Consts.PULL_API_KEY) }

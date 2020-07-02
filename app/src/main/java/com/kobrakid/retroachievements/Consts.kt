@@ -23,15 +23,21 @@ class Consts private constructor() {
         const val LINKED_HASHES_POSTFIX = "linkedhashes.php?g="
         const val USER_PIC_POSTFIX = "UserPic"
         const val USER_POSTFIX = "user"
+    }
 
-        // Theming
-        // TODO: Come up with some fun new themes
-        // TODO: Make this NOT @JvmField
-        @JvmField
-        val THEMES = arrayOf("RetroAchievements Themes", "Blank", "TwentySixteen", "Green", "Pony", "Red", "Spooky", "More Themes")
+    enum class Theme(val themeName: String, val enabled: Boolean = true) {
+        RA("RetroAchievements Themes", false),
+        BLANK("Blank"),
+        TWENTYSIXTEEN("TwentySixteen"),
+        GREEN("Green"),
+        PONY("Pony"),
+        RED("Red"),
+        SPOOKY("Spooky"),
+        MORE("More Themes", false);
 
-        @JvmField
-        val THEMES_ENABLE_ARRAY = booleanArrayOf(false, true, true, true, true, true, true, false)
+        override fun toString(): String {
+            return themeName
+        }
     }
 
     init {

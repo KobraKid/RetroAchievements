@@ -1,36 +1,47 @@
 <!-- Navigation Drawer Header -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="192dp"
-    android:background="?attr/colorPrimaryDark"
-    android:gravity="bottom"
-    android:orientation="vertical"
-    android:padding="8dp">
+    android:layout_marginTop="24dp"
+    android:background="?attr/colorPrimaryDark">
 
     <ImageView
         android:id="@+id/nav_profile_picture"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:adjustViewBounds="true"
         android:contentDescription="@string/cd_profile_picture"
         android:onClick="showLogin"
-        android:src="@drawable/favicon" />
+        android:src="@drawable/favicon"
+        app:layout_constraintBottom_toTopOf="@id/nav_username"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/nav_username"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="0dp"
         android:text="@string/login_prompt"
+        app:layout_constraintBottom_toTopOf="@+id/nav_stats"
+        app:layout_constraintStart_toStartOf="parent"
         tools:text="KobraKid1337" />
 
     <TextView
         android:id="@+id/nav_stats"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
         android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:text="Rank: 1500 | Score: 13587"
         tools:visibility="visible" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

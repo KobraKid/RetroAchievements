@@ -7,9 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.Consts
@@ -39,49 +39,49 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
     private val viewHolderListener = AchievementViewHolderListenerImpl(fragment, this)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AchievementViewHolder {
-        val linearLayout = LayoutInflater
+        val layout = LayoutInflater
                 .from(parent.context)
                 .inflate(R.layout.view_holder_achievement_summary,
                         parent,
-                        false) as LinearLayout
-        return AchievementViewHolder(linearLayout, viewHolderListener)
+                        false) as ConstraintLayout
+        return AchievementViewHolder(layout, viewHolderListener)
     }
 
     override fun onBindViewHolder(holder: AchievementViewHolder, position: Int) {
 
         // Hidden Text Views
-        holder.linearLayout.findViewById<TextView>(R.id.recycler_view_position).text = position.toString()
-        holder.linearLayout.findViewById<TextView>(R.id.achievement_summary_author).text = authors[position]
-        holder.linearLayout.findViewById<TextView>(R.id.achievement_summary_created).text = datesCreated[position]
-        holder.linearLayout.findViewById<TextView>(R.id.achievement_summary_modified).text = datesModified[position]
+        holder.layout.findViewById<TextView>(R.id.recycler_view_position).text = position.toString()
+        holder.layout.findViewById<TextView>(R.id.achievement_summary_author).text = authors[position]
+        holder.layout.findViewById<TextView>(R.id.achievement_summary_created).text = datesCreated[position]
+        holder.layout.findViewById<TextView>(R.id.achievement_summary_modified).text = datesModified[position]
 
         // Badge
         if (hardcoreEarnings[position]) {
-            holder.linearLayout.findViewById<View>(R.id.achievement_summary_badge).background = fragment.context?.getDrawable(R.drawable.image_view_border)
+            holder.layout.findViewById<View>(R.id.achievement_summary_badge).background = holder.itemView.context.getDrawable(R.drawable.image_view_border)
         } else {
-            holder.linearLayout.findViewById<View>(R.id.achievement_summary_badge).background = null
+            holder.layout.findViewById<View>(R.id.achievement_summary_badge).background = null
         }
         Picasso.get()
                 .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + badges[position] + ".png")
                 .placeholder(R.drawable.favicon)
-                .into(holder.linearLayout.findViewById<ImageView>(R.id.achievement_summary_badge))
-        holder.linearLayout.findViewById<View>(R.id.achievement_summary_badge).transitionName = "achievement_$position"
-        holder.linearLayout.findViewById<TextView>(R.id.achievement_summary_badge_id).text = badges[position]
+                .into(holder.layout.findViewById<ImageView>(R.id.achievement_summary_badge))
+        holder.layout.findViewById<View>(R.id.achievement_summary_badge).transitionName = "achievement_$position"
+        holder.layout.findViewById<TextView>(R.id.achievement_summary_badge_id).text = badges[position]
 
         // Text descriptions
-        holder.linearLayout.findViewById<TextView>(R.id.achievement_summary_id).text = ids[position]
-        holder.linearLayout.findViewById<TextView>(R.id.achievement_summary_title).text = fragment.getString(R.string.achievement_summary_title, titles[position], points[position], trueRatios[position])
-        holder.linearLayout.findViewById<TextView>(R.id.achievement_summary_desc).text = descriptions[position]
+        holder.layout.findViewById<TextView>(R.id.achievement_summary_id).text = ids[position]
+        holder.layout.findViewById<TextView>(R.id.achievement_summary_title).text = fragment.getString(R.string.achievement_summary_title, titles[position], points[position], trueRatios[position])
+        holder.layout.findViewById<TextView>(R.id.achievement_summary_desc).text = descriptions[position]
         if (datesEarned[position].startsWith("NoDate")) {
             val matrix = ColorMatrix()
             matrix.setSaturation(0f)
-            holder.linearLayout.findViewById<ImageView>(R.id.achievement_summary_badge).colorFilter = ColorMatrixColorFilter(matrix)
-            holder.linearLayout.findViewById<TextView>(R.id.achievement_summary_date).text = ""
+            holder.layout.findViewById<ImageView>(R.id.achievement_summary_badge).colorFilter = ColorMatrixColorFilter(matrix)
+            holder.layout.findViewById<TextView>(R.id.achievement_summary_date).text = ""
         } else {
-            holder.linearLayout.findViewById<ImageView>(R.id.achievement_summary_badge).clearColorFilter()
-            holder.linearLayout.findViewById<TextView>(R.id.achievement_summary_date).text = fragment.getString(R.string.date_earned_lower, datesEarned[position])
+            holder.layout.findViewById<ImageView>(R.id.achievement_summary_badge).clearColorFilter()
+            holder.layout.findViewById<TextView>(R.id.achievement_summary_date).text = fragment.getString(R.string.date_earned_lower, datesEarned[position])
         }
-        holder.linearLayout.findViewById<TextView>(R.id.achievement_summary_stats).text = fragment.getString(R.string.won_by,
+        holder.layout.findViewById<TextView>(R.id.achievement_summary_stats).text = fragment.getString(R.string.won_by,
                 numsAwarded[position],
                 numsAwardedHC[position],
                 numDistinctCasual.toInt(),
@@ -89,7 +89,7 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
                         .format(numsAwarded[position].toDouble() / numDistinctCasual * 100.0))
 
         // Double-layered Progress Bar
-        val progressBar = holder.linearLayout.findViewById<ProgressBar>(R.id.achievement_summary_progress)
+        val progressBar = holder.layout.findViewById<ProgressBar>(R.id.achievement_summary_progress)
         progressBar.progress = (numsAwardedHC[position].toDouble() / numDistinctCasual * 10000.0).toInt()
         progressBar.secondaryProgress = (numsAwarded[position].toDouble() / numDistinctCasual * 10000.0).toInt()
     }
@@ -189,13 +189,13 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
 
     }
 
-    class AchievementViewHolder internal constructor(val linearLayout: LinearLayout, private val viewHolderListener: AchievementViewHolderListener) : RecyclerView.ViewHolder(linearLayout), View.OnClickListener {
+    class AchievementViewHolder internal constructor(val layout: ConstraintLayout, private val viewHolderListener: AchievementViewHolderListener) : RecyclerView.ViewHolder(layout), View.OnClickListener {
         override fun onClick(view: View) {
             viewHolderListener.onItemClicked(view, adapterPosition)
         }
 
         init {
-            linearLayout.setOnClickListener(this)
+            layout.setOnClickListener(this)
         }
     }
 

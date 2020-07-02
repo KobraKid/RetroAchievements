@@ -331,54 +331,60 @@ class RetroAchievementsApi private constructor() {
          * @param onResult The function to be called with the results of the API call.
          */
         fun GetLeaderboards(context: Context, useCache: Boolean, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+            // Invalidate cache after at least this many milliseconds
+            // Current value: 60 min * 60 sec * 1000 ms = 1 hr
+            val timeToInvalidateCache = 60 * 60 * 1000
             var response = ""
             if (useCache) {
                 // Try to fetch cached file
-                // TODO Check timestamp and re-download if file is too old
                 try {
                     val f = File(context.filesDir.path + "/" + context.getString(R.string.file_leaderboards_cache))
-                    val `is` = FileInputStream(f)
-                    val size = `is`.available()
-                    val buffer = ByteArray(size)
-                    if (`is`.read(buffer) == -1) Log.i(TAG, "Retrieved cached data")
-                    `is`.close()
-                    response = String(buffer)
+                    if (System.currentTimeMillis() - f.lastModified() <= timeToInvalidateCache) {
+                        Log.v(TAG, "Retreiving cached data")
+                        val inputStream = FileInputStream(f)
+                        val buffer = ByteArray(inputStream.available())
+                        if (inputStream.read(buffer) == -1) Log.v(TAG, "Read cached data")
+                        inputStream.close()
+                        response = String(buffer)
+                    }
                 } catch (e: IOException) {
                     Log.e(TAG, "Error reading cached data", e)
                 }
             }
-            if (response.isEmpty()) {
-                val url = Consts.BASE_URL + "/" + Consts.LEADERBOARDS_POSTFIX
-                val queue = Volley.newRequestQueue(context)
-                val stringRequest = StringRequest(
-                        url,
-                        Response.Listener { urlResponse: String? ->
-                            // Cache result
-                            try {
-                                val writer = FileWriter(context.filesDir.path + "/" + context.getString(R.string.file_leaderboards_cache))
-                                writer.write(urlResponse)
-                                writer.flush()
-                                writer.close()
-                                Log.i(TAG, "Wrote data to disk")
-                            } catch (e: IOException) {
-                                Log.e(TAG, "Error writing data to disk", e)
-                            }
-                            CoroutineScope(Default).launch {
-                                when (urlResponse) {
-                                    null -> onResult(Pair(RESPONSE.ERROR, "empty response"))
-                                    else -> onResult(Pair(RESPONSE.GET_LEADERBOARDS, urlResponse))
+            when {
+                response.isEmpty() -> {
+                    Log.v(TAG, "No cached data read")
+                    val url = Consts.BASE_URL + "/" + Consts.LEADERBOARDS_POSTFIX
+                    val queue = Volley.newRequestQueue(context)
+                    val stringRequest = StringRequest(
+                            url,
+                            Response.Listener { urlResponse: String? ->
+                                // Cache result
+                                try {
+                                    val writer = FileWriter(context.filesDir.path + "/" + context.getString(R.string.file_leaderboards_cache))
+                                    writer.write(urlResponse)
+                                    writer.flush()
+                                    writer.close()
+                                    Log.v(TAG, "Wrote data to disk")
+                                } catch (e: IOException) {
+                                    Log.e(TAG, "Error writing data to disk", e)
+                                }
+                                CoroutineScope(Default).launch {
+                                    when (urlResponse) {
+                                        null -> onResult(Pair(RESPONSE.ERROR, "Empty response when retreiving leaderboards"))
+                                        else -> onResult(Pair(RESPONSE.GET_LEADERBOARDS, urlResponse))
+                                    }
+                                }
+                            },
+                            Response.ErrorListener { error: VolleyError? ->
+                                CoroutineScope(Default).launch {
+                                    onResult(Pair(RESPONSE.ERROR, "Error retrieving remote leaderboards\n$error"))
                                 }
                             }
-                        },
-                        Response.ErrorListener { error: VolleyError? ->
-                            CoroutineScope(Default).launch {
-                                onResult(Pair(RESPONSE.ERROR, "Error retrieving remote leaderboards\n${error.toString()}"))
-                            }
-                        }
-                )
-                queue.add(stringRequest)
-            } else {
-                CoroutineScope(Default).launch { onResult(Pair(RESPONSE.GET_LEADERBOARDS, response)) }
+                    )
+                    queue.add(stringRequest)
+                }
+                else -> CoroutineScope(Default).launch { onResult(Pair(RESPONSE.GET_LEADERBOARDS, response)) }
             }
         }
 

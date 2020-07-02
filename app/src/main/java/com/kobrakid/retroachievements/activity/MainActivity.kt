@@ -38,13 +38,20 @@ import org.json.JSONObject
  */
 class MainActivity : AppCompatActivity(), OnFragmentInteractionListener {
 
-    private var fragment: Fragment? = null
+    private var fragment: Fragment = HomeFragment()
     private var activeFragmentTag = "HomeFragment"
     private val drawer: DrawerLayout by lazy { findViewById<DrawerLayout>(R.id.drawer_layout) }
     private val navView: NavigationView by lazy { findViewById<NavigationView>(R.id.nav_view) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Get saved preferences
+        val sharedPref = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
+        setTheme(getTheme(this, sharedPref))
+        raUser = sharedPref.getString(getString(R.string.ra_user), "")!!
+        raApiKey = sharedPref.getString(getString(R.string.ra_api_key), "")!!
+        RetroAchievementsApi.setCredentials(raUser, raApiKey)
 
         // Set up UI
         title = "Home"
@@ -53,13 +60,6 @@ class MainActivity : AppCompatActivity(), OnFragmentInteractionListener {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu)
         navView.setNavigationItemSelectedListener { item: MenuItem -> selectDrawerItem(item) }
-
-        // Get saved preferences
-        val sharedPref = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
-        setTheme(getTheme(this, sharedPref))
-        raUser = sharedPref.getString(getString(R.string.ra_user), "")!!
-        raApiKey = sharedPref.getString(getString(R.string.ra_api_key), "")!!
-        RetroAchievementsApi.setCredentials(raUser, raApiKey)
 
         if (savedInstanceState == null) {
             // Set up home fragment
@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity(), OnFragmentInteractionListener {
         } else {
             // Reclaim reference to active fragment
             activeFragmentTag = savedInstanceState.getString("ActiveFragmentTag") ?: "HomeFragment"
-            fragment = supportFragmentManager.findFragmentByTag(activeFragmentTag)
+            fragment = supportFragmentManager.findFragmentByTag(activeFragmentTag) ?: HomeFragment()
             populateViews()
         }
     }
@@ -128,7 +128,7 @@ class MainActivity : AppCompatActivity(), OnFragmentInteractionListener {
 
     /* Navigation-related functions */
     private fun selectDrawerItem(item: MenuItem): Boolean {
-        val fragment: Fragment =
+        fragment =
                 when (item.itemId) {
                     R.id.nav_console_list_fragment -> ConsoleListFragment()
                     R.id.nav_leaderboards_fragment -> LeaderboardsFragment()

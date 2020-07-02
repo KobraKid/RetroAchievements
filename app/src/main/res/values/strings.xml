@@ -121,7 +121,6 @@
     <string name="leaderboard_title_template">%1$s (%2$s)</string>
     <string name="type_score">🏆 %1$s</string>
     <string name="type_time">⏳ %1$s</string>
-    <string name="participant">#%1$d</string>
 
     <!-- Login Activity -->
     <string name="login">Login</string>

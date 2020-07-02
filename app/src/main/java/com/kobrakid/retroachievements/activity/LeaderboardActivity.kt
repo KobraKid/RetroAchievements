@@ -28,7 +28,7 @@ import org.jsoup.Jsoup
  */
 class LeaderboardActivity : AppCompatActivity() {
 
-    private val participantsAdapter: ParticipantsAdapter = ParticipantsAdapter(this)
+    private val participantsAdapter: ParticipantsAdapter = ParticipantsAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

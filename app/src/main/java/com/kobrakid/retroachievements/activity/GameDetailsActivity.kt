@@ -57,6 +57,7 @@ class GameDetailsActivity : AppCompatActivity() {
             findViewById<ImageButton>(R.id.game_details_button_page_0)?.setOnClickListener { viewPager.currentItem = 0 }
             findViewById<ImageButton>(R.id.game_details_button_page_1)?.setOnClickListener { viewPager.currentItem = 1 }
             findViewById<ImageButton>(R.id.game_details_button_page_2)?.setOnClickListener { viewPager.currentItem = 2 }
+            findViewById<ImageButton>(R.id.game_details_button_page_3)?.setOnClickListener { viewPager.currentItem = 3 }
 
             if (savedInstanceState == null) {
                 // TODO Linked hashes requires login

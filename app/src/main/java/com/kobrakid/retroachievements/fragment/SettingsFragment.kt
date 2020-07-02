@@ -57,9 +57,9 @@ class SettingsFragment : Fragment() {
         val theme = sharedPref?.getString(getString(R.string.theme_setting), "")
         view.findViewById<TextView>(R.id.settings_current_theme).text = getString(R.string.settings_current_theme, theme)
         view.findViewById<TextView>(R.id.settings_current_user).text = if (MainActivity.raUser == "") getString(R.string.settings_no_current_user) else getString(R.string.settings_current_user, MainActivity.raUser)
-        view.findViewById<Spinner>(R.id.settings_theme_dropdown).adapter = object : ArrayAdapter<String?>(context!!, android.R.layout.simple_spinner_dropdown_item, Consts.THEMES) {
+        view.findViewById<Spinner>(R.id.settings_theme_dropdown).adapter = object : ArrayAdapter<Consts.Theme>(context!!, android.R.layout.simple_spinner_dropdown_item, Consts.Theme.values()) {
             override fun isEnabled(position: Int): Boolean {
-                return Consts.THEMES_ENABLE_ARRAY[position]
+                return Consts.Theme.values()[position].enabled
             }
 
             override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -77,7 +77,7 @@ class SettingsFragment : Fragment() {
                 return textView
             }
         }
-        view.findViewById<Spinner>(R.id.settings_theme_dropdown).setSelection(listOf(*Consts.THEMES).indexOf(theme))
+        view.findViewById<Spinner>(R.id.settings_theme_dropdown).setSelection(Consts.Theme.values().indexOfFirst { it.themeName == theme }.coerceAtLeast(1))
         view.findViewById<Spinner>(R.id.settings_theme_dropdown).onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(adapterView: AdapterView<*>, view: View?, pos: Int, id: Long) {
                 if (pos > 0) changeTheme(adapterView.getItemAtPosition(pos).toString())

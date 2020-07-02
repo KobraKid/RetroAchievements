@@ -46,6 +46,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:text="@string/leaderboards_games"
         android:textSize="24sp"
@@ -53,34 +54,33 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/leaderboards_users" />
 
-    <LinearLayout
-        android:id="@+id/leaderboards_button_group"
-        android:layout_width="match_parent"
+    <EditText
+        android:id="@+id/leaderboards_filter"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_gravity="end"
+        android:layout_weight="0.5"
+        android:ems="10"
+        android:hint="@string/title"
+        android:imeOptions="actionDone"
+        android:importantForAutofill="no"
+        android:inputType="textNoSuggestions"
+        android:maxLines="1"
+        app:layout_constraintEnd_toStartOf="@+id/leaderboards_console_filter"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView">
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-        <EditText
-            android:id="@+id/leaderboards_filter"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="end"
-            android:layout_weight="0.5"
-            android:ems="10"
-            android:hint="@string/title"
-            android:imeOptions="actionDone"
-            android:importantForAutofill="no"
-            android:inputType="textNoSuggestions"
-            android:maxLines="1" />
-
-        <Spinner
-            android:id="@+id/leaderboards_console_filter"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.5" />
-    </LinearLayout>
+    <Spinner
+        android:id="@+id/leaderboards_console_filter"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"
+        app:layout_constraintBottom_toBottomOf="@+id/leaderboards_filter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/leaderboards_filter"
+        app:layout_constraintTop_toTopOf="@+id/leaderboards_filter" />
 
     <com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
         android:id="@+id/leaderboard_fast_scroller"
@@ -92,7 +92,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/leaderboards_button_group"
+        app:layout_constraintTop_toBottomOf="@id/leaderboards_filter"
         app:popupDrawable="@drawable/popup_drawable">
 
         <androidx.recyclerview.widget.RecyclerView
@@ -115,7 +115,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/leaderboards_button_group" />
+        app:layout_constraintTop_toBottomOf="@id/leaderboards_filter"
+        tools:visibility="invisible" />
 
     <ProgressBar
         android:id="@+id/leaderboards_progress"
@@ -131,7 +132,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/leaderboards_button_group"
+        app:layout_constraintTop_toBottomOf="@+id/leaderboards_filter"
         tools:progress="33"
         tools:secondaryProgress="67"
         tools:visibility="visible" />

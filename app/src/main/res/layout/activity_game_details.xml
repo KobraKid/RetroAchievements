@@ -1,79 +1,78 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GameDetailsActivity"
-    android:orientation="vertical">
-
-    <!-- TODO Convert to ConstraintLayout -->
+    android:orientation="vertical"
+    tools:context=".activity.GameDetailsActivity">
 
     <include
+        android:id="@+id/include"
         layout="@layout/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+    <TextView
+        android:id="@+id/game_details_developer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@+id/game_details_image_icon"
+        app:layout_constraintTop_toTopOf="@+id/game_details_image_icon"
+        tools:text="Nintendo R&amp;D4" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
+    <ImageView
+        android:id="@+id/game_details_image_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/cd_game_details_image_icon"
+        app:layout_constraintBottom_toBottomOf="@+id/game_details_release_date"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/include"
+        app:srcCompat="@drawable/game_placeholder" />
 
-            <ImageView
-                android:id="@+id/game_details_image_icon"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:layout_weight="0.2"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/cd_game_details_image_icon"
-                android:src="@drawable/favicon" />
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.8"
-                android:orientation="vertical"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp">
+    <TextView
+        android:id="@+id/game_details_publisher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@+id/game_details_image_icon"
+        app:layout_constraintTop_toBottomOf="@+id/game_details_developer"
+        tools:text="Nintendo" />
 
-                <TextView
-                    android:id="@+id/game_details_developer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:text="Nintendo R&amp;D4" />
+    <TextView
+        android:id="@+id/game_details_genre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@+id/game_details_image_icon"
+        app:layout_constraintTop_toBottomOf="@+id/game_details_publisher"
+        tools:text="Platformer" />
 
-                <TextView
-                    android:id="@+id/game_details_publisher"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:text="Nintendo" />
+    <TextView
+        android:id="@+id/game_details_release_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@+id/game_details_image_icon"
+        app:layout_constraintTop_toBottomOf="@+id/game_details_genre"
+        tools:text="September 1985" />
 
-                <TextView
-                    android:id="@+id/game_details_genre"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:text="Platformer" />
+    <com.kobrakid.retroachievements.viewpager.ToggleableViewPager
+        android:id="@+id/game_details_view_pager"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/game_details_image_icon">
 
-                <TextView
-                    android:id="@+id/game_details_release_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:text="September 1985" />
+    </com.kobrakid.retroachievements.viewpager.ToggleableViewPager>
 
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <com.kobrakid.retroachievements.viewpager.ToggleableViewPager
-            android:id="@+id/game_details_view_pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

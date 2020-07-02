@@ -7,7 +7,7 @@
             android:icon="@drawable/ic_home"
             android:title="@string/nav_home" />
         <item
-            android:id="@+id/nav_lists_fragment"
+            android:id="@+id/nav_console_list_fragment"
             android:icon="@drawable/ic_view_list"
             android:title="@string/nav_lists" />
         <item

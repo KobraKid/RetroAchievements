@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/achievement_summary"
@@ -10,117 +10,151 @@
     <!-- TODO Convert to ConstraintLayout -->
 
     <TextView
-        android:id="@+id/recycler_view_position"
-        android:layout_width="match_parent"
+        android:id="@+id/achievement_summary_date"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline4"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/achievement_summary_badge"
+        app:layout_constraintTop_toBottomOf="@+id/achievement_summary_desc"
+        tools:text="unlocked on 2017-09-08 05:19:22" />
+
+    <TextView
+        android:id="@+id/recycler_view_position"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/achievement_summary_id"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/achievement_summary_badge_id"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/achievement_summary_author"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/achievement_summary_created"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/achievement_summary_modified"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:contentDescription="@string/cd_achievement_summary_badge"
         android:id="@+id/achievement_summary_badge"
-        android:layout_width="0dp"
-        android:layout_height="64dp"
-        android:layout_weight="0.15"
+        android:layout_width="64dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:adjustViewBounds="true"
+        android:contentDescription="@string/cd_achievement_summary_badge"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/favicon" />
 
-    <LinearLayout
+
+    <TextView
+        android:id="@+id/achievement_summary_title"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="0.55"
-        android:orientation="vertical"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="marquee"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:textColor="?attr/colorAccent"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline4"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/achievement_summary_badge"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Saved The Girl (10) (32) " />
+
+    <TextView
+        android:id="@+id/achievement_summary_desc"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:scrollHorizontally="true"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline4"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/achievement_summary_badge"
+        app:layout_constraintTop_toBottomOf="@+id/achievement_summary_title"
+        tools:text="Rescue the Princess!" />
+
+
+    <ProgressBar
+        android:id="@+id/achievement_summary_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:max="10000"
         android:paddingStart="8dp"
-        android:paddingEnd="8dp">
+        android:paddingEnd="8dp"
+        android:progressTint="?attr/colorAccent"
+        android:secondaryProgressTint="?attr/colorPrimary"
+        android:secondaryProgressTintMode="src_over"
+        app:layout_constraintBottom_toTopOf="@+id/achievement_summary_stats"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:progress="2500"
+        tools:secondaryProgress="6000" />
 
-        <TextView
-            android:id="@+id/achievement_summary_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:scrollHorizontally="true"
-            android:singleLine="true"
-            android:textColor="?attr/colorAccent"
-            android:textSize="18sp"
-            tools:text="Saved The Girl (10) (32) " />
-
-        <TextView
-            android:id="@+id/achievement_summary_desc"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:scrollHorizontally="true"
-            android:textSize="14sp"
-            tools:text="Rescue the Princess!" />
-
-        <TextView
-            android:id="@+id/achievement_summary_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="10sp"
-            tools:text="unlocked on 2017-09-08 05:19:22" />
-
-    </LinearLayout>
-
-    <LinearLayout
+    <TextView
+        android:id="@+id/achievement_summary_stats"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="0.3"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/achievement_summary_progress"
+        app:layout_constraintTop_toBottomOf="@+id/achievement_summary_progress"
+        tools:text="won by 1246 (601) of 8405 (14.82%)" />
 
-        <ProgressBar
-            android:id="@+id/achievement_summary_progress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="10000"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:progressTint="?attr/colorAccent"
-            android:secondaryProgressTint="?attr/colorPrimary"
-            android:secondaryProgressTintMode="src_over"
-            tools:progress="2500"
-            tools:secondaryProgress="6000" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.67" />
 
-        <TextView
-            android:id="@+id/achievement_summary_stats"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:textSize="10sp"
-            tools:text="won by 1246 (601) of 8405 (14.82%)" />
 
-    </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

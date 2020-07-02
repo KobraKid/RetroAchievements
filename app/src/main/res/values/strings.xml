@@ -1,4 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Common Strings -->
+    <string name="quote">\"%1$s\"</string>
+    <string name="score_rank">Score: %1$s | Rank: %2$s</string>
+
     <!-- Main Activity -->
     <plurals name="achievement_chart_hints">
         <!-- Zero quantity does not work as expected, 0 defaults to "other." Keeping it here in case I forget. -->
@@ -11,7 +16,6 @@
 
     <!-- Navigation Drawer -->
     <string name="login_prompt">Click here to log in</string>
-    <string name="nav_rank_score">Score: %1$s | Rank: %2$s</string>
     <string name="nav_home">Home</string>
     <string name="nav_lists">Game Lists</string>
     <string name="nav_leaderboards">Leaderboards</string>
@@ -28,6 +32,7 @@
     <string name="no_games">No Games</string>
     <string name="top_users">Top Users</string>
     <string name="score_ratio_format"><![CDATA[%1$s <font color="0xFFFFFF">(%2$s)</font>]]></string>
+    <string name="title">Title</string>
     <string name="console_parens">(%1$s)</string>
 
     <!-- Settings Fragment -->
@@ -105,21 +110,20 @@
 
     <!-- Achievement Details -->
     <string name="won_by">won by %1$s (%2$s) of %3$d (%4$s%%)</string>
-    <string name="date_earned">earned on %1$s</string>
+    <string name="date_earned_upper">Earned on %1$s</string>
+    <string name="date_earned_lower">earned on %1$s</string>
     <string name="earned_by_details">Earned by %1$s of %2$d players (%3$s%%)</string>
     <string name="earned_by_hc_details">Earned by %1$s HARDCORE players (%2$s%%)</string>
     <string name="not_yet_earned">You have not yet earned this achievement</string>
     <string name="metadata">Created by %1$s on %2$s\nLast modified %3$s</string>
 
     <!-- Leaderboards Activity -->
-    <string name="leaderboard_title">%1$s (%2$s)</string>
+    <string name="leaderboard_title_template">%1$s (%2$s)</string>
     <string name="type_score">🏆 %1$s</string>
     <string name="type_time">⏳ %1$s</string>
-    <string name="participant">#%1$d</string>
 
     <!-- Login Activity -->
     <string name="login">Login</string>
-    <string name="cancel">Cancel</string>
     <string name="login_username">Username</string>
     <string name="login_api_key">API Key</string>
     <string name="api_detect_dialog_title">Detect API Key</string>

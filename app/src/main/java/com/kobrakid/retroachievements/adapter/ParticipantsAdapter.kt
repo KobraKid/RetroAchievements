@@ -31,6 +31,7 @@ class ParticipantsAdapter : RecyclerView.Adapter<ParticipantViewHolder>() {
                 .into(holder.itemView.findViewById<ImageView>(R.id.participant_icon))
         holder.itemView.findViewById<TextView>(R.id.participant_rank).text = (position + 1).toString()
         holder.itemView.findViewById<TextView>(R.id.participant_username).text = users[position]
+        holder.itemView.findViewById<View>(R.id.participant_username).isSelected = true
         holder.itemView.findViewById<TextView>(R.id.participant_result).text = results[position]
         holder.itemView.findViewById<TextView>(R.id.participant_date).text = dates[position]
         if (MainActivity.raUser == users[position]) holder.itemView.background = holder.itemView.context.getDrawable(R.drawable.border)
@@ -40,23 +41,11 @@ class ParticipantsAdapter : RecyclerView.Adapter<ParticipantViewHolder>() {
         return users.size
     }
 
-    fun saveUsersInstanceState(): ArrayList<String> {
-        return users
-    }
-
-    fun saveResultsInstanceState(): ArrayList<String> {
-        return results
-    }
-
-    fun saveDatesInstanceState(): ArrayList<String> {
-        return dates
-    }
-
     suspend fun addParticipant(user: String, result: String, date: String) {
-        users.add(user)
-        results.add(result)
-        dates.add(date)
         withContext(Main) {
+            users.add(user)
+            results.add(result)
+            dates.add(date)
             notifyItemInserted(users.size - 1)
         }
     }

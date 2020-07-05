@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.ApiKeyDetectorActivity">
+    tools:context=".fragment.ApiKeyDetectorFragment">
 
     <WebView
         android:id="@+id/apiKeyWebView"
@@ -13,15 +13,12 @@
         app:layout_constraintBottom_toTopOf="@+id/apiKeyDetectButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-    </WebView>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/apiKeyDetectButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:onClick="detectApiKey"
         android:text="@string/detect_api_key"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
@@ -31,7 +28,6 @@
         android:id="@+id/apiKeyCancelButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:onClick="cancel"
         android:text="@android:string/cancel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -43,4 +39,5 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.67" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

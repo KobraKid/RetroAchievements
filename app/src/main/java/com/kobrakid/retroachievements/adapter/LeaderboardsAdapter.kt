@@ -7,21 +7,20 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.adapter.LeaderboardsAdapter.LeaderboardsViewHolder
-import com.kobrakid.retroachievements.fragment.LeaderboardsFragment
+import com.kobrakid.retroachievements.fragment.LeaderboardsFragmentDirections
 import com.kobrakid.retroachievements.ra.Leaderboard
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller.OnPopupTextUpdate
 import com.squareup.picasso.Picasso
 
-class LeaderboardsAdapter(fragment: Fragment) : RecyclerView.Adapter<LeaderboardsViewHolder>(), Filterable, OnPopupTextUpdate {
+class LeaderboardsAdapter(private val navController: NavController) : RecyclerView.Adapter<LeaderboardsViewHolder>(), Filterable, OnPopupTextUpdate {
 
     private val leaderboardMap = mutableMapOf<Int, Leaderboard>()
     private val leaderboardMapFiltered = mutableMapOf<Int, Leaderboard>()
     private val uniqueConsoles = mutableSetOf<String>()
-    private val listener = LeaderboardsViewHolderListenerImpl(fragment, leaderboardMapFiltered)
 
     @Suppress("ConvertToStringTemplate")
     var consoleFilter = "console:"
@@ -36,10 +35,16 @@ class LeaderboardsAdapter(fragment: Fragment) : RecyclerView.Adapter<Leaderboard
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LeaderboardsViewHolder {
-        return LeaderboardsViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.view_holder_leaderboard, parent, false), listener)
+        val layout = LayoutInflater.from(parent.context).inflate(R.layout.view_holder_leaderboard, parent, false)
+        return LeaderboardsViewHolder(layout)
     }
 
     override fun onBindViewHolder(holder: LeaderboardsViewHolder, position: Int) {
+        holder.itemView.setOnClickListener {
+            navController.navigate(
+                    LeaderboardsFragmentDirections.actionLeaderboardsFragmentToLeaderboardFragment(
+                            leaderboardMapFiltered[position]))
+        }
         holder.itemView.findViewById<TextView>(R.id.id).text = leaderboardMapFiltered[position]?.id
         Picasso.get()
                 .load(leaderboardMapFiltered[position]?.image)
@@ -117,31 +122,7 @@ class LeaderboardsAdapter(fragment: Fragment) : RecyclerView.Adapter<Leaderboard
         return "$consoleFilter;$titleFilter"
     }
 
-    /* Inner Classes and Interfaces */
-    private interface LeaderboardsViewHolderListener {
-        fun onItemClicked(view: View?, adapterPosition: Int)
-    }
-
-    class LeaderboardsViewHolderListenerImpl internal constructor(private val fragment: Fragment, private val table: MutableMap<Int, Leaderboard>) : LeaderboardsViewHolderListener {
-        override fun onItemClicked(view: View?, adapterPosition: Int) {
-            if (fragment is LeaderboardsFragment) {
-                table[adapterPosition]?.let { fragment.onClick(it) }
-            }
-        }
-
-    }
-
-    class LeaderboardsViewHolder internal constructor(itemView: View, listener: LeaderboardsViewHolderListenerImpl) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
-        private val listener: LeaderboardsViewHolderListenerImpl
-        override fun onClick(view: View) {
-            listener.onItemClicked(view, adapterPosition)
-        }
-
-        init {
-            itemView.setOnClickListener(this)
-            this.listener = listener
-        }
-    }
+    class LeaderboardsViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     companion object {
         const val CONSOLE = 0

@@ -1,7 +1,6 @@
 package com.kobrakid.retroachievements.fragment
 
 import android.animation.ObjectAnimator
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,11 +12,11 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
-import com.kobrakid.retroachievements.activity.LeaderboardActivity
 import com.kobrakid.retroachievements.activity.MainActivity
 import com.kobrakid.retroachievements.adapter.LeaderboardsAdapter
 import com.kobrakid.retroachievements.adapter.UserRankingAdapter
@@ -37,7 +36,7 @@ import org.jsoup.Jsoup
 class LeaderboardsFragment : Fragment() {
 
     private val userRankingAdapter = UserRankingAdapter()
-    private var leaderboardsAdapter = LeaderboardsAdapter(this)
+    private val leaderboardsAdapter by lazy { LeaderboardsAdapter(findNavController()) }
     private var consoleSpinner: Spinner? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -83,26 +82,12 @@ class LeaderboardsFragment : Fragment() {
             override fun afterTextChanged(editable: Editable) {}
         })
 
-        if (savedInstanceState == null) {
-            val ctx = activity?.applicationContext
+        if (leaderboardsAdapter.itemCount == 0) {
             CoroutineScope(IO).launch {
-                if (ctx != null) {
-                    RetroAchievementsApi.GetTopTenUsers(ctx) { parseTopTenUsers(it) }
-                    RetroAchievementsApi.GetLeaderboards(ctx, true) { parseLeaderboards(view, it) }
-                }
+                RetroAchievementsApi.GetTopTenUsers(requireContext()) { parseTopTenUsers(it) }
+                RetroAchievementsApi.GetLeaderboards(requireContext(), true) { parseLeaderboards(view, it) }
             }
-        } else {
-            populateLeaderboardViews(view)
-        }
-    }
-
-    fun onClick(leaderboard: Leaderboard) {
-        val intent = Intent(this.activity, LeaderboardActivity::class.java)
-        val extras = Bundle()
-        extras.putParcelable("leaderboard", leaderboard)
-        intent.putExtras(extras)
-        Log.v(TAG, "Clicked on leaderboard $leaderboard")
-        startActivity(intent)
+        } else populateLeaderboardViews(view)
     }
 
     private suspend fun parseTopTenUsers(response: Pair<RetroAchievementsApi.RESPONSE, String>) {

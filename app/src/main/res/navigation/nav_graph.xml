@@ -55,7 +55,11 @@
     <fragment
         android:id="@+id/leaderboardsFragment"
         android:name="com.kobrakid.retroachievements.fragment.LeaderboardsFragment"
-        tools:layout="@layout/fragment_leaderboards" />
+        tools:layout="@layout/fragment_leaderboards">
+        <action
+            android:id="@+id/action_leaderboardsFragment_to_leaderboardFragment"
+            app:destination="@id/leaderboardFragment" />
+    </fragment>
     <fragment
         android:id="@+id/consoleListFragment"
         android:name="com.kobrakid.retroachievements.fragment.ConsoleListFragment"
@@ -84,5 +88,42 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.kobrakid.retroachievements.fragment.LoginFragment"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_apiKeyDetectorFragment"
+            app:destination="@id/apiKeyDetectorFragment" />
+        <argument
+            android:name="username"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="apiKey"
+            android:defaultValue=""
+            app:argType="string" />
+        <action
+            android:id="@+id/action_loginFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/apiKeyDetectorFragment"
+        android:name="com.kobrakid.retroachievements.fragment.ApiKeyDetectorFragment"
+        tools:layout="@layout/fragment_api_key_detector">
+        <action
+            android:id="@+id/action_apiKeyDetectorFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/leaderboardFragment"
+        android:name="com.kobrakid.retroachievements.fragment.LeaderboardFragment"
+        tools:layout="@layout/fragment_leaderboard">
+        <argument
+            android:name="leaderboard"
+            app:argType="com.kobrakid.retroachievements.ra.Leaderboard"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
 </navigation>

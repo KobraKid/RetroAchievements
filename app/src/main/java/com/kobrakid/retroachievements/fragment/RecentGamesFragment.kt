@@ -80,6 +80,11 @@ class RecentGamesFragment : Fragment(), View.OnClickListener, SwipeRefreshLayout
         }
     }
 
+    override fun onClick(view: View) {
+        navController.navigate(RecentGamesFragmentDirections.actionRecentGamesFragmentToGameDetailsFragment(
+                view.findViewById<TextView>(R.id.game_summary_game_id).text.toString()))
+    }
+
     private suspend fun parseRecentlyPlayedGames(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
             RetroAchievementsApi.RESPONSE.ERROR -> {
@@ -114,11 +119,6 @@ class RecentGamesFragment : Fragment(), View.OnClickListener, SwipeRefreshLayout
                 Log.v(TAG, "${response.first}: ${response.second}")
             }
         }
-    }
-
-    override fun onClick(view: View) {
-        navController.navigate(RecentGamesFragmentDirections.actionRecentGamesFragmentToGameDetailsFragment(
-                view.findViewById<TextView>(R.id.game_summary_game_id).text.toString()))
     }
 
     companion object {

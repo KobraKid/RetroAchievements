@@ -161,6 +161,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun populateViews() {
+        navView.getHeaderView(0).findViewById<ImageView>(R.id.nav_profile_picture).setOnClickListener {
+            drawer.closeDrawers()
+            navController.navigate(R.id.loginFragment)
+        }
         navView.getHeaderView(0).findViewById<TextView>(R.id.nav_username).text = raUser
         Picasso.get()
                 .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + raUser + ".png")
@@ -171,11 +175,6 @@ class MainActivity : AppCompatActivity() {
             navView.getHeaderView(0).findViewById<View>(R.id.nav_stats).visibility = View.VISIBLE
         else
             navView.getHeaderView(0).findViewById<View>(R.id.nav_stats).visibility = View.GONE
-    }
-
-    fun showLogin(@Suppress("UNUSED_PARAMETER") view: View?) {
-//        drawer.closeDrawers()
-        startActivityForResult(Intent(this, LoginActivity::class.java), Consts.BEGIN_LOGIN)
     }
 
     fun toggleUsers(topTenUsersToggle: View) {
@@ -208,6 +207,11 @@ class MainActivity : AppCompatActivity() {
                         }
                     })
         }
+    }
+
+    fun setCredentials(user: String, apiKey: String) {
+        raUser = user
+        raApiKey = apiKey
     }
 
     companion object {

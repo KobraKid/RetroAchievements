@@ -5,12 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activity.LeaderboardActivity">
-
-    <include
-        layout="@layout/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    tools:context=".fragment.LeaderboardFragment">
 
     <ImageView
         android:id="@+id/leaderboard_game_icon"
@@ -21,7 +16,7 @@
         android:adjustViewBounds="true"
         android:src="@drawable/favicon"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <HorizontalScrollView
         android:id="@+id/leaderboard_title_scrollview"
@@ -34,7 +29,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/leaderboard_game_icon"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed">
 
         <TextView
@@ -88,5 +83,20 @@
         app:layout_constraintTop_toBottomOf="@+id/leaderboard_game_icon"
         tools:itemCount="3"
         tools:listitem="@layout/view_holder_participants" />
+
+    <ProgressBar
+        android:id="@+id/leaderboard_progress_spinner"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/leaderboard_participants"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/leaderboard_participants"
+        tools:max="100"
+        tools:progress="50" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

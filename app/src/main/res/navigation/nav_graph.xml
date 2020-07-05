@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.kobrakid.retroachievements.fragment.HomeFragment"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_recentGamesFragment"
+            app:destination="@id/recentGamesFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_homeFragment_to_gameDetailsFragment"
+            app:destination="@id/gameDetailsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/recentGamesFragment"
+        android:name="com.kobrakid.retroachievements.fragment.RecentGamesFragment"
+        tools:layout="@layout/fragment_recent_games">
+        <action
+            android:id="@+id/action_recentGamesFragment_to_gameDetailsFragment"
+            app:destination="@id/gameDetailsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/gameDetailsFragment"
+        android:name="com.kobrakid.retroachievements.fragment.GameDetailsFragment"
+        tools:layout="@layout/fragment_game_details">
+        <argument
+            android:name="id"
+            android:defaultValue="0"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="com.kobrakid.retroachievements.fragment.AboutFragment"
+        tools:layout="@layout/fragment_about" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.kobrakid.retroachievements.fragment.SettingsFragment"
+        tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/leaderboardsFragment"
+        android:name="com.kobrakid.retroachievements.fragment.LeaderboardsFragment"
+        tools:layout="@layout/fragment_leaderboards" />
+    <fragment
+        android:id="@+id/consoleListFragment"
+        android:name="com.kobrakid.retroachievements.fragment.ConsoleListFragment"
+        tools:layout="@layout/fragment_console_list">
+        <action
+            android:id="@+id/action_consoleListFragment_to_consoleGamesFragment"
+            app:destination="@id/consoleGamesFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/consoleGamesFragment"
+        android:name="com.kobrakid.retroachievements.fragment.ConsoleGamesFragment"
+        tools:layout="@layout/fragment_console_games">
+        <argument
+            android:name="console"
+            android:defaultValue="@null"
+            app:argType="com.kobrakid.retroachievements.ra.Console"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_consoleGamesFragment_to_gameDetailsFragment"
+            app:destination="@id/gameDetailsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+</navigation>

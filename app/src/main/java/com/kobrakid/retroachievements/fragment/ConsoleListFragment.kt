@@ -1,18 +1,19 @@
 package com.kobrakid.retroachievements.fragment
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
-import com.kobrakid.retroachievements.activity.ConsoleGamesActivity
 import com.kobrakid.retroachievements.adapter.ConsoleAdapter
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
 import com.kobrakid.retroachievements.ra.Console
@@ -24,41 +25,42 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
 
-class ConsoleListFragment : Fragment() {
+class ConsoleListFragment : Fragment(), View.OnClickListener {
 
     private val hideEmptyConsoles by lazy {
-        context?.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
-                ?.getBoolean(getString(R.string.empty_console_hide_setting), false) ?: false
+        requireContext().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_console_hide_setting), false)
     }
-    private var consoleListLayoutManager = LinearLayoutManager(context)
-    private val consoleAdapter = ConsoleAdapter(this)
+    private var consoleAdapter = ConsoleAdapter(this)
+    private lateinit var navController: NavController
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         retainInstance = true
+        requireActivity().title = "Consoles"
+        return inflater.inflate(R.layout.fragment_console_list, container, false)
+    }
 
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_lists, container, false)
-        activity?.title = "Consoles"
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        navController = Navigation.findNavController(view)
         // Initialize views
         val consoleListRecyclerView = view.findViewById<RecyclerView>(R.id.list_console)
+        consoleListRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         consoleListRecyclerView.adapter = consoleAdapter
-        consoleListRecyclerView.layoutManager = consoleListLayoutManager
-        if (savedInstanceState == null) {
-            if (hideEmptyConsoles) {
-                view.findViewById<View>(R.id.list_hiding_fade).visibility = View.VISIBLE
-                view.findViewById<View>(R.id.list_hiding_progress).visibility = View.VISIBLE
-            }
-            val ctx = context?.applicationContext
-            CoroutineScope(IO).launch {
-                if (ctx != null)
-                    RetroAchievementsApi.GetConsoleIDs(ctx) { parseConsoles(view, it) }
-            }
-        } else {
-            populateConsolesView(view)
+        if (hideEmptyConsoles) {
+            view.findViewById<View>(R.id.list_hiding_fade).visibility = View.VISIBLE
+            view.findViewById<View>(R.id.list_hiding_progress).visibility = View.VISIBLE
         }
-        return view
+        if (consoleAdapter.itemCount == 0)
+            CoroutineScope(IO).launch {
+                RetroAchievementsApi.GetConsoleIDs(requireContext()) { parseConsoles(view, it) }
+            }
+    }
+
+    override fun onClick(view: View) {
+        navController.navigate(ConsoleListFragmentDirections.actionConsoleListFragmentToConsoleGamesFragment(
+                Console(view.findViewById<TextView>(R.id.console_id).text.toString(),
+                        view.findViewById<TextView>(R.id.console_name).text.toString())))
     }
 
     private suspend fun parseConsoles(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
@@ -76,7 +78,7 @@ class ConsoleListFragment : Fragment() {
                     }
                     // Loop twice if we wish to hide empty consoles
                     if (hideEmptyConsoles) {
-                        val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
+                        val db = requireContext().let { RetroAchievementsDatabase.getInstance(it) }
                         db?.let {
                             for (i in 0 until reader.length()) {
                                 val id = reader.getJSONObject(i).getString("ID")
@@ -116,12 +118,6 @@ class ConsoleListFragment : Fragment() {
         view.findViewById<RecyclerView>(R.id.list_console).scrollToPosition(0)
         view.findViewById<View>(R.id.list_hiding_fade).visibility = View.GONE
         view.findViewById<View>(R.id.list_hiding_progress).visibility = View.GONE
-    }
-
-    fun onConsoleSelected(id: String, name: String) {
-        startActivity(Intent(context, ConsoleGamesActivity::class.java).apply {
-            putExtra("console", Console(id, name))
-        })
     }
 
     companion object {

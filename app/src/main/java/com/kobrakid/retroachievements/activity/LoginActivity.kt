@@ -16,14 +16,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
-import com.kobrakid.retroachievements.ThemeManager.getTheme
 
 class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val sharedPref = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
-        setTheme(getTheme(this, sharedPref))
+        setTheme(getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getInt(getString(R.string.theme_setting), R.style.BlankTheme))
         setContentView(R.layout.activity_login)
         val login = findViewById<EditText>(R.id.login_username)
         login.setOnEditorActionListener { textView: TextView, actionID: Int, _: KeyEvent? ->

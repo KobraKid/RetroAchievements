@@ -25,15 +25,16 @@ class Consts private constructor() {
         const val USER_POSTFIX = "user"
     }
 
-    enum class Theme(val themeName: String, val enabled: Boolean = true) {
-        RA("RetroAchievements Themes", false),
-        BLANK("Blank"),
-        TWENTYSIXTEEN("TwentySixteen"),
-        GREEN("Green"),
-        PONY("Pony"),
-        RED("Red"),
-        SPOOKY("Spooky"),
-        MORE("More Themes", false);
+    enum class Theme(val themeName: String, val themeAttr: Int, val enabled: Boolean = true) {
+        RA("RetroAchievements Themes", 0, false),
+        BLANK("Blank", R.style.BlankTheme),
+        TWENTYSIXTEEN("TwentySixteen", R.style.TwentySixteenTheme),
+        GREEN("Green", R.style.GreenTheme),
+        PONY("Pony", R.style.PonyTheme),
+        RED("Red", R.style.RedTheme),
+        SPOOKY("Spooky", R.style.SpookyTheme),
+        MORE("More Themes", 0, false),
+        SYSTEM("System Default", R.style.MyDayNight);
 
         override fun toString(): String {
             return themeName

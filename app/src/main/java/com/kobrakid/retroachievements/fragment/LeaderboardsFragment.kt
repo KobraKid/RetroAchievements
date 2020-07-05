@@ -43,10 +43,12 @@ class LeaderboardsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         retainInstance = true
+        requireActivity().title = "Leaderboards"
+        return inflater.inflate(R.layout.fragment_leaderboards, container, false)
+    }
 
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_leaderboards, container, false)
-        activity?.title = "Leaderboards"
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val topUsers: RecyclerView = view.findViewById(R.id.leaderboards_users)
         val leaderboardsRecycler: RecyclerView = view.findViewById(R.id.leaderboards_games)
         topUsers.adapter = userRankingAdapter
@@ -65,7 +67,7 @@ class LeaderboardsFragment : Fragment() {
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>?) {
-                view?.findViewById<RecyclerViewFastScroller>(R.id.leaderboard_fast_scroller)?.scrollTo(0, 0)
+                view.findViewById<RecyclerViewFastScroller>(R.id.leaderboard_fast_scroller)?.scrollTo(0, 0)
                 leaderboardsAdapter.consoleFilter = ""
                 leaderboardsAdapter.filter.filter(leaderboardsAdapter.buildFilter())
             }
@@ -73,7 +75,7 @@ class LeaderboardsFragment : Fragment() {
         leaderboardsFilter.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(charSequence: CharSequence, start: Int, before: Int, count: Int) {
-                view?.findViewById<RecyclerViewFastScroller>(R.id.leaderboard_fast_scroller)?.scrollTo(0, 0)
+                view.findViewById<RecyclerViewFastScroller>(R.id.leaderboard_fast_scroller)?.scrollTo(0, 0)
                 leaderboardsAdapter.titleFilter = charSequence.toString()
                 leaderboardsAdapter.filter.filter(leaderboardsAdapter.buildFilter())
             }
@@ -92,7 +94,6 @@ class LeaderboardsFragment : Fragment() {
         } else {
             populateLeaderboardViews(view)
         }
-        return view
     }
 
     fun onClick(leaderboard: Leaderboard) {

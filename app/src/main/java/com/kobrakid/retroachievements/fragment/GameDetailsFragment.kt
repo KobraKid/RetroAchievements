@@ -1,94 +1,74 @@
-package com.kobrakid.retroachievements.activity
+package com.kobrakid.retroachievements.fragment
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
 import androidx.viewpager.widget.ViewPager
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
-import com.kobrakid.retroachievements.ThemeManager.getTheme
+import com.kobrakid.retroachievements.activity.MainActivity
 import com.kobrakid.retroachievements.adapter.GameDetailsPagerAdapter
 import com.kobrakid.retroachievements.ra.Game
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
 import org.jsoup.Jsoup
 
-/**
- * This class will display detailed information about a single game.
- */
-class GameDetailsActivity : AppCompatActivity() {
+class GameDetailsFragment : Fragment(R.layout.fragment_game_details) {
 
+    private val args: GameDetailsFragmentArgs by navArgs()
     private var game = Game()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
-        // Set up theme and title bar
-        val sharedPref = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
-        setTheme(getTheme(this, sharedPref))
-        setContentView(R.layout.activity_game_details)
-        setSupportActionBar(findViewById(R.id.toolbar))
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
-        if (intent.extras != null) {
-            game.id = intent.extras?.getString("GameID") ?: "0"
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        retainInstance = true
+        requireActivity().title = "Game Details"
+        game.id = args.id
 
-            val viewPager = findViewById<ViewPager>(R.id.game_details_view_pager)
-            viewPager.adapter = GameDetailsPagerAdapter(supportFragmentManager, game.id)
-            viewPager.offscreenPageLimit = GameDetailsPagerAdapter.GAME_DETAILS_PAGES - 1
+        val viewPager = view.findViewById<ViewPager>(R.id.game_details_view_pager).apply {
+            adapter = GameDetailsPagerAdapter(childFragmentManager, game.id)
+            offscreenPageLimit = GameDetailsPagerAdapter.GAME_DETAILS_PAGES - 1
+        }
 
-            // These views only exist in landscape
-            findViewById<ImageButton>(R.id.game_details_button_page_0)?.setOnClickListener { viewPager.currentItem = 0 }
-            findViewById<ImageButton>(R.id.game_details_button_page_1)?.setOnClickListener { viewPager.currentItem = 1 }
-            findViewById<ImageButton>(R.id.game_details_button_page_2)?.setOnClickListener { viewPager.currentItem = 2 }
-            findViewById<ImageButton>(R.id.game_details_button_page_3)?.setOnClickListener { viewPager.currentItem = 3 }
+        // These views only exist in landscape, thus they require null-safe access
+        view.findViewById<ImageButton>(R.id.game_details_button_page_0)?.setOnClickListener { viewPager.currentItem = 0 }
+        view.findViewById<ImageButton>(R.id.game_details_button_page_1)?.setOnClickListener { viewPager.currentItem = 1 }
+        view.findViewById<ImageButton>(R.id.game_details_button_page_2)?.setOnClickListener { viewPager.currentItem = 2 }
+        view.findViewById<ImageButton>(R.id.game_details_button_page_3)?.setOnClickListener { viewPager.currentItem = 3 }
 
-            if (savedInstanceState == null) {
-                // TODO Linked hashes requires login
-                CoroutineScope(IO).launch {
-                    RetroAchievementsApi.GetGameInfoAndUserProgress(applicationContext, MainActivity.raUser, game.id) { parseGameInfoUserProgress(it) }
-                }
-            }
+        // TODO Linked hashes requires login
+        CoroutineScope(Dispatchers.IO).launch {
+            RetroAchievementsApi.GetGameInfoAndUserProgress(requireContext(), MainActivity.raUser, game.id) { parseGameInfoUserProgress(it) }
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putParcelable("game", game)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        game = savedInstanceState.getParcelable("game") ?: Game()
-        populateElements()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.toolbar_overflow, menu)
-        return true
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.toolbar_overflow, menu)
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-            }
             R.id.action_forum -> {
                 val forumUrl = Consts.BASE_URL + "/" + Consts.FORUM_POSTFIX + game.forumTopicID
                 val forumIntent = Intent(Intent.ACTION_VIEW)
@@ -112,7 +92,7 @@ class GameDetailsActivity : AppCompatActivity() {
                 Log.w(TAG, response.second)
             }
             RetroAchievementsApi.RESPONSE.GET_GAME_INFO_AND_USER_PROGRESS -> {
-                withContext(Default) {
+                withContext(Dispatchers.Default) {
                     try {
                         val reader = JSONObject(response.second)
                         game.title = Jsoup.parse(reader.getString("Title").trim { it <= ' ' }).text()
@@ -135,7 +115,7 @@ class GameDetailsActivity : AppCompatActivity() {
                         Log.e(TAG, "unable to parse game details", e)
                     }
                 }
-                withContext(Main) {
+                withContext(Dispatchers.Main) {
                     populateElements()
                 }
             }
@@ -146,18 +126,19 @@ class GameDetailsActivity : AppCompatActivity() {
     }
 
     private fun populateElements() {
-        title = "${game.title} (${game.console})"
+        requireActivity().title = "${game.title} (${game.console})"
         Picasso.get()
                 .load(Consts.BASE_URL + game.imageIcon)
                 .placeholder(R.drawable.game_placeholder)
-                .into(findViewById<ImageView>(R.id.game_details_image_icon))
-        findViewById<TextView>(R.id.game_details_developer).text = getString(R.string.developed, game.developer)
-        findViewById<TextView>(R.id.game_details_publisher).text = getString(R.string.published, game.publisher)
-        findViewById<TextView>(R.id.game_details_genre).text = getString(R.string.genre, game.genre)
-        findViewById<TextView>(R.id.game_details_release_date).text = getString(R.string.released, game.released)
+                .into(view?.findViewById<ImageView>(R.id.game_details_image_icon))
+        view?.findViewById<TextView>(R.id.game_details_developer)?.text = getString(R.string.developed, game.developer)
+        view?.findViewById<TextView>(R.id.game_details_publisher)?.text = getString(R.string.published, game.publisher)
+        view?.findViewById<TextView>(R.id.game_details_genre)?.text = getString(R.string.genre, game.genre)
+        view?.findViewById<TextView>(R.id.game_details_release_date)?.text = getString(R.string.released, game.released)
     }
 
     companion object {
-        private val TAG = GameDetailsActivity::class.java.simpleName
+        private val TAG = GameDetailsFragment::class.java.simpleName
     }
+
 }

@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
-import com.kobrakid.retroachievements.ThemeManager.getTheme
 import com.kobrakid.retroachievements.adapter.ParticipantsAdapter
 import com.kobrakid.retroachievements.ra.Leaderboard
 import com.squareup.picasso.Picasso
@@ -34,8 +33,7 @@ class LeaderboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // Set up theme and title bar
-        val sharedPref = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
-        setTheme(getTheme(this, sharedPref))
+        setTheme(getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getInt(getString(R.string.theme_setting), R.style.BlankTheme))
         setContentView(R.layout.activity_leaderboard)
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

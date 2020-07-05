@@ -16,13 +16,15 @@ class AboutFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        activity?.title = "About RetroAchievements"
-        val view = inflater.inflate(R.layout.fragment_about, container, false)
+        requireActivity().title = "About RetroAchievements"
+        return inflater.inflate(R.layout.fragment_about, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         for (i in 0 until view.findViewById<ViewGroup>(R.id.about_container).childCount) {
             if (view.findViewById<ViewGroup>(R.id.about_container).getChildAt(i) is TextView)
                 (view.findViewById<ViewGroup>(R.id.about_container).getChildAt(i) as TextView).movementMethod =
                         LinkMovementMethod.getInstance()
         }
-        return view
     }
 }

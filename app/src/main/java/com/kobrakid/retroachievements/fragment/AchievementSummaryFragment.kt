@@ -6,9 +6,7 @@ import android.os.Bundle
 import android.text.Html
 import android.text.Spanned
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
@@ -34,7 +32,7 @@ import java.text.DecimalFormat
  * This class is responsible for displaying summary information on all the achievements for a
  * particular game.
  */
-class AchievementSummaryFragment : Fragment() {
+class AchievementSummaryFragment : Fragment(R.layout.view_pager_achievements_summary) {
 
     private data class AchievementTotals(
             var numEarned: Int,
@@ -69,28 +67,24 @@ class AchievementSummaryFragment : Fragment() {
         }
     }
 
-    private val adapter = AchievementAdapter(this)
+    private val adapter by lazy { AchievementAdapter(this, resources) }
     private val achievementTotals = AchievementTotals(0, 0, 0, 0, 0, 0, 0)
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         retainInstance = true
-        val view = inflater.inflate(R.layout.view_pager_achievements_summary, container, false)
+        val id = arguments?.getString("GameID", "0") ?: "0"
         val recyclerView: RecyclerView = view.findViewById(R.id.game_details_achievements_recycler_view)
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
-        if (savedInstanceState == null && arguments != null) {
-            val ctx = context?.applicationContext
-            val id = arguments?.getString("GameID", "0")
+        if (adapter.itemCount == 0) {
             CoroutineScope(IO).launch {
-                if (ctx != null && id != null)
-                    RetroAchievementsApi.GetGameInfoAndUserProgress(ctx, MainActivity.raUser, id) { parseGameInfoAndUserProgress(view, it) }
+                RetroAchievementsApi.GetGameInfoAndUserProgress(requireContext(), MainActivity.raUser, id) { parseGameInfoAndUserProgress(view, it) }
             }
         } else {
             populateViews(view)
         }
-        return view
     }
 
     private suspend fun parseGameInfoAndUserProgress(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {

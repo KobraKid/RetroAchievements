@@ -5,22 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activity.GameDetailsActivity">
-
-    <include
-        android:id="@+id/include"
-        layout="@layout/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/game_details_developer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@+id/game_details_image_icon"
-        app:layout_constraintTop_toTopOf="@+id/game_details_image_icon"
-        tools:text="Nintendo R&amp;D4" />
+    tools:context=".fragment.GameDetailsFragment">
 
     <ImageView
         android:id="@+id/game_details_image_icon"
@@ -32,8 +17,17 @@
         android:contentDescription="@string/cd_game_details_image_icon"
         app:layout_constraintBottom_toBottomOf="@+id/game_details_release_date"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/include"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/game_placeholder" />
+
+    <TextView
+        android:id="@+id/game_details_developer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@+id/game_details_image_icon"
+        app:layout_constraintTop_toTopOf="@+id/game_details_image_icon"
+        tools:text="Nintendo R&amp;D4" />
 
 
     <TextView
@@ -71,8 +65,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/game_details_image_icon">
-
-    </com.kobrakid.retroachievements.viewpager.ToggleableViewPager>
+        app:layout_constraintTop_toBottomOf="@+id/game_details_image_icon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

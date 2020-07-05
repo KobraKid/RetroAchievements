@@ -29,10 +29,8 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
 
-class SettingsFragment : Fragment() {
+class SettingsFragment : Fragment(), View.OnClickListener {
 
-    // Unused, but guarantees that the parent Activity implements OnFragmentInteractionListener
-    private var listener: OnFragmentInteractionListener? = null
     private var sharedPref: SharedPreferences? = null
     private val applicableSettings = SparseArray<Runnable?>()
     private var counter = 0
@@ -45,19 +43,20 @@ class SettingsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        activity?.title = "Settings"
+        requireActivity().title = "Settings"
+        return inflater.inflate(R.layout.fragment_settings, container, false)
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         // Initialize preferences object
         sharedPref = context?.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
 
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_settings, container, false)
-
         // Set up views
-        val theme = sharedPref?.getString(getString(R.string.theme_setting), "")
-        view.findViewById<TextView>(R.id.settings_current_theme).text = getString(R.string.settings_current_theme, theme)
+        val theme = Consts.Theme.values().indexOfFirst { it.themeAttr == sharedPref?.getInt(getString(R.string.theme_setting), R.style.BlankTheme) }.coerceAtLeast(1)
+        view.findViewById<TextView>(R.id.settings_current_theme).text = getString(R.string.settings_current_theme, Consts.Theme.values()[theme].themeName)
         view.findViewById<TextView>(R.id.settings_current_user).text = if (MainActivity.raUser == "") getString(R.string.settings_no_current_user) else getString(R.string.settings_current_user, MainActivity.raUser)
-        view.findViewById<Spinner>(R.id.settings_theme_dropdown).adapter = object : ArrayAdapter<Consts.Theme>(context!!, android.R.layout.simple_spinner_dropdown_item, Consts.Theme.values()) {
+        view.findViewById<Spinner>(R.id.settings_theme_dropdown).adapter = object : ArrayAdapter<Consts.Theme>(requireContext(), android.R.layout.simple_spinner_dropdown_item, Consts.Theme.values()) {
             override fun isEnabled(position: Int): Boolean {
                 return Consts.Theme.values()[position].enabled
             }
@@ -77,7 +76,7 @@ class SettingsFragment : Fragment() {
                 return textView
             }
         }
-        view.findViewById<Spinner>(R.id.settings_theme_dropdown).setSelection(Consts.Theme.values().indexOfFirst { it.themeName == theme }.coerceAtLeast(1))
+        view.findViewById<Spinner>(R.id.settings_theme_dropdown).setSelection(theme)
         view.findViewById<Spinner>(R.id.settings_theme_dropdown).onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(adapterView: AdapterView<*>, view: View?, pos: Int, id: Long) {
                 if (pos > 0) changeTheme(adapterView.getItemAtPosition(pos).toString())
@@ -90,15 +89,15 @@ class SettingsFragment : Fragment() {
         view.findViewById<CheckBox>(R.id.settings_hide_games).isChecked = sharedPref?.getBoolean(getString(R.string.empty_game_hide_setting), false)!!
         view.findViewById<CheckBox>(R.id.settings_hide_consoles).setOnCheckedChangeListener { _: CompoundButton?, b: Boolean -> hideConsoles(view, b) }
         view.findViewById<CheckBox>(R.id.settings_hide_games).setOnCheckedChangeListener { _: CompoundButton?, b: Boolean -> hideGames(view, b) }
-        return view
+
+        view.findViewById<Button>(R.id.settings_logout).setOnClickListener(this)
+        view.findViewById<Button>(R.id.settings_apply).setOnClickListener(this)
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        listener = try {
-            activity as OnFragmentInteractionListener?
-        } catch (e: ClassCastException) {
-            throw ClassCastException(activity.toString() + " must implement OnFragmentInteractionListener")
+    override fun onClick(view: View) {
+        when (view.id) {
+            R.id.settings_logout -> logout()
+            R.id.settings_apply -> applySettings()
         }
     }
 
@@ -106,8 +105,8 @@ class SettingsFragment : Fragment() {
     private fun changeTheme(theme: String) {
         applicableSettings.remove(changeThemeKey)
         applicableSettings.put(changeThemeKey, Runnable {
-            Log.d(TAG, "Saving theme $theme")
-            sharedPref?.edit()?.putString(getString(R.string.theme_setting), theme)?.apply()
+            Log.d(TAG, "Saving theme $theme with theme attribute ${Consts.Theme.values()[Consts.Theme.values().indexOfFirst { it.themeName == theme }].themeAttr}")
+            sharedPref?.edit()?.putInt(getString(R.string.theme_setting), Consts.Theme.values()[Consts.Theme.values().indexOfFirst { it.themeName == theme }].themeAttr)?.apply()
         })
     }
 
@@ -148,12 +147,12 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    fun logout() {
+    private fun logout() {
         (activity?.findViewById<View>(R.id.settings_current_user) as TextView).text = getString(R.string.settings_current_user, "none")
         applicableSettings.put(logoutKey, Runnable { sharedPref?.edit()?.putString(getString(R.string.ra_user), "")?.apply() })
     }
 
-    fun applySettings() {
+    private fun applySettings() {
         activity?.findViewById<View>(R.id.settings_applying_fade)?.visibility = View.VISIBLE
         activity?.findViewById<View>(R.id.settings_applying)?.visibility = View.VISIBLE
         for (key in 0 until applicableSettings.size()) {
@@ -218,12 +217,6 @@ class SettingsFragment : Fragment() {
                 Log.v(TAG, "${response.first}: ${response.second}")
             }
         }
-    }
-
-    /* Inner Classes and Interfaces */
-    interface OnFragmentInteractionListener {
-        fun logout(view: View?)
-        fun applySettings(view: View?)
     }
 
     companion object {

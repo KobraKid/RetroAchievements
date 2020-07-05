@@ -1,6 +1,5 @@
 package com.kobrakid.retroachievements.fragment
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -33,28 +32,26 @@ class AchievementDistributionFragment : Fragment() {
 
     private var achievementDistributionChart: LineChart? = null
     private var chartData = mutableListOf<Entry>()
-    private var isActive = false
 
-    @SuppressLint("UseSparseArrays")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         retainInstance = true
-        val view = inflater.inflate(R.layout.view_pager_achievement_distribution, container, false)
+        return inflater.inflate(R.layout.view_pager_achievement_distribution, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         achievementDistributionChart = view.findViewById(R.id.game_details_achievement_distribution)
         achievementDistributionChart?.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
             override fun onValueSelected(e: Entry, h: Highlight) {
-                if (isActive) {
-                    view.findViewById<TextView>(R.id.game_details_chart_hints).text = resources.getQuantityString(
-                            R.plurals.achievement_chart_hints,
-                            e.y.toInt(),
-                            e.y.toInt(),
-                            e.x.toInt())
-                }
+                view.findViewById<TextView>(R.id.game_details_chart_hints).text = resources.getQuantityString(
+                        R.plurals.achievement_chart_hints,
+                        e.y.toInt(),
+                        e.y.toInt(),
+                        e.x.toInt())
             }
 
             override fun onNothingSelected() {
-                if (isActive) {
-                    view.findViewById<TextView>(R.id.game_details_chart_hints).text = ""
-                }
+                view.findViewById<TextView>(R.id.game_details_chart_hints).text = ""
             }
         })
         if (savedInstanceState == null && arguments != null) {
@@ -67,22 +64,6 @@ class AchievementDistributionFragment : Fragment() {
         } else {
             populateChartData(view)
         }
-        return view
-    }
-
-    override fun onPause() {
-        super.onPause()
-        isActive = false
-    }
-
-    override fun onResume() {
-        super.onResume()
-        isActive = true
-    }
-
-    override fun onStart() {
-        super.onStart()
-        isActive = true
     }
 
     private suspend fun parseAchievementDistribution(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {

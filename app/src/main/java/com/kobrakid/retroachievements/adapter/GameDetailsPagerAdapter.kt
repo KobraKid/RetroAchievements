@@ -1,6 +1,6 @@
 package com.kobrakid.retroachievements.adapter
 
-import android.os.Bundle
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
@@ -12,8 +12,6 @@ import com.kobrakid.retroachievements.fragment.GameImagesFragment
 class GameDetailsPagerAdapter(fm: FragmentManager, private val gameID: String) : FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     override fun getItem(position: Int): Fragment {
-        val bundle = Bundle()
-        bundle.putString("GameID", gameID)
         val fragment: Fragment = when (position) {
             0 -> AchievementSummaryFragment()
             1 -> AchievementDistributionFragment()
@@ -21,8 +19,7 @@ class GameDetailsPagerAdapter(fm: FragmentManager, private val gameID: String) :
             3 -> GameCommentsFragment()
             else -> AchievementSummaryFragment()
         }
-        fragment.arguments = bundle
-        return fragment
+        return fragment.apply { arguments = bundleOf("GameID" to gameID) }
     }
 
     /**

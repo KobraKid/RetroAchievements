@@ -29,7 +29,11 @@ class GameCommentsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         retainInstance = true
-        val view = inflater.inflate(R.layout.fragment_game_comments, container, false)
+        return inflater.inflate(R.layout.fragment_game_comments, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         if (arguments != null) {
             val commentsRecyclerView = view.findViewById<RecyclerView>(R.id.game_comments_recycler_view)
             commentsRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -43,7 +47,6 @@ class GameCommentsFragment : Fragment() {
                     }
             }
         }
-        return view
     }
 
     private suspend fun parseGameComments(response: Pair<RetroAchievementsApi.RESPONSE, String>) {

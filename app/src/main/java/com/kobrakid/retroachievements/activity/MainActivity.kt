@@ -12,16 +12,20 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.findFragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
-import com.kobrakid.retroachievements.ThemeManager.getTheme
-import com.kobrakid.retroachievements.fragment.*
-import com.kobrakid.retroachievements.fragment.SettingsFragment.OnFragmentInteractionListener
+import com.kobrakid.retroachievements.fragment.HomeFragment
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
@@ -36,10 +40,16 @@ import org.json.JSONObject
  * The entry point for the app, and the Activity that manages most of the basic Fragments used
  * throughout the app.
  */
-class MainActivity : AppCompatActivity(), OnFragmentInteractionListener {
+class MainActivity : AppCompatActivity() {
 
-    private var fragment: Fragment = HomeFragment()
-    private var activeFragmentTag = "HomeFragment"
+    private val navMenuItems = setOf(
+            R.id.homeFragment,
+            R.id.consoleListFragment,
+            R.id.leaderboardsFragment,
+            R.id.settingsFragment,
+            R.id.aboutFragment)
+    private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var navController: NavController
     private val drawer: DrawerLayout by lazy { findViewById<DrawerLayout>(R.id.drawer_layout) }
     private val navView: NavigationView by lazy { findViewById<NavigationView>(R.id.nav_view) }
 
@@ -48,32 +58,28 @@ class MainActivity : AppCompatActivity(), OnFragmentInteractionListener {
 
         // Get saved preferences
         val sharedPref = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
-        setTheme(getTheme(this, sharedPref))
+        setTheme(sharedPref.getInt(getString(R.string.theme_setting), R.style.BlankTheme))
         raUser = sharedPref.getString(getString(R.string.ra_user), "")!!
         raApiKey = sharedPref.getString(getString(R.string.ra_api_key), "")!!
         RetroAchievementsApi.setCredentials(raUser, raApiKey)
 
         // Set up UI
-        title = "Home"
         setContentView(R.layout.activity_main)
-        setSupportActionBar(findViewById(R.id.main_toolbar))
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu)
-        navView.setNavigationItemSelectedListener { item: MenuItem -> selectDrawerItem(item) }
+        setSupportActionBar(findViewById(R.id.toolbar))
+        findViewById<Toolbar>(R.id.toolbar)
+        val host: NavHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = host.navController
+        appBarConfiguration = AppBarConfiguration(navController.graph)
+        navView.setupWithNavController(navController)
+        appBarConfiguration = AppBarConfiguration(navMenuItems, drawer)
+        setupActionBarWithNavController(navController, appBarConfiguration)
 
         if (savedInstanceState == null) {
-            // Set up home fragment
-            activeFragmentTag = "HomeFragment"
-            supportFragmentManager.beginTransaction().replace(R.id.flContent, HomeFragment(), activeFragmentTag).commit()
-            // Set up drawer
             if (raUser.isNotEmpty())
                 CoroutineScope(IO).launch {
                     RetroAchievementsApi.GetUserRankAndScore(applicationContext, raUser) { parseRankScore(it) }
                 }
         } else {
-            // Reclaim reference to active fragment
-            activeFragmentTag = savedInstanceState.getString("ActiveFragmentTag") ?: "HomeFragment"
-            fragment = supportFragmentManager.findFragmentByTag(activeFragmentTag) ?: HomeFragment()
             populateViews()
         }
     }
@@ -90,14 +96,12 @@ class MainActivity : AppCompatActivity(), OnFragmentInteractionListener {
                 CoroutineScope(IO).launch {
                     RetroAchievementsApi.GetUserRankAndScore(applicationContext, raUser) { parseRankScore(it) }
                 }
-                if (fragment is HomeFragment) {
-                    CoroutineScope(IO).launch {
-                        RetroAchievementsApi.GetUserWebProfile(applicationContext, raUser) {
-                            (fragment as HomeFragment).parseUserWebProfile(findViewById(R.id.home_scrollview), it)
-                        }
-                        RetroAchievementsApi.GetUserSummary(applicationContext, raUser, HomeFragment.NUM_RECENT_GAMES) {
-                            (fragment as HomeFragment).parseUserSummary(findViewById(R.id.home_scrollview), it)
-                        }
+                CoroutineScope(IO).launch {
+                    RetroAchievementsApi.GetUserWebProfile(applicationContext, raUser) {
+                        findViewById<View>(R.id.nav_host_fragment).findFragment<HomeFragment>().parseUserWebProfile(findViewById(R.id.home_scrollview), it)
+                    }
+                    RetroAchievementsApi.GetUserSummary(applicationContext, raUser, HomeFragment.NUM_RECENT_GAMES) {
+                        findViewById<View>(R.id.nav_host_fragment).findFragment<HomeFragment>().parseUserSummary(findViewById(R.id.home_scrollview), it)
                     }
                 }
             }
@@ -113,34 +117,22 @@ class MainActivity : AppCompatActivity(), OnFragmentInteractionListener {
         drawer.closeDrawers()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("ActiveFragmentTag", activeFragmentTag)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
-            drawer.openDrawer(GravityCompat.START)
+            if (navController.currentBackStackEntry?.destination?.id in navMenuItems)
+                drawer.openDrawer(GravityCompat.START)
+            else
+                navController.popBackStack()
             return true
         }
         return super.onOptionsItemSelected(item)
     }
 
-    /* Navigation-related functions */
-    private fun selectDrawerItem(item: MenuItem): Boolean {
-        fragment =
-                when (item.itemId) {
-                    R.id.nav_console_list_fragment -> ConsoleListFragment()
-                    R.id.nav_leaderboards_fragment -> LeaderboardsFragment()
-                    R.id.nav_settings_fragment -> SettingsFragment()
-                    R.id.nav_about_fragment -> AboutFragment()
-                    else -> HomeFragment()
-                }
-        activeFragmentTag = fragment.javaClass.simpleName
-        supportFragmentManager.beginTransaction().replace(R.id.flContent, fragment, activeFragmentTag).commit()
-        item.isChecked = true
-        drawer.closeDrawers()
-        return true
+    override fun onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START))
+            drawer.closeDrawer(GravityCompat.START)
+        else
+            super.onBackPressed()
     }
 
     private suspend fun parseRankScore(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
@@ -181,19 +173,9 @@ class MainActivity : AppCompatActivity(), OnFragmentInteractionListener {
             navView.getHeaderView(0).findViewById<View>(R.id.nav_stats).visibility = View.GONE
     }
 
-    fun showGameDetails(view: View) {
-        startActivity(Intent(this, GameDetailsActivity::class.java).apply {
-            putExtra("GameID", view.findViewById<TextView>(R.id.game_summary_game_id).text.toString())
-        })
-    }
-
     fun showLogin(@Suppress("UNUSED_PARAMETER") view: View?) {
-        drawer.closeDrawers()
+//        drawer.closeDrawers()
         startActivityForResult(Intent(this, LoginActivity::class.java), Consts.BEGIN_LOGIN)
-    }
-
-    fun showRecentGames(@Suppress("UNUSED_PARAMETER") view: View?) {
-        startActivity(Intent(this, RecentGamesActivity::class.java))
     }
 
     fun toggleUsers(topTenUsersToggle: View) {
@@ -226,14 +208,6 @@ class MainActivity : AppCompatActivity(), OnFragmentInteractionListener {
                         }
                     })
         }
-    }
-
-    override fun logout(view: View?) {
-        (fragment as SettingsFragment).logout()
-    }
-
-    override fun applySettings(view: View?) {
-        (fragment as SettingsFragment).applySettings()
     }
 
     companion object {

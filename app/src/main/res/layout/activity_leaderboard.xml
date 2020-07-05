@@ -8,7 +8,6 @@
     tools:context=".activity.LeaderboardActivity">
 
     <include
-        android:id="@+id/include"
         layout="@layout/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -22,7 +21,7 @@
         android:adjustViewBounds="true"
         android:src="@drawable/favicon"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <HorizontalScrollView
         android:id="@+id/leaderboard_title_scrollview"
@@ -35,7 +34,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/leaderboard_game_icon"
-        app:layout_constraintTop_toBottomOf="@+id/include"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
         app:layout_constraintVertical_chainStyle="packed">
 
         <TextView

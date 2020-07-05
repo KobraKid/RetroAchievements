@@ -1,8 +1,8 @@
 package com.kobrakid.retroachievements.adapter
 
+import android.content.res.Resources
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,17 +10,19 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.adapter.AchievementAdapter.AchievementViewHolder
 import com.kobrakid.retroachievements.fragment.AchievementDetailsFragment
+import com.kobrakid.retroachievements.fragment.AchievementSummaryFragment
 import com.kobrakid.retroachievements.ra.Achievement
 import com.squareup.picasso.Picasso
 import java.text.DecimalFormat
 
-class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<AchievementViewHolder>() {
+class AchievementAdapter(private val fragment: Fragment, private val resources: Resources) : RecyclerView.Adapter<AchievementViewHolder>() {
 
     private val ids = mutableListOf<String>()
     private val badges = mutableListOf<String>()
@@ -39,12 +41,11 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
     private val viewHolderListener = AchievementViewHolderListenerImpl(fragment, this)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AchievementViewHolder {
-        val layout = LayoutInflater
+        return AchievementViewHolder(LayoutInflater
                 .from(parent.context)
                 .inflate(R.layout.view_holder_achievement_summary,
                         parent,
-                        false) as ConstraintLayout
-        return AchievementViewHolder(layout, viewHolderListener)
+                        false) as ConstraintLayout, viewHolderListener)
     }
 
     override fun onBindViewHolder(holder: AchievementViewHolder, position: Int) {
@@ -70,7 +71,7 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
 
         // Text descriptions
         holder.layout.findViewById<TextView>(R.id.achievement_summary_id).text = ids[position]
-        holder.layout.findViewById<TextView>(R.id.achievement_summary_title).text = fragment.getString(R.string.achievement_summary_title, titles[position], points[position], trueRatios[position])
+        holder.layout.findViewById<TextView>(R.id.achievement_summary_title).text = resources.getString(R.string.achievement_summary_title, titles[position], points[position], trueRatios[position])
         holder.layout.findViewById<TextView>(R.id.achievement_summary_desc).text = descriptions[position]
         if (datesEarned[position].startsWith("NoDate")) {
             val matrix = ColorMatrix()
@@ -79,9 +80,9 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
             holder.layout.findViewById<TextView>(R.id.achievement_summary_date).text = ""
         } else {
             holder.layout.findViewById<ImageView>(R.id.achievement_summary_badge).clearColorFilter()
-            holder.layout.findViewById<TextView>(R.id.achievement_summary_date).text = fragment.getString(R.string.date_earned_lower, datesEarned[position])
+            holder.layout.findViewById<TextView>(R.id.achievement_summary_date).text = resources.getString(R.string.date_earned_lower, datesEarned[position])
         }
-        holder.layout.findViewById<TextView>(R.id.achievement_summary_stats).text = fragment.getString(R.string.won_by,
+        holder.layout.findViewById<TextView>(R.id.achievement_summary_stats).text = resources.getString(R.string.won_by,
                 numsAwarded[position],
                 numsAwardedHC[position],
                 numDistinctCasual.toInt(),
@@ -115,6 +116,28 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
         notifyItemInserted(index)
     }
 
+    fun getAchievementWithId(id: String): Achievement {
+        val i = ids.indexOf(id)
+        if (i >= 0)
+            return Achievement(
+                    ids[i],
+                    badges[i],
+                    titles[i],
+                    points[i],
+                    trueRatios[i],
+                    descriptions[i],
+                    datesEarned[i],
+                    hardcoreEarnings[i],
+                    numsAwarded[i],
+                    numsAwardedHC[i],
+                    authors[i],
+                    datesCreated[i],
+                    datesModified[i],
+                    numDistinctCasual)
+        else
+            return Achievement()
+    }
+
     fun setNumDistinctCasual(n: Double) {
         numDistinctCasual = n
     }
@@ -125,66 +148,20 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
     }
 
     class AchievementViewHolderListenerImpl internal constructor(private val fragment: Fragment, private val adapter: AchievementAdapter) : AchievementViewHolderListener {
-        override fun onItemClicked(view: View, adapterPosition: Int) { // Create a new transition
-            /*
-            val transitionSet = TransitionSet()
-            transitionSet.ordering = TransitionSet.ORDERING_TOGETHER
-            // Get the adapter position of the first child
-            val firstChildIndex =
-                    (fragment as AchievementSummaryFragment).layoutManager
-                            ?.getChildAt(0)
-                            ?.findViewById<TextView>(R.id.recycler_view_position)
-                            ?.text.toString().toInt()
-            // FIXME Animation no longer occurring 😢 (but was already pretty janky)
-            // Custom logic to slide higher achievements up, lower ones down
-            for (i in 0 until adapter.itemCount) {
-                val slide = Slide()
-                slide.duration =
-                        fragment
-                                .getActivity()
-                                ?.resources
-                                ?.getInteger(R.integer.animation_duration)
-                                ?.toLong()
-                                ?: 0
-                slide.addTarget(fragment.layoutManager?.getChildAt(i))
-                if (i + firstChildIndex < adapterPosition) {
-                    slide.slideEdge = Gravity.TOP
-                    transitionSet.addTransition(slide)
-                } else if (i + firstChildIndex > adapterPosition) {
-                    slide.slideEdge = Gravity.BOTTOM
-                    transitionSet.addTransition(slide)
-                }
-            }
-            fragment.setExitTransition(transitionSet)
-            */
+        override fun onItemClicked(view: View, adapterPosition: Int) {
             // Set up the target fragment
             val transitionBadge = view.findViewById<ImageView>(R.id.achievement_summary_badge)
-            val detailsFragment: Fragment = AchievementDetailsFragment()
-            val bundle = Bundle()
-            bundle.putString("Position", "" + adapterPosition)
-            bundle.putString("GameID", adapter.ids[adapterPosition])
-            bundle.putString("ImageIcon", adapter.badges[adapterPosition])
-            bundle.putString("Title", adapter.titles[adapterPosition])
-            bundle.putString("Points", adapter.points[adapterPosition])
-            bundle.putString("TrueRatio", adapter.trueRatios[adapterPosition])
-            bundle.putString("Description", adapter.descriptions[adapterPosition])
-            bundle.putString("DateEarned", adapter.datesEarned[adapterPosition])
-            bundle.putString("NumAwarded", adapter.numsAwarded[adapterPosition])
-            bundle.putString("NumAwardedHardcore", adapter.numsAwardedHC[adapterPosition])
-            bundle.putString("Author", adapter.authors[adapterPosition])
-            bundle.putString("DateCreated", adapter.datesCreated[adapterPosition])
-            bundle.putString("DateModified", adapter.datesModified[adapterPosition])
-            bundle.putDouble("NumDistinctPlayersCasual", adapter.numDistinctCasual)
-            detailsFragment.arguments = bundle
-            fragment
-                    .activity
-                    ?.supportFragmentManager
-                    ?.beginTransaction()
-                    ?.setReorderingAllowed(true)
-                    ?.addSharedElement(transitionBadge, transitionBadge.transitionName)
-                    ?.replace(R.id.game_details_frame, detailsFragment, AchievementDetailsFragment::class.java.simpleName)
-                    ?.addToBackStack(null)
-                    ?.commit()
+            fragment.childFragmentManager
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .addSharedElement(transitionBadge, transitionBadge.transitionName)
+                    .replace(R.id.game_details_frame,
+                            AchievementDetailsFragment().apply {
+                                arguments = bundleOf("achievement" to adapter.getAchievementWithId(adapter.ids[adapterPosition]))
+                            },
+                            AchievementDetailsFragment::class.java.simpleName)
+                    .addToBackStack(AchievementSummaryFragment::class.java.simpleName)
+                    .commit()
         }
 
     }

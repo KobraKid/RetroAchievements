@@ -3,16 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.GameDetailsActivity">
-
-    <include
-        android:id="@+id/include"
-        layout="@layout/toolbar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    tools:context=".fragment.GameDetailsFragment">
 
     <ImageButton
         android:id="@+id/game_details_button_page_0"
@@ -92,7 +83,7 @@
         android:cropToPadding="false"
         app:layout_constraintEnd_toStartOf="@id/guideline6"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/include"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/game_placeholder" />
 
     <TextView
@@ -155,9 +146,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@id/guideline6"
-        app:layout_constraintTop_toBottomOf="@id/include">
-
-    </com.kobrakid.retroachievements.viewpager.ToggleableViewPager>
-
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

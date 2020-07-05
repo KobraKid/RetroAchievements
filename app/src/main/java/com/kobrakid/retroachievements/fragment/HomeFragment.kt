@@ -1,20 +1,21 @@
 package com.kobrakid.retroachievements.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
-import com.kobrakid.retroachievements.activity.GameDetailsActivity
 import com.kobrakid.retroachievements.activity.MainActivity
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
@@ -40,23 +41,24 @@ class HomeFragment : Fragment(), View.OnClickListener {
     private val summaryIcons = mutableListOf<String>()
     private val summaryScores = mutableListOf<String>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        retainInstance = true
-    }
+    private lateinit var navController: NavController
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_home, container, false)
-        activity?.title = "Home"
+        retainInstance = true
+        requireActivity().title = "Home"
+        return inflater.inflate(R.layout.fragment_home, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        navController = Navigation.findNavController(view)
+        view.findViewById<Button>(R.id.home_view_more).setOnClickListener(this)
         if (MainActivity.raUser.isNotEmpty()) {
             if (savedInstanceState == null) {
-                val ctx = context?.applicationContext
                 CoroutineScope(IO).launch {
-                    if (ctx != null) {
-                        RetroAchievementsApi.GetUserWebProfile(ctx, MainActivity.raUser) { parseUserWebProfile(view, it) }
-                        RetroAchievementsApi.GetUserSummary(ctx, MainActivity.raUser, NUM_RECENT_GAMES) { parseUserSummary(view, it) }
-                    }
+                    RetroAchievementsApi.GetUserWebProfile(requireContext(), MainActivity.raUser) { parseUserWebProfile(view, it) }
+                    RetroAchievementsApi.GetUserSummary(requireContext(), MainActivity.raUser, NUM_RECENT_GAMES) { parseUserSummary(view, it) }
                 }
             } else {
                 fillUserWebProfile(view)
@@ -65,7 +67,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
         } else {
             view.findViewById<View>(R.id.home_username).visibility = View.VISIBLE
         }
-        return view
     }
 
     suspend fun parseUserWebProfile(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
@@ -169,12 +170,12 @@ class HomeFragment : Fragment(), View.OnClickListener {
             masteries.addView(imageView)
             try {
                 imageView.id = masteryIDs[i].toInt()
+                imageView.setOnClickListener(this@HomeFragment)
             } catch (e: NumberFormatException) {
                 // This happens when parsing achievements like connecting one's account to FB,
                 // developing achievements, etc.
                 Log.e(TAG, "Trophy was not a valid RA game.", e)
             }
-            imageView.setOnClickListener(this@HomeFragment)
         }
         masteries.visibility = View.VISIBLE
     }
@@ -201,17 +202,18 @@ class HomeFragment : Fragment(), View.OnClickListener {
             game.findViewById<TextView>(R.id.game_summary_title).text = summaryTitles[i]
             game.findViewById<TextView>(R.id.game_summary_stats).text = summaryScores[i]
             game.findViewById<TextView>(R.id.game_summary_game_id).text = summaryIDs[i]
+            game.id = summaryIDs[i].toInt()
+            game.setOnClickListener(this)
             recentGames.addView(game, i)
         }
         view.findViewById<View>(R.id.home_view_more).visibility = View.VISIBLE
     }
 
     override fun onClick(view: View) {
-        val intent = Intent(this.activity, GameDetailsActivity::class.java)
-        val extras = Bundle()
-        extras.putString("GameID", view.id.toString())
-        intent.putExtras(extras)
-        startActivity(intent)
+        when (view.id) {
+            R.id.home_view_more -> navController.navigate(R.id.action_homeFragment_to_recentGamesFragment)
+            else -> navController.navigate(HomeFragmentDirections.actionHomeFragmentToGameDetailsFragment(view.id.toString()))
+        }
     }
 
     companion object {

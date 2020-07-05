@@ -135,4 +135,9 @@
         <item name="current_theme">@style/SpookyTheme</item>
     </style>
 
+    <!-- MyDayNight -->
+    <style name="MyDayNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
+    </style>
+
 </resources>

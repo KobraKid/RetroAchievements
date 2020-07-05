@@ -1,32 +1,29 @@
-package com.kobrakid.retroachievements.activity
+package com.kobrakid.retroachievements.fragment
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.MenuItem
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources.getDrawable
+import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
-import com.kobrakid.retroachievements.ThemeManager.getTheme
+import com.kobrakid.retroachievements.activity.MainActivity
 import com.kobrakid.retroachievements.adapter.GameSummaryAdapter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONException
 
-/**
- * This class will display a more comprehensive list of recent games, rather than the
- * quick 5-game summary present on the home screen.
- */
-class RecentGamesActivity : AppCompatActivity(), OnRefreshListener {
+class RecentGamesFragment : Fragment(), View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     private var offset = 0
     private val gamesPerAPICall = 15
@@ -34,27 +31,22 @@ class RecentGamesActivity : AppCompatActivity(), OnRefreshListener {
     // Initially ask for 15 games (prevent spamming API)
     private var gamesAskedFor = 15
 
-    // TODO: Determine if lazy is really required here
-    private val gameSummaryAdapter: GameSummaryAdapter by lazy { GameSummaryAdapter(getDrawable(R.drawable.image_view_border)) }
+    private lateinit var navController: NavController
+    private val gameSummaryAdapter: GameSummaryAdapter by lazy { GameSummaryAdapter(this, getDrawable(requireContext(), R.drawable.image_view_border)) }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val sharedPref = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
-        setTheme(getTheme(this, sharedPref))
-        setContentView(R.layout.activity_recent_games)
-        setTitle(R.string.recent_games_title)
-        overridePendingTransition(R.anim.slide_in, android.R.anim.fade_out)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        retainInstance = true
+        requireActivity().title = getString(R.string.recent_games_title)
+        return inflater.inflate(R.layout.fragment_recent_games, container, false)
+    }
 
-        // Set up title bar
-        setSupportActionBar(findViewById(R.id.recent_games_toolbar))
-        val actionBar = supportActionBar
-        actionBar?.setDisplayHomeAsUpEnabled(true)
-        actionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        navController = Navigation.findNavController(view)
         // Set up RecyclerView
-        val recyclerView = findViewById<RecyclerView>(R.id.recent_games_recycler_view)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.recent_games_recycler_view)
         recyclerView.setHasFixedSize(true)
-        val layoutManager = LinearLayoutManager(this)
+        val layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = gameSummaryAdapter
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -65,8 +57,8 @@ class RecentGamesActivity : AppCompatActivity(), OnRefreshListener {
                 if (layoutManager.findLastVisibleItemPosition() >= offset + gamesPerAPICall - 2 && gameSummaryAdapter.itemCount == gamesAskedFor) {
                     offset += gamesPerAPICall
                     gamesAskedFor += gamesPerAPICall
-                    CoroutineScope(IO).launch {
-                        RetroAchievementsApi.GetUserRecentlyPlayedGames(applicationContext, MainActivity.raUser, gamesPerAPICall, offset) { parseRecentlyPlayedGames(it) }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        RetroAchievementsApi.GetUserRecentlyPlayedGames(requireContext(), MainActivity.raUser, gamesPerAPICall, offset) { parseRecentlyPlayedGames(it) }
                     }
                 }
 
@@ -74,32 +66,18 @@ class RecentGamesActivity : AppCompatActivity(), OnRefreshListener {
         })
 
         // Set up refresh action
-        findViewById<SwipeRefreshLayout>(R.id.recent_games_refresh).setOnRefreshListener(this)
-        CoroutineScope(IO).launch {
-            RetroAchievementsApi.GetUserRecentlyPlayedGames(applicationContext, MainActivity.raUser, gamesPerAPICall, offset) { parseRecentlyPlayedGames(it) }
+        (view as SwipeRefreshLayout).setOnRefreshListener(this)
+        CoroutineScope(Dispatchers.IO).launch {
+            RetroAchievementsApi.GetUserRecentlyPlayedGames(requireContext(), MainActivity.raUser, gamesPerAPICall, offset) { parseRecentlyPlayedGames(it) }
         }
     }
 
     override fun onRefresh() {
         offset = 0
         gamesAskedFor = gamesPerAPICall
-        CoroutineScope(IO).launch {
-            RetroAchievementsApi.GetUserRecentlyPlayedGames(applicationContext, MainActivity.raUser, gamesPerAPICall, offset) { parseRecentlyPlayedGames(it) }
+        CoroutineScope(Dispatchers.IO).launch {
+            RetroAchievementsApi.GetUserRecentlyPlayedGames(requireContext(), MainActivity.raUser, gamesPerAPICall, offset) { parseRecentlyPlayedGames(it) }
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            onBackPressed()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        finish()
-        overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out)
     }
 
     private suspend fun parseRecentlyPlayedGames(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
@@ -129,7 +107,7 @@ class RecentGamesActivity : AppCompatActivity(), OnRefreshListener {
                 } catch (e: JSONException) {
                     Log.e(TAG, "Failed to parse recenntly played games", e)
                 } finally {
-                    findViewById<SwipeRefreshLayout>(R.id.recent_games_refresh).isRefreshing = false
+                    (view as SwipeRefreshLayout).isRefreshing = false
                 }
             }
             else -> {
@@ -138,18 +116,12 @@ class RecentGamesActivity : AppCompatActivity(), OnRefreshListener {
         }
     }
 
-    /**
-     * Sets up a new activity to show more details on a particular game.
-     *
-     * @param view The game the user tapped on.
-     */
-    fun showGameDetails(view: View) {
-        startActivity(Intent(this, GameDetailsActivity::class.java).apply {
-            putExtra("GameID", view.findViewById<TextView>(R.id.game_summary_game_id).text.toString())
-        })
+    override fun onClick(view: View) {
+        navController.navigate(RecentGamesFragmentDirections.actionRecentGamesFragmentToGameDetailsFragment(
+                view.findViewById<TextView>(R.id.game_summary_game_id).text.toString()))
     }
 
     companion object {
-        private val TAG = RecentGamesActivity::class.java.simpleName
+        private val TAG = RecentGamesFragment::class.java.simpleName
     }
 }

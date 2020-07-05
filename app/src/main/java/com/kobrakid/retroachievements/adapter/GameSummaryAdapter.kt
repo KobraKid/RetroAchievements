@@ -21,7 +21,7 @@ import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import java.util.*
 
-class GameSummaryAdapter(private val masteredBorder: Drawable?) : RecyclerView.Adapter<GameSummaryViewHolder>(), OnPopupTextUpdate, Filterable {
+class GameSummaryAdapter(private val listener: View.OnClickListener, private val masteredBorder: Drawable?) : RecyclerView.Adapter<GameSummaryViewHolder>(), OnPopupTextUpdate, Filterable {
 
     private val ids = mutableListOf<String>()
     private val imageIcons = mutableListOf<String>()
@@ -36,12 +36,13 @@ class GameSummaryAdapter(private val masteredBorder: Drawable?) : RecyclerView.A
     private val mappings = mutableListOf<Int>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameSummaryViewHolder {
-        val constraintLayout = LayoutInflater
+        val layout = LayoutInflater
                 .from(parent.context)
                 .inflate(R.layout.view_holder_game_summary,
                         parent,
                         false) as ConstraintLayout
-        return GameSummaryViewHolder(constraintLayout)
+        layout.setOnClickListener(listener)
+        return GameSummaryViewHolder(layout)
     }
 
     override fun onBindViewHolder(holder: GameSummaryViewHolder, position: Int) {

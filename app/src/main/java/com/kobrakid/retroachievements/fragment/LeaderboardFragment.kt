@@ -58,9 +58,7 @@ class LeaderboardFragment : Fragment(R.layout.fragment_leaderboard) {
 
     private suspend fun parseLeaderboard(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_LEADERBOARD -> {
                 withContext(Dispatchers.Default) {
                     val document = Jsoup.parse(response.second)
@@ -82,9 +80,7 @@ class LeaderboardFragment : Fragment(R.layout.fragment_leaderboard) {
                     }
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 

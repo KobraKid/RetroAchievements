@@ -5,6 +5,21 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <View
+        android:id="@+id/separator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/colorPrimaryDark"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/comment_hide_content"
+        tools:visibility="visible" />
+
     <ImageView
         android:id="@+id/comments_user_icon"
         android:layout_width="48dp"
@@ -12,6 +27,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:adjustViewBounds="true"
+        android:contentDescription="@string/cd_user_icon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/user_placeholder" />
@@ -78,6 +94,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/comments_user_rank_score"
             tools:text="That's alotta nuts!!!" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.Barrier
@@ -88,4 +105,5 @@
         app:constraint_referenced_ids="comments_user_icon,comments_user_comment"
         tools:layout_editor_absoluteX="411dp"
         tools:layout_editor_absoluteY="80dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

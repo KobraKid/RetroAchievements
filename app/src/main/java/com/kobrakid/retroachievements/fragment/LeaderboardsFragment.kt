@@ -92,9 +92,7 @@ class LeaderboardsFragment : Fragment() {
 
     private suspend fun parseTopTenUsers(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_TOP_TEN_USERS -> {
                 try {
                     val reader = JSONArray(response.second)
@@ -133,17 +131,13 @@ class LeaderboardsFragment : Fragment() {
                     Log.e(TAG, "Couldn't parse user summary", e)
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 
     private suspend fun parseLeaderboards(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_LEADERBOARDS -> {
                 withContext(Main) {
                     view.findViewById<View>(R.id.leaderboards_progress).visibility = View.VISIBLE
@@ -175,9 +169,7 @@ class LeaderboardsFragment : Fragment() {
                     withContext(Main) { populateLeaderboardViews(view) }
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 
@@ -192,9 +184,7 @@ class LeaderboardsFragment : Fragment() {
         view.findViewById<View>(R.id.leaderboards_progress).visibility = View.GONE
         view.findViewById<View>(R.id.leaderboard_populating_fade).visibility = View.GONE
         view.findViewById<RecyclerViewFastScroller>(R.id.leaderboard_fast_scroller).isFastScrollEnabled = true
-        consoleSpinner?.adapter = context?.let {
-            ArrayAdapter(it, android.R.layout.simple_spinner_dropdown_item, leaderboardsAdapter.getUniqueConsoles())
-        }
+        consoleSpinner?.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, leaderboardsAdapter.getUniqueConsoles())
     }
 
     companion object {

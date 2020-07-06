@@ -45,7 +45,7 @@
             android:layout_height="150dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:contentDescription="@string/cd_profile_picture"
+            android:contentDescription="@string/cd_user_icon"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/favicon" />

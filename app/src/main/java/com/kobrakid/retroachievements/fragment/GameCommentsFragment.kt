@@ -51,9 +51,7 @@ class GameCommentsFragment : Fragment() {
 
     private suspend fun parseGameComments(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.SCRAPE_GAME_PAGE -> {
                 withContext(Default) {
                     for (comment in Jsoup.parse(response.second).getElementsByClass("feed_comment")) {
@@ -71,9 +69,7 @@ class GameCommentsFragment : Fragment() {
                     }
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 

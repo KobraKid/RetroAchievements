@@ -2,15 +2,6 @@ package com.kobrakid.retroachievements
 
 class Consts private constructor() {
     companion object {
-        // Activity Request Codes
-        const val BEGIN_LOGIN = 0
-        const val PULL_API_KEY = 1
-
-        // Activity Response Codes
-        const val SUCCESS = 0
-        const val FAILURE = 1
-        const val CANCELLED = 2
-
         // API
         const val BASE_URL = "https://retroachievements.org"
         const val API_URL = "API"
@@ -25,6 +16,7 @@ class Consts private constructor() {
         const val USER_POSTFIX = "user"
     }
 
+    @Suppress("unused")
     enum class Theme(val themeName: String, val themeAttr: Int, val enabled: Boolean = true) {
         RA("RetroAchievements Themes", 0, false),
         BLANK("Blank", R.style.BlankTheme),

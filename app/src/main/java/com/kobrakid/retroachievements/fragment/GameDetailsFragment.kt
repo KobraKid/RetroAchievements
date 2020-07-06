@@ -12,6 +12,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.findFragment
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager.widget.ViewPager
 import com.kobrakid.retroachievements.Consts
@@ -29,7 +30,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.jsoup.Jsoup
 
-class GameDetailsFragment : Fragment(R.layout.fragment_game_details) {
+class GameDetailsFragment : Fragment(R.layout.fragment_game_details), View.OnClickListener {
 
     private val args: GameDetailsFragmentArgs by navArgs()
     private var game = Game()
@@ -51,10 +52,10 @@ class GameDetailsFragment : Fragment(R.layout.fragment_game_details) {
         }
 
         // These views only exist in landscape, thus they require null-safe access
-        view.findViewById<ImageButton>(R.id.game_details_button_page_0)?.setOnClickListener { viewPager.currentItem = 0 }
-        view.findViewById<ImageButton>(R.id.game_details_button_page_1)?.setOnClickListener { viewPager.currentItem = 1 }
-        view.findViewById<ImageButton>(R.id.game_details_button_page_2)?.setOnClickListener { viewPager.currentItem = 2 }
-        view.findViewById<ImageButton>(R.id.game_details_button_page_3)?.setOnClickListener { viewPager.currentItem = 3 }
+        view.findViewById<ImageButton>(R.id.game_details_button_page_0)?.setOnClickListener(this)
+        view.findViewById<ImageButton>(R.id.game_details_button_page_1)?.setOnClickListener(this)
+        view.findViewById<ImageButton>(R.id.game_details_button_page_2)?.setOnClickListener(this)
+        view.findViewById<ImageButton>(R.id.game_details_button_page_3)?.setOnClickListener(this)
 
         // TODO Linked hashes requires login
         CoroutineScope(Dispatchers.IO).launch {
@@ -86,11 +87,24 @@ class GameDetailsFragment : Fragment(R.layout.fragment_game_details) {
         return true
     }
 
+    override fun onClick(view: View) {
+        val page = when (view.id) {
+            R.id.game_details_button_page_0 -> 0
+            R.id.game_details_button_page_1 -> 1
+            R.id.game_details_button_page_2 -> 2
+            R.id.game_details_button_page_3 -> 3
+            else -> 0
+        }
+        view.rootView.findViewById<View>(R.id.game_details_frame)
+                .findFragment<AchievementSummaryFragment>()
+                .childFragmentManager
+                .popBackStackImmediate()
+        view.rootView.findViewById<ViewPager>(R.id.game_details_view_pager).currentItem = page
+    }
+
     private suspend fun parseGameInfoUserProgress(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_GAME_INFO_AND_USER_PROGRESS -> {
                 withContext(Dispatchers.Default) {
                     try {
@@ -119,9 +133,7 @@ class GameDetailsFragment : Fragment(R.layout.fragment_game_details) {
                     populateElements()
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 

@@ -87,9 +87,7 @@ class RecentGamesFragment : Fragment(), View.OnClickListener, SwipeRefreshLayout
 
     private suspend fun parseRecentlyPlayedGames(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_USER_RECENTLY_PLAYED_GAMES -> {
                 if (offset == 0) gameSummaryAdapter.clear()
                 try {
@@ -115,9 +113,7 @@ class RecentGamesFragment : Fragment(), View.OnClickListener, SwipeRefreshLayout
                     (view as SwipeRefreshLayout).isRefreshing = false
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 

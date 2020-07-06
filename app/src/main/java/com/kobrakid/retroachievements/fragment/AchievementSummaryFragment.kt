@@ -82,16 +82,12 @@ class AchievementSummaryFragment : Fragment(R.layout.view_pager_achievements_sum
             CoroutineScope(IO).launch {
                 RetroAchievementsApi.GetGameInfoAndUserProgress(requireContext(), MainActivity.raUser, id) { parseGameInfoAndUserProgress(view, it) }
             }
-        } else {
-            populateViews(view)
-        }
+        } else populateViews(view)
     }
 
     private suspend fun parseGameInfoAndUserProgress(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_GAME_INFO_AND_USER_PROGRESS -> {
                 withContext(Default) {
                     try {
@@ -184,9 +180,7 @@ class AchievementSummaryFragment : Fragment(R.layout.view_pager_achievements_sum
                     populateViews(view)
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 

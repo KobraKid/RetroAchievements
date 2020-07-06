@@ -22,7 +22,7 @@ import com.kobrakid.retroachievements.ra.Achievement
 import com.squareup.picasso.Picasso
 import java.text.DecimalFormat
 
-class AchievementAdapter(private val fragment: Fragment, private val resources: Resources) : RecyclerView.Adapter<AchievementViewHolder>() {
+class AchievementAdapter(fragment: Fragment, private val resources: Resources) : RecyclerView.Adapter<AchievementViewHolder>() {
 
     private val ids = mutableListOf<String>()
     private val badges = mutableListOf<String>()

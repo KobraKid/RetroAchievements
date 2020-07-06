@@ -3,7 +3,6 @@ package com.kobrakid.retroachievements.activity
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -15,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.findFragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -25,7 +23,6 @@ import com.google.android.material.navigation.NavigationView
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
-import com.kobrakid.retroachievements.fragment.HomeFragment
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
@@ -60,8 +57,7 @@ class MainActivity : AppCompatActivity() {
         val sharedPref = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
         setTheme(sharedPref.getInt(getString(R.string.theme_setting), R.style.BlankTheme))
         raUser = sharedPref.getString(getString(R.string.ra_user), "")!!
-        raApiKey = sharedPref.getString(getString(R.string.ra_api_key), "")!!
-        RetroAchievementsApi.setCredentials(raUser, raApiKey)
+        RetroAchievementsApi.setCredentials(raUser, sharedPref.getString(getString(R.string.ra_api_key), "")!!)
 
         // Set up UI
         setContentView(R.layout.activity_main)
@@ -81,34 +77,6 @@ class MainActivity : AppCompatActivity() {
                 }
         } else {
             populateViews()
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == Consts.BEGIN_LOGIN) when (resultCode) {
-            Consts.SUCCESS -> {
-                Log.d(TAG, "LOGIN SUCCESS")
-                raUser = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getString(getString(R.string.ra_user), "")!!
-                raApiKey = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getString(getString(R.string.ra_api_key), "")!!
-                Log.v(TAG, "Logging in as $raUser")
-                RetroAchievementsApi.setCredentials(raUser, raApiKey)
-                CoroutineScope(IO).launch {
-                    RetroAchievementsApi.GetUserRankAndScore(applicationContext, raUser) { parseRankScore(it) }
-                }
-                CoroutineScope(IO).launch {
-                    RetroAchievementsApi.GetUserWebProfile(applicationContext, raUser) {
-                        findViewById<View>(R.id.nav_host_fragment).findFragment<HomeFragment>().parseUserWebProfile(findViewById(R.id.home_scrollview), it)
-                    }
-                    RetroAchievementsApi.GetUserSummary(applicationContext, raUser, HomeFragment.NUM_RECENT_GAMES) {
-                        findViewById<View>(R.id.nav_host_fragment).findFragment<HomeFragment>().parseUserSummary(findViewById(R.id.home_scrollview), it)
-                    }
-                }
-            }
-            Consts.CANCELLED -> Log.d(TAG, "LOGIN CANCELLED")
-            Consts.FAILURE -> Log.d(TAG, "LOGIN FAILED")
-            else -> {
-            }
         }
     }
 
@@ -137,9 +105,7 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun parseRankScore(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_USER_RANK_AND_SCORE -> {
                 withContext(Default) {
                     try {
@@ -154,9 +120,7 @@ class MainActivity : AppCompatActivity() {
                     populateViews()
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 
@@ -211,13 +175,12 @@ class MainActivity : AppCompatActivity() {
 
     fun setCredentials(user: String, apiKey: String) {
         raUser = user
-        raApiKey = apiKey
+        RetroAchievementsApi.setCredentials(user, apiKey)
     }
 
     companion object {
         private val TAG = MainActivity::class.java.simpleName
         var raUser: String = ""
-        private var raApiKey: String = ""
         var rank: String = ""
         var score: String = ""
     }

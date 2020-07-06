@@ -54,12 +54,10 @@ class AchievementDistributionFragment : Fragment() {
                 view.findViewById<TextView>(R.id.game_details_chart_hints).text = ""
             }
         })
-        if (savedInstanceState == null && arguments != null) {
-            val ctx = context?.applicationContext
-            val id = arguments?.getString("GameID", "0")
+        if (chartData.isEmpty()) {
+            val id = arguments?.getString("GameID", "0") ?: "0"
             CoroutineScope(IO).launch {
-                if (ctx != null && id != null)
-                    RetroAchievementsApi.ScrapeGameInfoFromWeb(ctx, id) { parseAchievementDistribution(view, it) }
+                RetroAchievementsApi.ScrapeGameInfoFromWeb(requireContext(), id) { parseAchievementDistribution(view, it) }
             }
         } else {
             populateChartData(view)
@@ -68,20 +66,15 @@ class AchievementDistributionFragment : Fragment() {
 
     private suspend fun parseAchievementDistribution(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.SCRAPE_GAME_PAGE -> {
                 withContext(Default) {
                     Jsoup.parse(response.second)
                             .getElementsByTag("script")
                             .filter { it.html().startsWith("google.load('visualization'") }
-                            .map {
-                                val rows = it.dataNodes()[0].wholeData
-                                val p1 = Pattern.compile("v:(\\d+),")
-                                val m1 = p1.matcher(rows)
-                                val p2 = Pattern.compile(",\\s(\\d+)\\s]")
-                                val m2 = p2.matcher(rows)
+                            .forEach {
+                                val m1 = Pattern.compile("v:(\\d+),").matcher(it.dataNodes()[0].wholeData)
+                                val m2 = Pattern.compile(",\\s(\\d+)\\s]").matcher(it.dataNodes()[0].wholeData)
                                 while (m1.find() && m2.find()) {
                                     chartData.add(
                                             Entry(
@@ -96,9 +89,7 @@ class AchievementDistributionFragment : Fragment() {
                     populateChartData(view)
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 
@@ -112,8 +103,8 @@ class AchievementDistributionFragment : Fragment() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val accentColor = TypedValue()
             val primaryColor = TypedValue()
-            context?.theme?.resolveAttribute(R.attr.colorAccent, accentColor, true)
-            context?.theme?.resolveAttribute(R.attr.colorPrimary, primaryColor, true)
+            requireContext().theme?.resolveAttribute(R.attr.colorAccent, accentColor, true)
+            requireContext().theme?.resolveAttribute(R.attr.colorPrimary, primaryColor, true)
             achievementDistributionChart?.axisLeft?.textColor = primaryColor.data
             achievementDistributionChart?.xAxis?.textColor = primaryColor.data
             dataSet.setCircleColor(accentColor.data)

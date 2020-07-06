@@ -14,7 +14,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:adjustViewBounds="true"
-        android:contentDescription="@string/cd_game_details_image_icon"
+        android:contentDescription="@string/cd_game_icon"
         app:layout_constraintBottom_toBottomOf="@+id/game_details_release_date"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

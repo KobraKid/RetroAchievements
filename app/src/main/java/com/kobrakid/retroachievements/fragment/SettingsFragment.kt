@@ -50,7 +50,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // Initialize preferences object
-        sharedPref = context?.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
+        sharedPref = requireContext().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
 
         // Set up views
         val theme = Consts.Theme.values().indexOfFirst { it.themeAttr == sharedPref?.getInt(getString(R.string.theme_setting), R.style.BlankTheme) }.coerceAtLeast(1)
@@ -166,9 +166,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
 
     private suspend fun removeConsoles(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_CONSOLE_IDS -> {
                 val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
                 try {
@@ -213,9 +211,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
                 if (counter == 0)
                     withContext(Main) { activity?.recreate() }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 

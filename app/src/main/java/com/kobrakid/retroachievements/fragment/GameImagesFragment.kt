@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
+import kotlin.math.min
 
 /**
  * This [Fragment] displays images relating to the current game.
@@ -35,30 +36,29 @@ class GameImagesFragment : Fragment(R.layout.view_pager_game_images) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         retainInstance = true
-        if (savedInstanceState == null) {
+        if (boxURL.isEmpty() || titleURL.isEmpty() || ingameURL.isEmpty()) {
             val ctx = context?.applicationContext
             val id = arguments?.getString("GameID", "0")
             CoroutineScope(IO).launch {
                 if (ctx != null && id != null)
                     RetroAchievementsApi.GetGame(ctx, id) { parseGameImages(view, it) }
             }
-        } else {
-            populateImages(view)
-        }
+        } else view.post { populateImages(view) }
     }
 
     private suspend fun parseGameImages(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_GAME -> {
                 withContext(Default) {
                     try {
                         val reader = JSONObject(response.second)
                         boxURL = reader.getString("ImageBoxArt")
+                        if (boxURL.contains("000002.png")) boxURL = ""
                         titleURL = reader.getString("ImageTitle")
+                        if (titleURL.contains("000002.png")) titleURL = ""
                         ingameURL = reader.getString("ImageIngame")
+                        if (ingameURL.contains("000002.png")) ingameURL = ""
                         withContext(Main) { populateImages(view) }
                     } catch (e: JSONException) {
                         Log.e(TAG, "Couldn't parse game images", e)
@@ -68,22 +68,25 @@ class GameImagesFragment : Fragment(R.layout.view_pager_game_images) {
                     }
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 
     private fun populateImages(view: View) {
+        val orientation = resources.configuration.orientation
+        val scrollHeight = view.findViewById<View>(R.id.game_images_scrollview).height - 32
+        val scrollWidth = view.findViewById<View>(R.id.game_images_scrollview).width - 16
         Picasso.get()
                 .load(Consts.BASE_URL + boxURL)
                 .into(object : Target {
                     override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
-                        Log.i(TAG, "Loaded image $bitmap from $from")
-                        val drawable: Drawable = BitmapDrawable(requireContext().resources, bitmap)
-                        val scale = (view.findViewById<View>(R.id.card_0_boxart).width - 16) / drawable.intrinsicWidth
-                        drawable.setBounds(0, 0, drawable.intrinsicWidth * scale, drawable.intrinsicHeight * scale)
+                        val drawable: Drawable = BitmapDrawable(resources, bitmap)
+                        val scale = min(
+                                scrollHeight / drawable.intrinsicHeight.toDouble(),
+                                scrollWidth / drawable.intrinsicWidth.toDouble())
+                        drawable.setBounds(0, 0, (drawable.intrinsicWidth * scale).toInt(), (drawable.intrinsicHeight * scale).toInt())
                         view.findViewById<TextView>(R.id.image_boxart).setCompoundDrawables(null, drawable, null, null)
+                        Log.v(TAG, "Loaded image 0: $bitmap from $from @ ${scale}x scale (${drawable.intrinsicWidth} x ${drawable.intrinsicHeight})")
                     }
 
                     override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
@@ -96,10 +99,13 @@ class GameImagesFragment : Fragment(R.layout.view_pager_game_images) {
                 .load(Consts.BASE_URL + titleURL)
                 .into(object : Target {
                     override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
-                        val drawable: Drawable = BitmapDrawable(requireContext().resources, bitmap)
-                        val scale = (view.findViewById<View>(R.id.card_1_title).width - 16) / drawable.intrinsicWidth
-                        drawable.setBounds(0, 0, drawable.intrinsicWidth * scale, drawable.intrinsicHeight * scale)
+                        val drawable: Drawable = BitmapDrawable(resources, bitmap)
+                        val scale = min(
+                                scrollHeight / drawable.intrinsicHeight.toDouble(),
+                                scrollWidth / drawable.intrinsicWidth.toDouble())
+                        drawable.setBounds(0, 0, (drawable.intrinsicWidth * scale).toInt(), (drawable.intrinsicHeight * scale).toInt())
                         view.findViewById<TextView>(R.id.image_title).setCompoundDrawables(null, drawable, null, null)
+                        Log.v(TAG, "Loaded image 1: $bitmap from $from @ ${scale}x scale (${drawable.intrinsicWidth} x ${drawable.intrinsicHeight})")
                     }
 
                     override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
@@ -112,10 +118,13 @@ class GameImagesFragment : Fragment(R.layout.view_pager_game_images) {
                 .load(Consts.BASE_URL + ingameURL)
                 .into(object : Target {
                     override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
-                        val drawable: Drawable = BitmapDrawable(requireContext().resources, bitmap)
-                        val scale = (view.findViewById<View>(R.id.card_2_ingame).width - 16) / drawable.intrinsicWidth
-                        drawable.setBounds(0, 0, drawable.intrinsicWidth * scale, drawable.intrinsicHeight * scale)
+                        val drawable: Drawable = BitmapDrawable(resources, bitmap)
+                        val scale = min(
+                                scrollHeight / drawable.intrinsicHeight.toDouble(),
+                                scrollWidth / drawable.intrinsicWidth.toDouble())
+                        drawable.setBounds(0, 0, (drawable.intrinsicWidth * scale).toInt(), (drawable.intrinsicHeight * scale).toInt())
                         view.findViewById<TextView>(R.id.image_ingame).setCompoundDrawables(null, drawable, null, null)
+                        Log.v(TAG, "Loaded image 2: $bitmap from $from @ ${scale}x scale (${drawable.intrinsicWidth} x ${drawable.intrinsicHeight})")
                     }
 
                     override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {

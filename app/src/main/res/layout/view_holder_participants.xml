@@ -27,6 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:adjustViewBounds="true"
+        android:contentDescription="@string/cd_user_icon"
         app:layout_constraintBottom_toBottomOf="@+id/participant_rank"
         app:layout_constraintStart_toEndOf="@+id/participant_rank"
         app:layout_constraintTop_toTopOf="@+id/participant_rank"

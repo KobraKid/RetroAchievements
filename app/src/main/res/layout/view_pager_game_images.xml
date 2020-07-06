@@ -20,6 +20,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
+        android:id="@+id/game_images_scrollview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
@@ -61,7 +62,8 @@
                 style="@style/CommonThemes.CardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp">
+                android:layout_margin="8dp"
+                tools:visibility="visible">
 
                 <TextView
                     android:id="@+id/image_title"
@@ -83,7 +85,8 @@
                 style="@style/CommonThemes.CardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp">
+                android:layout_margin="8dp"
+                tools:visibility="visible">
 
                 <TextView
                     android:id="@+id/image_ingame"

@@ -74,9 +74,7 @@ class ConsoleGamesFragment : Fragment(), View.OnClickListener {
 
     private suspend fun parseGameList(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_GAME_LIST -> {
                 try {
                     val reader = JSONArray(response.second)
@@ -97,9 +95,7 @@ class ConsoleGamesFragment : Fragment(), View.OnClickListener {
                     populateGamesView()
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 

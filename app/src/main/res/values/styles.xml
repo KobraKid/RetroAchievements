@@ -4,6 +4,10 @@
     <attr name="current_theme" format="reference" />
 
     <!-- Common Themes -->
+    <style name="CommonThemes.Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">?attr/colorPrimaryDark</item>
+    </style>
+
     <style name="CommonThemes.Button" parent="Widget.AppCompat.Button">
         <item name="android:textColor">?attr/colorAccent</item>
         <item name="android:tint">?attr/colorAccent</item>
@@ -20,17 +24,11 @@
 
     <style name="CommonThemes.CardView" parent="CardView">
         <item name="cardBackgroundColor">?android:windowBackground</item>
-        <item name="cardElevation">8dp</item>
         <item name="cardCornerRadius">8dp</item>
     </style>
 
     <style name="CommonThemes.DrawerIconStyle" parent="Widget.AppCompat.DrawerArrowToggle">
         <item name="color">?attr/colorPrimary</item>
-    </style>
-
-    <style name="CommonThemes.Overflow" parent="ThemeOverlay.AppCompat.Light">
-        <item name="android:colorBackground">?attr/colorError</item>
-        <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
     <style name="CommonThemes.OverflowButton" parent="Widget.AppCompat.ActionButton.Overflow">

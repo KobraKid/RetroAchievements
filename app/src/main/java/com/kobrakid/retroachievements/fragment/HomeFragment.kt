@@ -69,11 +69,9 @@ class HomeFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    suspend fun parseUserWebProfile(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
+    private suspend fun parseUserWebProfile(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_USER_WEB_PROFILE -> {
                 // Parse response on the Default thread
                 withContext(Default) {
@@ -98,17 +96,13 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     fillUserWebProfile(view)
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 
-    suspend fun parseUserSummary(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
+    private suspend fun parseUserSummary(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_USER_SUMMARY -> {
                 withContext(Default) {
                     try {
@@ -144,9 +138,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     fillUserSummary(view)
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 

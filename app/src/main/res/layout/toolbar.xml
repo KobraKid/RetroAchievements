@@ -1,13 +1,11 @@
 <!-- Custom Toolbar Main Activity -->
 <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/toolbar"
+    style="@style/CommonThemes.Toolbar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/colorPrimaryDark"
     android:elevation="4dp"
     android:fitsSystemWindows="true"
     android:minHeight="?attr/actionBarSize"
-    app:popupTheme="@style/CommonThemes.Overflow"
     tools:title="RetroAchievements" />

@@ -47,14 +47,15 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
         val consoleListRecyclerView = view.findViewById<RecyclerView>(R.id.list_console)
         consoleListRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         consoleListRecyclerView.adapter = consoleAdapter
-        if (hideEmptyConsoles) {
-            view.findViewById<View>(R.id.list_hiding_fade).visibility = View.VISIBLE
-            view.findViewById<View>(R.id.list_hiding_progress).visibility = View.VISIBLE
-        }
-        if (consoleAdapter.itemCount == 0)
+        if (consoleAdapter.itemCount == 0) {
+            if (hideEmptyConsoles) {
+                view.findViewById<View>(R.id.list_hiding_fade).visibility = View.VISIBLE
+                view.findViewById<View>(R.id.list_hiding_progress).visibility = View.VISIBLE
+            }
             CoroutineScope(IO).launch {
                 RetroAchievementsApi.GetConsoleIDs(requireContext()) { parseConsoles(view, it) }
             }
+        }
     }
 
     override fun onClick(view: View) {
@@ -65,9 +66,7 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
 
     private suspend fun parseConsoles(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> {
-                Log.w(TAG, response.second)
-            }
+            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_CONSOLE_IDS -> {
                 try {
                     val reader = JSONArray(response.second)
@@ -91,9 +90,7 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
                     Log.e(TAG, "Couldn't parse console IDs", e)
                 }
             }
-            else -> {
-                Log.v(TAG, "${response.first}: ${response.second}")
-            }
+            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 

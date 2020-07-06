@@ -60,7 +60,6 @@
         app:layout_constraintVertical_chainStyle="packed"
         tools:progress="4000" />
 
-    <!-- TODO Not sure why, but this text doesn't want to line up with the top edge of the {@+id/achievement_details_badge} -->
     <TextView
         android:id="@+id/achievement_details_description"
         android:layout_width="0dp"

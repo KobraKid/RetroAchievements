@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <!-- FIXME This is also really ugly. Should be ConstraintLayout, and shouldn't be so compact.
-          Will likely require major changes to parent fragment -->
+    <!-- FIXME This is also really ugly - it shouldn't be so compact -->
 
     <TextView
         android:id="@+id/id"

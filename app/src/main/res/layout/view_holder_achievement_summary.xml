@@ -7,8 +7,6 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <!-- TODO Convert to ConstraintLayout -->
-
     <TextView
         android:id="@+id/achievement_summary_date"
         android:layout_width="0dp"

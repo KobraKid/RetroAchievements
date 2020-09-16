@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/not_logged_in"
+            android:text="@string/home_screen_login_help"
             android:textSize="30sp"
             android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"

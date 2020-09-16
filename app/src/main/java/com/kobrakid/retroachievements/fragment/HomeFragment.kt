@@ -54,7 +54,10 @@ class HomeFragment : Fragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
         view.findViewById<Button>(R.id.home_view_more).setOnClickListener(this)
+        view.findViewById<View>(R.id.home_username).visibility = View.VISIBLE
         if (MainActivity.raUser.isNotEmpty()) {
+            view.findViewById<View>(R.id.home_scrollview).background = null
+            (requireActivity() as MainActivity).populateViews()
             if (savedInstanceState == null) {
                 CoroutineScope(IO).launch {
                     RetroAchievementsApi.GetUserWebProfile(requireContext(), MainActivity.raUser) { parseUserWebProfile(view, it) }
@@ -64,9 +67,8 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 fillUserWebProfile(view)
                 fillUserSummary(view)
             }
-            (requireActivity() as MainActivity).populateViews()
         } else {
-            view.findViewById<View>(R.id.home_username).visibility = View.VISIBLE
+            view.findViewById<View>(R.id.home_scrollview).background = requireContext().getDrawable(R.drawable.ic_baseline_arrow_up_left)
         }
     }
 
@@ -180,7 +182,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 .placeholder(R.drawable.favicon)
                 .into(view.findViewById<ImageView>(R.id.home_profile_picture))
         view.findViewById<TextView>(R.id.home_stats).text = getString(R.string.score_rank, MainActivity.score, MainActivity.rank)
-        view.findViewById<View>(R.id.home_username).visibility = View.VISIBLE
         view.findViewById<View>(R.id.home_stats).visibility = View.VISIBLE
         // Fill out recently played games list
         val recentGames = view.findViewById<LinearLayout>(R.id.home_recent_games)

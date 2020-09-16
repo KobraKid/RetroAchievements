@@ -12,7 +12,7 @@
         <item quantity="other">%1$d users have earned %2$d achievement(s)</item>
     </plurals>
     <string name="app_name">RetroAchievements</string>
-    <string name="not_logged_in">Not logged in</string>
+    <string name="home_screen_login_help">Tap to log in</string>
 
     <!-- Navigation Drawer -->
     <string name="login_prompt">Click here to log in</string>
@@ -27,6 +27,7 @@
 
     <!-- List Fragment -->
     <string name="view_more">View More</string>
+    <string name="search_games_tip">Search game titles (any console)</string>
 
     <!-- Leaderboards Fragment -->
     <string name="no_games">No Games</string>

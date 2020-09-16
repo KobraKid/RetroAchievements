@@ -53,8 +53,7 @@ class ConsoleGamesFragment : Fragment(), View.OnClickListener {
         val gameListRecyclerView = view.findViewById<RecyclerView>(R.id.list_games)
         gameListRecyclerView.adapter = gameSummaryAdapter
         gameListRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        val gamesFilter = view.findViewById<EditText>(R.id.list_games_filter)
-        gamesFilter.addTextChangedListener(object : TextWatcher {
+        view.findViewById<EditText>(R.id.list_games_filter).addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(charSequence: CharSequence, start: Int, before: Int, count: Int) {
                 gameSummaryAdapter.filter.filter(charSequence.toString())

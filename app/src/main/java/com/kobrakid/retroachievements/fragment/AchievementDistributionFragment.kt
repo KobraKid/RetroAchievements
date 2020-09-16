@@ -17,6 +17,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
 import kotlinx.coroutines.CoroutineScope
@@ -103,8 +104,8 @@ class AchievementDistributionFragment : Fragment() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val accentColor = TypedValue()
             val primaryColor = TypedValue()
-            requireContext().theme?.resolveAttribute(R.attr.colorAccent, accentColor, true)
-            requireContext().theme?.resolveAttribute(R.attr.colorPrimary, primaryColor, true)
+            context?.theme?.resolveAttribute(R.attr.colorAccent, accentColor, true)
+            context?.theme?.resolveAttribute(R.attr.colorPrimary, primaryColor, true)
             achievementDistributionChart?.axisLeft?.textColor = primaryColor.data
             achievementDistributionChart?.xAxis?.textColor = primaryColor.data
             dataSet.setCircleColor(accentColor.data)
@@ -135,6 +136,6 @@ class AchievementDistributionFragment : Fragment() {
     }
 
     companion object {
-        private val TAG = AchievementDistributionFragment::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + AchievementDistributionFragment::class.java.simpleName
     }
 }

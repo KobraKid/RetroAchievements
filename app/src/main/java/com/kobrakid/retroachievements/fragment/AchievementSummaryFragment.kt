@@ -1,18 +1,14 @@
 package com.kobrakid.retroachievements.fragment
 
-import android.content.res.Resources
-import android.os.Build
 import android.os.Bundle
-import android.text.Html
-import android.text.Spanned
 import android.util.Log
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.budiyev.android.circularprogressbar.CircularProgressBar
+import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
 import com.kobrakid.retroachievements.activity.MainActivity
@@ -26,7 +22,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
-import java.text.DecimalFormat
 
 /**
  * This class is responsible for displaying summary information on all the achievements for a
@@ -42,30 +37,7 @@ class AchievementSummaryFragment : Fragment(R.layout.view_pager_achievements_sum
             var totalPts: Int,
             var earnedRatio: Int,
             var totalRatio: Int
-    ) {
-        fun print(resources: Resources): Spanned {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                return Html.fromHtml(resources.getString(
-                        R.string.user_summary,
-                        numEarned,
-                        totalAch,
-                        numEarnedHC,
-                        earnedPts,
-                        earnedRatio,
-                        totalPts * 2,  // Account for hardcore achievements worth double
-                        totalRatio), Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH)
-            else
-                return HtmlCompat.fromHtml(resources.getString(
-                        R.string.user_summary,
-                        numEarned,
-                        totalAch,
-                        numEarnedHC,
-                        earnedPts,
-                        earnedRatio,
-                        totalPts * 2,
-                        totalRatio), HtmlCompat.FROM_HTML_MODE_LEGACY)
-        }
-    }
+    )
 
     private val adapter by lazy { AchievementAdapter(this, resources) }
     private val achievementTotals = AchievementTotals(0, 0, 0, 0, 0, 0, 0)
@@ -94,6 +66,16 @@ class AchievementSummaryFragment : Fragment(R.layout.view_pager_achievements_sum
                         val reader = JSONObject(response.second)
                         if (reader.getString("NumAchievements") == "0") {
                             withContext(Main) {
+                                view.findViewById<View>(R.id.game_details_achivements_earned)?.visibility = View.GONE
+                                view.findViewById<View>(R.id.game_details_achievements_earned_text)?.visibility = View.GONE
+                                view.findViewById<View>(R.id.game_details_achievements_earned_hc)?.visibility = View.GONE
+                                view.findViewById<View>(R.id.game_details_achievements_earned_hc_text)?.visibility = View.GONE
+                                view.findViewById<View>(R.id.game_details_points)?.visibility = View.GONE
+                                view.findViewById<View>(R.id.game_details_points_text)?.visibility = View.GONE
+                                view.findViewById<View>(R.id.game_details_points_total_text)?.visibility = View.GONE
+                                view.findViewById<View>(R.id.game_details_ratio)?.visibility = View.GONE
+                                view.findViewById<View>(R.id.game_details_ratio_text)?.visibility = View.GONE
+                                view.findViewById<View>(R.id.game_details_ratio_total_text)?.visibility = View.GONE
                                 view.findViewById<View>(R.id.game_details_loading_bar)?.visibility = View.GONE
                                 view.findViewById<View>(R.id.game_details_no_achievements)?.visibility = View.VISIBLE
                             }
@@ -168,6 +150,12 @@ class AchievementSummaryFragment : Fragment(R.layout.view_pager_achievements_sum
                                 achievementTotals.totalPts += achievement.getString("Points").toInt()
                                 achievementTotals.totalRatio += achievement.getString("TrueRatio").toInt()
                             }
+                            withContext(Main) {
+                                view.findViewById<View>(R.id.game_details_achievements_title)?.visibility = View.VISIBLE
+                                view.findViewById<View>(R.id.game_details_achievements_earned_subtitle)?.visibility = View.VISIBLE
+                                view.findViewById<View>(R.id.game_details_points_subtitle)?.visibility = View.VISIBLE
+                                view.findViewById<View>(R.id.game_details_achievements_ratio_subtitle)?.visibility = View.VISIBLE
+                            }
                         }
                     } catch (e: JSONException) {
                         if (e.toString().contains("Value null at Achievements of type org.json.JSONObject$1 cannot be converted to JSONObject"))
@@ -185,18 +173,30 @@ class AchievementSummaryFragment : Fragment(R.layout.view_pager_achievements_sum
     }
 
     private fun populateViews(view: View) {
-        val progress = (achievementTotals.numEarned + achievementTotals.numEarnedHC).toFloat() / achievementTotals.totalAch.toFloat() * 100.0
-        if (progress >= 0)
-            view.findViewById<TextView>(R.id.game_details_progress_text).text = getString(R.string.completion, DecimalFormat("@@@@").format(progress))
-        view.findViewById<TextView>(R.id.game_details_user_summary).text = context?.resources?.let { achievementTotals.print(it) }
-        view.findViewById<ProgressBar>(R.id.game_details_progress).max = achievementTotals.totalAch
-        view.findViewById<ProgressBar>(R.id.game_details_progress).progress = achievementTotals.numEarned
-        view.findViewById<View>(R.id.game_details_progress).visibility = View.VISIBLE
+        // Achievement progress
+        view.findViewById<CircularProgressBar>(R.id.game_details_achivements_earned).maximum = achievementTotals.totalAch.toFloat()
+        view.findViewById<CircularProgressBar>(R.id.game_details_achivements_earned).progress = achievementTotals.numEarned.toFloat()
+        view.findViewById<TextView>(R.id.game_details_achievements_earned_text).text = getString(R.string.diminished_percent, achievementTotals.numEarned)
+        // Hardcore achievement progress
+        view.findViewById<CircularProgressBar>(R.id.game_details_achievements_earned_hc).maximum = achievementTotals.totalAch.toFloat()
+        view.findViewById<CircularProgressBar>(R.id.game_details_achievements_earned_hc).progress = achievementTotals.numEarnedHC.toFloat()
+        view.findViewById<TextView>(R.id.game_details_achievements_earned_hc_text).text = getString(R.string.percent, achievementTotals.numEarnedHC)
+        // Points progress
+        view.findViewById<CircularProgressBar>(R.id.game_details_points).maximum = achievementTotals.totalPts.toFloat()
+        view.findViewById<CircularProgressBar>(R.id.game_details_points).progress = achievementTotals.earnedPts.toFloat()
+        view.findViewById<TextView>(R.id.game_details_points_text).text = achievementTotals.earnedPts.toString()
+        view.findViewById<TextView>(R.id.game_details_points_total_text).text = getString(R.string.diminished_text, achievementTotals.totalPts.toString())
+        // True ratio points progress
+        view.findViewById<CircularProgressBar>(R.id.game_details_ratio).maximum = achievementTotals.totalRatio.toFloat()
+        view.findViewById<CircularProgressBar>(R.id.game_details_ratio).progress = achievementTotals.earnedRatio.toFloat()
+        view.findViewById<TextView>(R.id.game_details_ratio_text).text = achievementTotals.earnedRatio.toString()
+        view.findViewById<TextView>(R.id.game_details_ratio_total_text).text = getString(R.string.diminished_text, achievementTotals.totalRatio.toString())
+
         view.findViewById<View>(R.id.game_details_loading_bar).visibility = View.GONE
         view.findViewById<View>(R.id.game_details_achievements_recycler_view).visibility = View.VISIBLE
     }
 
     companion object {
-        private val TAG = AchievementSummaryFragment::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + AchievementSummaryFragment::class.java.simpleName
     }
 }

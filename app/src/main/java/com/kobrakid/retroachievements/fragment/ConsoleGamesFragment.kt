@@ -15,6 +15,7 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
 import com.kobrakid.retroachievements.adapter.GameSummaryAdapter
@@ -104,6 +105,6 @@ class ConsoleGamesFragment : Fragment(), View.OnClickListener {
     }
 
     companion object {
-        private val TAG = ConsoleGamesFragment::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + ConsoleGamesFragment::class.java.simpleName
     }
 }

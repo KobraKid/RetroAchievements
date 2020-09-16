@@ -46,7 +46,7 @@ class GameDetailsFragment : Fragment(R.layout.fragment_game_details), View.OnCli
         requireActivity().title = "Game Details"
         game.id = args.id
 
-        val viewPager = view.findViewById<ViewPager>(R.id.game_details_view_pager).apply {
+        view.findViewById<ViewPager>(R.id.game_details_view_pager).apply {
             adapter = GameDetailsPagerAdapter(childFragmentManager, game.id)
             offscreenPageLimit = GameDetailsPagerAdapter.GAME_DETAILS_PAGES - 1
         }
@@ -150,7 +150,7 @@ class GameDetailsFragment : Fragment(R.layout.fragment_game_details), View.OnCli
     }
 
     companion object {
-        private val TAG = GameDetailsFragment::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + GameDetailsFragment::class.java.simpleName
     }
 
 }

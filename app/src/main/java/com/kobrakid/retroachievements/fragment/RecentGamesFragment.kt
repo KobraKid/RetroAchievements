@@ -13,6 +13,7 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
 import com.kobrakid.retroachievements.activity.MainActivity
@@ -118,6 +119,6 @@ class RecentGamesFragment : Fragment(), View.OnClickListener, SwipeRefreshLayout
     }
 
     companion object {
-        private val TAG = RecentGamesFragment::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + RecentGamesFragment::class.java.simpleName
     }
 }

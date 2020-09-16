@@ -69,14 +69,17 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
         appBarConfiguration = AppBarConfiguration(navMenuItems, drawer)
         setupActionBarWithNavController(navController, appBarConfiguration)
+        navView.getHeaderView(0).findViewById<ImageView>(R.id.nav_profile_picture).setOnClickListener {
+            drawer.closeDrawers()
+            navController.navigate(R.id.loginFragment)
+        }
 
-        if (savedInstanceState == null) {
-            if (raUser.isNotEmpty())
+        if (raUser.isNotEmpty()) {
+            if (rank.isEmpty() || score.isEmpty()) {
                 CoroutineScope(IO).launch {
                     RetroAchievementsApi.GetUserRankAndScore(applicationContext, raUser) { parseRankScore(it) }
                 }
-        } else {
-            populateViews()
+            }
         }
     }
 
@@ -114,20 +117,21 @@ class MainActivity : AppCompatActivity() {
                         rank = reader.getString("Rank")
                     } catch (e: JSONException) {
                         Log.e(TAG, "Couldn't parse user rank/score", e)
+                    } finally {
+                        withContext(Main) { populateViews() }
                     }
-                }
-                withContext(Main) {
-                    populateViews()
                 }
             }
             else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
     }
 
-    private fun populateViews() {
-        navView.getHeaderView(0).findViewById<ImageView>(R.id.nav_profile_picture).setOnClickListener {
-            drawer.closeDrawers()
-            navController.navigate(R.id.loginFragment)
+    fun populateViews() {
+        if (raUser.isEmpty()) { // Set defaults
+            navView.getHeaderView(0).findViewById<TextView>(R.id.nav_username).text = getString(R.string.login_prompt)
+            Picasso.get().load(R.drawable.user_placeholder)
+            navView.getHeaderView(0).findViewById<View>(R.id.nav_stats).visibility = View.GONE
+            return
         }
         navView.getHeaderView(0).findViewById<TextView>(R.id.nav_username).text = raUser
         Picasso.get()
@@ -179,7 +183,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private val TAG = MainActivity::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + MainActivity::class.java.simpleName
         var raUser: String = ""
         var rank: String = ""
         var score: String = ""

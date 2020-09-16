@@ -169,10 +169,9 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
         }
     }
 
-    /* Inner Classes and Interfaces */
-    class GameSummaryViewHolder(val constraintLayout: ConstraintLayout) : RecyclerView.ViewHolder(constraintLayout)
+    inner class GameSummaryViewHolder(val constraintLayout: ConstraintLayout) : RecyclerView.ViewHolder(constraintLayout)
 
     companion object {
-        private val TAG = GameSummaryAdapter::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + GameSummaryAdapter::class.java.simpleName
     }
 }

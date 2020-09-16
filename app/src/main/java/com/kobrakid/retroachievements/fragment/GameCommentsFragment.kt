@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
 import com.kobrakid.retroachievements.adapter.GameCommentsAdapter
@@ -74,7 +75,7 @@ class GameCommentsFragment : Fragment() {
     }
 
     companion object {
-        private val TAG = GameCommentsFragment::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + GameCommentsFragment::class.java.simpleName
     }
 
 }

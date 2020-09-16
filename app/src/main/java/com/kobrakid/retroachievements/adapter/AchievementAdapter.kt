@@ -13,6 +13,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.TransitionInflater
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.adapter.AchievementAdapter.AchievementViewHolder
@@ -66,7 +67,6 @@ class AchievementAdapter(fragment: Fragment, private val resources: Resources) :
                 .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + badges[position] + ".png")
                 .placeholder(R.drawable.favicon)
                 .into(holder.layout.findViewById<ImageView>(R.id.achievement_summary_badge))
-        holder.layout.findViewById<View>(R.id.achievement_summary_badge).transitionName = "achievement_$position"
         holder.layout.findViewById<TextView>(R.id.achievement_summary_badge_id).text = badges[position]
 
         // Text descriptions
@@ -142,22 +142,33 @@ class AchievementAdapter(fragment: Fragment, private val resources: Resources) :
         numDistinctCasual = n
     }
 
-    /* Inner Classes and Interfaces */
     interface AchievementViewHolderListener {
         fun onItemClicked(view: View, adapterPosition: Int)
     }
 
-    class AchievementViewHolderListenerImpl internal constructor(private val fragment: Fragment, private val adapter: AchievementAdapter) : AchievementViewHolderListener {
+    inner class AchievementViewHolderListenerImpl internal constructor(private val fragment: Fragment, private val adapter: AchievementAdapter) : AchievementViewHolderListener {
         override fun onItemClicked(view: View, adapterPosition: Int) {
-            // Set up the target fragment
             val transitionBadge = view.findViewById<ImageView>(R.id.achievement_summary_badge)
+                    .apply { transitionName = "achievement_$adapterPosition" }
+            val sharedTransition = TransitionInflater.from(fragment.context).inflateTransition(R.transition.change_image_transform)
+            val transition = TransitionInflater.from(fragment.context).inflateTransition(android.R.transition.slide_bottom)
+            fragment.apply {
+                sharedElementReturnTransition = sharedTransition
+                // FIXME: Has no effect
+                exitTransition = transition
+            }
             fragment.childFragmentManager
                     .beginTransaction()
                     .setReorderingAllowed(true)
                     .addSharedElement(transitionBadge, transitionBadge.transitionName)
                     .replace(R.id.game_details_frame,
                             AchievementDetailsFragment().apply {
-                                arguments = bundleOf("achievement" to adapter.getAchievementWithId(adapter.ids[adapterPosition]))
+                                arguments = bundleOf(
+                                        "achievement" to adapter.getAchievementWithId(adapter.ids[adapterPosition]),
+                                        "transitionName" to transitionBadge.transitionName
+                                )
+                                sharedElementEnterTransition = sharedTransition
+                                enterTransition = transition
                             },
                             AchievementDetailsFragment::class.java.simpleName)
                     .addToBackStack(AchievementSummaryFragment::class.java.simpleName)
@@ -166,7 +177,7 @@ class AchievementAdapter(fragment: Fragment, private val resources: Resources) :
 
     }
 
-    class AchievementViewHolder internal constructor(val layout: ConstraintLayout, private val viewHolderListener: AchievementViewHolderListener) : RecyclerView.ViewHolder(layout), View.OnClickListener {
+    inner class AchievementViewHolder internal constructor(val layout: ConstraintLayout, private val viewHolderListener: AchievementViewHolderListener) : RecyclerView.ViewHolder(layout), View.OnClickListener {
         override fun onClick(view: View) {
             viewHolderListener.onItemClicked(view, adapterPosition)
         }

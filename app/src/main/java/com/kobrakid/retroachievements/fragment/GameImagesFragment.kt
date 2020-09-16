@@ -136,6 +136,6 @@ class GameImagesFragment : Fragment(R.layout.view_pager_game_images) {
     }
 
     companion object {
-        private val TAG = GameImagesFragment::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + GameImagesFragment::class.java.simpleName
     }
 }

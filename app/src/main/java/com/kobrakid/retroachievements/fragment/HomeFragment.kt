@@ -64,6 +64,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 fillUserWebProfile(view)
                 fillUserSummary(view)
             }
+            (requireActivity() as MainActivity).populateViews()
         } else {
             view.findViewById<View>(R.id.home_username).visibility = View.VISIBLE
         }
@@ -209,7 +210,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
     }
 
     companion object {
-        private val TAG = HomeFragment::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + HomeFragment::class.java.simpleName
         const val NUM_RECENT_GAMES = 5
     }
 }

@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
 import com.kobrakid.retroachievements.adapter.ParticipantsAdapter
@@ -91,6 +92,6 @@ class LeaderboardFragment : Fragment(R.layout.fragment_leaderboard) {
     }
 
     companion object {
-        private val TAG = LeaderboardFragment::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + LeaderboardFragment::class.java.simpleName
     }
 }

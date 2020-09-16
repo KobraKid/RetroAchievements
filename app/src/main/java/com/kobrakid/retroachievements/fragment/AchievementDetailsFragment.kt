@@ -29,16 +29,20 @@ class AchievementDetailsFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_achievement_details, container, false).apply {
+        val view = inflater.inflate(R.layout.fragment_achievement_details, container, false).apply {
             setOnTouchListener { _: View?, e: MotionEvent? ->
                 tapDetector.onTouchEvent(e)
                 true
             }
         }
+        // FIXME: Shared transition from [@link AchievementAdapter.AchievementViewHolderListenerImpl] not working
+        view.findViewById<ImageView>(R.id.achievement_details_badge).transitionName = arguments?.getString("transitionName")
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        retainInstance = true
         val achievement = arguments?.getParcelable("achievement") ?: Achievement()
 
         // Set fields from transferred data

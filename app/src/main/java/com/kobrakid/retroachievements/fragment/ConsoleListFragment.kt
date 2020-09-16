@@ -12,6 +12,7 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
 import com.kobrakid.retroachievements.adapter.ConsoleAdapter
@@ -118,6 +119,6 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
     }
 
     companion object {
-        private val TAG = ConsoleListFragment::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + ConsoleListFragment::class.java.simpleName
     }
 }

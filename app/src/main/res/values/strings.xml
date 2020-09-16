@@ -82,6 +82,11 @@
         <a href="https://square.github.io/picasso">Picasso</a>
         library, which is licensed under the Apache License Version 2.0.
     </string>
+    <string name="about_credits_5">RetroAchievements uses the
+        <a href="https://github.com/yuriy-budiyev/circular-progress-bar">Circular Progress Bar</a>
+        library by <a href="https://github.com/yuriy-budiyev">Yuriy Budiyev</a>,
+        which is licensed under the MIT License.
+    </string>
 
     <!-- Recent Games Activity -->
     <string name="settings_apply">Apply</string>
@@ -93,12 +98,6 @@
     <string name="genre">Genre: %1$s</string>
     <string name="released">First Released: %1$s</string>
     <string name="completion">%1$s%% complete</string>
-    <string name="no_achievements">No Achievements</string>
-    <string name="achievements">Achievements</string>
-    <string name="user_summary"><![CDATA[You have earned <b>%1$d</b> of <b>%2$d</b> achievements,
-    <br/>and a further <b>%3$d</b> HARDCORE achievements,
-    <br/>worth <b>%4$d</b> <font color="0xFFFFFF">(%5$d)</font> points
-    <br/>out of <b>%6$d</b> <font color="0xFFFFFF">(%7$d)</font> possible points.]]></string>
     <string name="achievement_summary_title">%1$s (%2$s) (%3$s)</string>
     <string name="achievement_distribution">Achievement Distribution</string>
     <string name="images">Images</string>
@@ -107,6 +106,16 @@
     <string name="image_game_ingame">In-game</string>
     <string name="forum" tools:ignore="TypographyEllipsis">Open Forum Page...</string>
     <string name="webpage" tools:ignore="TypographyEllipsis">View on RetroAchievements...</string>
+
+    <!-- Achievement Summary -->
+    <string name="achievements">Achievements</string>
+    <string name="no_achievements">No Achievements</string>
+    <string name="progress">Progress</string>
+    <string name="points">Points</string>
+    <string name="retro_ratio">Retro Ratio</string>
+    <string name="diminished_text">(%1$s)</string>
+    <string name="percent">%1$d%%</string>
+    <string name="diminished_percent">(%1$d%%)</string>
 
     <!-- Achievement Details -->
     <string name="won_by">won by %1$s (%2$s) of %3$d (%4$s%%)</string>

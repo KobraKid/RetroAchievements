@@ -14,10 +14,11 @@
         <ImageView
             android:id="@+id/about_ra_logo"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="64dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
+            android:contentDescription="@null"
             android:src="@drawable/ra_logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -30,6 +31,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:adjustViewBounds="true"
+            android:contentDescription="@null"
             android:src="@drawable/favicon"
             app:layout_constraintBottom_toBottomOf="@+id/about_disclaimer"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
@@ -43,6 +45,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:adjustViewBounds="true"
+            android:contentDescription="@null"
             android:src="@drawable/kobrakid"
             app:layout_constraintBottom_toBottomOf="@+id/about_developer"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
@@ -135,6 +138,18 @@
             app:layout_constraintTop_toBottomOf="@+id/about_divider_6" />
 
         <TextView
+            android:id="@+id/about_credits_5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/about_credits_5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/about_divider_7" />
+
+        <TextView
             android:id="@+id/about_licenses"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -146,7 +161,7 @@
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/about_divider_7" />
+            app:layout_constraintTop_toBottomOf="@+id/about_divider_8" />
 
         <View
             android:id="@+id/about_divider_1"
@@ -231,6 +246,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/about_credits_4" />
+
+        <View
+            android:id="@+id/about_divider_8"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/colorPrimaryDark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/about_credits_5" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"

@@ -17,6 +17,11 @@
         <item name="android:background"><![CDATA[@android:color/transparent]]></item>
     </style>
 
+    <style name="CommonThemes.ProgressBar.Horizontal" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:scaleY">1.5</item>
+        <item name="android:background"><![CDATA[@android:color/transparent]]></item>
+    </style>
+
     <style name="CommonThemes.CheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox">
         <item name="android:textColor">?attr/colorPrimary</item>
         <item name="android:buttonTint">?attr/colorAccent</item>
@@ -59,6 +64,8 @@
         <item name="colorButtonNormal"><![CDATA[@color/blank_colorPrimaryDark]]></item>
         <item name="android:buttonStyle">@style/CommonThemes.Button</item>
         <item name="android:progressBarStyle">@style/CommonThemes.ProgressBar</item>
+        <item name="android:progressBarStyleHorizontal">@style/CommonThemes.ProgressBar.Horizontal
+        </item>
         <item name="android:checkboxStyle">@style/CommonThemes.CheckBox</item>
         <item name="drawerArrowStyle">@style/CommonThemes.DrawerIconStyle</item>
         <item name="actionOverflowButtonStyle">@style/CommonThemes.OverflowButton</item>

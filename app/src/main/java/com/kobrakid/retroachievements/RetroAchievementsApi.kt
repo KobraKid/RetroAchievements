@@ -24,7 +24,7 @@ import java.util.*
 class RetroAchievementsApi private constructor() {
     companion object {
 
-        private val TAG = RetroAchievementsApi::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + RetroAchievementsApi::class.java.simpleName
 
         /* Thanks to @RetroAchievements.org for providing RA_API.php */
 

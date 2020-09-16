@@ -216,6 +216,6 @@ class SettingsFragment : Fragment(), View.OnClickListener {
     }
 
     companion object {
-        private val TAG = SettingsFragment::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + SettingsFragment::class.java.simpleName
     }
 }

@@ -14,6 +14,9 @@ class Consts private constructor() {
         const val LINKED_HASHES_POSTFIX = "linkedhashes.php?g="
         const val USER_PIC_POSTFIX = "UserPic"
         const val USER_POSTFIX = "user"
+
+        // Logging
+        const val BASE_TAG = "RA🎮 "
     }
 
     @Suppress("unused")

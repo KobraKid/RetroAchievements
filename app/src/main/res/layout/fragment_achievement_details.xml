@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="?android:attr/windowBackground"
     android:padding="8dp"
-    tools:context=".fragment.AchievementDetailsFragment">
+    tools:context=".view.ui.AchievementDetailsFragment">
 
     <ImageView
         android:id="@+id/achievement_details_badge"

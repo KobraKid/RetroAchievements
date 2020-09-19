@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.GameDetailsFragment">
+    tools:context=".view.ui.GameDetailsFragment">
 
     <ImageButton
         android:id="@+id/game_details_button_page_0"
@@ -142,7 +142,7 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.25" />
 
-    <com.kobrakid.retroachievements.viewpager.ToggleableViewPager
+    <com.kobrakid.retroachievements.view.viewpager.ToggleableViewPager
         android:id="@+id/game_details_view_pager"
         android:layout_width="0dp"
         android:layout_height="0dp"

@@ -6,7 +6,7 @@
     app:startDestination="@id/homeFragment">
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.kobrakid.retroachievements.fragment.HomeFragment"
+        android:name="com.kobrakid.retroachievements.view.ui.HomeFragment"
         tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_homeFragment_to_recentGamesFragment"
@@ -25,7 +25,7 @@
     </fragment>
     <fragment
         android:id="@+id/recentGamesFragment"
-        android:name="com.kobrakid.retroachievements.fragment.RecentGamesFragment"
+        android:name="com.kobrakid.retroachievements.view.ui.RecentGamesFragment"
         tools:layout="@layout/fragment_recent_games">
         <action
             android:id="@+id/action_recentGamesFragment_to_gameDetailsFragment"
@@ -37,7 +37,7 @@
     </fragment>
     <fragment
         android:id="@+id/gameDetailsFragment"
-        android:name="com.kobrakid.retroachievements.fragment.GameDetailsFragment"
+        android:name="com.kobrakid.retroachievements.view.ui.GameDetailsFragment"
         tools:layout="@layout/fragment_game_details">
         <argument
             android:name="id"
@@ -46,15 +46,15 @@
     </fragment>
     <fragment
         android:id="@+id/aboutFragment"
-        android:name="com.kobrakid.retroachievements.fragment.AboutFragment"
+        android:name="com.kobrakid.retroachievements.view.ui.AboutFragment"
         tools:layout="@layout/fragment_about" />
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.kobrakid.retroachievements.fragment.SettingsFragment"
+        android:name="com.kobrakid.retroachievements.view.ui.SettingsFragment"
         tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/leaderboardsFragment"
-        android:name="com.kobrakid.retroachievements.fragment.LeaderboardsFragment"
+        android:name="com.kobrakid.retroachievements.view.ui.LeaderboardsFragment"
         tools:layout="@layout/fragment_leaderboards">
         <action
             android:id="@+id/action_leaderboardsFragment_to_leaderboardFragment"
@@ -66,7 +66,7 @@
     </fragment>
     <fragment
         android:id="@+id/consoleListFragment"
-        android:name="com.kobrakid.retroachievements.fragment.ConsoleListFragment"
+        android:name="com.kobrakid.retroachievements.view.ui.ConsoleListFragment"
         tools:layout="@layout/fragment_console_list">
         <action
             android:id="@+id/action_consoleListFragment_to_consoleGamesFragment"
@@ -85,12 +85,12 @@
     </fragment>
     <fragment
         android:id="@+id/consoleGamesFragment"
-        android:name="com.kobrakid.retroachievements.fragment.ConsoleGamesFragment"
+        android:name="com.kobrakid.retroachievements.view.ui.ConsoleGamesFragment"
         tools:layout="@layout/fragment_console_games">
         <argument
             android:name="console"
             android:defaultValue="@null"
-            app:argType="com.kobrakid.retroachievements.ra.Console"
+            app:argType="com.kobrakid.retroachievements.model.Console"
             app:nullable="true" />
         <action
             android:id="@+id/action_consoleGamesFragment_to_gameDetailsFragment"
@@ -102,7 +102,7 @@
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.kobrakid.retroachievements.fragment.LoginFragment"
+        android:name="com.kobrakid.retroachievements.view.ui.LoginFragment"
         tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment_to_apiKeyDetectorFragment"
@@ -121,7 +121,7 @@
     </fragment>
     <fragment
         android:id="@+id/apiKeyDetectorFragment"
-        android:name="com.kobrakid.retroachievements.fragment.ApiKeyDetectorFragment"
+        android:name="com.kobrakid.retroachievements.view.ui.ApiKeyDetectorFragment"
         tools:layout="@layout/fragment_api_key_detector">
         <action
             android:id="@+id/action_apiKeyDetectorFragment_to_loginFragment"
@@ -129,12 +129,12 @@
     </fragment>
     <fragment
         android:id="@+id/leaderboardFragment"
-        android:name="com.kobrakid.retroachievements.fragment.LeaderboardFragment"
+        android:name="com.kobrakid.retroachievements.view.ui.LeaderboardFragment"
         tools:layout="@layout/fragment_leaderboard">
         <argument
             android:name="leaderboard"
             android:defaultValue="@null"
-            app:argType="com.kobrakid.retroachievements.ra.Leaderboard"
+            app:argType="com.kobrakid.retroachievements.model.Leaderboard"
             app:nullable="true" />
         <action
             android:id="@+id/action_leaderboardFragment_to_userSummaryFragment"
@@ -146,7 +146,7 @@
     </fragment>
     <fragment
         android:id="@+id/rankingsFragment"
-        android:name="com.kobrakid.retroachievements.fragment.RankingsFragment"
+        android:name="com.kobrakid.retroachievements.view.ui.RankingsFragment"
         tools:layout="@layout/fragment_rankings">
         <action
             android:id="@+id/action_rankingsFragment_to_userSummaryFragment"
@@ -158,7 +158,7 @@
     </fragment>
     <fragment
         android:id="@+id/userSummaryFragment"
-        android:name="com.kobrakid.retroachievements.fragment.UserSummaryFragment"
+        android:name="com.kobrakid.retroachievements.view.ui.UserSummaryFragment"
         tools:layout="@layout/fragment_user_summary">
         <argument
             android:name="username"

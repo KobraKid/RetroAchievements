@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".fragment.ConsoleGamesFragment">
+    tools:context=".view.ui.ConsoleGamesFragment">
 
     <TextView
         android:id="@+id/list_no_games"

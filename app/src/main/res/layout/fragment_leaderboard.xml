@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".fragment.LeaderboardFragment">
+    tools:context=".view.ui.LeaderboardFragment">
 
     <ImageView
         android:id="@+id/leaderboard_game_icon"

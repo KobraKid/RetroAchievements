@@ -8,7 +8,7 @@
     android:paddingStart="8dp"
     android:paddingEnd="8dp"
     android:paddingBottom="8dp"
-    tools:context=".fragment.AchievementDetailsFragment">
+    tools:context=".view.ui.AchievementDetailsFragment">
 
     <ImageView
         android:id="@+id/achievement_details_badge"

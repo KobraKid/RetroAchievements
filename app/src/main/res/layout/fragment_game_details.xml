@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".fragment.GameDetailsFragment">
+    tools:context=".view.ui.GameDetailsFragment">
 
     <ImageView
         android:id="@+id/game_details_image_icon"
@@ -57,7 +57,7 @@
         app:layout_constraintTop_toBottomOf="@+id/game_details_genre"
         tools:text="September 1985" />
 
-    <com.kobrakid.retroachievements.viewpager.ToggleableViewPager
+    <com.kobrakid.retroachievements.view.viewpager.ToggleableViewPager
         android:id="@+id/game_details_view_pager"
         android:layout_width="0dp"
         android:layout_height="0dp"

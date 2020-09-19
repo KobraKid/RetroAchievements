@@ -9,7 +9,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.findFragment
@@ -142,7 +141,7 @@ class GameDetailsFragment : Fragment(R.layout.fragment_game_details), View.OnCli
         Picasso.get()
                 .load(Consts.BASE_URL + game.imageIcon)
                 .placeholder(R.drawable.game_placeholder)
-                .into(view?.findViewById<ImageView>(R.id.game_details_image_icon))
+                .into(view?.findViewById(R.id.game_details_image_icon))
         view?.findViewById<TextView>(R.id.game_details_developer)?.text = getString(R.string.developed, game.developer)
         view?.findViewById<TextView>(R.id.game_details_publisher)?.text = getString(R.string.published, game.publisher)
         view?.findViewById<TextView>(R.id.game_details_genre)?.text = getString(R.string.genre, game.genre)

@@ -141,8 +141,7 @@ class LeaderboardsFragment : Fragment() {
             RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_LEADERBOARDS -> {
                 withContext(Main) {
-                    view.findViewById<View>(R.id.leaderboards_progress).visibility = View.VISIBLE
-                    val animation = ObjectAnimator.ofInt(view.findViewById(R.id.leaderboards_progress), "secondaryProgress", 100)
+                    val animation = ObjectAnimator.ofInt(view.findViewById<View>(R.id.leaderboards_progress).apply { visibility = View.VISIBLE }, "secondaryProgress", 100)
                     animation.duration = 1000
                     animation.interpolator = AccelerateDecelerateInterpolator()
                     animation.start()

@@ -49,11 +49,11 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:adjustViewBounds="true"
-                    android:drawableTop="@drawable/favicon"
                     android:drawablePadding="0dp"
                     android:text="@string/image_box_art"
                     android:textAlignment="center"
-                    android:textSize="24sp" />
+                    android:textSize="24sp"
+                    app:drawableTopCompat="@drawable/favicon" />
 
             </androidx.cardview.widget.CardView>
 
@@ -72,11 +72,11 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:adjustViewBounds="true"
-                    android:drawableTop="@drawable/favicon"
                     android:drawablePadding="0dp"
                     android:text="@string/image_game_title"
                     android:textAlignment="center"
-                    android:textSize="24sp" />
+                    android:textSize="24sp"
+                    app:drawableTopCompat="@drawable/favicon" />
 
             </androidx.cardview.widget.CardView>
 
@@ -95,11 +95,11 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:adjustViewBounds="true"
-                    android:drawableTop="@drawable/favicon"
                     android:drawablePadding="0dp"
                     android:text="@string/image_game_ingame"
                     android:textAlignment="center"
-                    android:textSize="24sp" />
+                    android:textSize="24sp"
+                    app:drawableTopCompat="@drawable/favicon" />
 
             </androidx.cardview.widget.CardView>
 

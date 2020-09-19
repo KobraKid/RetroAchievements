@@ -174,21 +174,29 @@ class AchievementSummaryFragment : Fragment(R.layout.view_pager_achievements_sum
 
     private fun populateViews(view: View) {
         // Achievement progress
-        view.findViewById<CircularProgressBar>(R.id.game_details_achivements_earned).maximum = achievementTotals.totalAch.toFloat()
-        view.findViewById<CircularProgressBar>(R.id.game_details_achivements_earned).progress = achievementTotals.numEarned.toFloat()
+        view.findViewById<CircularProgressBar>(R.id.game_details_achivements_earned).apply {
+            maximum = achievementTotals.totalAch.toFloat()
+            progress = achievementTotals.numEarned.toFloat()
+        }
         view.findViewById<TextView>(R.id.game_details_achievements_earned_text).text = getString(R.string.diminished_percent, achievementTotals.numEarned)
         // Hardcore achievement progress
-        view.findViewById<CircularProgressBar>(R.id.game_details_achievements_earned_hc).maximum = achievementTotals.totalAch.toFloat()
-        view.findViewById<CircularProgressBar>(R.id.game_details_achievements_earned_hc).progress = achievementTotals.numEarnedHC.toFloat()
+        view.findViewById<CircularProgressBar>(R.id.game_details_achievements_earned_hc).apply {
+            maximum = achievementTotals.totalAch.toFloat()
+            progress = achievementTotals.numEarnedHC.toFloat()
+        }
         view.findViewById<TextView>(R.id.game_details_achievements_earned_hc_text).text = getString(R.string.percent, achievementTotals.numEarnedHC)
         // Points progress
-        view.findViewById<CircularProgressBar>(R.id.game_details_points).maximum = achievementTotals.totalPts.toFloat()
-        view.findViewById<CircularProgressBar>(R.id.game_details_points).progress = achievementTotals.earnedPts.toFloat()
+        view.findViewById<CircularProgressBar>(R.id.game_details_points).apply {
+            maximum = achievementTotals.totalPts.toFloat()
+            progress = achievementTotals.earnedPts.toFloat()
+        }
         view.findViewById<TextView>(R.id.game_details_points_text).text = achievementTotals.earnedPts.toString()
         view.findViewById<TextView>(R.id.game_details_points_total_text).text = getString(R.string.diminished_text, achievementTotals.totalPts.toString())
         // True ratio points progress
-        view.findViewById<CircularProgressBar>(R.id.game_details_ratio).maximum = achievementTotals.totalRatio.toFloat()
-        view.findViewById<CircularProgressBar>(R.id.game_details_ratio).progress = achievementTotals.earnedRatio.toFloat()
+        view.findViewById<CircularProgressBar>(R.id.game_details_ratio).apply {
+            maximum = achievementTotals.totalRatio.toFloat()
+            progress = achievementTotals.earnedRatio.toFloat()
+        }
         view.findViewById<TextView>(R.id.game_details_ratio_text).text = achievementTotals.earnedRatio.toString()
         view.findViewById<TextView>(R.id.game_details_ratio_total_text).text = getString(R.string.diminished_text, achievementTotals.totalRatio.toString())
 

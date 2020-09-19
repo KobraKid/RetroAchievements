@@ -57,6 +57,7 @@
         android:completionThreshold="0"
         android:ems="10"
         android:hint="@string/search_games_tip"
+        android:imeOptions="actionGo"
         android:importantForAutofill="no"
         android:inputType="textNoSuggestions"
         app:layout_constraintEnd_toEndOf="parent"

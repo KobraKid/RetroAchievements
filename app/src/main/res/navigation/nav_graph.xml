@@ -71,6 +71,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_consoleListFragment_to_gameDetailsFragment"
+            app:destination="@id/gameDetailsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/consoleGamesFragment"
@@ -122,8 +129,8 @@
         tools:layout="@layout/fragment_leaderboard">
         <argument
             android:name="leaderboard"
+            android:defaultValue="@null"
             app:argType="com.kobrakid.retroachievements.ra.Leaderboard"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            app:nullable="true" />
     </fragment>
 </navigation>

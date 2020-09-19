@@ -47,8 +47,8 @@ class MainActivity : AppCompatActivity() {
             R.id.aboutFragment)
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
-    private val drawer: DrawerLayout by lazy { findViewById<DrawerLayout>(R.id.drawer_layout) }
-    private val navView: NavigationView by lazy { findViewById<NavigationView>(R.id.nav_view) }
+    private val drawer: DrawerLayout by lazy { findViewById(R.id.drawer_layout) }
+    private val navView: NavigationView by lazy { findViewById(R.id.nav_view) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

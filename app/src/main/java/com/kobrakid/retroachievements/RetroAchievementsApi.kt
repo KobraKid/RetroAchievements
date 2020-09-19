@@ -5,7 +5,6 @@ package com.kobrakid.retroachievements
 import android.content.Context
 import android.util.Log
 import com.android.volley.DefaultRetryPolicy
-import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
@@ -80,8 +79,8 @@ class RetroAchievementsApi private constructor() {
                 else -> Volley.newRequestQueue(context)
                         .add(StringRequest(
                                 target + params,
-                                Response.Listener<String> { CoroutineScope(Default).launch { onResult(Pair(responseCode, it)) } },
-                                Response.ErrorListener { CoroutineScope(Default).launch { onResult(Pair(RESPONSE.ERROR, it.toString())) } })
+                                { CoroutineScope(Default).launch { onResult(Pair(responseCode, it)) } },
+                                { CoroutineScope(Default).launch { onResult(Pair(RESPONSE.ERROR, it.toString())) } })
                                 .setRetryPolicy(DefaultRetryPolicy(
                                         6000,
                                         DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
@@ -358,7 +357,7 @@ class RetroAchievementsApi private constructor() {
                     val queue = Volley.newRequestQueue(context)
                     val stringRequest = StringRequest(
                             url,
-                            Response.Listener { urlResponse: String? ->
+                            { urlResponse: String? ->
                                 // Cache result
                                 try {
                                     val writer = FileWriter(context.filesDir.path + "/" + context.getString(R.string.file_leaderboards_cache))
@@ -376,7 +375,7 @@ class RetroAchievementsApi private constructor() {
                                     }
                                 }
                             },
-                            Response.ErrorListener { error: VolleyError? ->
+                            { error: VolleyError? ->
                                 CoroutineScope(Default).launch {
                                     onResult(Pair(RESPONSE.ERROR, "Error retrieving remote leaderboards\n$error"))
                                 }

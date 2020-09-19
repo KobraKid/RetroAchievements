@@ -56,37 +56,41 @@ class SettingsFragment : Fragment(), View.OnClickListener {
         val theme = Consts.Theme.values().indexOfFirst { it.themeAttr == sharedPref?.getInt(getString(R.string.theme_setting), R.style.BlankTheme) }.coerceAtLeast(1)
         view.findViewById<TextView>(R.id.settings_current_theme).text = getString(R.string.settings_current_theme, Consts.Theme.values()[theme].themeName)
         view.findViewById<TextView>(R.id.settings_current_user).text = if (MainActivity.raUser == "") getString(R.string.settings_no_current_user) else getString(R.string.settings_current_user, MainActivity.raUser)
-        view.findViewById<Spinner>(R.id.settings_theme_dropdown).adapter = object : ArrayAdapter<Consts.Theme>(requireContext(), android.R.layout.simple_spinner_dropdown_item, Consts.Theme.values()) {
-            override fun isEnabled(position: Int): Boolean {
-                return Consts.Theme.values()[position].enabled
-            }
-
-            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val textView = super.getDropDownView(position, convertView, parent) as TextView
-                if (isEnabled(position)) {
-                    val typedValue = TypedValue()
-                    context.theme.resolveAttribute(R.attr.colorPrimary, typedValue, true)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                        textView.setTextColor(context.resources.getColor(typedValue.resourceId, activity?.theme))
-                    else
-                        textView.setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
-                } else {
-                    textView.setTextColor(Color.GRAY)
+        view.findViewById<Spinner>(R.id.settings_theme_dropdown).apply {
+            adapter = object : ArrayAdapter<Consts.Theme>(requireContext(), android.R.layout.simple_spinner_dropdown_item, Consts.Theme.values()) {
+                override fun isEnabled(position: Int): Boolean {
+                    return Consts.Theme.values()[position].enabled
                 }
-                return textView
-            }
-        }
-        view.findViewById<Spinner>(R.id.settings_theme_dropdown).setSelection(theme)
-        view.findViewById<Spinner>(R.id.settings_theme_dropdown).onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(adapterView: AdapterView<*>, view: View?, pos: Int, id: Long) {
-                if (pos > 0) changeTheme(adapterView.getItemAtPosition(pos).toString())
-            }
 
-            override fun onNothingSelected(adapterView: AdapterView<*>?) {}
+                override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                    val textView = super.getDropDownView(position, convertView, parent) as TextView
+                    if (isEnabled(position)) {
+                        val typedValue = TypedValue()
+                        context.theme.resolveAttribute(R.attr.colorPrimary, typedValue, true)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                            textView.setTextColor(context.resources.getColor(typedValue.resourceId, activity?.theme))
+                        else
+                            textView.setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
+                    } else {
+                        textView.setTextColor(Color.GRAY)
+                    }
+                    return textView
+                }
+            }
+            onItemSelectedListener = object : OnItemSelectedListener {
+                override fun onItemSelected(adapterView: AdapterView<*>, view: View?, pos: Int, id: Long) {
+                    if (pos > 0) changeTheme(adapterView.getItemAtPosition(pos).toString())
+                }
+
+                override fun onNothingSelected(adapterView: AdapterView<*>?) {}
+            }
+            setSelection(theme)
         }
-        view.findViewById<CheckBox>(R.id.settings_hide_consoles).isChecked = sharedPref?.getBoolean(getString(R.string.empty_console_hide_setting), false)!!
+        view.findViewById<CheckBox>(R.id.settings_hide_consoles).isChecked = sharedPref?.getBoolean(getString(R.string.empty_console_hide_setting), false)
+                ?: false
         if (sharedPref?.getBoolean(getString(R.string.empty_console_hide_setting), false) != false) view.findViewById<View>(R.id.settings_hide_consoles_warning).visibility = View.GONE
-        view.findViewById<CheckBox>(R.id.settings_hide_games).isChecked = sharedPref?.getBoolean(getString(R.string.empty_game_hide_setting), false)!!
+        view.findViewById<CheckBox>(R.id.settings_hide_games).isChecked = sharedPref?.getBoolean(getString(R.string.empty_game_hide_setting), false)
+                ?: false
         view.findViewById<CheckBox>(R.id.settings_hide_consoles).setOnCheckedChangeListener { _: CompoundButton?, b: Boolean -> hideConsoles(view, b) }
         view.findViewById<CheckBox>(R.id.settings_hide_games).setOnCheckedChangeListener { _: CompoundButton?, b: Boolean -> hideGames(view, b) }
 

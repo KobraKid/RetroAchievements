@@ -73,66 +73,67 @@ class GameImagesFragment : Fragment(R.layout.view_pager_game_images) {
     }
 
     private fun populateImages(view: View) {
-        val orientation = resources.configuration.orientation
-        val scrollHeight = view.findViewById<View>(R.id.game_images_scrollview).height - 32
-        val scrollWidth = view.findViewById<View>(R.id.game_images_scrollview).width - 16
-        Picasso.get()
-                .load(Consts.BASE_URL + boxURL)
-                .into(object : Target {
-                    override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
-                        val drawable: Drawable = BitmapDrawable(resources, bitmap)
-                        val scale = min(
-                                scrollHeight / drawable.intrinsicHeight.toDouble(),
-                                scrollWidth / drawable.intrinsicWidth.toDouble())
-                        drawable.setBounds(0, 0, (drawable.intrinsicWidth * scale).toInt(), (drawable.intrinsicHeight * scale).toInt())
-                        view.findViewById<TextView>(R.id.image_boxart).setCompoundDrawables(null, drawable, null, null)
-                        Log.v(TAG, "Loaded image 0: $bitmap from $from @ ${scale}x scale (${drawable.intrinsicWidth} x ${drawable.intrinsicHeight})")
-                    }
+        with(view.findViewById<View>(R.id.game_images_scrollview)) {
+            val scrollHeight = height - 32
+            val scrollWidth = width - 16
+            Picasso.get()
+                    .load(Consts.BASE_URL + boxURL)
+                    .into(object : Target {
+                        override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
+                            val drawable: Drawable = BitmapDrawable(resources, bitmap)
+                            val scale = min(
+                                    scrollHeight / drawable.intrinsicHeight.toDouble(),
+                                    scrollWidth / drawable.intrinsicWidth.toDouble())
+                            drawable.setBounds(0, 0, (drawable.intrinsicWidth * scale).toInt(), (drawable.intrinsicHeight * scale).toInt())
+                            view.findViewById<TextView>(R.id.image_boxart).setCompoundDrawables(null, drawable, null, null)
+                            Log.v(TAG, "Loaded image 0: $bitmap from $from @ ${scale}x scale (${drawable.intrinsicWidth} x ${drawable.intrinsicHeight})")
+                        }
 
-                    override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
-                        view.findViewById<View>(R.id.card_0_boxart).visibility = View.GONE
-                    }
+                        override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
+                            view.findViewById<View>(R.id.card_0_boxart).visibility = View.GONE
+                        }
 
-                    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
-                })
-        Picasso.get()
-                .load(Consts.BASE_URL + titleURL)
-                .into(object : Target {
-                    override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
-                        val drawable: Drawable = BitmapDrawable(resources, bitmap)
-                        val scale = min(
-                                scrollHeight / drawable.intrinsicHeight.toDouble(),
-                                scrollWidth / drawable.intrinsicWidth.toDouble())
-                        drawable.setBounds(0, 0, (drawable.intrinsicWidth * scale).toInt(), (drawable.intrinsicHeight * scale).toInt())
-                        view.findViewById<TextView>(R.id.image_title).setCompoundDrawables(null, drawable, null, null)
-                        Log.v(TAG, "Loaded image 1: $bitmap from $from @ ${scale}x scale (${drawable.intrinsicWidth} x ${drawable.intrinsicHeight})")
-                    }
+                        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
+                    })
+            Picasso.get()
+                    .load(Consts.BASE_URL + titleURL)
+                    .into(object : Target {
+                        override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
+                            val drawable: Drawable = BitmapDrawable(resources, bitmap)
+                            val scale = min(
+                                    scrollHeight / drawable.intrinsicHeight.toDouble(),
+                                    scrollWidth / drawable.intrinsicWidth.toDouble())
+                            drawable.setBounds(0, 0, (drawable.intrinsicWidth * scale).toInt(), (drawable.intrinsicHeight * scale).toInt())
+                            view.findViewById<TextView>(R.id.image_title).setCompoundDrawables(null, drawable, null, null)
+                            Log.v(TAG, "Loaded image 1: $bitmap from $from @ ${scale}x scale (${drawable.intrinsicWidth} x ${drawable.intrinsicHeight})")
+                        }
 
-                    override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
-                        view.findViewById<View>(R.id.card_1_title).visibility = View.GONE
-                    }
+                        override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
+                            view.findViewById<View>(R.id.card_1_title).visibility = View.GONE
+                        }
 
-                    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
-                })
-        Picasso.get()
-                .load(Consts.BASE_URL + ingameURL)
-                .into(object : Target {
-                    override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
-                        val drawable: Drawable = BitmapDrawable(resources, bitmap)
-                        val scale = min(
-                                scrollHeight / drawable.intrinsicHeight.toDouble(),
-                                scrollWidth / drawable.intrinsicWidth.toDouble())
-                        drawable.setBounds(0, 0, (drawable.intrinsicWidth * scale).toInt(), (drawable.intrinsicHeight * scale).toInt())
-                        view.findViewById<TextView>(R.id.image_ingame).setCompoundDrawables(null, drawable, null, null)
-                        Log.v(TAG, "Loaded image 2: $bitmap from $from @ ${scale}x scale (${drawable.intrinsicWidth} x ${drawable.intrinsicHeight})")
-                    }
+                        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
+                    })
+            Picasso.get()
+                    .load(Consts.BASE_URL + ingameURL)
+                    .into(object : Target {
+                        override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
+                            val drawable: Drawable = BitmapDrawable(resources, bitmap)
+                            val scale = min(
+                                    scrollHeight / drawable.intrinsicHeight.toDouble(),
+                                    scrollWidth / drawable.intrinsicWidth.toDouble())
+                            drawable.setBounds(0, 0, (drawable.intrinsicWidth * scale).toInt(), (drawable.intrinsicHeight * scale).toInt())
+                            view.findViewById<TextView>(R.id.image_ingame).setCompoundDrawables(null, drawable, null, null)
+                            Log.v(TAG, "Loaded image 2: $bitmap from $from @ ${scale}x scale (${drawable.intrinsicWidth} x ${drawable.intrinsicHeight})")
+                        }
 
-                    override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
-                        view.findViewById<View>(R.id.card_2_ingame).visibility = View.GONE
-                    }
+                        override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
+                            view.findViewById<View>(R.id.card_2_ingame).visibility = View.GONE
+                        }
 
-                    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
-                })
+                        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
+                    })
+        }
     }
 
     companion object {

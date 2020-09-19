@@ -66,8 +66,9 @@ class LeaderboardFragment : Fragment(R.layout.fragment_leaderboard) {
                     val userData = document.select("td.lb_user")
                     val resultData = document.select("td.lb_result")
                     val dateData = document.select("td.lb_date")
+                    val spinner = view.findViewById<ProgressBar>(R.id.leaderboard_progress_spinner)
                     withContext(Main) {
-                        view.findViewById<ProgressBar>(R.id.leaderboard_progress_spinner).max = userData.size
+                        spinner.max = userData.size
                     }
                     for (i in userData.indices) {
                         updateProgressBar(view, i)
@@ -77,7 +78,7 @@ class LeaderboardFragment : Fragment(R.layout.fragment_leaderboard) {
                                 dateData[i].text())
                     }
                     withContext(Main) {
-                        view.findViewById<View>(R.id.leaderboard_progress_spinner).visibility = View.GONE
+                        spinner.visibility = View.GONE
                     }
                 }
             }

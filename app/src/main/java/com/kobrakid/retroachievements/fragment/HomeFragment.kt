@@ -181,24 +181,27 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + MainActivity.raUser + ".png")
                 .placeholder(R.drawable.favicon)
                 .into(view.findViewById<ImageView>(R.id.home_profile_picture))
-        view.findViewById<TextView>(R.id.home_stats).text = getString(R.string.score_rank, MainActivity.score, MainActivity.rank)
-        view.findViewById<View>(R.id.home_stats).visibility = View.VISIBLE
+        view.findViewById<TextView>(R.id.home_stats).apply {
+            text = getString(R.string.score_rank, MainActivity.score, MainActivity.rank)
+            visibility = View.VISIBLE
+        }
         // Fill out recently played games list
-        val recentGames = view.findViewById<LinearLayout>(R.id.home_recent_games)
-        if (recentGames.childCount > 1)
-            recentGames.removeViews(0, recentGames.childCount - 1)
-        for (i in summaryIDs.indices) {
-            val game = View.inflate(context, R.layout.view_holder_game_summary, null) as ConstraintLayout
-            Picasso.get()
-                    .load(Consts.BASE_URL + summaryIcons[i])
-                    .placeholder(R.drawable.game_placeholder)
-                    .into(game.findViewById<ImageView>(R.id.game_summary_image_icon))
-            game.findViewById<TextView>(R.id.game_summary_title).text = summaryTitles[i]
-            game.findViewById<TextView>(R.id.game_summary_stats).text = summaryScores[i]
-            game.findViewById<TextView>(R.id.game_summary_game_id).text = summaryIDs[i]
-            game.id = summaryIDs[i].toInt()
-            game.setOnClickListener(this)
-            recentGames.addView(game, i)
+        with(view.findViewById<LinearLayout>(R.id.home_recent_games)) {
+            if (childCount > 1)
+                removeViews(0, childCount - 1)
+            for (i in summaryIDs.indices) {
+                val game = View.inflate(context, R.layout.view_holder_game_summary, null) as ConstraintLayout
+                Picasso.get()
+                        .load(Consts.BASE_URL + summaryIcons[i])
+                        .placeholder(R.drawable.game_placeholder)
+                        .into(game.findViewById<ImageView>(R.id.game_summary_image_icon))
+                game.findViewById<TextView>(R.id.game_summary_title).text = summaryTitles[i]
+                game.findViewById<TextView>(R.id.game_summary_stats).text = summaryScores[i]
+                game.findViewById<TextView>(R.id.game_summary_game_id).text = summaryIDs[i]
+                game.id = summaryIDs[i].toInt()
+                game.setOnClickListener(this@HomeFragment)
+                addView(game, i)
+            }
         }
         view.findViewById<View>(R.id.home_view_more).visibility = View.VISIBLE
     }

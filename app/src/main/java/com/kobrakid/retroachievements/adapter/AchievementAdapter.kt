@@ -58,15 +58,13 @@ class AchievementAdapter(fragment: Fragment, private val resources: Resources) :
         holder.layout.findViewById<TextView>(R.id.achievement_summary_modified).text = datesModified[position]
 
         // Badge
-        if (hardcoreEarnings[position]) {
-            holder.layout.findViewById<View>(R.id.achievement_summary_badge).background = holder.itemView.context.getDrawable(R.drawable.image_view_border)
-        } else {
-            holder.layout.findViewById<View>(R.id.achievement_summary_badge).background = null
+        with(holder.layout.findViewById<ImageView>(R.id.achievement_summary_badge)) {
+            background = if (hardcoreEarnings[position]) context.getDrawable(R.drawable.image_view_border) else null
+            Picasso.get()
+                    .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + badges[position] + ".png")
+                    .placeholder(R.drawable.favicon)
+                    .into(this)
         }
-        Picasso.get()
-                .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + badges[position] + ".png")
-                .placeholder(R.drawable.favicon)
-                .into(holder.layout.findViewById<ImageView>(R.id.achievement_summary_badge))
         holder.layout.findViewById<TextView>(R.id.achievement_summary_badge_id).text = badges[position]
 
         // Text descriptions

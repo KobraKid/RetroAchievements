@@ -41,37 +41,38 @@ class GameCommentsAdapter : RecyclerView.Adapter<GameCommentsAdapter.GameComment
                 .placeholder(R.drawable.user_placeholder)
                 .into(holder.itemView.findViewById<ImageView>(R.id.comments_user_icon))
         holder.itemView.findViewById<TextView>(R.id.comments_user_comment).text = comments[position]
-        holder.itemView.findViewById<TextView>(R.id.comments_user_name).text = users[position]
         holder.itemView.findViewById<TextView>(R.id.comments_date).text = dates[position]
         holder.itemView.findViewById<TextView>(R.id.comments_user_rank_score).text = holder.itemView.context.getString(R.string.score_rank, scores[position], ranks[position])
-        when (tags[position]) {
-            "_RA_NO_TAG" -> {
-                holder.itemView.findViewById<View>(R.id.comments_user_tag).visibility = View.GONE
-            }
-            else -> {
-                holder.itemView.findViewById<TextView>(R.id.comments_user_tag).text = holder.itemView.context.getString(R.string.quote, tags[position])
-                holder.itemView.findViewById<View>(R.id.comments_user_tag).visibility = View.VISIBLE
+        with(holder.itemView.findViewById<TextView>(R.id.comments_user_tag)) {
+            when (tags[position]) {
+                "_RA_NO_TAG" -> visibility = View.GONE
+                else -> {
+                    text = holder.itemView.context.getString(R.string.quote, tags[position])
+                    visibility = View.VISIBLE
+                }
             }
         }
-        val username = holder.itemView.findViewById<TextView>(R.id.comments_user_name)
-        when (accounts[position]) {
-            "Banned" -> {
-                username.setTextColor(Color.RED)
-                username.paintFlags = username.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-            }
-            "Developer" -> {
-                username.setTextColor(Color.GREEN)
-                username.paintFlags = username.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-            }
-            "Registered" -> {
-                val primaryColor = TypedValue()
-                holder.itemView.context.theme.resolveAttribute(R.attr.colorPrimary, primaryColor, true)
-                username.setTextColor(primaryColor.data)
-                username.paintFlags = username.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-            }
-            else -> {
-                username.setTextColor(Color.YELLOW)
-                username.paintFlags = username.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+        with(holder.itemView.findViewById<TextView>(R.id.comments_user_name)) {
+            text = users[position]
+            when (accounts[position]) {
+                "Banned" -> {
+                    setTextColor(Color.RED)
+                    paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                }
+                "Developer" -> {
+                    setTextColor(Color.GREEN)
+                    paintFlags = paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                }
+                "Registered" -> {
+                    val primaryColor = TypedValue()
+                    holder.itemView.context.theme.resolveAttribute(R.attr.colorPrimary, primaryColor, true)
+                    setTextColor(primaryColor.data)
+                    paintFlags = paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                }
+                else -> {
+                    setTextColor(Color.YELLOW)
+                    paintFlags = paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                }
             }
         }
     }

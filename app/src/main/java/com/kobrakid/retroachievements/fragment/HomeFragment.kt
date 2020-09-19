@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -46,7 +47,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         retainInstance = true
-        requireActivity().title = "Home"
+        activity?.title = "Home"
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
@@ -57,18 +58,18 @@ class HomeFragment : Fragment(), View.OnClickListener {
         view.findViewById<View>(R.id.home_username).visibility = View.VISIBLE
         if (MainActivity.raUser.isNotEmpty()) {
             view.findViewById<View>(R.id.home_scrollview).background = null
-            (requireActivity() as MainActivity).populateViews()
+            (activity as MainActivity?)?.populateViews()
             if (savedInstanceState == null) {
                 CoroutineScope(IO).launch {
-                    RetroAchievementsApi.GetUserWebProfile(requireContext(), MainActivity.raUser) { parseUserWebProfile(view, it) }
-                    RetroAchievementsApi.GetUserSummary(requireContext(), MainActivity.raUser, NUM_RECENT_GAMES) { parseUserSummary(view, it) }
+                    RetroAchievementsApi.GetUserWebProfile(context, MainActivity.raUser) { parseUserWebProfile(view, it) }
+                    RetroAchievementsApi.GetUserSummary(context, MainActivity.raUser, NUM_RECENT_GAMES) { parseUserSummary(view, it) }
                 }
             } else {
                 fillUserWebProfile(view)
                 fillUserSummary(view)
             }
         } else {
-            view.findViewById<View>(R.id.home_scrollview).background = requireContext().getDrawable(R.drawable.ic_baseline_arrow_up_left)
+            view.findViewById<View>(R.id.home_scrollview).background = context?.let { ContextCompat.getDrawable(it, R.drawable.ic_baseline_arrow_up_left) }
         }
     }
 
@@ -151,13 +152,11 @@ class HomeFragment : Fragment(), View.OnClickListener {
         masteries.removeAllViews()
         val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT)
         params.marginEnd = 1
-        val ctx = context
         for (i in masteryIDs.indices) {
-            if (ctx == null) break
             val imageView = ImageView(context)
             imageView.layoutParams = params
             imageView.adjustViewBounds = true
-            if (masteryGold[i]) imageView.background = activity?.getDrawable(R.drawable.image_view_border)
+            if (masteryGold[i]) imageView.background = context?.let { ContextCompat.getDrawable(it, R.drawable.image_view_border) }
             Picasso.get()
                     .load(Consts.BASE_URL + masteryIcons[i])
                     .placeholder(R.drawable.game_placeholder)

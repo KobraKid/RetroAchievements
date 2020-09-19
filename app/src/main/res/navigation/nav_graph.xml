@@ -58,7 +58,11 @@
         tools:layout="@layout/fragment_leaderboards">
         <action
             android:id="@+id/action_leaderboardsFragment_to_leaderboardFragment"
-            app:destination="@id/leaderboardFragment" />
+            app:destination="@id/leaderboardFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/consoleListFragment"
@@ -132,5 +136,33 @@
             android:defaultValue="@null"
             app:argType="com.kobrakid.retroachievements.ra.Leaderboard"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_leaderboardFragment_to_userSummaryFragment"
+            app:destination="@id/userSummaryFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/rankingsFragment"
+        android:name="com.kobrakid.retroachievements.fragment.RankingsFragment"
+        tools:layout="@layout/fragment_rankings">
+        <action
+            android:id="@+id/action_rankingsFragment_to_userSummaryFragment"
+            app:destination="@id/userSummaryFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/userSummaryFragment"
+        android:name="com.kobrakid.retroachievements.fragment.UserSummaryFragment"
+        tools:layout="@layout/fragment_user_summary">
+        <argument
+            android:name="username"
+            android:defaultValue=""
+            app:argType="string" />
     </fragment>
 </navigation>

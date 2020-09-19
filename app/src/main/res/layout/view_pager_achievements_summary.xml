@@ -102,20 +102,20 @@
         tools:progress="56" />
 
     <TextView
-        android:id="@+id/game_details_achievements_earned_hc_text"
+        android:id="@+id/game_details_achievements_earned_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/game_details_achievements_earned_text"
+        app:layout_constraintBottom_toTopOf="@+id/game_details_achievements_earned_hc_text"
         app:layout_constraintEnd_toEndOf="@id/game_details_achivements_earned"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@id/game_details_achivements_earned"
         app:layout_constraintTop_toTopOf="@id/game_details_achivements_earned"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="38%" />
+        tools:text="72%" />
 
     <TextView
-        android:id="@+id/game_details_achievements_earned_text"
+        android:id="@+id/game_details_achievements_earned_hc_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"
@@ -124,8 +124,8 @@
         app:layout_constraintEnd_toEndOf="@id/game_details_achivements_earned"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@id/game_details_achivements_earned"
-        app:layout_constraintTop_toBottomOf="@+id/game_details_achievements_earned_hc_text"
-        tools:text="(56%)" />
+        app:layout_constraintTop_toBottomOf="@+id/game_details_achievements_earned_text"
+        tools:text="(145%)" />
 
     <com.budiyev.android.circularprogressbar.CircularProgressBar
         android:id="@+id/game_details_points"

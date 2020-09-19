@@ -59,7 +59,7 @@ class RetroAchievementsApi private constructor() {
          * @param responseCode The response code to be returned to the callback.
          * @param onResult     The function to be called with the results of the API call.
          */
-        private fun GetRAURL(context: Context, target: String, responseCode: RESPONSE, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        private fun GetRAURL(context: Context?, target: String, responseCode: RESPONSE, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(context, target, "", responseCode, onResult)
         }
 
@@ -72,19 +72,21 @@ class RetroAchievementsApi private constructor() {
          * @param responseCode The response code associated with this API call (if it succeeds).
          * @param onResult     The function to be called with the results of the API call.
          */
-        private fun GetRAURL(context: Context, target: String?, params: String?, responseCode: RESPONSE, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        private fun GetRAURL(context: Context?, target: String?, params: String?, responseCode: RESPONSE, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             when {
                 target == null -> CoroutineScope(Default).launch { onResult(Pair(RESPONSE.ERROR, "null target")) }
                 params == null -> CoroutineScope(Default).launch { onResult(Pair(RESPONSE.ERROR, "null parameters for target $target")) }
-                else -> Volley.newRequestQueue(context)
-                        .add(StringRequest(
-                                target + params,
-                                { CoroutineScope(Default).launch { onResult(Pair(responseCode, it)) } },
-                                { CoroutineScope(Default).launch { onResult(Pair(RESPONSE.ERROR, it.toString())) } })
-                                .setRetryPolicy(DefaultRetryPolicy(
-                                        6000,
-                                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)))
+                else -> context?.let {
+                    Volley.newRequestQueue(it)
+                            .add(StringRequest(
+                                    target + params,
+                                    { CoroutineScope(Default).launch { onResult(Pair(responseCode, it)) } },
+                                    { CoroutineScope(Default).launch { onResult(Pair(RESPONSE.ERROR, it.toString())) } })
+                                    .setRetryPolicy(DefaultRetryPolicy(
+                                            6000,
+                                            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)))
+                }
             }
         }
 
@@ -94,7 +96,7 @@ class RetroAchievementsApi private constructor() {
          * @param context  The context for the Volley queue.
          * @param onResult The function to be called with the results of the API call.
          */
-        fun GetTopTenUsers(context: Context, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetTopTenUsers(context: Context?, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     AuthQS("API_GetTopTenUsers.php"),
@@ -110,7 +112,7 @@ class RetroAchievementsApi private constructor() {
          * @param gameID   Unique String ID of a game.
          * @param onResult The function to be called with the results of the API call.
          */
-        fun GetGame(context: Context, gameID: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetGame(context: Context?, gameID: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     AuthQS("API_GetGame.php"),
@@ -127,7 +129,7 @@ class RetroAchievementsApi private constructor() {
          * @param gameID   Unique String ID of a game.
          * @param onResult The function to be called with the results of the API call.
          */
-        fun GetGameExtended(context: Context, gameID: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetGameExtended(context: Context?, gameID: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     AuthQS("API_GetGameExtended.php"),
@@ -143,7 +145,7 @@ class RetroAchievementsApi private constructor() {
          * @param context  The context for the Volley queue.
          * @param onResult The function to be called with the results of the API call.
          */
-        fun GetConsoleIDs(context: Context, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetConsoleIDs(context: Context?, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     AuthQS("API_GetConsoleIDs.php"),
@@ -159,7 +161,7 @@ class RetroAchievementsApi private constructor() {
          * @param consoleID Unique String ID of the console.
          * @param onResult  The function to be called with the results of the API call.
          */
-        fun GetGameList(context: Context, consoleID: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetGameList(context: Context?, consoleID: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     AuthQS("API_GetGameList.php"),
@@ -179,7 +181,7 @@ class RetroAchievementsApi private constructor() {
          * @param onResult Unused.
          */
         @Deprecated("Unused by RA")
-        fun GetFeed(context: Context, user: String, count: Int, offset: Int, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetFeed(context: Context?, user: String, count: Int, offset: Int, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     AuthQS("API_GetFeed.php"),
@@ -196,7 +198,7 @@ class RetroAchievementsApi private constructor() {
          * @param user     The user to get the rank and score of.
          * @param onResult The function to be called with the results of the API call.
          */
-        fun GetUserRankAndScore(context: Context, user: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetUserRankAndScore(context: Context?, user: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     AuthQS("API_GetUserRankAndScore.php"),
@@ -214,7 +216,7 @@ class RetroAchievementsApi private constructor() {
          * @param gameIDCSV The unique String ID of the game to check.
          * @param onResult  The function to be called with the results of the API call.
          */
-        fun GetUserProgress(context: Context, user: String, gameIDCSV: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetUserProgress(context: Context?, user: String, gameIDCSV: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     AuthQS("API_GetUserProgress.php"),
@@ -233,7 +235,7 @@ class RetroAchievementsApi private constructor() {
          * @param offset   How much to offset the list by before retrieving the given number of games.
          * @param onResult The function to be called with the results of the API call.
          */
-        fun GetUserRecentlyPlayedGames(context: Context, user: String, count: Int, offset: Int, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetUserRecentlyPlayedGames(context: Context?, user: String, count: Int, offset: Int, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     AuthQS("API_GetUserRecentlyPlayedGames.php"),
@@ -251,7 +253,7 @@ class RetroAchievementsApi private constructor() {
          * @param numRecentGames Number of recent games to analyze.
          * @param onResult       The function to be called with the results of the API call.
          */
-        fun GetUserSummary(context: Context, user: String, numRecentGames: Int, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetUserSummary(context: Context?, user: String, numRecentGames: Int, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     AuthQS("API_GetUserSummary.php"),
@@ -269,7 +271,7 @@ class RetroAchievementsApi private constructor() {
          * @param gameID   The Unique String ID of the game progress to be retrieved.
          * @param onResult The function to be called with the results of the API call.
          */
-        fun GetGameInfoAndUserProgress(context: Context, user: String?, gameID: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetGameInfoAndUserProgress(context: Context?, user: String?, gameID: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             // Intentionally fall through to following if condition, because it is possible to
             // call api without user here, but the caller should still be warned
             if (user == null) CoroutineScope(Default).launch { onResult(Pair(RESPONSE.ERROR, "No user provided")) }
@@ -290,7 +292,7 @@ class RetroAchievementsApi private constructor() {
          * @param dateInput The date to look up, formatted as "yyyy-MM-dd."
          * @param onResult  The function to be called with the results of the API call.
          */
-        fun GetAchievementsEarnedOnDay(context: Context, user: String, dateInput: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetAchievementsEarnedOnDay(context: Context?, user: String, dateInput: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     AuthQS("API_GetAchievementsEarnedOnDay.php"),
@@ -310,7 +312,7 @@ class RetroAchievementsApi private constructor() {
          * @param dateEnd   The ending Date object.
          * @param onResult  The function to be called with the results of the API call.
          */
-        fun GetAchievementsEarnedBetween(context: Context, user: String, dateStart: Date, dateEnd: Date, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetAchievementsEarnedBetween(context: Context?, user: String, dateStart: Date, dateEnd: Date, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     AuthQS("API_GetAchievementsEarnedBetween.php"),
@@ -329,7 +331,7 @@ class RetroAchievementsApi private constructor() {
          * @param useCache Whether this call should try to rely on a cached version before accessing the network.
          * @param onResult The function to be called with the results of the API call.
          */
-        fun GetLeaderboards(context: Context, useCache: Boolean, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetLeaderboards(context: Context?, useCache: Boolean, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             // Invalidate cache after at least this many milliseconds
             // Current value: 60 min * 60 sec * 1000 ms = 1 hr
             val timeToInvalidateCache = 60 * 60 * 1000
@@ -337,14 +339,16 @@ class RetroAchievementsApi private constructor() {
             if (useCache) {
                 // Try to fetch cached file
                 try {
-                    val f = File(context.filesDir.path + "/" + context.getString(R.string.file_leaderboards_cache))
-                    if (System.currentTimeMillis() - f.lastModified() <= timeToInvalidateCache) {
-                        Log.v(TAG, "Retreiving cached data")
-                        val inputStream = FileInputStream(f)
-                        val buffer = ByteArray(inputStream.available())
-                        if (inputStream.read(buffer) == -1) Log.v(TAG, "Read cached data")
-                        inputStream.close()
-                        response = String(buffer)
+                    context?.let {
+                        val f = File(it.filesDir.path + "/" + it.getString(R.string.file_leaderboards_cache))
+                        if (System.currentTimeMillis() - f.lastModified() <= timeToInvalidateCache) {
+                            Log.v(TAG, "Retreiving cached data")
+                            val inputStream = FileInputStream(f)
+                            val buffer = ByteArray(inputStream.available())
+                            if (inputStream.read(buffer) == -1) Log.v(TAG, "Read cached data")
+                            inputStream.close()
+                            response = String(buffer)
+                        }
                     }
                 } catch (e: IOException) {
                     Log.e(TAG, "Error reading cached data", e)
@@ -360,11 +364,13 @@ class RetroAchievementsApi private constructor() {
                             { urlResponse: String? ->
                                 // Cache result
                                 try {
-                                    val writer = FileWriter(context.filesDir.path + "/" + context.getString(R.string.file_leaderboards_cache))
-                                    writer.write(urlResponse)
-                                    writer.flush()
-                                    writer.close()
-                                    Log.v(TAG, "Wrote data to disk")
+                                    context?.let {
+                                        val writer = FileWriter(it.filesDir.path + "/" + it.getString(R.string.file_leaderboards_cache))
+                                        writer.write(urlResponse)
+                                        writer.flush()
+                                        writer.close()
+                                        Log.v(TAG, "Wrote data to disk")
+                                    }
                                 } catch (e: IOException) {
                                     Log.e(TAG, "Error writing data to disk", e)
                                 }
@@ -395,7 +401,7 @@ class RetroAchievementsApi private constructor() {
          * @param count         The number of users participating in this leaderboard.
          * @param onResult      The function to be called with the results of the API call.
          */
-        fun GetLeaderboard(context: Context, leaderboardID: String, count: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetLeaderboard(context: Context?, leaderboardID: String, count: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     Consts.BASE_URL + "/" + Consts.LEADERBOARDS_INFO_POSTFIX + leaderboardID,
@@ -412,7 +418,7 @@ class RetroAchievementsApi private constructor() {
          * @param user     The user whose information should be scraped.
          * @param onResult The function to be called with the results of the API call.
          */
-        fun GetUserWebProfile(context: Context, user: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetUserWebProfile(context: Context?, user: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     Consts.BASE_URL + "/" + Consts.USER_POSTFIX + "/" + user,
@@ -428,7 +434,7 @@ class RetroAchievementsApi private constructor() {
          * @param gameID   The ID of the game whose distribution is to be fetched.
          * @param onResult The function to be called with the results of the API call.
          */
-        fun ScrapeGameInfoFromWeb(context: Context, gameID: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun ScrapeGameInfoFromWeb(context: Context?, gameID: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     Consts.BASE_URL + "/" + Consts.GAME_POSTFIX + "/" + gameID,
@@ -446,7 +452,7 @@ class RetroAchievementsApi private constructor() {
          * @param onResult The function to be called with the results of the API call.
          */
         @Deprecated("")
-        fun GetLinkedHashes(context: Context, gameID: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        fun GetLinkedHashes(context: Context?, gameID: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
             GetRAURL(
                     context,
                     Consts.BASE_URL + "/" + Consts.LINKED_HASHES_POSTFIX + gameID,

@@ -86,7 +86,7 @@
         tools:listitem="@layout/view_holder_participants" />
 
     <ProgressBar
-        android:id="@+id/leaderboard_progress_spinner"
+        android:id="@+id/leaderboard_progress_bar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

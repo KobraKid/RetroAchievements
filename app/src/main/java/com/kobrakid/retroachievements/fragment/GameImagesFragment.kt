@@ -37,11 +37,10 @@ class GameImagesFragment : Fragment(R.layout.view_pager_game_images) {
         super.onViewCreated(view, savedInstanceState)
         retainInstance = true
         if (boxURL.isEmpty() || titleURL.isEmpty() || ingameURL.isEmpty()) {
-            val ctx = context?.applicationContext
             val id = arguments?.getString("GameID", "0")
             CoroutineScope(IO).launch {
-                if (ctx != null && id != null)
-                    RetroAchievementsApi.GetGame(ctx, id) { parseGameImages(view, it) }
+                if (id != null)
+                    RetroAchievementsApi.GetGame(context, id) { parseGameImages(view, it) }
             }
         } else view.post { populateImages(view) }
     }

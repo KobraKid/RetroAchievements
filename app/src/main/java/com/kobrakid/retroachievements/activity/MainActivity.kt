@@ -1,13 +1,10 @@
 package com.kobrakid.retroachievements.activity
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -43,6 +40,7 @@ class MainActivity : AppCompatActivity() {
             R.id.homeFragment,
             R.id.consoleListFragment,
             R.id.leaderboardsFragment,
+            R.id.rankingsFragment,
             R.id.settingsFragment,
             R.id.aboutFragment)
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -143,38 +141,6 @@ class MainActivity : AppCompatActivity() {
             navView.getHeaderView(0).findViewById<View>(R.id.nav_stats).visibility = View.VISIBLE
         else
             navView.getHeaderView(0).findViewById<View>(R.id.nav_stats).visibility = View.GONE
-    }
-
-    fun toggleUsers(topTenUsersToggle: View) {
-        val topTenUsers = findViewById<View>(R.id.leaderboards_users)
-        topTenUsers.z = -1f
-        if (topTenUsers.visibility == View.GONE) {
-            (topTenUsersToggle as ImageButton).setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_down))
-            topTenUsers
-                    .animate()
-                    .alpha(1.0f)
-                    .translationYBy(topTenUsers.height.toFloat())
-                    .setDuration(300)
-                    .setListener(object : AnimatorListenerAdapter() {
-                        override fun onAnimationStart(animation: Animator) {
-                            super.onAnimationEnd(animation)
-                            topTenUsers.visibility = View.VISIBLE
-                        }
-                    })
-        } else {
-            (topTenUsersToggle as ImageButton).setImageDrawable(getDrawable(R.drawable.ic_arrow_drop_up))
-            topTenUsers
-                    .animate()
-                    .alpha(0.0f)
-                    .translationYBy(-topTenUsers.height.toFloat())
-                    .setDuration(300)
-                    .setListener(object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator) {
-                            super.onAnimationEnd(animation)
-                            topTenUsers.visibility = View.GONE
-                        }
-                    })
-        }
     }
 
     fun setCredentials(user: String, apiKey: String) {

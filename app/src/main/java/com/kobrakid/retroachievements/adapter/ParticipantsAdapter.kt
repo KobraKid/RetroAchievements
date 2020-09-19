@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
@@ -14,14 +15,18 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.withContext
 
-class ParticipantsAdapter : RecyclerView.Adapter<ParticipantViewHolder>() {
+class ParticipantsAdapter(private val listener: View.OnClickListener) : RecyclerView.Adapter<ParticipantViewHolder>() {
 
     private val users = ArrayList<String>()
     private val results = ArrayList<String>()
     private val dates = ArrayList<String>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ParticipantViewHolder {
-        return ParticipantViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.view_holder_participants, parent, false))
+        return ParticipantViewHolder(
+                LayoutInflater
+                        .from(parent.context)
+                        .inflate(R.layout.view_holder_participants, parent, false)
+                        .apply { setOnClickListener(listener) })
     }
 
     override fun onBindViewHolder(holder: ParticipantViewHolder, position: Int) {
@@ -36,7 +41,7 @@ class ParticipantsAdapter : RecyclerView.Adapter<ParticipantViewHolder>() {
         }
         holder.itemView.findViewById<TextView>(R.id.participant_result).text = results[position]
         holder.itemView.findViewById<TextView>(R.id.participant_date).text = dates[position]
-        if (MainActivity.raUser == users[position]) holder.itemView.background = holder.itemView.context.getDrawable(R.drawable.border)
+        if (MainActivity.raUser == users[position]) holder.itemView.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.border)
     }
 
     override fun getItemCount(): Int {

@@ -9,6 +9,7 @@ import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.findFragment
 import com.kobrakid.retroachievements.Consts
@@ -74,41 +75,43 @@ class AchievementDetailsFragment : Fragment() {
         progressBar.progress = achievement.numAwarded.toInt()
 
         val badge = view.findViewById<ImageView>(R.id.achievement_details_badge)
-        Picasso.get()
-                .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + achievement.badge + ".png")
-                .placeholder(resources.getDrawable(R.drawable.favicon, activity?.theme))
-                .into(badge, object : Callback {
-                    override fun onSuccess() {
-                        if (achievement.dateEarned.startsWith("NoDate")) {
-                            val matrix = ColorMatrix()
-                            matrix.setSaturation(0f)
-                            (view.findViewById<ImageView>(R.id.achievement_details_badge)).colorFilter = ColorMatrixColorFilter(matrix)
-                        } else {
-                            (view.findViewById<ImageView>(R.id.achievement_details_badge)).clearColorFilter()
+        ResourcesCompat.getDrawable(resources, R.drawable.favicon, activity?.theme)?.let {
+            Picasso.get()
+                    .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + achievement.badge + ".png")
+                    .placeholder(it)
+                    .into(badge, object : Callback {
+                        override fun onSuccess() {
+                            if (achievement.dateEarned.startsWith("NoDate")) {
+                                val matrix = ColorMatrix()
+                                matrix.setSaturation(0f)
+                                (view.findViewById<ImageView>(R.id.achievement_details_badge)).colorFilter = ColorMatrixColorFilter(matrix)
+                            } else {
+                                (view.findViewById<ImageView>(R.id.achievement_details_badge)).clearColorFilter()
+                            }
                         }
-                    }
 
-                    override fun onError(e: Exception) {}
-                })
+                        override fun onError(e: Exception) {}
+                    })
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        requireActivity().findViewById<ToggleableViewPager>(R.id.game_details_view_pager).setPagingEnabled(false)
+        activity?.findViewById<ToggleableViewPager>(R.id.game_details_view_pager)?.setPagingEnabled(false)
     }
 
     override fun onStop() {
         super.onStop()
-        requireActivity().findViewById<ToggleableViewPager>(R.id.game_details_view_pager).setPagingEnabled(true)
+        activity?.findViewById<ToggleableViewPager>(R.id.game_details_view_pager)?.setPagingEnabled(true)
     }
 
     private inner class GestureTap : SimpleOnGestureListener() {
         override fun onSingleTapUp(e: MotionEvent): Boolean {
-            requireActivity()
-                    .findViewById<View>(R.id.achievement_summary)
-                    .findFragment<AchievementSummaryFragment>()
-                    .childFragmentManager
-                    .popBackStack()
+            activity
+                    ?.findViewById<View>(R.id.achievement_summary)
+                    ?.findFragment<AchievementSummaryFragment>()
+                    ?.childFragmentManager
+                    ?.popBackStack()
             return true
         }
     }

@@ -7,42 +7,6 @@
     tools:context=".activity.MainActivity">
 
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:background="?android:windowBackground"
-        android:paddingTop="8dp"
-        android:text="@string/top_users"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- FIXME This is really ugly -->
-    <ImageButton
-        android:id="@+id/leaderboards_toggle_top_users"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorError"
-        android:contentDescription="@null"
-        android:onClick="toggleUsers"
-        android:src="@drawable/ic_arrow_drop_down"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView2" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/leaderboards_users"
-        android:layout_width="match_parent"
-        android:layout_height="128dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/leaderboards_toggle_top_users" />
-
-    <TextView
         android:id="@+id/textView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -53,7 +17,7 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/leaderboards_users" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/leaderboards_filter_layout"
@@ -107,7 +71,9 @@
             android:id="@+id/leaderboards_games"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginEnd="10dp" />
+            android:layout_marginEnd="10dp"
+            tools:itemCount="3"
+            tools:listitem="@layout/view_holder_leaderboard" />
 
     </com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>
 

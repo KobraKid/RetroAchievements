@@ -26,7 +26,7 @@ class LoginFragment : Fragment(R.layout.fragment_login), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().title = "Home"
+        activity?.title = "Home"
         navController = Navigation.findNavController(view)
         view.findViewById<View>(R.id.login_button).setOnClickListener(this)
         view.findViewById<View>(R.id.cancel_button).setOnClickListener(this)
@@ -47,12 +47,12 @@ class LoginFragment : Fragment(R.layout.fragment_login), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
-        (requireActivity() as AppCompatActivity).supportActionBar?.hide()
+        (activity as AppCompatActivity?)?.supportActionBar?.hide()
     }
 
     override fun onStop() {
         super.onStop()
-        (requireActivity() as AppCompatActivity).supportActionBar?.show()
+        (activity as AppCompatActivity?)?.supportActionBar?.show()
     }
 
     override fun onClick(view: View) {
@@ -62,22 +62,19 @@ class LoginFragment : Fragment(R.layout.fragment_login), View.OnClickListener {
                 val raApi = apiKeyTextView.text.toString()
                 if (raUser.isNotBlank() && raApi.isNotBlank()) {
                     // Successfully logged in, save the new credentials
-                    requireContext().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_user), raUser).apply()
-                    requireContext().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).edit().putString(getString(R.string.ra_api_key), raApi).apply()
-                    (activity as MainActivity).setCredentials(raUser, raApi)
-                    Toast.makeText(requireContext().applicationContext, getString(R.string.new_login_welcome, raUser), Toast.LENGTH_SHORT).show()
+                    context?.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)?.edit()?.putString(getString(R.string.ra_user), raUser)?.apply()
+                    context?.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)?.edit()?.putString(getString(R.string.ra_api_key), raApi)?.apply()
+                    (activity as MainActivity?)?.setCredentials(raUser, raApi)
+                    Toast.makeText(context?.applicationContext, getString(R.string.new_login_welcome, raUser), Toast.LENGTH_SHORT).show()
                 }
                 navController.navigate(R.id.action_loginFragment_to_homeFragment)
             }
             R.id.cancel_button -> navController.navigate(R.id.action_loginFragment_to_homeFragment)
             R.id.login_api_help ->
-                AlertDialog.Builder(ContextThemeWrapper(requireContext(), R.style.AlertDialogLogin))
+                AlertDialog.Builder(ContextThemeWrapper(context, R.style.AlertDialogLogin))
                         .setTitle(getString(R.string.api_detect_dialog_title))
                         .setMessage(getString(R.string.api_detect_dialog_desc))
-                        .setPositiveButton(getString(R.string.api_detect_go)) { _: DialogInterface?, _: Int ->
-//                            startActivityForResult(Intent(requireContext(), ApiKeyDetectorActivity::class.java), Consts.PULL_API_KEY)
-                            navController.navigate(R.id.action_loginFragment_to_apiKeyDetectorFragment)
-                        }
+                        .setPositiveButton(getString(R.string.api_detect_go)) { _: DialogInterface?, _: Int -> navController.navigate(R.id.action_loginFragment_to_apiKeyDetectorFragment) }
                         .setNegativeButton(android.R.string.cancel) { _: DialogInterface?, _: Int -> }
                         .create()
                         .show()

@@ -42,7 +42,7 @@ class GameDetailsFragment : Fragment(R.layout.fragment_game_details), View.OnCli
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         retainInstance = true
-        requireActivity().title = "Game Details"
+        activity?.title = "Game Details"
         game.id = args.id
 
         view.findViewById<ViewPager>(R.id.game_details_view_pager).apply {
@@ -58,7 +58,7 @@ class GameDetailsFragment : Fragment(R.layout.fragment_game_details), View.OnCli
 
         // TODO Linked hashes requires login
         CoroutineScope(Dispatchers.IO).launch {
-            RetroAchievementsApi.GetGameInfoAndUserProgress(requireContext(), MainActivity.raUser, game.id) { parseGameInfoUserProgress(it) }
+            RetroAchievementsApi.GetGameInfoAndUserProgress(context, MainActivity.raUser, game.id) { parseGameInfoUserProgress(it) }
         }
     }
 
@@ -137,7 +137,7 @@ class GameDetailsFragment : Fragment(R.layout.fragment_game_details), View.OnCli
     }
 
     private fun populateElements() {
-        requireActivity().title = "${game.title} (${game.console})"
+        activity?.title = "${game.title} (${game.console})"
         Picasso.get()
                 .load(Consts.BASE_URL + game.imageIcon)
                 .placeholder(R.drawable.game_placeholder)

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.UserSummaryFragment">
+
+
+    <ImageView
+        android:id="@+id/user_summary_image"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/user_placeholder" />
+
+    <TextView
+        android:id="@+id/user_summary_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/user_summary_image"
+        tools:text="KobraKid1337" />
+
+    <TextView
+        android:id="@+id/user_summary_points"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/user_summary_username"
+        tools:text="Points: 4980" />
+
+    <TextView
+        android:id="@+id/user_summary_ratio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/user_summary_points"
+        app:layout_constraintStart_toEndOf="@+id/user_summary_points"
+        tools:text="RR1.64" />
+
+    <TextView
+        android:id="@+id/user_summary_rank"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/user_summary_username"
+        app:layout_constraintStart_toEndOf="@+id/user_summary_username"
+        app:layout_constraintTop_toTopOf="@+id/user_summary_username"
+        tools:text="(#5227)" />
+
+    <TextView
+        android:id="@+id/user_summary_motto"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="center"
+        android:maxLines="4"
+        android:textSize="18sp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="@+id/user_summary_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/user_summary_image"
+        app:layout_constraintTop_toTopOf="@+id/user_summary_image"
+        tools:text=":P" />
+
+    <TextView
+        android:id="@+id/user_summary_joined"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="Member Since 14 Aug 2017" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/user_summary_recent_achievements"
+        android:layout_width="409dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/user_summary_joined"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/user_summary_points"
+        tools:itemCount="2"
+        tools:listitem="@layout/view_holder_game_recent_achievements" />
+</androidx.constraintlayout.widget.ConstraintLayout>

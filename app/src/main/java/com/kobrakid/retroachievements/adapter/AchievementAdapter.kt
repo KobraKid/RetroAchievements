@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
@@ -59,7 +60,7 @@ class AchievementAdapter(fragment: Fragment, private val resources: Resources) :
 
         // Badge
         with(holder.layout.findViewById<ImageView>(R.id.achievement_summary_badge)) {
-            background = if (hardcoreEarnings[position]) context.getDrawable(R.drawable.image_view_border) else null
+            background = if (hardcoreEarnings[position]) ContextCompat.getDrawable(context, R.drawable.image_view_border) else null
             Picasso.get()
                     .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + badges[position] + ".png")
                     .placeholder(R.drawable.favicon)

@@ -58,7 +58,7 @@ class AchievementDistributionFragment : Fragment() {
         if (chartData.isEmpty()) {
             val id = arguments?.getString("GameID", "0") ?: "0"
             CoroutineScope(IO).launch {
-                RetroAchievementsApi.ScrapeGameInfoFromWeb(requireContext(), id) { parseAchievementDistribution(view, it) }
+                RetroAchievementsApi.ScrapeGameInfoFromWeb(context, id) { parseAchievementDistribution(view, it) }
             }
         } else {
             populateChartData(view)

@@ -18,9 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
-import com.kobrakid.retroachievements.activity.MainActivity
 import com.kobrakid.retroachievements.adapter.LeaderboardsAdapter
-import com.kobrakid.retroachievements.adapter.UserRankingAdapter
 import com.kobrakid.retroachievements.ra.Leaderboard
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
 import kotlinx.coroutines.CoroutineScope
@@ -29,30 +27,23 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
 import org.jsoup.Jsoup
 
 class LeaderboardsFragment : Fragment() {
 
-    private val userRankingAdapter = UserRankingAdapter()
     private val leaderboardsAdapter by lazy { LeaderboardsAdapter(findNavController()) }
     private var consoleSpinner: Spinner? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         retainInstance = true
-        requireActivity().title = "Leaderboards"
+        activity?.title = "Leaderboards"
         return inflater.inflate(R.layout.fragment_leaderboards, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val topUsers: RecyclerView = view.findViewById(R.id.leaderboards_users)
         val leaderboardsRecycler: RecyclerView = view.findViewById(R.id.leaderboards_games)
-        topUsers.adapter = userRankingAdapter
-        topUsers.layoutManager = LinearLayoutManager(context)
         leaderboardsRecycler.adapter = leaderboardsAdapter
         leaderboardsRecycler.layoutManager = LinearLayoutManager(context)
 
@@ -85,55 +76,9 @@ class LeaderboardsFragment : Fragment() {
 
         if (leaderboardsAdapter.itemCount == 0) {
             CoroutineScope(IO).launch {
-                RetroAchievementsApi.GetTopTenUsers(requireContext()) { parseTopTenUsers(it) }
-                RetroAchievementsApi.GetLeaderboards(requireContext(), true) { parseLeaderboards(view, it) }
+                RetroAchievementsApi.GetLeaderboards(context, true) { parseLeaderboards(view, it) }
             }
         } else populateLeaderboardViews(view)
-    }
-
-    private suspend fun parseTopTenUsers(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
-        when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
-            RetroAchievementsApi.RESPONSE.GET_TOP_TEN_USERS -> {
-                try {
-                    val reader = JSONArray(response.second)
-                    var loggedInUserIncluded = false
-                    for (i in 0 until reader.length()) {
-                        if ((reader[i] as JSONObject).getString("1") == MainActivity.raUser)
-                            loggedInUserIncluded = true
-                        userRankingAdapter.addUser(
-                                (i + 1).toString(),
-                                (reader[i] as JSONObject).getString("1"),
-                                (reader[i] as JSONObject).getString("2"),
-                                (reader[i] as JSONObject).getString("3"))
-                    }
-                    // Adjust for user not being in the Top Ten
-                    if (!loggedInUserIncluded) {
-                        val ctx = context?.applicationContext
-                        withContext(IO) {
-                            if (ctx != null)
-                                RetroAchievementsApi.GetUserSummary(ctx, MainActivity.raUser, 0) { parseTopTenUsers(it) }
-                        }
-                    }
-
-                } catch (e: JSONException) {
-                    Log.e(TAG, "Couldn't parse top ten users", e)
-                }
-            }
-            RetroAchievementsApi.RESPONSE.GET_USER_SUMMARY -> {
-                try {
-                    val reader = JSONObject(response.second)
-                    userRankingAdapter.addUser(
-                            reader.getString("Rank"),
-                            MainActivity.raUser,
-                            reader.getString("TotalPoints"),
-                            reader.getString("TotalTruePoints"))
-                } catch (e: JSONException) {
-                    Log.e(TAG, "Couldn't parse user summary", e)
-                }
-            }
-            else -> Log.v(TAG, "${response.first}: ${response.second}")
-        }
     }
 
     private suspend fun parseLeaderboards(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
@@ -184,7 +129,7 @@ class LeaderboardsFragment : Fragment() {
         view.findViewById<View>(R.id.leaderboards_progress).visibility = View.GONE
         view.findViewById<View>(R.id.leaderboard_populating_fade).visibility = View.GONE
         view.findViewById<RecyclerViewFastScroller>(R.id.leaderboard_fast_scroller).isFastScrollEnabled = true
-        consoleSpinner?.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, leaderboardsAdapter.getUniqueConsoles())
+        context?.let { consoleSpinner?.adapter = ArrayAdapter(it, android.R.layout.simple_spinner_dropdown_item, leaderboardsAdapter.getUniqueConsoles()) }
     }
 
     companion object {

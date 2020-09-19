@@ -19,6 +19,7 @@
     <string name="nav_home">Home</string>
     <string name="nav_lists">Game Lists</string>
     <string name="nav_leaderboards">Leaderboards</string>
+    <string name="nav_rankings">Rankings</string>
     <string name="nav_about">About</string>
 
     <!-- Home Fragment -->
@@ -29,9 +30,11 @@
     <string name="view_more">View More</string>
     <string name="search_games_tip">Game title</string>
 
+    <!-- Rankings Fragment -->
+    <string name="top_users">Top 10 Users</string>
+
     <!-- Leaderboards Fragment -->
     <string name="no_games">No Games</string>
-    <string name="top_users">Top Users</string>
     <string name="score_ratio_format"><![CDATA[%1$s <font color="0xFFFFFF">(%2$s)</font>]]></string>
     <string name="title">Title</string>
     <string name="console_parens">(%1$s)</string>
@@ -89,10 +92,16 @@
         which is licensed under the MIT License.
     </string>
 
-    <!-- Recent Games Activity -->
+    <!-- User Summary -->
+    <string name="user_rank">(#%1$s)</string>
+    <string name="user_points">Points: %1$s</string>
+    <string name="user_ratio">RetroRatio: %1$s</string>
+    <string name="user_joined">Member since: %1$s</string>
+
+    <!-- Recent Games -->
     <string name="settings_apply">Apply</string>
 
-    <!-- Game Details Activity -->
+    <!-- Game Details -->
     <string name="recent_games_title">Recent Games</string>
     <string name="published">Published by: %1$s</string>
     <string name="developed">Developed by: %1$s</string>
@@ -127,12 +136,12 @@
     <string name="not_yet_earned">You have not yet earned this achievement</string>
     <string name="metadata">Created by %1$s on %2$s\nLast modified %3$s</string>
 
-    <!-- Leaderboards Activity -->
+    <!-- Leaderboards -->
     <string name="leaderboard_title_template">%1$s (%2$s)</string>
     <string name="type_score">🏆 %1$s</string>
     <string name="type_time">⏳ %1$s</string>
 
-    <!-- Login Activity -->
+    <!-- Login -->
     <string name="login">Login</string>
     <string name="login_username">Username</string>
     <string name="login_api_key">API Key</string>

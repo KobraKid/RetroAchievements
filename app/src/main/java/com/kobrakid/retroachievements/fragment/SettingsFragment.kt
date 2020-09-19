@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
+import java.io.File
 
 class SettingsFragment : Fragment(), View.OnClickListener {
 
@@ -43,39 +44,44 @@ class SettingsFragment : Fragment(), View.OnClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        requireActivity().title = "Settings"
+        activity?.title = "Settings"
         return inflater.inflate(R.layout.fragment_settings, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // Initialize preferences object
-        sharedPref = requireContext().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
+        sharedPref = context?.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
 
         // Set up views
         val theme = Consts.Theme.values().indexOfFirst { it.themeAttr == sharedPref?.getInt(getString(R.string.theme_setting), R.style.BlankTheme) }.coerceAtLeast(1)
         view.findViewById<TextView>(R.id.settings_current_theme).text = getString(R.string.settings_current_theme, Consts.Theme.values()[theme].themeName)
         view.findViewById<TextView>(R.id.settings_current_user).text = if (MainActivity.raUser == "") getString(R.string.settings_no_current_user) else getString(R.string.settings_current_user, MainActivity.raUser)
         view.findViewById<Spinner>(R.id.settings_theme_dropdown).apply {
-            adapter = object : ArrayAdapter<Consts.Theme>(requireContext(), android.R.layout.simple_spinner_dropdown_item, Consts.Theme.values()) {
-                override fun isEnabled(position: Int): Boolean {
-                    return Consts.Theme.values()[position].enabled
-                }
-
-                override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-                    val textView = super.getDropDownView(position, convertView, parent) as TextView
-                    if (isEnabled(position)) {
-                        val typedValue = TypedValue()
-                        context.theme.resolveAttribute(R.attr.colorPrimary, typedValue, true)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                            textView.setTextColor(context.resources.getColor(typedValue.resourceId, activity?.theme))
-                        else
-                            textView.setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
-                    } else {
-                        textView.setTextColor(Color.GRAY)
+            try {
+                adapter = object : ArrayAdapter<Consts.Theme>(requireContext(), android.R.layout.simple_spinner_dropdown_item, Consts.Theme.values()) {
+                    override fun isEnabled(position: Int): Boolean {
+                        return Consts.Theme.values()[position].enabled
                     }
-                    return textView
+
+                    override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                        val textView = super.getDropDownView(position, convertView, parent) as TextView
+                        if (isEnabled(position)) {
+                            val typedValue = TypedValue()
+                            context.theme.resolveAttribute(R.attr.colorPrimary, typedValue, true)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                                textView.setTextColor(context.resources.getColor(typedValue.resourceId, activity?.theme))
+                            else
+                                textView.setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
+                        } else {
+                            textView.setTextColor(Color.GRAY)
+                        }
+                        return textView
+                    }
                 }
+            } catch (e: IllegalStateException) {
+                Log.e(TAG, "Context was null", e)
+                return // no need to continue if this fragment is not attached to a context
             }
             onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(adapterView: AdapterView<*>, view: View?, pos: Int, id: Long) {
@@ -130,10 +136,8 @@ class SettingsFragment : Fragment(), View.OnClickListener {
                             Log.d(TAG, "Clearing console table")
                         }
                     }
-                    val ctx = context?.applicationContext
                     CoroutineScope(IO).launch {
-                        if (ctx != null)
-                            RetroAchievementsApi.GetConsoleIDs(ctx) { removeConsoles(view, it) }
+                        RetroAchievementsApi.GetConsoleIDs(context) { removeConsoles(view, it) }
                     }
                 } else {
                     activity?.recreate()
@@ -153,7 +157,10 @@ class SettingsFragment : Fragment(), View.OnClickListener {
 
     private fun logout() {
         (activity?.findViewById<View>(R.id.settings_current_user) as TextView).text = getString(R.string.settings_current_user, "none")
-        applicableSettings.put(logoutKey, Runnable { sharedPref?.edit()?.putString(getString(R.string.ra_user), "")?.apply() })
+        applicableSettings.put(logoutKey, Runnable {
+            sharedPref?.edit()?.putString(getString(R.string.ra_user), "")?.apply()
+            File(context?.filesDir, "RALIST").delete()
+        })
     }
 
     private fun applySettings() {
@@ -177,15 +184,11 @@ class SettingsFragment : Fragment(), View.OnClickListener {
                     val reader = JSONArray(response.second)
                     counter = reader.length()
                     for (i in 0 until counter) {
-                        val ctx = context?.applicationContext
                         if (db != null) {
                             CoroutineScope(IO).launch {
                                 // Set each console to have 0 games
                                 db.consoleDao()?.insertConsole(Console(reader.getJSONObject(i).getString("ID").toInt(), reader.getJSONObject(i).getString("Name"), 0))
-                                if (ctx != null)
-                                    RetroAchievementsApi.GetGameList(ctx, reader.getJSONObject(i).getString("ID")) {
-                                        removeConsoles(view, it)
-                                    }
+                                RetroAchievementsApi.GetGameList(context, reader.getJSONObject(i).getString("ID")) { removeConsoles(view, it) }
                             }
                         }
                         Log.i(TAG, "calling api on $i")

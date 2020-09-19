@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -34,7 +35,7 @@ class ConsoleGamesFragment : Fragment(), View.OnClickListener {
 
     private val args: ConsoleGamesFragmentArgs by navArgs()
     private val gameSummaryAdapter: GameSummaryAdapter by lazy {
-        GameSummaryAdapter(this, requireContext().getDrawable(R.drawable.image_view_border))
+        GameSummaryAdapter(this, context?.let { ContextCompat.getDrawable(it, R.drawable.image_view_border) })
     }
     private lateinit var navController: NavController
 
@@ -48,11 +49,11 @@ class ConsoleGamesFragment : Fragment(), View.OnClickListener {
         navController = Navigation.findNavController(view)
         val console = args.console ?: Console()
         val id = console.id
-        requireActivity().title = console.name
+        activity?.title = console.name
 
         val gameListRecyclerView = view.findViewById<RecyclerView>(R.id.list_games)
         gameListRecyclerView.adapter = gameSummaryAdapter
-        gameListRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        gameListRecyclerView.layoutManager = LinearLayoutManager(context)
         view.findViewById<EditText>(R.id.list_games_filter).addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(charSequence: CharSequence, start: Int, before: Int, count: Int) {
@@ -63,7 +64,7 @@ class ConsoleGamesFragment : Fragment(), View.OnClickListener {
         })
 
         CoroutineScope(Dispatchers.IO).launch {
-            RetroAchievementsApi.GetGameList(requireContext(), id) { parseGameList(it) }
+            RetroAchievementsApi.GetGameList(context, id) { parseGameList(it) }
         }
     }
 

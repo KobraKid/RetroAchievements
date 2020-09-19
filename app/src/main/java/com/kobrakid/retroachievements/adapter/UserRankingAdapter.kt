@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
@@ -18,7 +19,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.withContext
 
-class UserRankingAdapter : RecyclerView.Adapter<UserRankingViewHolder>() {
+class UserRankingAdapter(private val listener: View.OnClickListener) : RecyclerView.Adapter<UserRankingViewHolder>() {
 
     private val userRankings = mutableListOf<String>()
     private val userNames = mutableListOf<String>()
@@ -26,7 +27,11 @@ class UserRankingAdapter : RecyclerView.Adapter<UserRankingViewHolder>() {
     private val userRatios = mutableListOf<String>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserRankingViewHolder {
-        return UserRankingViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.view_holder_participants, parent, false))
+        return UserRankingViewHolder(
+                LayoutInflater
+                        .from(parent.context)
+                        .inflate(R.layout.view_holder_participants, parent, false)
+                        .apply { setOnClickListener(listener) })
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -43,7 +48,7 @@ class UserRankingAdapter : RecyclerView.Adapter<UserRankingViewHolder>() {
                         holder.itemView.context.getString(R.string.score_ratio_format, userScores[position], userRatios[position]),
                         TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
         if (userNames[position] == MainActivity.raUser)
-            holder.itemView.background = holder.itemView.context.getDrawable(R.drawable.border)
+            holder.itemView.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.border)
         else
             holder.itemView.background = null
     }

@@ -33,11 +33,11 @@ class RecentGamesFragment : Fragment(), View.OnClickListener, SwipeRefreshLayout
     private var gamesAskedFor = 15
 
     private lateinit var navController: NavController
-    private val gameSummaryAdapter: GameSummaryAdapter by lazy { GameSummaryAdapter(this, getDrawable(requireContext(), R.drawable.image_view_border)) }
+    private val gameSummaryAdapter: GameSummaryAdapter by lazy { GameSummaryAdapter(this, context?.let { getDrawable(it, R.drawable.image_view_border) }) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         retainInstance = true
-        requireActivity().title = getString(R.string.recent_games_title)
+        activity?.title = getString(R.string.recent_games_title)
         return inflater.inflate(R.layout.fragment_recent_games, container, false)
     }
 
@@ -47,7 +47,7 @@ class RecentGamesFragment : Fragment(), View.OnClickListener, SwipeRefreshLayout
         // Set up RecyclerView
         val recyclerView = view.findViewById<RecyclerView>(R.id.recent_games_recycler_view)
         recyclerView.setHasFixedSize(true)
-        val layoutManager = LinearLayoutManager(requireContext())
+        val layoutManager = LinearLayoutManager(context)
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = gameSummaryAdapter
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -59,7 +59,7 @@ class RecentGamesFragment : Fragment(), View.OnClickListener, SwipeRefreshLayout
                     offset += gamesPerAPICall
                     gamesAskedFor += gamesPerAPICall
                     CoroutineScope(Dispatchers.IO).launch {
-                        RetroAchievementsApi.GetUserRecentlyPlayedGames(requireContext(), MainActivity.raUser, gamesPerAPICall, offset) { parseRecentlyPlayedGames(it) }
+                        RetroAchievementsApi.GetUserRecentlyPlayedGames(context, MainActivity.raUser, gamesPerAPICall, offset) { parseRecentlyPlayedGames(it) }
                     }
                 }
 
@@ -69,7 +69,7 @@ class RecentGamesFragment : Fragment(), View.OnClickListener, SwipeRefreshLayout
         // Set up refresh action
         (view as SwipeRefreshLayout).setOnRefreshListener(this)
         CoroutineScope(Dispatchers.IO).launch {
-            RetroAchievementsApi.GetUserRecentlyPlayedGames(requireContext(), MainActivity.raUser, gamesPerAPICall, offset) { parseRecentlyPlayedGames(it) }
+            RetroAchievementsApi.GetUserRecentlyPlayedGames(context, MainActivity.raUser, gamesPerAPICall, offset) { parseRecentlyPlayedGames(it) }
         }
     }
 
@@ -77,7 +77,7 @@ class RecentGamesFragment : Fragment(), View.OnClickListener, SwipeRefreshLayout
         offset = 0
         gamesAskedFor = gamesPerAPICall
         CoroutineScope(Dispatchers.IO).launch {
-            RetroAchievementsApi.GetUserRecentlyPlayedGames(requireContext(), MainActivity.raUser, gamesPerAPICall, offset) { parseRecentlyPlayedGames(it) }
+            RetroAchievementsApi.GetUserRecentlyPlayedGames(context, MainActivity.raUser, gamesPerAPICall, offset) { parseRecentlyPlayedGames(it) }
         }
     }
 

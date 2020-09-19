@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.budiyev.android.circularprogressbar.CircularProgressBar
+        android:id="@+id/gameRecentAchievementsProgressBarMajor"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        app:animateProgress="true"
+        app:foregroundStrokeCap="round"
+        app:foregroundStrokeColor="?attr/colorAccent"
+        app:foregroundStrokeWidth="5dp"
+        app:layout_constraintEnd_toEndOf="@+id/gameRecentAchievementsProgressBarMinor"
+        app:layout_constraintTop_toTopOf="@+id/gameRecentAchievementsProgressBarMinor"
+        app:maximum="100"
+        app:progressAnimationDuration="900"
+        app:startAngle="270"
+        tools:maximum="77"
+        tools:progress="38" />
+
+    <com.budiyev.android.circularprogressbar.CircularProgressBar
+        android:id="@+id/gameRecentAchievementsProgressBarMinor"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginEnd="8dp"
+        android:translationZ="-1dp"
+        app:animateProgress="true"
+        app:foregroundStrokeCap="round"
+        app:foregroundStrokeColor="?attr/colorPrimary"
+        app:foregroundStrokeWidth="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gameRecentAchievementsImageIcon"
+        app:maximum="100"
+        app:progressAnimationDuration="500"
+        app:startAngle="270"
+        tools:maximum="77"
+        tools:progress="56" />
+
+    <TextView
+        android:id="@+id/gameRecentAchievementsProgressMinor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/gameRecentAchievementsProgressBarMinor"
+        app:layout_constraintEnd_toEndOf="@+id/gameRecentAchievementsProgressBarMinor"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/gameRecentAchievementsProgressBarMinor"
+        app:layout_constraintTop_toBottomOf="@+id/gameRecentAchievementsProgressMajor"
+        tools:text="(145%)" />
+
+    <TextView
+        android:id="@+id/gameRecentAchievementsProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="@string/progress"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/textView16"
+        app:layout_constraintEnd_toStartOf="@+id/gameRecentAchievementsProgressBarMajor"
+        app:layout_constraintTop_toTopOf="@+id/gameRecentAchievementsProgressBarMajor"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/gameRecentAchievementsProgressMajor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/gameRecentAchievementsProgressMinor"
+        app:layout_constraintEnd_toEndOf="@+id/gameRecentAchievementsProgressBarMinor"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/gameRecentAchievementsProgressBarMinor"
+        app:layout_constraintTop_toTopOf="@+id/gameRecentAchievementsProgressBarMinor"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="72%" />
+
+    <ImageView
+        android:id="@+id/gameRecentAchievementsImageIcon"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/favicon" />
+
+    <TextView
+        android:id="@+id/gameRecentAchievementsTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/gameRecentAchievementsDate"
+        app:layout_constraintStart_toEndOf="@+id/gameRecentAchievementsImageIcon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Chrono Trigger (SNES)" />
+
+    <TextView
+        android:id="@+id/gameRecentAchievementsDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/gameRecentAchievementsImageIcon"
+        app:layout_constraintStart_toEndOf="@+id/gameRecentAchievementsImageIcon"
+        app:layout_constraintTop_toBottomOf="@+id/gameRecentAchievementsTitle"
+        tools:text="Last Played 2020-06-05" />
+
+    <TextView
+        android:id="@+id/textView16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/textView17"
+        app:layout_constraintEnd_toStartOf="@+id/gameRecentAchievementsProgressBarMajor"
+        app:layout_constraintTop_toBottomOf="@+id/gameRecentAchievementsProgress"
+        tools:text="38 (38) out of 77 achievements" />
+
+    <TextView
+        android:id="@+id/textView17"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/gameRecentAchievementsProgressBarMajor"
+        app:layout_constraintEnd_toStartOf="@+id/gameRecentAchievementsProgressBarMajor"
+        app:layout_constraintTop_toBottomOf="@+id/textView16"
+        tools:text="181 (383) out of 600 (2619) points" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gameRecentAchievementsProgressBarMajor"
+        tools:itemCount="2"
+        tools:listitem="@layout/view_holder_basic_achievement_summary" />
+</androidx.constraintlayout.widget.ConstraintLayout>

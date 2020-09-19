@@ -16,7 +16,7 @@ class AboutFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        requireActivity().title = "About RetroAchievements"
+        activity?.title = "About RetroAchievements"
         return inflater.inflate(R.layout.fragment_about, container, false)
     }
 

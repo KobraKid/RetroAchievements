@@ -37,7 +37,10 @@ import kotlin.collections.ArrayList
 class ConsoleListFragment : Fragment(), View.OnClickListener {
 
     private val hideEmptyConsoles by lazy {
-        requireContext().getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE).getBoolean(getString(R.string.empty_console_hide_setting), false)
+        context
+                ?.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
+                ?.getBoolean(getString(R.string.empty_console_hide_setting), false)
+                ?: false
     }
     private var consoleAdapter = ConsoleAdapter(this)
     private lateinit var navController: NavController
@@ -62,7 +65,7 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         retainInstance = true
-        requireActivity().title = "Consoles"
+        activity?.title = "Consoles"
         return inflater.inflate(R.layout.fragment_console_list, container, false)
     }
 
@@ -70,30 +73,35 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
         // Initialize views
-        val gameSuggestionAdapter = object : ArrayAdapter<GameSuggestion>(requireContext(), android.R.layout.simple_list_item_1, gameList) {
-            override fun getItemId(position: Int): Long {
-                return getItem(position)?.id?.toLong() ?: 0L
+        try {
+            val gameSuggestionAdapter = object : ArrayAdapter<GameSuggestion>(requireContext(), android.R.layout.simple_list_item_1, gameList) {
+                override fun getItemId(position: Int): Long {
+                    return getItem(position)?.id?.toLong() ?: 0L
+                }
             }
-        }
-        view.findViewById<AutoCompleteTextView>(R.id.game_search).apply {
-            setAdapter(gameSuggestionAdapter)
-            // Open a game details page when an item is tapped
-            setOnItemClickListener { _, _, _, id ->
-                (view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(view.windowToken, 0)
-                navController.navigate(ConsoleListFragmentDirections.actionConsoleListFragmentToGameDetailsFragment(id.toString()))
-            }
-            // Open the first search result when "Go" ime button tapped
-            setOnEditorActionListener { view, actionId, _ ->
-                if (actionId == EditorInfo.IME_ACTION_GO && !gameSuggestionAdapter.isEmpty) {
+            view.findViewById<AutoCompleteTextView>(R.id.game_search).apply {
+                setAdapter(gameSuggestionAdapter)
+                // Open a game details page when an item is tapped
+                setOnItemClickListener { _, _, _, id ->
                     (view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(view.windowToken, 0)
-                    navController.navigate(ConsoleListFragmentDirections.actionConsoleListFragmentToGameDetailsFragment(
-                            gameSuggestionAdapter.getItem(0)?.id.toString()))
-                    true
-                } else false
+                    navController.navigate(ConsoleListFragmentDirections.actionConsoleListFragmentToGameDetailsFragment(id.toString()))
+                }
+                // Open the first search result when "Go" ime button tapped
+                setOnEditorActionListener { view, actionId, _ ->
+                    if (actionId == EditorInfo.IME_ACTION_GO && !gameSuggestionAdapter.isEmpty) {
+                        (view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(view.windowToken, 0)
+                        navController.navigate(ConsoleListFragmentDirections.actionConsoleListFragmentToGameDetailsFragment(
+                                gameSuggestionAdapter.getItem(0)?.id.toString()))
+                        true
+                    } else false
+                }
             }
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "Context was null", e)
+            return // no need to continue if this fragment is not attached to a context
         }
         view.findViewById<RecyclerView>(R.id.list_console).apply {
-            layoutManager = LinearLayoutManager(requireContext())
+            layoutManager = LinearLayoutManager(context)
             adapter = consoleAdapter
         }
         if (consoleAdapter.itemCount == 0) {
@@ -102,7 +110,7 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
                 view.findViewById<View>(R.id.list_hiding_progress).visibility = View.VISIBLE
             }
             CoroutineScope(IO).launch {
-                RetroAchievementsApi.GetConsoleIDs(requireContext()) { parseConsoles(view, it) }
+                RetroAchievementsApi.GetConsoleIDs(context) { parseConsoles(view, it) }
             }
         }
         if (gameList.isEmpty() && gameListFileIsPopulated) {
@@ -134,7 +142,7 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
                     }
                     // Loop twice if we wish to hide empty consoles
                     if (hideEmptyConsoles) {
-                        val db = requireContext().let { RetroAchievementsDatabase.getInstance(it) }
+                        val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
                         db?.let {
                             for (i in 0 until reader.length()) {
                                 val id = reader.getJSONObject(i).getString("ID")
@@ -181,7 +189,7 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
      */
     private suspend fun populateGameListWithGamesFrom(console: String) {
         withContext(IO) {
-            RetroAchievementsApi.GetGameList(requireContext(), console) { populateGameListFile(it) }
+            RetroAchievementsApi.GetGameList(context, console) { populateGameListFile(it) }
         }
     }
 
@@ -221,7 +229,7 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
 
     private fun populateGameListSuggestionsFromFile() {
         var console = ""
-        requireContext().openFileInput("RALIST").bufferedReader().forEachLine { line ->
+        context?.openFileInput("RALIST")?.bufferedReader()?.forEachLine { line ->
             if (line.first() == '\u0001')
                 console = line.substring(1)
             else

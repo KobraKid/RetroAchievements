@@ -15,6 +15,7 @@ import com.kobrakid.retroachievements.adapter.GameCommentsAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -30,7 +31,7 @@ class GameCommentsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         retainInstance = true
-        return inflater.inflate(R.layout.fragment_game_comments, container, false)
+        return inflater.inflate(R.layout.view_pager_game_comments, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -39,14 +40,12 @@ class GameCommentsFragment : Fragment() {
             val commentsRecyclerView = view.findViewById<RecyclerView>(R.id.game_comments_recycler_view)
             commentsRecyclerView.layoutManager = LinearLayoutManager(context)
             commentsRecyclerView.adapter = gameCommentsAdapter
-            val ctx = context?.applicationContext
             val id = arguments?.getString("GameID") ?: "0"
             CoroutineScope(IO).launch {
-                if (ctx != null)
-                    RetroAchievementsApi.ScrapeGameInfoFromWeb(ctx, id) {
-                        parseGameComments(it)
-                    }
+                RetroAchievementsApi.ScrapeGameInfoFromWeb(context, id) { parseGameComments(it) }
             }
+        } else {
+            populateViews()
         }
     }
 
@@ -68,9 +67,16 @@ class GameCommentsFragment : Fragment() {
                                 comment.selectFirst("td.smalldate").html().trim { it <= ' ' }
                         )
                     }
+                    populateViews()
                 }
             }
             else -> Log.v(TAG, "${response.first}: ${response.second}")
+        }
+    }
+
+    private fun populateViews() {
+        CoroutineScope(Main).launch {
+            view?.findViewById<View>(R.id.game_comments_progress_bar)?.visibility = View.GONE
         }
     }
 

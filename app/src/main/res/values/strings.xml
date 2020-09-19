@@ -27,7 +27,7 @@
 
     <!-- List Fragment -->
     <string name="view_more">View More</string>
-    <string name="search_games_tip">Search game titles (any console)</string>
+    <string name="search_games_tip">Game title</string>
 
     <!-- Leaderboards Fragment -->
     <string name="no_games">No Games</string>

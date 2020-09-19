@@ -35,7 +35,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/list_games_filter"
+        app:layout_constraintTop_toBottomOf="@+id/list_games_filter_layout"
         app:popupDrawable="@drawable/popup_drawable">
 
         <androidx.recyclerview.widget.RecyclerView
@@ -49,19 +49,26 @@
 
     </com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>
 
-    <EditText
-        android:id="@+id/list_games_filter"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/list_games_filter_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:ems="10"
         android:hint="@string/title"
-        android:importantForAutofill="no"
-        android:inputType="textNoSuggestions"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/list_games_filter"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ems="10"
+            android:importantForAutofill="no"
+            android:inputType="textNoSuggestions" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

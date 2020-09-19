@@ -18,7 +18,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_api_key" />
+        app:layout_constraintTop_toBottomOf="@+id/login_api_key_layout" />
 
     <Button
         android:id="@+id/cancel_button"
@@ -31,27 +31,33 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_button" />
 
-    <EditText
-        android:id="@+id/login_username"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/login_username_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
         android:autofillHints="username"
-        android:ellipsize="end"
         android:hint="@string/login_username"
-        android:imeOptions="actionNext"
-        android:inputType="text"
-        android:maxLines="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline"
-        tools:targetApi="o" />
+        app:layout_constraintTop_toTopOf="@+id/guideline">
 
-    <EditText
-        android:id="@+id/login_api_key"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/login_username"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ellipsize="end"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/login_api_key_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -59,12 +65,19 @@
         android:layout_marginEnd="16dp"
         android:autofillHints="API Key"
         android:hint="@string/login_api_key"
-        android:imeOptions="actionSend"
-        android:inputType="text"
-        android:maxLines="1"
         app:layout_constraintEnd_toStartOf="@+id/login_api_help"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_username" />
+        app:layout_constraintTop_toBottomOf="@+id/login_username_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/login_api_key"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:imeOptions="actionSend"
+            android:inputType="text"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <ImageView
         android:id="@+id/login_ra_logo"
@@ -95,7 +108,7 @@
         android:layout_marginEnd="32dp"
         android:contentDescription="@string/cd_api_help_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_username"
+        app:layout_constraintTop_toBottomOf="@+id/login_username_layout"
         app:srcCompat="@drawable/ic_baseline_help_outline" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

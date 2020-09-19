@@ -55,33 +55,40 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/leaderboards_users" />
 
-    <EditText
-        android:id="@+id/leaderboards_filter"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/leaderboards_filter_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_weight="0.5"
-        android:ems="10"
         android:hint="@string/title"
-        android:imeOptions="actionDone"
-        android:importantForAutofill="no"
-        android:inputType="textNoSuggestions"
-        android:maxLines="1"
         app:layout_constraintEnd_toStartOf="@+id/leaderboards_console_filter"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/leaderboards_filter"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ems="10"
+            android:imeOptions="actionDone"
+            android:importantForAutofill="no"
+            android:inputType="textNoSuggestions"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Spinner
         android:id="@+id/leaderboards_console_filter"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_weight="0.5"
-        app:layout_constraintBottom_toBottomOf="@+id/leaderboards_filter"
+        app:layout_constraintBottom_toBottomOf="@+id/leaderboards_filter_layout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/leaderboards_filter"
-        app:layout_constraintTop_toTopOf="@+id/leaderboards_filter" />
+        app:layout_constraintStart_toEndOf="@+id/leaderboards_filter_layout"
+        app:layout_constraintTop_toTopOf="@+id/leaderboards_filter_layout" />
 
     <com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
         android:id="@+id/leaderboard_fast_scroller"
@@ -93,7 +100,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/leaderboards_filter"
+        app:layout_constraintTop_toBottomOf="@id/leaderboards_filter_layout"
         app:popupDrawable="@drawable/popup_drawable">
 
         <androidx.recyclerview.widget.RecyclerView
@@ -116,7 +123,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/leaderboards_filter"
+        app:layout_constraintTop_toBottomOf="@id/leaderboards_filter_layout"
         tools:visibility="invisible" />
 
     <ProgressBar
@@ -133,7 +140,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/leaderboards_filter"
+        app:layout_constraintTop_toBottomOf="@+id/leaderboards_filter_layout"
         tools:progress="33"
         tools:secondaryProgress="67"
         tools:visibility="visible" />

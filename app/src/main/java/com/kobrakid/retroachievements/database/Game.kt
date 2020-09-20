@@ -13,7 +13,7 @@ class Game(
         @field:ColumnInfo(name = "ConsoleName") var consoleName: String) {
 
     override fun toString(): String {
-        return "[$id] $title | $consoleName"
+        return "$title | $consoleName"
     }
 
 }

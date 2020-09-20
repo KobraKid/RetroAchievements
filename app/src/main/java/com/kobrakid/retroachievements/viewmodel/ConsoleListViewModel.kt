@@ -8,10 +8,9 @@ import androidx.lifecycle.ViewModel
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
+import com.kobrakid.retroachievements.database.Console
 import com.kobrakid.retroachievements.database.Game
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
-import com.kobrakid.retroachievements.model.Console
-import com.kobrakid.retroachievements.view.ui.ConsoleListFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -19,43 +18,55 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
-import java.io.File
+import java.util.*
 
 class ConsoleListViewModel : ViewModel() {
 
-    private val _consoleList = MutableLiveData<List<Console>>().apply { value = listOf() }
-    val consoleList: LiveData<List<Console>> get() = _consoleList
-    private val _gameList = MutableLiveData<List<ConsoleListFragment.GameSuggestion>>().apply { value = listOf() }
-    val gameList: LiveData<List<ConsoleListFragment.GameSuggestion>> get() = _gameList
+    private val _consoleList = MutableLiveData<List<Console?>>().apply { value = listOf() }
+    val consoleList: LiveData<List<Console?>> get() = _consoleList
+    private val _gameList = MutableLiveData<List<Game?>>().apply { value = listOf() }
+    val gameList: LiveData<List<Game?>> get() = _gameList
     val loading = MutableLiveData(true)
-    var gameSearch = ""
 
     private var hideEmptyConsoles = false
-    private var gameListFileIsPopulated = false
 
-    fun init(context: Context?) {
+    // Keep track of each console that needs to be parsed
+    private var consoleQueue = Collections.synchronizedList(mutableListOf<String>())
+
+    // Keep track of each console that has been parsed
+    private var parsedConsoles = Collections.synchronizedList(mutableListOf<Console>())
+
+    // Keep track of each console that has been parsed and skipped (empty)
+    private var skippedConsoles = Collections.synchronizedList(mutableListOf<Console>())
+
+    suspend fun init(context: Context?, refreshDatabase: Boolean = false) {
         // Check to see if empty consoles should be hidden
         hideEmptyConsoles = context
                 ?.getSharedPreferences(context.getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
                 ?.getBoolean(context.getString(R.string.empty_console_hide_setting), false)
                 ?: false
 
-        // Check to see if the game list file exists & is populated
-        gameListFileIsPopulated = if (File(context?.filesDir, "RALIST").exists())
-            (context?.openFileInput("RALIST")?.bufferedReader()?.readLine()
-                    ?: "").isNotEmpty() else false
-
-//        if (gameListFileIsPopulated) { // If we already have a populated file, load from it
-//            populateListsFromFile(context)
-//        } else { // Otherwise, get each console and extract the list of games from them
-        CoroutineScope(IO).launch {
-            context?.let {
-                RetroAchievementsDatabase.getInstance(it)?.consoleDao()?.clearTable()
-                RetroAchievementsDatabase.getInstance(it)?.gameDao()?.clearTable()
-            }
-            RetroAchievementsApi.GetConsoleIDs(context) { parseConsoles(context, it) }
+        // Prevent re-initialization
+        if (!refreshDatabase && initialized) {
+            loading.value = false
+            return
         }
-//        }
+
+        // Check if database is aleady populated
+        val db = context?.let { RetroAchievementsDatabase.getInstance(context) }
+        if (!refreshDatabase && withContext(IO) { db?.consoleDao()?.consoleList?.isNotEmpty() } == true) {
+            _consoleList.value = withContext(IO) { db?.consoleDao()?.consoleList }
+            _gameList.value = withContext(IO) { db?.gameDao()?.gameList }
+            loading.value = false
+        } else {
+            CoroutineScope(IO).launch {
+                db?.consoleDao()?.clearTable()
+                db?.gameDao()?.clearTable()
+                RetroAchievementsApi.GetConsoleIDs(context) { parseConsoles(context, it) }
+            }
+        }
+
+        initialized = true
     }
 
     private suspend fun parseConsoles(context: Context?, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
@@ -68,8 +79,9 @@ class ConsoleListViewModel : ViewModel() {
                     for (i in 0 until reader.length()) {
                         val id = reader.getJSONObject(i).getString("ID")
                         val name = reader.getJSONObject(i).getString(("Name"))
+                        consoleQueue.add(name)
                         withContext(IO) {
-                            db?.consoleDao()?.insertConsole(com.kobrakid.retroachievements.database.Console(id, name))
+                            db?.consoleDao()?.insertConsole(Console(id, name))
                             RetroAchievementsApi.GetGameList(context, id) { parseGameList(context, id, name, it) }
                         }
                     }
@@ -88,27 +100,31 @@ class ConsoleListViewModel : ViewModel() {
                 try {
                     val reader = JSONArray(response.second)
                     val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
-                    val games = mutableListOf<ConsoleListFragment.GameSuggestion>()
-//                    Log.i(TAG, "Parsing games for console $consoleName")
+                    val console = Console(consoleID, consoleName)
                     for (i in 0 until reader.length()) {
                         reader.getJSONObject(i).let {
                             val id = it.getString("ID")
                             val title = it.getString("Title")
                             val imageIcon = it.getString("ImageIcon")
-                            games.add(ConsoleListFragment.GameSuggestion(id, title, consoleName))
                             withContext(IO) {
                                 db?.gameDao()?.insertGame(Game(id, title, imageIcon, consoleID, consoleName))
                             }
                         }
                     }
                     // skip displaying this console if it is empty and the user is hiding empty consoles
-                    if (hideEmptyConsoles && reader.length() == 0) return
-                    withContext(Main) {
-                        _consoleList.value = _consoleList.value?.plus(Console(consoleID, consoleName))
-                        _gameList.value = _gameList.value?.plus(games)
-                        loading.value = false
+                    if (hideEmptyConsoles && reader.length() == 0) {
+                        skippedConsoles.add(console)
+                    } else {
+                        parsedConsoles.add(console)
                     }
-//                    Log.i(TAG, "Added console $consoleName to the consoleList ${consoleList.value}")
+                    // check if every console has been parsed
+                    if (skippedConsoles.size + parsedConsoles.size == consoleQueue.size) {
+                        withContext(Main) {
+                            _consoleList.value = parsedConsoles
+                            _gameList.value = withContext(IO) { db?.gameDao()?.gameList }
+                            loading.value = false
+                        }
+                    }
                 } catch (e: JSONException) {
                     Log.e(TAG, "Couldn't parse game list", e)
                 }
@@ -117,106 +133,8 @@ class ConsoleListViewModel : ViewModel() {
         }
     }
 
-//    private suspend fun parseConsoles(context: Context?, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
-//        when (response.first) {
-//            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
-//            RetroAchievementsApi.RESPONSE.GET_CONSOLE_IDS -> {
-//                try {
-//                    val reader = JSONArray(response.second)
-//
-//                    // Loop once to add all consoles to view
-//                    for (i in 0 until reader.length()) {
-//                        parseGamesFromConsole(context, reader.getJSONObject(i).getString("ID"))
-//                        consoleList.value?.add(Console(reader.getJSONObject(i).getString("ID"), reader.getJSONObject(i).getString("Name")))
-//                    }
-//                    // Loop twice if we wish to hide empty consoles
-//                    if (hideEmptyConsoles) {
-//                        val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
-//                        db?.let {
-//                            for (i in 0 until reader.length()) {
-//                                val id = reader.getJSONObject(i).getString("ID")
-//                                val name = reader.getJSONObject(i).getString("Name")
-//                                parseConsoleHelper(it, id, name)
-//                            }
-//                        }
-//                    }
-//                } catch (e: JSONException) {
-//                    Log.e(TAG, "Couldn't parse console IDs", e)
-//                }
-//            }
-//            else -> Log.v(TAG, "${response.first}: ${response.second}")
-//        }
-//    }
-//
-//    @RequiresApi(Build.VERSION_CODES.N)
-//    private suspend fun parseConsoleHelper(db: RetroAchievementsDatabase, id: String, name: String) {
-//        withContext(IO) {
-//            val current = db.consoleDao()?.getConsoleWithID(id.toInt())
-//            if (current?.isNotEmpty() == true && current[0]?.gameCount == 0)
-//                consoleList.value?.removeIf { it.name == name }
-//            loading.value = false
-//        }
-//    }
-//
-//    /**
-//     * Fire off an API call to get the list of games for this console
-//     *
-//     * @param console The console to count
-//     */
-//    private suspend fun parseGamesFromConsole(context: Context?, console: String) {
-//        withContext(IO) {
-//            RetroAchievementsApi.GetGameList(context, console) { updateGameListFile(context, it) }
-//        }
-//    }
-//
-//    /**
-//     * Populate the game list file with games from each console
-//     *
-//     * @param response
-//     */
-//    private fun updateGameListFile(context: Context?, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
-//        when (response.first) {
-//            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
-//            RetroAchievementsApi.RESPONSE.GET_GAME_LIST -> {
-//                try {
-//                    val reader = JSONArray(response.second)
-//                    if (reader.length() == 0) return
-//                    context?.openFileOutput("RALIST", Context.MODE_APPEND).use {
-//                        val console = reader.getJSONObject(0).getString("ConsoleName")
-//                        it?.write(("\u0001$console\n").toByteArray())
-//                        for (i in 0 until reader.length()) {
-//                            val title = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-//                                Html.fromHtml(reader.getJSONObject(i).getString("Title"), Html.FROM_HTML_MODE_COMPACT).toString()
-//                            } else {
-//                                reader.getJSONObject(i).getString("Title")
-//                            }
-//                            val id = reader.getJSONObject(i).getString("ID")
-//                            it?.write(("$id\u0002$title\n").toByteArray())
-//                            gameList.value?.add(ConsoleListFragment.GameSuggestion(id, title, console))
-//                        }
-//                    }
-//                } catch (e: JSONException) {
-//                    Log.e(TAG, "Couldn't parse game list", e)
-//                }
-//            }
-//            else -> Log.v(TAG, "${response.first}: ${response.second}")
-//        }
-//    }
-//
-//    private fun populateListsFromFile(context: Context?) {
-//        var console = ""
-//        context?.openFileInput("RALIST")?.bufferedReader()?.forEachLine { line ->
-//            if (line.first() == '\u0001')
-//                console = line.substring(1)
-//            else
-//                gameList.value?.add(ConsoleListFragment.GameSuggestion(
-//                        line.substringBefore('\u0002'),
-//                        line.substringAfter('\u0002'),
-//                        console))
-//        }
-//    }
-
     companion object {
         private val TAG = Consts.BASE_TAG + ConsoleListViewModel::class.java.simpleName
+        private var initialized = false
     }
 }

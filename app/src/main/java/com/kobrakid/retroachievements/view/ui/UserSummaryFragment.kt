@@ -21,7 +21,7 @@ class UserSummaryFragment : Fragment() {
     private val args: UserSummaryFragmentArgs by navArgs()
     private val viewModel: UserSummaryViewModel by viewModels()
     private var _binding: FragmentUserSummaryBinding? = null
-    private val binding get() = _binding!! // Only valid between onCreateView and onDestroyView
+    private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {

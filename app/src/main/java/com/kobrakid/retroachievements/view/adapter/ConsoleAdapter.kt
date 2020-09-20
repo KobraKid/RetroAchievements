@@ -7,15 +7,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.R
+import com.kobrakid.retroachievements.model.Console
 import com.kobrakid.retroachievements.view.adapter.ConsoleAdapter.ConsoleViewHolder
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.withContext
 import java.util.*
 
 class ConsoleAdapter(private val listener: View.OnClickListener) : RecyclerView.Adapter<ConsoleViewHolder>() {
 
-    private val consoleIDs = mutableListOf<String>()
-    private val consoleNames = mutableListOf<String>()
+    private val consoles = mutableListOf<Console>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConsoleViewHolder {
         return ConsoleViewHolder(
@@ -26,39 +24,57 @@ class ConsoleAdapter(private val listener: View.OnClickListener) : RecyclerView.
     }
 
     override fun onBindViewHolder(holder: ConsoleViewHolder, position: Int) {
-        holder.itemView.findViewById<TextView>(R.id.console_id).text = consoleIDs[position]
-        holder.itemView.findViewById<TextView>(R.id.console_initial).text = consoleNames[position].substring(0, 1)
+        holder.itemView.findViewById<TextView>(R.id.console_id).text = consoles[position].id
+        holder.itemView.findViewById<TextView>(R.id.console_initial).text = consoles[position].name.substring(0, 1)
         val random = Random()
         holder.itemView.findViewById<TextView>(R.id.console_initial)
                 .setTextColor(Color.parseColor("#"
                         + String.format("#%02X", random.nextInt(255)).substring(1)
                         + String.format("#%02X", random.nextInt(255)).substring(1)
                         + String.format("#%02X", random.nextInt(255)).substring(1)))
-        holder.itemView.findViewById<TextView>(R.id.console_name).text = consoleNames[position]
+        holder.itemView.findViewById<TextView>(R.id.console_name).text = consoles[position].name
     }
 
     override fun getItemCount(): Int {
-        return consoleIDs.size
+        return consoles.size
     }
 
-    suspend fun addConsole(id: String, name: String) {
-        withContext(Main) {
-            consoleNames.add(name)
-            consoleNames.sort()
-            consoleIDs.add(consoleNames.indexOf(name), id)
-            notifyItemInserted(consoleNames.indexOf(name))
+    fun setData(data: List<Console>) {
+        consoles.forEach { console ->
+            if (!data.contains(console)) {
+                val index = consoles.indexOf(console)
+                consoles.removeAt(index)
+                notifyItemRemoved(index)
+            }
+        }
+        data.forEach { console ->
+            if (!consoles.contains(console)) {
+                consoles.add(console)
+                consoles.sortBy { it.name }
+                notifyItemInserted(consoles.indexOf(console))
+            }
         }
     }
 
-    suspend fun removeConsole(name: String) {
-        withContext(Main) {
-            if (!consoleNames.contains(name)) return@withContext
-            val rem = consoleNames.indexOf(name)
-            consoleNames.removeAt(rem)
-            consoleIDs.removeAt(rem)
-            notifyItemRemoved(rem)
-        }
-    }
+//    suspend fun addConsole(id: String, name: String) {
+//        withContext(Main) {
+//            val console = Console(id, name)
+//            consoles.add(console)
+//            consoles.sortBy { it.name }
+//            notifyItemInserted(consoles.indexOf(console))
+//        }
+//    }
+//
+//    suspend fun removeConsole(name: String) {
+//        withContext(Main) {
+//            val console = consoles.find { it.name == name }
+//            console?.let {
+//                val index = consoles.indexOf(it)
+//                consoles.removeAt(index)
+//                notifyItemRemoved(index)
+//            }
+//        }
+//    }
 
     class ConsoleViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView)
 }

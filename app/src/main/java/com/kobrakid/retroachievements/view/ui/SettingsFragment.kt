@@ -186,7 +186,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
                         if (db != null) {
                             CoroutineScope(IO).launch {
                                 // Set each console to have 0 games
-                                db.consoleDao()?.insertConsole(Console(reader.getJSONObject(i).getString("ID").toInt(), reader.getJSONObject(i).getString("Name"), 0))
+                                db.consoleDao()?.insertConsole(Console(reader.getJSONObject(i).getString("ID"), reader.getJSONObject(i).getString("Name")))
                                 RetroAchievementsApi.GetGameList(context, reader.getJSONObject(i).getString("ID")) { removeConsoles(view, it) }
                             }
                         }
@@ -203,9 +203,9 @@ class SettingsFragment : Fragment(), View.OnClickListener {
                     if (reader.length() > 0 && db != null) {
                         CoroutineScope(IO).launch {
                             // Only update a console if it has more than 0 games
-                            val id = reader.getJSONObject(0).getString("ConsoleID").toInt()
+                            val id = reader.getJSONObject(0).getString("ConsoleID")
                             val name = reader.getJSONObject(0).getString("ConsoleName")
-                            db.consoleDao()?.updateConsole(Console(id, name, reader.length()))
+                            db.consoleDao()?.updateConsole(Console(id, name))
                             Log.d(TAG, "Updating console $id ($name): ${reader.length()} games")
                         }
                     }

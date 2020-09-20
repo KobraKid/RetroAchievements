@@ -10,6 +10,9 @@ interface GameDao {
     @Query("SELECT * FROM game WHERE id == :gameID")
     fun getGameWithID(gameID: Int): List<Game?>?
 
+    @Query("SELECT * FROM game WHERE ConsoleID == :consoleID")
+    fun getGamesFromConsoleByID(consoleID: String): List<Game?>?
+
     @Query("DELETE FROM game")
     fun clearTable()
 

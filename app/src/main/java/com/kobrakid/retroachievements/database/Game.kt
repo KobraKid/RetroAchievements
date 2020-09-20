@@ -6,12 +6,14 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "game")
 class Game(
-        @field:ColumnInfo(name = "ID") @field:PrimaryKey var id: Int,
-        @field:ColumnInfo(name = "GameName") var gameName: String,
-        @field:ColumnInfo(name = "AchievementCount") var achievementCount: Int) {
+        @field:ColumnInfo(name = "ID") @field:PrimaryKey var id: String,
+        @field:ColumnInfo(name = "Title") var title: String,
+        @field:ColumnInfo(name = "ImageIcon") var imageIcon: String,
+        @field:ColumnInfo(name = "ConsoleID") var consoleID: String,
+        @field:ColumnInfo(name = "ConsoleName") var consoleName: String) {
 
     override fun toString(): String {
-        return "$gameName | ID: $id, # Achievements $achievementCount"
+        return "[$id] $title | $consoleName"
     }
 
 }

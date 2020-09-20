@@ -8,7 +8,7 @@ interface ConsoleDao {
     val consoleList: List<Console?>?
 
     @Query("SELECT * FROM console WHERE id == :consoleID")
-    fun getConsoleWithID(consoleID: Int): List<Console?>?
+    fun getConsoleWithID(consoleID: String): List<Console?>?
 
     @Query("DELETE FROM console")
     fun clearTable()

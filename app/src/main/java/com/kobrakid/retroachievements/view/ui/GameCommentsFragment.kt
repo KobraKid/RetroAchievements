@@ -44,8 +44,6 @@ class GameCommentsFragment : Fragment() {
             CoroutineScope(IO).launch {
                 RetroAchievementsApi.ScrapeGameInfoFromWeb(context, id) { parseGameComments(it) }
             }
-        } else {
-            populateViews()
         }
     }
 

@@ -30,10 +30,6 @@ import org.jsoup.Jsoup
 
 class HomeFragment : Fragment(), View.OnClickListener {
 
-//    private val viewModel: UserProfileViewModel by viewModels(
-//            factoryProducer = { SavedStateViewModelFactory(requireActivity().application, this) }
-//    )
-
     // Mastered games
     private val masteryIDs = mutableListOf<String>()
     private val masteryIcons = mutableListOf<String>()
@@ -56,12 +52,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        viewModel.user.observe(viewLifecycleOwner, {
-//            view.findViewById<TextView>(R.id.home_username).apply {
-//                text = it.username
-//                visibility = View.VISIBLE
-//            }
-//        })
         navController = Navigation.findNavController(view)
         view.findViewById<Button>(R.id.home_view_more).setOnClickListener(this)
         view.findViewById<View>(R.id.home_username).visibility = View.VISIBLE

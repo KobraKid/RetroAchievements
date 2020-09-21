@@ -39,7 +39,7 @@ class ConsoleListViewModel : ViewModel() {
     // Keep track of each console that has been parsed and skipped (empty)
     private var skippedConsoles = Collections.synchronizedList(mutableListOf<Console>())
 
-    suspend fun init(context: Context?, refreshDatabase: Boolean = false) {
+    suspend fun init(context: Context?, forceRefresh: Boolean = false) {
         // Check to see if empty consoles should be hidden
         hideEmptyConsoles = context
                 ?.getSharedPreferences(context.getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
@@ -47,14 +47,15 @@ class ConsoleListViewModel : ViewModel() {
                 ?: false
 
         // Prevent re-initialization
-        if (!refreshDatabase && initialized) {
+        if (!forceRefresh && consoleList.value?.isNotEmpty() == true) {
             loading.value = false
             return
         }
 
         // Check if database is aleady populated
+        loading.value = true
         val db = context?.let { RetroAchievementsDatabase.getInstance(context) }
-        if (!refreshDatabase && withContext(IO) { db?.consoleDao()?.consoleList?.isNotEmpty() } == true) {
+        if (!forceRefresh && withContext(IO) { db?.consoleDao()?.consoleList?.isNotEmpty() } == true) {
             _consoleList.value = withContext(IO) { db?.consoleDao()?.consoleList }
             _gameList.value = withContext(IO) { db?.gameDao()?.gameList }
             loading.value = false
@@ -65,8 +66,6 @@ class ConsoleListViewModel : ViewModel() {
                 RetroAchievementsApi.GetConsoleIDs(context) { parseConsoles(context, it) }
             }
         }
-
-        initialized = true
     }
 
     private suspend fun parseConsoles(context: Context?, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
@@ -107,7 +106,7 @@ class ConsoleListViewModel : ViewModel() {
                             val title = it.getString("Title")
                             val imageIcon = it.getString("ImageIcon")
                             withContext(IO) {
-                                db?.gameDao()?.insertGame(Game(id, title, imageIcon, consoleID, consoleName))
+                                db?.gameDao()?.insertGame(Game(id, title, consoleID, consoleName, imageIcon))
                             }
                         }
                     }
@@ -135,6 +134,5 @@ class ConsoleListViewModel : ViewModel() {
 
     companion object {
         private val TAG = Consts.BASE_TAG + ConsoleListViewModel::class.java.simpleName
-        private var initialized = false
     }
 }

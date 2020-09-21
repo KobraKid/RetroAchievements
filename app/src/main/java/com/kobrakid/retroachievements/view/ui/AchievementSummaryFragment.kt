@@ -198,14 +198,14 @@ class AchievementSummaryFragment : Fragment(R.layout.view_pager_achievements_sum
             progress = achievementTotals.earnedPts.toFloat()
         }
         view.findViewById<TextView>(R.id.game_details_points_text).text = achievementTotals.earnedPts.toString()
-        view.findViewById<TextView>(R.id.game_details_points_total_text).text = getString(R.string.diminished_text, achievementTotals.totalPts.toString())
+        view.findViewById<TextView>(R.id.game_details_points_total_text).text = getString(R.string.out_of, achievementTotals.totalPts.toString())
         // True ratio points progress
         view.findViewById<CircularProgressBar>(R.id.game_details_ratio).apply {
             maximum = achievementTotals.totalRatio.toFloat()
             progress = achievementTotals.earnedRatio.toFloat()
         }
         view.findViewById<TextView>(R.id.game_details_ratio_text).text = achievementTotals.earnedRatio.toString()
-        view.findViewById<TextView>(R.id.game_details_ratio_total_text).text = getString(R.string.diminished_text, achievementTotals.totalRatio.toString())
+        view.findViewById<TextView>(R.id.game_details_ratio_total_text).text = getString(R.string.out_of, achievementTotals.totalRatio.toString())
 
         view.findViewById<View>(R.id.game_details_loading_bar).visibility = View.GONE
         view.findViewById<View>(R.id.game_details_achievements_recycler_view).visibility = View.VISIBLE

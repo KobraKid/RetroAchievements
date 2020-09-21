@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        populateViews()
     }
 
     override fun onResume() {

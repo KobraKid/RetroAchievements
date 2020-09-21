@@ -5,13 +5,17 @@ import androidx.room.*
 @Dao
 interface GameDao {
     @get:Query("SELECT * FROM game")
-    val gameList: List<Game?>?
+    val gameList: List<Game>
 
     @Query("SELECT * FROM game WHERE id == :gameID")
-    fun getGameWithID(gameID: Int): List<Game?>?
+    fun getGameWithID(gameID: String): List<Game>
 
     @Query("SELECT * FROM game WHERE ConsoleID == :consoleID")
-    fun getGamesFromConsoleByID(consoleID: String): List<Game?>?
+    fun getGamesFromConsoleByID(consoleID: String): List<Game>
+
+    @Transaction
+    @Query("SELECT * FROM game")
+    fun getGamesWithAchievements(): List<GameWithAchievements>
 
     @Query("DELETE FROM game")
     fun clearTable()

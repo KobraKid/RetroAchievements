@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
+import com.kobrakid.retroachievements.database.Game
 import com.kobrakid.retroachievements.view.adapter.GameSummaryAdapter.GameSummaryViewHolder
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller.OnPopupTextUpdate
 import com.squareup.picasso.Callback
@@ -29,8 +30,6 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
     private val stats = mutableListOf<String>()
     private val masteries = mutableListOf<Boolean>()
     private val loading = mutableListOf<Boolean>()
-    val numGames: Int
-        get() = ids.size
 
     // For filtering
     private val mappings = mutableListOf<Int>()
@@ -127,6 +126,23 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
         }
     }
 
+    fun setData(data: List<Game?>) {
+        ids.clear()
+        titles.clear()
+        imageIcons.clear()
+        loading.clear()
+        data.sortedBy { it?.title ?: "_" }.forEach { game ->
+            if (game != null) {
+                ids.add(game.id)
+                titles.add(game.title)
+                imageIcons.add(game.imageIcon)
+                loading.add(false)
+            }
+        }
+        refreshMappings()
+        notifyDataSetChanged()
+    }
+
     suspend fun addGame(index: Int, id: String, imageIcon: String, title: String, stat: String, mastered: Boolean) {
         withContext(Main) {
             ids.add(index, id)
@@ -137,17 +153,6 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
             loading.add(index, true)
             refreshMappings()
             notifyItemInserted(index)
-        }
-    }
-
-    suspend fun addGame(id: String, imageIcon: String, title: String) {
-        withContext(Main) {
-            ids.add(id)
-            imageIcons.add(imageIcon)
-            titles.add(title)
-            loading.add(false)
-            refreshMappings()
-            notifyItemInserted(mappings.size - 1)
         }
     }
 

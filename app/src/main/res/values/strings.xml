@@ -123,9 +123,10 @@
     <string name="progress">Progress</string>
     <string name="points">Points</string>
     <string name="retro_ratio">Retro Ratio</string>
-    <string name="diminished_text">(%1$s)</string>
     <string name="percent">%1$d%%</string>
     <string name="diminished_percent">(%1$d%%)</string>
+    <string name="diminished_text">(%1$s)</string>
+    <string name="out_of">/ %1$s</string>
 
     <!-- Achievement Details -->
     <string name="won_by">won by %1$s (%2$s) of %3$d (%4$s%%)</string>

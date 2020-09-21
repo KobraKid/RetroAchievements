@@ -57,7 +57,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
         view.findViewById<View>(R.id.home_username).visibility = View.VISIBLE
         if (MainActivity.raUser.isNotEmpty()) {
             view.findViewById<View>(R.id.home_scrollview).background = null
-            (activity as MainActivity?)?.populateViews()
             if (savedInstanceState == null) {
                 CoroutineScope(IO).launch {
                     RetroAchievementsApi.GetUserWebProfile(context, MainActivity.raUser) { parseUserWebProfile(view, it) }

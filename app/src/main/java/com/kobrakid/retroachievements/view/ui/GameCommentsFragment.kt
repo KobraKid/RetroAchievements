@@ -53,17 +53,27 @@ class GameCommentsFragment : Fragment() {
             RetroAchievementsApi.RESPONSE.SCRAPE_GAME_PAGE -> {
                 withContext(Default) {
                     for (comment in Jsoup.parse(response.second).getElementsByClass("feed_comment")) {
+                        val userImage = comment.selectFirst("td.iconscommentsingle").selectFirst("img")?.attr("title")?.trim { it <= ' ' }
+                                ?: "Unknown"
+                        var account = "Unknown"
+                        var score = "0"
+                        var rank = "0"
+                        var tag = "_RA_NO_TAG"
                         val tooltip = comment.selectFirst("td.iconscommentsingle").selectFirst("div").attr("onmouseover")
-                        val userCard = Jsoup.parse(Parser.unescapeEntities(tooltip.substring(5, tooltip.length - 2).replace("\\", ""), false))
+                        if (tooltip.length > 5) {
+                            with(Jsoup.parse(Parser.unescapeEntities(tooltip.substring(5, tooltip.length - 2).replace("\\", ""), false))) {
+                                account = selectFirst("td.usercardaccounttype").html().trim { it <= ' ' }
+                                score = select("td.usercardbasictext")[0].html().substring(15)
+                                rank = select("td.usercardbasictext")[1].html().substring(18)
+                                tag = if (selectFirst("span") != null) selectFirst("span").html() else "_RA_NO_TAG"
+                            }
+                        } else {
+                            Log.w(TAG, "${Jsoup.parse(response.second).getElementsByClass("longheader")[0].text()} Tooltip too short: \"$tooltip\"")
+                        }
                         gameCommentsAdapter.addComment(
-                                comment.selectFirst("td.commenttext").html().trim { it <= ' ' },
-                                comment.selectFirst("td.iconscommentsingle").selectFirst("img").attr("title").trim { it <= ' ' },
-                                userCard.selectFirst("td.usercardaccounttype").html().trim { it <= ' ' },
-                                userCard.select("td.usercardbasictext")[0].html().substring(15),
-                                userCard.select("td.usercardbasictext")[1].html().substring(18),
-                                if (userCard.selectFirst("span") != null) userCard.selectFirst("span").html() else "_RA_NO_TAG",
-                                comment.selectFirst("td.smalldate").html().trim { it <= ' ' }
-                        )
+                                comment.selectFirst("td.commenttext").text().trim { it <= ' ' },
+                                userImage, account, score, rank, tag,
+                                comment.selectFirst("td.smalldate").html().trim { it <= ' ' })
                     }
                     populateViews()
                 }

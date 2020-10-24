@@ -7,6 +7,9 @@ interface ConsoleDao {
     @get:Query("SELECT * FROM console")
     val consoleList: List<Console>
 
+    @get:Query("SELECT * FROM console WHERE NumGames > 0")
+    val nonEmptyConsoles: List<Console>
+
     @Query("SELECT * FROM console WHERE id == :consoleID")
     fun getConsoleWithID(consoleID: String): List<Console>
 

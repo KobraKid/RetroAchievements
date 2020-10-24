@@ -9,7 +9,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
-import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.databinding.FragmentUserSummaryBinding
 import com.kobrakid.retroachievements.viewmodel.UserSummaryViewModel
@@ -39,7 +38,7 @@ class UserSummaryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
         activity?.title = "User Summary: ${args.username}"
-        viewModel.userSummaryState.observe(viewLifecycleOwner, { user ->
+        viewModel.userState.observe(viewLifecycleOwner) { user ->
             if (user.username.isNotEmpty()) {
                 Picasso.get()
                         .load(user.userPic)
@@ -47,17 +46,12 @@ class UserSummaryFragment : Fragment() {
                         .into(binding.userSummaryImage)
                 binding.userSummaryUsername.text = user.username
                 binding.userSummaryMotto.text = user.motto
-                binding.userSummaryRank.text = user.rank
-                binding.userSummaryPoints.text = user.totalPoints
-                binding.userSummaryRatio.text = user.retroRatio
-                binding.userSummaryJoined.text = user.memberSince
+                binding.userSummaryRank.text = getString(R.string.user_rank, user.rank)
+                binding.userSummaryPoints.text = getString(R.string.user_points, user.totalPoints)
+                binding.userSummaryRatio.text = getString(R.string.user_ratio, String.format("%.2f", user.retroRatio))
+                binding.userSummaryJoined.text = getString(R.string.user_joined, user.memberSince)
             }
-        })
+        }
         viewModel.setUsername(context, args.username)
     }
-
-    companion object {
-        private val TAG = Consts.BASE_TAG + UserSummaryFragment::class.java.simpleName
-    }
-
 }

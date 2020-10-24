@@ -11,25 +11,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
+import com.kobrakid.retroachievements.model.Comment
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.withContext
 
 class GameCommentsAdapter : RecyclerView.Adapter<GameCommentsAdapter.GameCommentViewHolder>() {
 
-    private val comments = mutableListOf<String>()
-
-    // Users' profile pictures
-    private val users = mutableListOf<String>()
-
-    // Users' account statuses
-    private val accounts = mutableListOf<String>()
-    private val scores = mutableListOf<String>()
-    private val ranks = mutableListOf<String>()
-
-    // Users' taglines
-    private val tags = mutableListOf<String>()
-    private val dates = mutableListOf<String>()
+    private var comments: List<Comment> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameCommentViewHolder {
         return GameCommentViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.view_holder_game_comment, parent, false))
@@ -37,24 +24,21 @@ class GameCommentsAdapter : RecyclerView.Adapter<GameCommentsAdapter.GameComment
 
     override fun onBindViewHolder(holder: GameCommentViewHolder, position: Int) {
         Picasso.get()
-                .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + users[position] + ".png")
+                .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + comments[position].username + ".png")
                 .placeholder(R.drawable.user_placeholder)
                 .into(holder.itemView.findViewById<ImageView>(R.id.comments_user_icon))
-        holder.itemView.findViewById<TextView>(R.id.comments_user_comment).text = comments[position]
-        holder.itemView.findViewById<TextView>(R.id.comments_date).text = dates[position]
-        holder.itemView.findViewById<TextView>(R.id.comments_user_rank_score).text = holder.itemView.context.getString(R.string.score_rank, scores[position], ranks[position])
+        holder.itemView.findViewById<TextView>(R.id.comments_user_comment).text = comments[position].text
+        holder.itemView.findViewById<TextView>(R.id.comments_date).text = comments[position].date
+        holder.itemView.findViewById<TextView>(R.id.comments_user_rank_score).text = holder.itemView.context.getString(R.string.score_rank, comments[position].score, comments[position].rank)
         with(holder.itemView.findViewById<TextView>(R.id.comments_user_tag)) {
-            when (tags[position]) {
-                "_RA_NO_TAG" -> visibility = View.GONE
-                else -> {
-                    text = holder.itemView.context.getString(R.string.quote, tags[position])
-                    visibility = View.VISIBLE
-                }
+            comments[position].tagline.let { tagline ->
+                text = if (tagline.isEmpty()) "" else holder.itemView.context.getString(R.string.quote, tagline)
+                visibility = if (tagline.isEmpty()) View.GONE else View.VISIBLE
             }
         }
         with(holder.itemView.findViewById<TextView>(R.id.comments_user_name)) {
-            text = users[position]
-            when (accounts[position]) {
+            text = comments[position].username
+            when (comments[position].accountStatus) {
                 "Banned" -> {
                     setTextColor(Color.RED)
                     paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
@@ -81,25 +65,18 @@ class GameCommentsAdapter : RecyclerView.Adapter<GameCommentsAdapter.GameComment
         return comments.size
     }
 
-    suspend fun addComment(text: String, user: String, account: String, score: String, rank: String, tag: String, date: String) {
-        withContext(Main) {
-            comments.add(text)
-            users.add(user)
-            accounts.add(account)
-            scores.add(score)
-            ranks.add(rank)
-            tags.add(tag)
-            dates.add(date)
-            notifyItemInserted(comments.size - 1)
-        }
+    fun setComments(comments: List<Comment>) {
+        this.comments = comments
+        notifyDataSetChanged()
     }
 
     class GameCommentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         override fun onClick(view: View) {
-            val extra = view.findViewById<View>(R.id.comment_hide_content)
-            if (extra != null) {
-                extra.visibility = if (extra.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                view.findViewById<TextView>(R.id.comments_user_comment).maxLines = if (extra.visibility == View.VISIBLE) 10 else 3
+            view.findViewById<View>(R.id.comment_hide_content)?.apply {
+                // Toggle visibility
+                visibility = if (visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                // Increase comment max size when visible
+                view.findViewById<TextView>(R.id.comments_user_comment).maxLines = if (visibility == View.VISIBLE) 10 else 3
             }
         }
 

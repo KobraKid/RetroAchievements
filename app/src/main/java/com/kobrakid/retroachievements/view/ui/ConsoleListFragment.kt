@@ -93,6 +93,7 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
         } catch (e: IllegalStateException) {
             Log.e(TAG, "Context was null", e)
             return // no need to continue if this fragment is not attached to a context
+            // TODO check if this should really be tried/caught
         }
     }
 

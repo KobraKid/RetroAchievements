@@ -2,33 +2,25 @@ package com.kobrakid.retroachievements.view.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.navigation.NavigationView
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
+import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
+import com.kobrakid.retroachievements.databinding.ActivityMainBinding
+import com.kobrakid.retroachievements.databinding.NavHeaderBinding
+import com.kobrakid.retroachievements.model.User
+import com.kobrakid.retroachievements.viewmodel.MainViewModel
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.json.JSONException
-import org.json.JSONObject
 
 /**
  * The entry point for the app, and the Activity that manages most of the basic Fragments used
@@ -43,10 +35,13 @@ class MainActivity : AppCompatActivity() {
             R.id.rankingsFragment,
             R.id.settingsFragment,
             R.id.aboutFragment)
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
-    private val drawer: DrawerLayout by lazy { findViewById(R.id.drawer_layout) }
-    private val navView: NavigationView by lazy { findViewById(R.id.nav_view) }
+    private lateinit var api: RetroAchievementsApi
+    private lateinit var db: RetroAchievementsDatabase
+    private lateinit var binding: ActivityMainBinding
+    private val viewModel: MainViewModel by viewModels()
+
+    val user: User? get() = viewModel.user.value
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,43 +49,61 @@ class MainActivity : AppCompatActivity() {
         // Get saved preferences
         val sharedPref = getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
         setTheme(sharedPref.getInt(getString(R.string.theme_setting), R.style.BlankTheme))
-        raUser = sharedPref.getString(getString(R.string.ra_user), "")!!
-        RetroAchievementsApi.setCredentials(raUser, sharedPref.getString(getString(R.string.ra_api_key), "")!!)
 
-        // Set up UI
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(findViewById(R.id.toolbar))
-        findViewById<Toolbar>(R.id.toolbar)
-        val host: NavHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        navController = host.navController
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        navView.setupWithNavController(navController)
-        appBarConfiguration = AppBarConfiguration(navMenuItems, drawer)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.getHeaderView(0).findViewById<ImageView>(R.id.nav_profile_picture).setOnClickListener {
-            drawer.closeDrawers()
-            navController.navigate(R.id.loginFragment)
-        }
+        // Initialize API and Database
+        api = RetroAchievementsApi.getInstance(this)
+        api.setCredentials(sharedPref.getString(getString(R.string.ra_user), "")!!, sharedPref.getString(getString(R.string.ra_api_key), "")!!)
+        db = RetroAchievementsDatabase.getInstance(this)
 
-        if (raUser.isNotEmpty()) {
-            if (rank.isEmpty() || score.isEmpty()) {
-                CoroutineScope(IO).launch {
-                    RetroAchievementsApi.GetUserRankAndScore(applicationContext, raUser) { parseRankScore(it) }
+        // Get Binding
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        val navHeader = NavHeaderBinding.bind(binding.navView.getHeaderView(0))
+
+        // Get View Model
+        viewModel.user.observe(this) { user ->
+            if (user.username.isEmpty()) { // Set defaults
+                navHeader.navUsername.text = getString(R.string.login_prompt)
+                Picasso.get()
+                        .load(R.drawable.user_placeholder)
+                        .into(navHeader.navProfilePicture)
+                navHeader.navStats.visibility = View.GONE
+            } else {
+                navHeader.navUsername.text = user.username
+                Picasso.get()
+                        .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + user.username + ".png")
+                        .placeholder(R.drawable.user_placeholder)
+                        .into(navHeader.navProfilePicture)
+                navHeader.navStats.apply {
+                    text = getString(R.string.score_rank, user.totalPoints, user.rank)
+                    visibility = if (user.rank.isNotEmpty() && user.totalPoints.isNotEmpty()) View.VISIBLE else View.GONE
                 }
             }
         }
-        populateViews()
+
+        // Set up UI
+        setSupportActionBar(binding.toolbar)
+        val host = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = host.navController
+        binding.navView.setupWithNavController(navController)
+        setupActionBarWithNavController(navController, AppBarConfiguration(navMenuItems, binding.drawerLayout))
+        navHeader.navProfilePicture.setOnClickListener {
+            binding.drawerLayout.closeDrawers()
+            navController.navigate(R.id.loginFragment)
+        }
+
+        viewModel.setUsername(sharedPref.getString(getString(R.string.ra_user), ""))
     }
 
     override fun onResume() {
         super.onResume()
-        drawer.closeDrawers()
+        binding.drawerLayout.closeDrawers()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             if (navController.currentBackStackEntry?.destination?.id in navMenuItems)
-                drawer.openDrawer(GravityCompat.START)
+                binding.drawerLayout.openDrawer(GravityCompat.START)
             else
                 navController.popBackStack()
             return true
@@ -99,60 +112,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (drawer.isDrawerOpen(GravityCompat.START))
-            drawer.closeDrawer(GravityCompat.START)
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
         else
             super.onBackPressed()
     }
 
-    private suspend fun parseRankScore(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
-        when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
-            RetroAchievementsApi.RESPONSE.GET_USER_RANK_AND_SCORE -> {
-                withContext(Default) {
-                    try {
-                        val reader = JSONObject(response.second)
-                        score = reader.getString("Score")
-                        rank = reader.getString("Rank")
-                    } catch (e: JSONException) {
-                        Log.e(TAG, "Couldn't parse user rank/score", e)
-                    } finally {
-                        withContext(Main) { populateViews() }
-                    }
-                }
-            }
-            else -> Log.v(TAG, "${response.first}: ${response.second}")
-        }
-    }
-
-    fun populateViews() {
-        if (raUser.isEmpty()) { // Set defaults
-            navView.getHeaderView(0).findViewById<TextView>(R.id.nav_username).text = getString(R.string.login_prompt)
-            Picasso.get().load(R.drawable.user_placeholder)
-            navView.getHeaderView(0).findViewById<View>(R.id.nav_stats).visibility = View.GONE
-            return
-        }
-        navView.getHeaderView(0).findViewById<TextView>(R.id.nav_username).text = raUser
-        Picasso.get()
-                .load(Consts.BASE_URL + "/" + Consts.USER_PIC_POSTFIX + "/" + raUser + ".png")
-                .placeholder(R.drawable.user_placeholder)
-                .into(navView.getHeaderView(0).findViewById<ImageView>(R.id.nav_profile_picture))
-        navView.getHeaderView(0).findViewById<TextView>(R.id.nav_stats).text = getString(R.string.score_rank, score, rank)
-        if (rank.isNotEmpty() && score.isNotEmpty())
-            navView.getHeaderView(0).findViewById<View>(R.id.nav_stats).visibility = View.VISIBLE
-        else
-            navView.getHeaderView(0).findViewById<View>(R.id.nav_stats).visibility = View.GONE
-    }
-
     fun setCredentials(user: String, apiKey: String) {
-        raUser = user
-        RetroAchievementsApi.setCredentials(user, apiKey)
+        viewModel.setUsername(user)
+        api.setCredentials(user, apiKey)
     }
 
-    companion object {
-        private val TAG = Consts.BASE_TAG + MainActivity::class.java.simpleName
-        var raUser: String = ""
-        var rank: String = ""
-        var score: String = ""
-    }
 }

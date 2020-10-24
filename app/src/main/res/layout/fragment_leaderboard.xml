@@ -19,29 +19,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <HorizontalScrollView
-        android:id="@+id/leaderboard_title_scrollview"
+
+    <TextView
+        android:id="@+id/leaderboard_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:paddingBottom="8dp"
+        android:singleLine="true"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/leaderboard_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/leaderboard_game_icon"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed">
-
-        <TextView
-            android:id="@+id/leaderboard_title"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:paddingBottom="8dp"
-            android:singleLine="true"
-            android:textSize="24sp"
-            tools:text="Top Trout (Odell Lake)" />
-    </HorizontalScrollView>
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Top Trout (Odell Lake)" />
 
     <TextView
         android:id="@+id/leaderboard_type"
@@ -55,7 +52,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/leaderboard_game_icon"
         app:layout_constraintTop_toBottomOf="@+id/leaderboard_description"
-        tools:text="Largest Score - 14 Participants" />
+        tools:text="Largest Score | 14 Participants" />
 
     <TextView
         android:id="@+id/leaderboard_description"
@@ -70,7 +67,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/leaderboard_game_icon"
-        app:layout_constraintTop_toBottomOf="@+id/leaderboard_title_scrollview"
+        app:layout_constraintTop_toBottomOf="@+id/leaderboard_title"
         tools:text="Get the highest score in 1 credit starting from Stage 1 and going directly to Merry Merry Christmas (see comments)" />
 
     <androidx.recyclerview.widget.RecyclerView

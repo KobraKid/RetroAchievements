@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".view.ui.UserSummaryFragment">
 
-
     <ImageView
         android:id="@+id/user_summary_image"
         android:layout_width="128dp"

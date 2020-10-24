@@ -54,8 +54,8 @@
         tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/leaderboardsFragment"
-        android:name="com.kobrakid.retroachievements.view.ui.LeaderboardsFragment"
-        tools:layout="@layout/fragment_leaderboards">
+        android:name="com.kobrakid.retroachievements.view.ui.LeaderboardListFragment"
+        tools:layout="@layout/fragment_leaderboard_list">
         <action
             android:id="@+id/action_leaderboardsFragment_to_leaderboardFragment"
             app:destination="@id/leaderboardFragment"

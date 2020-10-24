@@ -1,6 +1,5 @@
 package com.kobrakid.retroachievements.viewmodel
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,14 +18,13 @@ import org.json.JSONException
 
 class ConsoleGamesViewModel : ViewModel() {
 
-    private val _consoleGamesList = MutableLiveData<List<Game?>>().apply { value = listOf() }
-    val consoleGamesList: LiveData<List<Game?>> get() = _consoleGamesList
+    val consoleGamesList: LiveData<List<Game?>> = MutableLiveData()
     val loading = MutableLiveData(true)
     private var consoleID = ""
 
     private val games = mutableListOf<Game>()
 
-    suspend fun setConsoleID(context: Context?, id: String, forceRefresh: Boolean = false) {
+    suspend fun setConsoleID(id: String, forceRefresh: Boolean = false) {
         consoleID = id
         // Prevent re-initialization
         if (!forceRefresh && consoleGamesList.value?.isNotEmpty() == true) {
@@ -34,24 +32,24 @@ class ConsoleGamesViewModel : ViewModel() {
             return
         }
         loading.value = true
-        val db = context?.let { RetroAchievementsDatabase.getInstance(context) }
-        if (!forceRefresh && withContext(IO) { db?.gameDao()?.getGamesFromConsoleByID(consoleID)?.isNotEmpty() } == true) {
-            _consoleGamesList.value = withContext(IO) { db?.gameDao()?.getGamesFromConsoleByID(consoleID) }
+        val db = RetroAchievementsDatabase.getInstance()
+        if (!forceRefresh && withContext(IO) { db.gameDao().getGamesFromConsoleByID(consoleID).isNotEmpty() }) {
+            (consoleGamesList as MutableLiveData).value = withContext(IO) { db.gameDao().getGamesFromConsoleByID(consoleID) }
             loading.value = false
         } else {
             CoroutineScope(IO).launch {
-                RetroAchievementsApi.GetGameList(context, consoleID) { parseGameList(context, it) }
+                RetroAchievementsApi.getInstance().GetGameList(consoleID) { parseGameList(it) }
             }
         }
     }
 
-    private suspend fun parseGameList(context: Context?, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
+    private suspend fun parseGameList(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
             RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_GAME_LIST -> {
                 try {
                     val reader = JSONArray(response.second)
-                    val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
+                    val db = RetroAchievementsDatabase.getInstance()
                     for (i in 0 until reader.length()) {
                         val game = Game(
                                 reader.getJSONObject(i).getString("ID"),
@@ -60,16 +58,16 @@ class ConsoleGamesViewModel : ViewModel() {
                                 reader.getJSONObject(i).getString("ConsoleName"),
                                 reader.getJSONObject(i).getString("ImageIcon"))
                         withContext(IO) {
-                            if (db?.gameDao()?.getGameWithID(game.id)?.isNotEmpty() == true) {
-                                db.gameDao()?.updateGame(game)
+                            if (db.gameDao().getGameWithID(game.id).isNotEmpty()) {
+                                db.gameDao().updateGame(game)
                             } else {
-                                db?.gameDao()?.insertGame(game)
+                                db.gameDao().insertGame(game)
                             }
                         }
                         games.add(game)
                     }
                     withContext(Main) {
-                        _consoleGamesList.value = games
+                        (consoleGamesList as MutableLiveData).value = games
                         loading.value = false
                     }
                 } catch (e: JSONException) {

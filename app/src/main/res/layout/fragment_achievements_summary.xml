@@ -86,7 +86,7 @@
         tools:progress="38" />
 
     <com.budiyev.android.circularprogressbar.CircularProgressBar
-        android:id="@+id/game_details_achivements_earned"
+        android:id="@+id/game_details_achievements_earned"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:translationZ="-1dp"
@@ -107,10 +107,10 @@
         android:layout_height="wrap_content"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/game_details_achievements_earned_hc_text"
-        app:layout_constraintEnd_toEndOf="@id/game_details_achivements_earned"
+        app:layout_constraintEnd_toEndOf="@id/game_details_achievements_earned"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@id/game_details_achivements_earned"
-        app:layout_constraintTop_toTopOf="@id/game_details_achivements_earned"
+        app:layout_constraintStart_toStartOf="@id/game_details_achievements_earned"
+        app:layout_constraintTop_toTopOf="@id/game_details_achievements_earned"
         app:layout_constraintVertical_chainStyle="packed"
         tools:text="72%" />
 
@@ -120,10 +120,10 @@
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@id/game_details_achivements_earned"
-        app:layout_constraintEnd_toEndOf="@id/game_details_achivements_earned"
+        app:layout_constraintBottom_toBottomOf="@id/game_details_achievements_earned"
+        app:layout_constraintEnd_toEndOf="@id/game_details_achievements_earned"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@id/game_details_achivements_earned"
+        app:layout_constraintStart_toStartOf="@id/game_details_achievements_earned"
         app:layout_constraintTop_toBottomOf="@+id/game_details_achievements_earned_text"
         tools:text="(145%)" />
 
@@ -139,7 +139,7 @@
         app:layout_constraintEnd_toStartOf="@+id/game_details_ratio"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/game_details_achievements_earned_hc"
-        app:layout_constraintTop_toTopOf="@id/game_details_achivements_earned"
+        app:layout_constraintTop_toTopOf="@id/game_details_achievements_earned"
         app:progressAnimationDuration="500"
         app:startAngle="270"
         tools:maximum="600"
@@ -222,9 +222,9 @@
         android:layout_marginTop="4dp"
         android:text="@string/progress"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/game_details_achivements_earned"
-        app:layout_constraintStart_toStartOf="@+id/game_details_achivements_earned"
-        app:layout_constraintTop_toBottomOf="@id/game_details_achivements_earned"
+        app:layout_constraintEnd_toEndOf="@+id/game_details_achievements_earned"
+        app:layout_constraintStart_toStartOf="@+id/game_details_achievements_earned"
+        app:layout_constraintTop_toBottomOf="@id/game_details_achievements_earned"
         tools:visibility="visible" />
 
     <TextView

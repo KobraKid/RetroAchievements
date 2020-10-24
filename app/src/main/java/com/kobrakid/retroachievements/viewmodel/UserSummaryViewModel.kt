@@ -6,9 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kobrakid.retroachievements.Consts
-import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
-import com.kobrakid.retroachievements.model.UserSummary
+import com.kobrakid.retroachievements.model.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
@@ -19,13 +18,14 @@ import org.json.JSONObject
 
 class UserSummaryViewModel : ViewModel() {
     private var username: String = ""
-    private val _userSummaryState = MutableLiveData(UserSummary())
-    val userSummaryState: LiveData<UserSummary> = _userSummaryState
+    val userState: LiveData<User> = MutableLiveData(User())
 
     fun setUsername(context: Context?, username: String) {
-        this.username = username
-        CoroutineScope(Dispatchers.IO).launch {
-            RetroAchievementsApi.GetUserSummary(context, username, 5) { parseUserSummary(context, it) }
+        if (username != this.username) {
+            this.username = username
+            CoroutineScope(Dispatchers.IO).launch {
+                RetroAchievementsApi.getInstance().GetUserSummary(username, 5) { parseUserSummary(context, it) }
+            }
         }
     }
 
@@ -38,14 +38,13 @@ class UserSummaryViewModel : ViewModel() {
                         val reader = JSONObject(response.second)
                         val motto = "\"${reader.getString("Motto")}\""
                         context?.let {
-                            _userSummaryState.value = UserSummary(
-                                    username,
-                                    it.getString(R.string.user_rank, reader.getString("Rank")),
-                                    if (motto.length > 2) motto else "",
-                                    it.getString(R.string.user_points, reader.getString("TotalPoints")),
-                                    it.getString(R.string.user_points, reader.getString("TotalTruePoints")),
-                                    it.getString(R.string.user_ratio, String.format("%.2f", reader.getString("TotalTruePoints").toFloat().div(reader.getString("TotalPoints").toFloat()))),
-                                    it.getString(R.string.user_joined, reader.getString("MemberSince")))
+                            (userState as MutableLiveData<User>).value = User(
+                                    username = username,
+                                    rank = reader.getString("Rank"),
+                                    motto = if (motto.length > 2) motto else "",
+                                    totalPoints = reader.getString("TotalPoints"),
+                                    totalTruePoints = reader.getString("TotalTruePoints"),
+                                    memberSince = reader.getString("MemberSince"))
                         }
                     }
                 } catch (e: JSONException) {

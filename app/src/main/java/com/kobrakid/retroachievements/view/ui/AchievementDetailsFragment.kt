@@ -6,14 +6,12 @@ import android.graphics.ColorMatrixColorFilter
 import android.os.Bundle
 import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.findFragment
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
+import com.kobrakid.retroachievements.databinding.FragmentAchievementDetailsBinding
 import com.kobrakid.retroachievements.model.Achievement
 import com.kobrakid.retroachievements.view.viewpager.ToggleableViewPager
 import com.squareup.picasso.Callback
@@ -25,68 +23,74 @@ import java.text.DecimalFormat
  */
 class AchievementDetailsFragment : Fragment() {
 
-    private val tapDetector: GestureDetector = GestureDetector(context, GestureTap())
+    private var _binding: FragmentAchievementDetailsBinding? = null
+    private val binding get() = _binding!!
+    private val tapDetector = GestureDetector(context, GestureTap())
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_achievement_details, container, false).apply {
-            setOnTouchListener { _: View?, e: MotionEvent? ->
-                tapDetector.onTouchEvent(e)
-                true
-            }
-        }
+        _binding = FragmentAchievementDetailsBinding.inflate(inflater, container, false)
         // FIXME: Shared transition from [@link AchievementAdapter.AchievementViewHolderListenerImpl] not working
-        view.findViewById<ImageView>(R.id.achievement_details_badge).transitionName = arguments?.getString("transitionName")
-        return view
+        binding.achievementDetailsBadge.transitionName = arguments?.getString("transitionName")
+        return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        retainInstance = true
         val achievement = arguments?.getParcelable("achievement") ?: Achievement()
+        val numDistinctCasual = arguments?.getDouble("numDistinctCasual") ?: 0.0
+
+        view.setOnTouchListener { _: View?, e: MotionEvent? ->
+            tapDetector.onTouchEvent(e)
+            true
+        }
 
         // Set fields from transferred data
-        view.findViewById<TextView>(R.id.achievement_details_title).text = achievement.title
-        view.findViewById<TextView>(R.id.achievement_details_description).text = achievement.description
+        binding.achievementDetailsTitle.text = achievement.title
+        binding.achievementDetailsDescription.text = achievement.description
         if (!achievement.dateEarned.startsWith("NoDate")) {
-            view.findViewById<TextView>(R.id.achievement_details_date).text = getString(R.string.date_earned_upper, achievement.dateEarned)
+            binding.achievementDetailsDate.text = getString(R.string.date_earned_upper, achievement.dateEarned)
         }
-        view.findViewById<TextView>(R.id.achievement_details_completion_text).text = getString(
+        binding.achievementDetailsCompletionText.text = getString(
                 R.string.earned_by_details,
                 achievement.numAwarded,
-                achievement.numDistinctCasual.toInt(),
+                numDistinctCasual.toInt(),
                 DecimalFormat("@@@@")
-                        .format(achievement.numAwarded.toDouble() / achievement.numDistinctCasual * 100.0))
-        view.findViewById<TextView>(R.id.achievement_details_completion_hardcore_text).text = getString(
+                        .format(achievement.numAwarded.toDouble() / numDistinctCasual * 100.0))
+        binding.achievementDetailsCompletionHardcoreText.text = getString(
                 R.string.earned_by_hc_details,
                 achievement.numAwardedHC,
                 DecimalFormat("@@@@")
-                        .format(achievement.numAwardedHC.toDouble() / achievement.numDistinctCasual * 100.0))
-        view.findViewById<TextView>(R.id.achievement_details_metadata).text = getString(R.string.metadata,
+                        .format(achievement.numAwardedHC.toDouble() / numDistinctCasual * 100.0))
+        binding.achievementDetailsMetadata.text = getString(R.string.metadata,
                 achievement.author,
                 achievement.dateCreated,
                 achievement.dateModified)
-        var progressBar = view.findViewById<ProgressBar>(R.id.achievement_details_completion_hardcore)
-        progressBar.max = achievement.numDistinctCasual.toInt()
-        progressBar.progress = achievement.numAwardedHC.toInt()
-        progressBar = view.findViewById(R.id.achievement_details_completion)
-        progressBar.max = achievement.numDistinctCasual.toInt()
-        progressBar.progress = achievement.numAwarded.toInt()
-
-        val badge = view.findViewById<ImageView>(R.id.achievement_details_badge)
+        binding.achievementDetailsCompletion.apply {
+            max = numDistinctCasual.toInt()
+            progress = achievement.numAwarded.toInt()
+        }
+        binding.achievementDetailsCompletionHardcore.apply {
+            max = numDistinctCasual.toInt()
+            progress = achievement.numAwardedHC.toInt()
+        }
         ResourcesCompat.getDrawable(resources, R.drawable.favicon, activity?.theme)?.let {
             Picasso.get()
                     .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + achievement.badge + ".png")
                     .placeholder(it)
-                    .into(badge, object : Callback {
+                    .into(binding.achievementDetailsBadge, object : Callback {
                         override fun onSuccess() {
                             if (achievement.dateEarned.startsWith("NoDate")) {
                                 val matrix = ColorMatrix()
                                 matrix.setSaturation(0f)
-                                (view.findViewById<ImageView>(R.id.achievement_details_badge)).colorFilter = ColorMatrixColorFilter(matrix)
+                                binding.achievementDetailsBadge.colorFilter = ColorMatrixColorFilter(matrix)
                             } else {
-                                (view.findViewById<ImageView>(R.id.achievement_details_badge)).clearColorFilter()
+                                binding.achievementDetailsBadge.clearColorFilter()
                             }
                         }
 

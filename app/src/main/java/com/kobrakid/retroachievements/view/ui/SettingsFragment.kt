@@ -1,62 +1,48 @@
 package com.kobrakid.retroachievements.view.ui
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.util.SparseArray
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
+import android.widget.ArrayAdapter
+import android.widget.CompoundButton
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
-import com.kobrakid.retroachievements.RetroAchievementsApi
-import com.kobrakid.retroachievements.database.Console
-import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import org.json.JSONException
-import java.io.File
+import com.kobrakid.retroachievements.databinding.FragmentSettingsBinding
+import com.kobrakid.retroachievements.viewmodel.SettingsViewModel
 
-class SettingsFragment : Fragment(), View.OnClickListener {
+class SettingsFragment : Fragment() {
 
-    private var sharedPref: SharedPreferences? = null
-    private val applicableSettings = SparseArray<Runnable?>()
-    private var counter = 0
-
-    // Can be local, but used to index which settings have been modified
-    private val logoutKey = 0
-    private val hideConsolesKey = 1
-    private val hideGamesKey = 2
-    private val changeThemeKey = 3
+    private val viewModel: SettingsViewModel by viewModels()
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         activity?.title = "Settings"
-        return inflater.inflate(R.layout.fragment_settings, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Initialize preferences object
-        sharedPref = context?.getSharedPreferences(getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
 
-        // Set up views
-        val theme = Consts.Theme.values().indexOfFirst { it.themeAttr == sharedPref?.getInt(getString(R.string.theme_setting), R.style.BlankTheme) }.coerceAtLeast(1)
-        view.findViewById<TextView>(R.id.settings_current_theme).text = getString(R.string.settings_current_theme, Consts.Theme.values()[theme].themeName)
-        view.findViewById<TextView>(R.id.settings_current_user).text = if (MainActivity.raUser == "") getString(R.string.settings_no_current_user) else getString(R.string.settings_current_user, MainActivity.raUser)
-        view.findViewById<Spinner>(R.id.settings_theme_dropdown).apply {
+        binding.settingsThemeDropdown.apply {
             try {
                 adapter = object : ArrayAdapter<Consts.Theme>(requireContext(), android.R.layout.simple_spinner_dropdown_item, Consts.Theme.values()) {
                     override fun isEnabled(position: Int): Boolean {
@@ -83,142 +69,39 @@ class SettingsFragment : Fragment(), View.OnClickListener {
                 return // no need to continue if this fragment is not attached to a context
             }
             onItemSelectedListener = object : OnItemSelectedListener {
-                override fun onItemSelected(adapterView: AdapterView<*>, view: View?, pos: Int, id: Long) {
-                    if (pos > 0) changeTheme(adapterView.getItemAtPosition(pos).toString())
-                }
-
                 override fun onNothingSelected(adapterView: AdapterView<*>?) {}
-            }
-            setSelection(theme)
-        }
-        view.findViewById<CheckBox>(R.id.settings_hide_consoles).isChecked = sharedPref?.getBoolean(getString(R.string.empty_console_hide_setting), false)
-                ?: false
-        if (sharedPref?.getBoolean(getString(R.string.empty_console_hide_setting), false) != false) view.findViewById<View>(R.id.settings_hide_consoles_warning).visibility = View.GONE
-        view.findViewById<CheckBox>(R.id.settings_hide_games).isChecked = sharedPref?.getBoolean(getString(R.string.empty_game_hide_setting), false)
-                ?: false
-        view.findViewById<CheckBox>(R.id.settings_hide_consoles).setOnCheckedChangeListener { _: CompoundButton?, b: Boolean -> hideConsoles(view, b) }
-        view.findViewById<CheckBox>(R.id.settings_hide_games).setOnCheckedChangeListener { _: CompoundButton?, b: Boolean -> hideGames(view, b) }
-
-        view.findViewById<Button>(R.id.settings_logout).setOnClickListener(this)
-        view.findViewById<Button>(R.id.settings_apply).setOnClickListener(this)
-    }
-
-    override fun onClick(view: View) {
-        when (view.id) {
-            R.id.settings_logout -> logout()
-            R.id.settings_apply -> applySettings()
-        }
-    }
-
-    /* Settings-related Functions */
-    private fun changeTheme(theme: String) {
-        applicableSettings.remove(changeThemeKey)
-        applicableSettings.put(changeThemeKey, Runnable {
-            Log.d(TAG, "Saving theme $theme with theme attribute ${Consts.Theme.values()[Consts.Theme.values().indexOfFirst { it.themeName == theme }].themeAttr}")
-            sharedPref?.edit()?.putInt(getString(R.string.theme_setting), Consts.Theme.values()[Consts.Theme.values().indexOfFirst { it.themeName == theme }].themeAttr)?.apply()
-        })
-    }
-
-    private fun hideConsoles(view: View, hide: Boolean) {
-        view.findViewById<View>(R.id.settings_hide_consoles_warning).visibility = if (hide) View.GONE else View.VISIBLE
-        if (applicableSettings[hideConsolesKey] != null) {
-            applicableSettings.remove(hideConsolesKey)
-        } else {
-            applicableSettings.put(hideConsolesKey, Runnable {
-                sharedPref?.edit()?.putBoolean(getString(R.string.empty_console_hide_setting), hide)?.apply()
-                if (hide) {
-                    // Get all consoles and store their game counts
-                    val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
-                    db?.let {
-                        CoroutineScope(IO).launch {
-                            db.consoleDao()?.clearTable()
-                            Log.d(TAG, "Clearing console table")
-                        }
-                    }
-                    CoroutineScope(IO).launch {
-                        RetroAchievementsApi.GetConsoleIDs(context) { removeConsoles(view, it) }
-                    }
-                } else {
-                    activity?.recreate()
-                }
-            })
-        }
-    }
-
-    private fun hideGames(view: View, hide: Boolean) {
-        view.findViewById<View>(R.id.settings_hide_games_warning).visibility = if (hide) View.GONE else View.VISIBLE
-        if (applicableSettings[hideGamesKey] != null) {
-            applicableSettings.remove(hideGamesKey)
-        } else {
-            applicableSettings.put(hideGamesKey, Runnable { sharedPref?.edit()?.putBoolean(getString(R.string.empty_game_hide_setting), hide)?.apply() })
-        }
-    }
-
-    private fun logout() {
-        (activity?.findViewById<View>(R.id.settings_current_user) as TextView).text = getString(R.string.settings_current_user, "none")
-        applicableSettings.put(logoutKey, Runnable {
-            sharedPref?.edit()?.putString(getString(R.string.ra_user), "")?.apply()
-            File(context?.filesDir, "RALIST").delete()
-        })
-    }
-
-    private fun applySettings() {
-        activity?.findViewById<View>(R.id.settings_applying_fade)?.visibility = View.VISIBLE
-        activity?.findViewById<View>(R.id.settings_applying)?.visibility = View.VISIBLE
-        for (key in 0 until applicableSettings.size()) {
-            applicableSettings.valueAt(key)?.run()
-        }
-        if (applicableSettings[hideConsolesKey] == null) {
-            // Recreate activity now if no db operations are running
-            activity?.recreate()
-        }
-    }
-
-    private suspend fun removeConsoles(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
-        when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
-            RetroAchievementsApi.RESPONSE.GET_CONSOLE_IDS -> {
-                val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
-                try {
-                    val reader = JSONArray(response.second)
-                    counter = reader.length()
-                    for (i in 0 until counter) {
-                        if (db != null) {
-                            CoroutineScope(IO).launch {
-                                // Set each console to have 0 games
-                                db.consoleDao()?.insertConsole(Console(reader.getJSONObject(i).getString("ID"), reader.getJSONObject(i).getString("Name")))
-                                RetroAchievementsApi.GetGameList(context, reader.getJSONObject(i).getString("ID")) { removeConsoles(view, it) }
-                            }
-                        }
-                        Log.i(TAG, "calling api on $i")
-                    }
-                } catch (e: JSONException) {
-                    Log.e(TAG, "Couldn't parse console IDs", e)
+                override fun onItemSelected(adapterView: AdapterView<*>, view: View?, pos: Int, id: Long) {
+                    if (isEnabled) viewModel.setTheme(pos)
                 }
             }
-            RetroAchievementsApi.RESPONSE.GET_GAME_LIST -> {
-                try {
-                    val reader = JSONArray(response.second)
-                    val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
-                    if (reader.length() > 0 && db != null) {
-                        CoroutineScope(IO).launch {
-                            // Only update a console if it has more than 0 games
-                            val id = reader.getJSONObject(0).getString("ConsoleID")
-                            val name = reader.getJSONObject(0).getString("ConsoleName")
-                            db.consoleDao()?.updateConsole(Console(id, name))
-                            Log.d(TAG, "Updating console $id ($name): ${reader.length()} games")
-                        }
-                    }
-                } catch (e: JSONException) {
-                    Log.e(TAG, "Couldn't parse game list", e)
-                } finally {
-                    counter--
-                }
-                if (counter == 0)
-                    withContext(Main) { activity?.recreate() }
-            }
-            else -> Log.v(TAG, "${response.first}: ${response.second}")
         }
+        viewModel.settings.observe(viewLifecycleOwner) {
+            val themeIndex = Consts.Theme.values()
+                    .indexOfFirst { theme -> theme.themeAttr == it.theme }
+                    .coerceAtLeast(0)
+            binding.settingsCurrentTheme.text = getString(R.string.settings_current_theme, if (themeIndex == 0) "<none>" else Consts.Theme.values()[themeIndex].themeName)
+            binding.settingsCurrentUser.text = if (it.user == "") getString(R.string.settings_no_current_user) else getString(R.string.settings_current_user, it.user)
+            binding.settingsThemeDropdown.setSelection(themeIndex)
+            binding.settingsHideConsoles.isChecked = it.hideEmptyConsoles
+            binding.settingsHideGames.isChecked = it.hideEmptyGames
+            binding.settingsHideConsolesWarning.visibility = if (it.hideEmptyConsoles) View.GONE else View.VISIBLE
+            binding.settingsHideGamesWarning.visibility = if (it.hideEmptyGames) View.GONE else View.VISIBLE
+        }
+        viewModel.loading.observe(viewLifecycleOwner) {
+            binding.settingsApplyingFade.visibility = if (it) View.VISIBLE else View.GONE
+            binding.settingsApplying.visibility = if (it) View.VISIBLE else View.GONE
+        }
+        viewModel.activityNeedsRecreating.observe(viewLifecycleOwner) {
+            if (it) {
+                viewModel.onRecreate()
+                activity?.recreate()
+            }
+        }
+        binding.settingsHideConsoles.setOnCheckedChangeListener { _: CompoundButton?, b: Boolean -> viewModel.setHideConsoles(context, b) }
+        binding.settingsHideGames.setOnCheckedChangeListener { _: CompoundButton?, b: Boolean -> viewModel.setHideGames(context, b) }
+        binding.settingsLogoutButton.setOnClickListener { viewModel.logout(context) }
+        binding.settingsApply.setOnClickListener { viewModel.applyTheme(context) }
+        viewModel.init(context)
     }
 
     companion object {

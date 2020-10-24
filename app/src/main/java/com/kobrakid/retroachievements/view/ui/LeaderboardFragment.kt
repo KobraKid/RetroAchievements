@@ -1,63 +1,80 @@
 package com.kobrakid.retroachievements.view.ui
 
 import android.os.Bundle
-import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.ImageView
-import android.widget.ProgressBar
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
-import com.kobrakid.retroachievements.RetroAchievementsApi
+import com.kobrakid.retroachievements.databinding.FragmentLeaderboardBinding
 import com.kobrakid.retroachievements.model.Leaderboard
 import com.kobrakid.retroachievements.view.adapter.ParticipantsAdapter
+import com.kobrakid.retroachievements.viewmodel.LeaderboardViewModel
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.jsoup.Jsoup
 
-class LeaderboardFragment : Fragment(R.layout.fragment_leaderboard), View.OnClickListener {
+class LeaderboardFragment : Fragment(), View.OnClickListener {
 
     private val args: LeaderboardFragmentArgs by navArgs()
+    private val viewModel: LeaderboardViewModel by viewModels()
+    private var _binding: FragmentLeaderboardBinding? = null
+    private val binding get() = _binding!!
     private var leaderboard = Leaderboard()
-    private val participantsAdapter: ParticipantsAdapter = ParticipantsAdapter(this)
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentLeaderboardBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         leaderboard = args.leaderboard ?: Leaderboard()
-        activity?.title = if (leaderboard.game.isNotEmpty() && leaderboard.title.isNotEmpty()) "${leaderboard.game}: ${leaderboard.title}" else ""
+        activity?.title =
+                if (leaderboard.game.isNotEmpty() && leaderboard.title.isNotEmpty()) "${leaderboard.game}: ${leaderboard.title}"
+                else ""
+        // Control progress bar with view model
+        viewModel.loading.observe(viewLifecycleOwner) {
+            binding.leaderboardProgressBar.visibility = if (it) View.VISIBLE else View.GONE
+        }
+        viewModel.leaderboardCount.observe(viewLifecycleOwner) {
+            binding.leaderboardProgressBar.max = it
+        }
+        viewModel.currentLeaderboard.observe(viewLifecycleOwner) {
+            binding.leaderboardProgressBar.progress = it
+        }
+        // Set up views from leaderboard argument
         Picasso.get()
                 .load(leaderboard.image)
                 .placeholder(R.drawable.game_placeholder)
-                .into(view.findViewById<ImageView>(R.id.leaderboard_game_icon))
-        if (leaderboard.console.isNotEmpty())
-            view.findViewById<TextView>(R.id.leaderboard_title).text = getString(R.string.leaderboard_title_template, leaderboard.title, leaderboard.console)
-        else
-            view.findViewById<TextView>(R.id.leaderboard_title).text = activity?.title
-        view.findViewById<TextView>(R.id.leaderboard_description).text = leaderboard.description
-        when {
-            leaderboard.type.contains("Score") -> view.findViewById<TextView>(R.id.leaderboard_type).text = getString(R.string.type_score, leaderboard.type)
-            leaderboard.type.contains("Time") -> view.findViewById<TextView>(R.id.leaderboard_type).text = getString(R.string.type_time, leaderboard.type)
-            else -> view.findViewById<TextView>(R.id.leaderboard_type).text = leaderboard.type
+                .into(binding.leaderboardGameIcon)
+        binding.leaderboardTitle.apply {
+            text = if (leaderboard.console.isNotEmpty()) getString(R.string.leaderboard_title_template, leaderboard.title, leaderboard.console) else activity?.title
+            isSelected = true
         }
-        val rankedUsers = view.findViewById<RecyclerView>(R.id.leaderboard_participants)
-        rankedUsers.adapter = participantsAdapter
-        rankedUsers.layoutManager = LinearLayoutManager(context)
-        if (participantsAdapter.itemCount == 0) {
-            CoroutineScope(Dispatchers.IO).launch {
-                RetroAchievementsApi.GetLeaderboard(context, leaderboard.id, leaderboard.numResults) { parseLeaderboard(view, it) }
-            }
-        } else {
-            view.findViewById<View>(R.id.leaderboard_progress_bar).visibility = View.GONE
+        binding.leaderboardDescription.text = leaderboard.description
+        binding.leaderboardType.text = when {
+            leaderboard.type.contains("Score") -> getString(R.string.type_score, leaderboard.type, leaderboard.numResults)
+            leaderboard.type.contains("Time") -> getString(R.string.type_time, leaderboard.type, leaderboard.numResults)
+            else -> leaderboard.type
         }
+        binding.leaderboardParticipants.apply {
+            adapter = ParticipantsAdapter(this@LeaderboardFragment, (activity as MainActivity?)?.user?.username)
+            layoutManager = LinearLayoutManager(context)
+        }
+        // Perform view model work
+        viewModel.participants.observe(viewLifecycleOwner) {
+            (binding.leaderboardParticipants.adapter as ParticipantsAdapter).setParticipants(it)
+        }
+        viewModel.setLeaderboard(leaderboard)
     }
 
     override fun onClick(view: View?) {
@@ -66,44 +83,5 @@ class LeaderboardFragment : Fragment(R.layout.fragment_leaderboard), View.OnClic
                     LeaderboardFragmentDirections.actionLeaderboardFragmentToUserSummaryFragment(
                             view.findViewById<TextView>(R.id.participant_username).text.toString()))
         }
-    }
-
-    private suspend fun parseLeaderboard(view: View, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
-        when (response.first) {
-            RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
-            RetroAchievementsApi.RESPONSE.GET_LEADERBOARD -> {
-                withContext(Dispatchers.Default) {
-                    val document = Jsoup.parse(response.second)
-                    val userData = document.select("td.lb_user")
-                    val resultData = document.select("td.lb_result")
-                    val dateData = document.select("td.lb_date")
-                    val progressBar = view.findViewById<ProgressBar>(R.id.leaderboard_progress_bar)
-                    withContext(Main) {
-                        progressBar.max = userData.size
-                    }
-                    for (i in userData.indices) {
-                        updateProgressBar(view, i)
-                        participantsAdapter.addParticipant(
-                                userData[i].text(),
-                                resultData[i].text(),
-                                dateData[i].text())
-                    }
-                    withContext(Main) {
-                        progressBar.visibility = View.GONE
-                    }
-                }
-            }
-            else -> Log.v(TAG, "${response.first}: ${response.second}")
-        }
-    }
-
-    private suspend fun updateProgressBar(view: View, i: Int) {
-        withContext(Main) {
-            view.findViewById<ProgressBar>(R.id.leaderboard_progress_bar).progress = i
-        }
-    }
-
-    companion object {
-        private val TAG = Consts.BASE_TAG + LeaderboardFragment::class.java.simpleName
     }
 }

@@ -4,15 +4,16 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class Game(
-        var id: String = "0",
-        var console: String = "",
-        var imageIcon: String = "",
-        var title: String = "",
-        var developer: String = "",
-        var publisher: String = "",
-        var genre: String = "",
-        var released: String = "",
-        var forumTopicID: String = "") : Parcelable {
+        val id: String = "0",
+        val console: String = "",
+        val imageIcon: String = "",
+        val title: String = "",
+        val developer: String = "",
+        val publisher: String = "",
+        val genre: String = "",
+        val released: String = "",
+        val forumTopicID: String = ""
+) : Parcelable {
 
     constructor(parcel: Parcel) : this(
             parcel.readString() ?: "0",

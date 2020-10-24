@@ -7,8 +7,8 @@ data class Achievement(
         val id: String = "0",
         val badge: String = "",
         val title: String = "",
-        val point: String = "",
-        val trueRatio: String = "",
+        val points: String = "",
+        val truePoints: String = "",
         val description: String = "",
         val dateEarned: String = "",
         val earnedHardcore: Boolean = false,
@@ -16,8 +16,7 @@ data class Achievement(
         val numAwardedHC: String = "",
         val author: String = "",
         val dateCreated: String = "",
-        val dateModified: String = "",
-        val numDistinctCasual: Double = 0.0) : Parcelable {
+        val dateModified: String = "") : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readString() ?: "0",
             parcel.readString() ?: "",
@@ -31,15 +30,14 @@ data class Achievement(
             parcel.readString() ?: "",
             parcel.readString() ?: "",
             parcel.readString() ?: "",
-            parcel.readString() ?: "",
-            parcel.readDouble())
+            parcel.readString() ?: "")
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(id)
         parcel.writeString(badge)
         parcel.writeString(title)
-        parcel.writeString(point)
-        parcel.writeString(trueRatio)
+        parcel.writeString(points)
+        parcel.writeString(truePoints)
         parcel.writeString(description)
         parcel.writeString(dateEarned)
         parcel.writeByte(if (earnedHardcore) 1 else 0)
@@ -48,7 +46,6 @@ data class Achievement(
         parcel.writeString(author)
         parcel.writeString(dateCreated)
         parcel.writeString(dateModified)
-        parcel.writeDouble(numDistinctCasual)
     }
 
     override fun describeContents(): Int {

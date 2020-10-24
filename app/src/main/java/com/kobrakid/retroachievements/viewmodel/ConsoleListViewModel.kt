@@ -22,10 +22,9 @@ import java.util.*
 
 class ConsoleListViewModel : ViewModel() {
 
-    private val _consoleList = MutableLiveData<List<Console?>>().apply { value = listOf() }
-    val consoleList: LiveData<List<Console?>> get() = _consoleList
-    private val _gameList = MutableLiveData<List<Game?>>().apply { value = listOf() }
-    val gameList: LiveData<List<Game?>> get() = _gameList
+    //    private val _consoleList =
+    val consoleList: LiveData<List<Console?>> = MutableLiveData()
+    val gameList: LiveData<List<Game?>> = MutableLiveData()
     val loading = MutableLiveData(true)
 
     private var hideEmptyConsoles = false
@@ -54,34 +53,36 @@ class ConsoleListViewModel : ViewModel() {
 
         // Check if database is aleady populated
         loading.value = true
-        val db = context?.let { RetroAchievementsDatabase.getInstance(context) }
-        if (!forceRefresh && withContext(IO) { db?.consoleDao()?.consoleList?.isNotEmpty() } == true) {
-            _consoleList.value = withContext(IO) { db?.consoleDao()?.consoleList }
-            _gameList.value = withContext(IO) { db?.gameDao()?.gameList }
+        val db = RetroAchievementsDatabase.getInstance()
+        if (!forceRefresh && withContext(IO) { db.consoleDao().consoleList.isNotEmpty() }) {
+            (consoleList as MutableLiveData).value = withContext(IO) {
+                if (hideEmptyConsoles) db.consoleDao().nonEmptyConsoles
+                else db.consoleDao().consoleList
+            }
+            (gameList as MutableLiveData).value = withContext(IO) { db.gameDao().gameList }
             loading.value = false
         } else {
             CoroutineScope(IO).launch {
-                db?.consoleDao()?.clearTable()
-                db?.gameDao()?.clearTable()
-                RetroAchievementsApi.GetConsoleIDs(context) { parseConsoles(context, it) }
+                db.consoleDao().clearTable()
+                db.gameDao().clearTable()
+                RetroAchievementsApi.getInstance().GetConsoleIDs { parseConsoles(it) }
             }
         }
     }
 
-    private suspend fun parseConsoles(context: Context?, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
+    private suspend fun parseConsoles(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
             RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_CONSOLE_IDS -> {
                 try {
                     val reader = JSONArray(response.second)
-                    val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
                     for (i in 0 until reader.length()) {
                         val id = reader.getJSONObject(i).getString("ID")
                         val name = reader.getJSONObject(i).getString(("Name"))
                         consoleQueue.add(name)
                         withContext(IO) {
-                            db?.consoleDao()?.insertConsole(Console(id, name))
-                            RetroAchievementsApi.GetGameList(context, id) { parseGameList(context, id, name, it) }
+                            RetroAchievementsDatabase.getInstance().consoleDao().insertConsole(Console(id, name))
+                            RetroAchievementsApi.getInstance().GetGameList(id) { parseGameList(id, name, it) }
                         }
                     }
                 } catch (e: JSONException) {
@@ -92,26 +93,28 @@ class ConsoleListViewModel : ViewModel() {
         }
     }
 
-    private suspend fun parseGameList(context: Context?, consoleID: String, consoleName: String, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
+    private suspend fun parseGameList(consoleID: String, consoleName: String, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
             RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_GAME_LIST -> {
                 try {
                     val reader = JSONArray(response.second)
-                    val db = context?.let { RetroAchievementsDatabase.getInstance(it) }
-                    val console = Console(consoleID, consoleName)
+                    val console = Console(consoleID, consoleName, reader.length())
                     for (i in 0 until reader.length()) {
                         reader.getJSONObject(i).let {
                             val id = it.getString("ID")
                             val title = it.getString("Title")
                             val imageIcon = it.getString("ImageIcon")
                             withContext(IO) {
-                                db?.gameDao()?.insertGame(Game(id, title, consoleID, consoleName, imageIcon))
+                                RetroAchievementsDatabase.getInstance().gameDao().insertGame(Game(id, title, consoleID, consoleName, imageIcon))
                             }
                         }
                     }
+                    withContext(IO) {
+                        RetroAchievementsDatabase.getInstance().consoleDao().updateConsole(console)
+                    }
                     // skip displaying this console if it is empty and the user is hiding empty consoles
-                    if (hideEmptyConsoles && reader.length() == 0) {
+                    if (hideEmptyConsoles && console.games == 0) {
                         skippedConsoles.add(console)
                     } else {
                         parsedConsoles.add(console)
@@ -119,8 +122,8 @@ class ConsoleListViewModel : ViewModel() {
                     // check if every console has been parsed
                     if (skippedConsoles.size + parsedConsoles.size == consoleQueue.size) {
                         withContext(Main) {
-                            _consoleList.value = parsedConsoles
-                            _gameList.value = withContext(IO) { db?.gameDao()?.gameList }
+                            (consoleList as MutableLiveData).value = parsedConsoles
+                            (gameList as MutableLiveData).value = withContext(IO) { RetroAchievementsDatabase.getInstance().gameDao().gameList }
                             loading.value = false
                         }
                     }

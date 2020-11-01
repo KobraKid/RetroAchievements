@@ -136,7 +136,7 @@
         app:foregroundStrokeCap="round"
         app:foregroundStrokeColor="?attr/colorAccent"
         app:foregroundStrokeWidth="5dp"
-        app:layout_constraintEnd_toStartOf="@+id/game_details_ratio"
+        app:layout_constraintEnd_toStartOf="@+id/game_details_true_points"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/game_details_achievements_earned_hc"
         app:layout_constraintTop_toTopOf="@id/game_details_achievements_earned"
@@ -172,7 +172,7 @@
         tools:text="600" />
 
     <com.budiyev.android.circularprogressbar.CircularProgressBar
-        android:id="@+id/game_details_ratio"
+        android:id="@+id/game_details_true_points"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginStart="8dp"
@@ -190,29 +190,29 @@
         tools:progress="391" />
 
     <TextView
-        android:id="@+id/game_details_ratio_text"
+        android:id="@+id/game_details_true_points_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/game_details_ratio_total_text"
-        app:layout_constraintEnd_toEndOf="@id/game_details_ratio"
+        app:layout_constraintBottom_toTopOf="@+id/game_details_true_points_total_text"
+        app:layout_constraintEnd_toEndOf="@id/game_details_true_points"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@id/game_details_ratio"
-        app:layout_constraintTop_toTopOf="@id/game_details_ratio"
+        app:layout_constraintStart_toStartOf="@id/game_details_true_points"
+        app:layout_constraintTop_toTopOf="@id/game_details_true_points"
         app:layout_constraintVertical_chainStyle="packed"
         tools:text="391" />
 
     <TextView
-        android:id="@+id/game_details_ratio_total_text"
+        android:id="@+id/game_details_true_points_total_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@id/game_details_ratio"
-        app:layout_constraintEnd_toEndOf="@id/game_details_ratio"
+        app:layout_constraintBottom_toBottomOf="@id/game_details_true_points"
+        app:layout_constraintEnd_toEndOf="@id/game_details_true_points"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@id/game_details_ratio"
-        app:layout_constraintTop_toBottomOf="@+id/game_details_ratio_text"
+        app:layout_constraintStart_toStartOf="@id/game_details_true_points"
+        app:layout_constraintTop_toBottomOf="@+id/game_details_true_points_text"
         tools:text="2641" />
 
     <TextView
@@ -240,16 +240,16 @@
         tools:visibility="visible" />
 
     <TextView
-        android:id="@+id/game_details_achievements_ratio_subtitle"
+        android:id="@+id/game_details_achievements_true_points_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="@string/retro_ratio"
+        android:text="@string/true_points"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/game_details_ratio"
+        app:layout_constraintEnd_toEndOf="@+id/game_details_true_points"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/game_details_ratio"
-        app:layout_constraintTop_toBottomOf="@id/game_details_ratio"
+        app:layout_constraintStart_toStartOf="@+id/game_details_true_points"
+        app:layout_constraintTop_toBottomOf="@id/game_details_true_points"
         tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

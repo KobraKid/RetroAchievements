@@ -17,11 +17,15 @@ import org.jsoup.parser.Parser
 
 class GameCommentsViewModel : ViewModel() {
 
-    val comments: LiveData<List<Comment>> = MutableLiveData()
-    val loading: LiveData<Boolean> = MutableLiveData()
+    private val _comments = MutableLiveData<List<Comment>>()
+    private val _loading = MutableLiveData<Boolean>()
 
-    fun setId(id: String) {
-        (loading as MutableLiveData).value = true
+    val comments: LiveData<List<Comment>> get() = _comments
+    val loading: LiveData<Boolean> get() = _loading
+
+    fun setId(id: String, forceReload: Boolean = false) {
+        if (!forceReload && comments.value?.isNotEmpty() == true) return
+        _loading.value = true
         CoroutineScope(Dispatchers.IO).launch {
             RetroAchievementsApi.getInstance().ScrapeGameInfoFromWeb(id) { parseGameComments(it) }
         }
@@ -57,8 +61,8 @@ class GameCommentsViewModel : ViewModel() {
                                 comment.selectFirst("td.smalldate").html().trim { it <= ' ' }))
                     }
                     withContext(Main) {
-                        (comments as MutableLiveData).value = commentList
-                        (loading as MutableLiveData).value = false
+                        _comments.value = commentList
+                        _loading.value = false
                     }
                 }
             }

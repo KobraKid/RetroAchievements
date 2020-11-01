@@ -27,8 +27,8 @@ class GameImagesFragment : Fragment() {
     private var _binding: FragmentGameImagesBinding? = null
     private val binding get() = _binding!!
 
-    private val scrollHeight get() = binding.gameImagesScrollview.height - 32
-    private val scrollWidth get() = binding.gameImagesScrollview.width - 32
+    private val scrollHeight get() = _binding?.gameImagesScrollview?.height?.minus(32) ?: 0
+    private val scrollWidth get() = _binding?.gameImagesScrollview?.width?.minus(32) ?: 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentGameImagesBinding.inflate(inflater, container, false)
@@ -42,22 +42,23 @@ class GameImagesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val res = resources
         viewModel.boxURL.observe(viewLifecycleOwner) {
             Picasso.get()
                     .load(Consts.BASE_URL + it)
                     .into(object : Target {
                         override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
-                            val drawable: Drawable = BitmapDrawable(resources, bitmap)
+                            val drawable: Drawable = BitmapDrawable(res, bitmap)
                             val scale = min(
                                     scrollHeight / drawable.intrinsicHeight.toDouble(),
                                     scrollWidth / drawable.intrinsicWidth.toDouble())
                             drawable.setBounds(0, 0, (drawable.intrinsicWidth * scale).toInt(), (drawable.intrinsicHeight * scale).toInt())
-                            binding.imageBoxart.setCompoundDrawables(null, drawable, null, null)
+                            _binding?.imageBoxart?.setCompoundDrawables(null, drawable, null, null)
                             Log.v(TAG, "Loaded image 0: $bitmap from $from @ ${scale}x scale (${drawable.intrinsicWidth} x ${drawable.intrinsicHeight})")
                         }
 
                         override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
-                            binding.card0Boxart.visibility = View.GONE
+                            _binding?.card0Boxart?.visibility = View.GONE
                         }
 
                         override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
@@ -68,17 +69,17 @@ class GameImagesFragment : Fragment() {
                     .load(Consts.BASE_URL + it)
                     .into(object : Target {
                         override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
-                            val drawable: Drawable = BitmapDrawable(resources, bitmap)
+                            val drawable: Drawable = BitmapDrawable(res, bitmap)
                             val scale = min(
                                     scrollHeight / drawable.intrinsicHeight.toDouble(),
                                     scrollWidth / drawable.intrinsicWidth.toDouble())
                             drawable.setBounds(0, 0, (drawable.intrinsicWidth * scale).toInt(), (drawable.intrinsicHeight * scale).toInt())
-                            binding.imageTitle.setCompoundDrawables(null, drawable, null, null)
+                            _binding?.imageTitle?.setCompoundDrawables(null, drawable, null, null)
                             Log.v(TAG, "Loaded image 1: $bitmap from $from @ ${scale}x scale (${drawable.intrinsicWidth} x ${drawable.intrinsicHeight})")
                         }
 
                         override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
-                            binding.card1Title.visibility = View.GONE
+                            _binding?.card1Title?.visibility = View.GONE
                         }
 
                         override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
@@ -89,17 +90,17 @@ class GameImagesFragment : Fragment() {
                     .load(Consts.BASE_URL + it)
                     .into(object : Target {
                         override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
-                            val drawable: Drawable = BitmapDrawable(resources, bitmap)
+                            val drawable: Drawable = BitmapDrawable(res, bitmap)
                             val scale = min(
                                     scrollHeight / drawable.intrinsicHeight.toDouble(),
                                     scrollWidth / drawable.intrinsicWidth.toDouble())
                             drawable.setBounds(0, 0, (drawable.intrinsicWidth * scale).toInt(), (drawable.intrinsicHeight * scale).toInt())
-                            binding.imageIngame.setCompoundDrawables(null, drawable, null, null)
+                            _binding?.imageIngame?.setCompoundDrawables(null, drawable, null, null)
                             Log.v(TAG, "Loaded image 2: $bitmap from $from @ ${scale}x scale (${drawable.intrinsicWidth} x ${drawable.intrinsicHeight})")
                         }
 
                         override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
-                            binding.card2Ingame.visibility = View.GONE
+                            _binding?.card2Ingame?.visibility = View.GONE
                         }
 
                         override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}

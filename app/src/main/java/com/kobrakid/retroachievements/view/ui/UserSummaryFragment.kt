@@ -52,6 +52,6 @@ class UserSummaryFragment : Fragment() {
                 binding.userSummaryJoined.text = getString(R.string.user_joined, user.memberSince)
             }
         }
-        viewModel.setUsername(context, args.username)
+        viewModel.setUsername(args.username)
     }
 }

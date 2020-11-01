@@ -24,9 +24,13 @@ class SettingsViewModel : ViewModel() {
 
     private var sharedPrefs: SharedPreferences? = null
     private var selectedTheme: Int = 0
-    val settings: LiveData<Settings> = MutableLiveData()
-    val loading: LiveData<Boolean> = MutableLiveData(false)
-    val activityNeedsRecreating: LiveData<Boolean> = MutableLiveData()
+    private val _settings = MutableLiveData<Settings>()
+    private val _loading = MutableLiveData<Boolean>()
+    private val _activityNeedsRecreating = MutableLiveData<Boolean>()
+
+    val settings: LiveData<Settings> get() = _settings
+    val activityNeedsRecreating: LiveData<Boolean> get() = _activityNeedsRecreating
+    val loading: LiveData<Boolean> get() = _loading
 
     private var counter = 0
 
@@ -38,7 +42,7 @@ class SettingsViewModel : ViewModel() {
     }
 
     private fun getSettings(context: Context) {
-        (settings as MutableLiveData).value = Settings().apply {
+        _settings.value = Settings().apply {
             theme = sharedPrefs?.getInt(context.getString(R.string.theme_setting), R.style.BlankTheme)
                     ?: 0
             user = sharedPrefs?.getString(context.getString(R.string.ra_user), "")
@@ -51,7 +55,7 @@ class SettingsViewModel : ViewModel() {
     }
 
     fun onRecreate() {
-        (activityNeedsRecreating as MutableLiveData).value = false
+        _activityNeedsRecreating.value = false
     }
 
     fun setTheme(theme: Int) {
@@ -61,22 +65,22 @@ class SettingsViewModel : ViewModel() {
     }
 
     fun applyTheme(context: Context?) {
-        if (selectedTheme != settings.value?.theme) {
+        if (selectedTheme != _settings.value?.theme) {
             context?.let {
                 sharedPrefs?.edit()?.putInt(it.getString(R.string.theme_setting), this.selectedTheme)?.apply()
-                (settings as MutableLiveData).value = Settings(settings.value).apply { theme = selectedTheme }
+                _settings.value = Settings(_settings.value).apply { theme = selectedTheme }
             }
-            (activityNeedsRecreating as MutableLiveData).value = true
+            _activityNeedsRecreating.value = true
         }
     }
 
     fun setHideConsoles(context: Context?, hide: Boolean) {
-        if (hide != settings.value?.hideEmptyConsoles) {
+        if (hide != _settings.value?.hideEmptyConsoles) {
             context?.let { ctx ->
                 sharedPrefs?.edit()?.putBoolean(ctx.getString(R.string.empty_console_hide_setting), hide)?.apply()
-                (settings as MutableLiveData).value = Settings(settings.value).apply { hideEmptyConsoles = hide }
+                _settings.value = Settings(_settings.value).apply { hideEmptyConsoles = hide }
                 if (hide) {
-                    (loading as MutableLiveData).value = true
+                    _loading.value = true
                     CoroutineScope(IO).launch {
                         RetroAchievementsDatabase.getInstance().consoleDao().clearTable()
                         Log.d(TAG, "Clearing console table")
@@ -90,15 +94,15 @@ class SettingsViewModel : ViewModel() {
     fun setHideGames(context: Context?, hide: Boolean) {
         context?.let {
             sharedPrefs?.edit()?.putBoolean(it.getString(R.string.empty_game_hide_setting), hide)?.apply()
-            (settings as MutableLiveData).value = Settings(settings.value).apply { hideEmptyGames = hide }
+            _settings.value = Settings(_settings.value).apply { hideEmptyGames = hide }
         }
     }
 
     fun logout(context: Context?) {
         context?.let {
             sharedPrefs?.edit()?.putString(it.getString(R.string.ra_user), "")?.apply()
-            (settings as MutableLiveData).value = Settings(settings.value).apply { user = "" }
-            (activityNeedsRecreating as MutableLiveData).value = true
+            _settings.value = Settings(_settings.value).apply { user = "" }
+            _activityNeedsRecreating.value = true
         }
     }
 
@@ -141,7 +145,7 @@ class SettingsViewModel : ViewModel() {
                 } finally {
                     counter--
                 }
-                if (counter == 0) withContext(Main) { (loading as MutableLiveData).value = false }
+                if (counter == 0) withContext(Main) { _loading.value = false }
             }
             else -> Log.v(TAG, "${response.first}: ${response.second}")
         }

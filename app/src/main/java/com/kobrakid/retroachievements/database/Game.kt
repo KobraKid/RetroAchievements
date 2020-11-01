@@ -1,35 +1,36 @@
 package com.kobrakid.retroachievements.database
 
 import androidx.room.*
+import com.kobrakid.retroachievements.model.IGame
 
 @Entity(tableName = "game")
 data class Game(
-        @field:ColumnInfo(name = "ID") @field:PrimaryKey val id: String,
-        @field:ColumnInfo(name = "Title") var title: String,
-        @field:ColumnInfo(name = "ConsoleID") val consoleID: String,
-        @field:ColumnInfo(name = "ConsoleName") val consoleName: String,
-        @field:ColumnInfo(name = "ImageIcon") var imageIcon: String,
-        @field:ColumnInfo(name = "ImageTitle") var imageTitle: String = "",
-        @field:ColumnInfo(name = "ImageIngame") var imageIngame: String = "",
-        @field:ColumnInfo(name = "ImageBoxArt") var imageBoxArt: String = "",
-        @field:ColumnInfo(name = "Developer") var developer: String = "",
-        @field:ColumnInfo(name = "Publisher") var publisher: String = "",
-        @field:ColumnInfo(name = "Genre") var genre: String = "",
-        @field:ColumnInfo(name = "ForumTopicID") val forumTopicID: String = "",
-        @field:ColumnInfo(name = "Flags") var flags: Int = 0,
-        @field:ColumnInfo(name = "Released") var released: String = "",
-        @field:ColumnInfo(name = "IsFinal") var isFinal: Boolean = true,
-        @field:ColumnInfo(name = "RichPresencePatch") var richPresencePatch: String = "",
-        @field:ColumnInfo(name = "NumAchievements") var numAchievements: Int = 0,
-        @field:ColumnInfo(name = "NumDistinctPlayersCasual") var numDistinctPlayersCasual: String = "",
-        @field:ColumnInfo(name = "NumDistinctPlayersHardcore") var numDistinctPlayersHardcore: String = "",
-        @field:ColumnInfo(name = "NumAwardedToUser") var numAwardedToUser: Int = 0,
-        @field:ColumnInfo(name = "NumAwardedToUserHardcore") var numAwardedToUserHardcore: Int = 0,
-        @field:ColumnInfo(name = "UserCompletion") var userCompletion: String = "",
-        @field:ColumnInfo(name = "UserCompletionHardcore") var userCompletionHardcore: String = "") {
+        @field:ColumnInfo(name = "ID") @field:PrimaryKey override var id: String = "0",
+        @field:ColumnInfo(name = "Title") override var title: String = "",
+        @field:ColumnInfo(name = "ConsoleID") override var consoleID: String = "0",
+        @field:ColumnInfo(name = "ForumTopicID") override var forumTopicID: String = "0",
+        @field:ColumnInfo(name = "Flags") override var flags: Int = 0,
+        @field:ColumnInfo(name = "ImageIcon") override var imageIcon: String = "",
+        @field:ColumnInfo(name = "ImageTitle") override var imageTitle: String = "",
+        @field:ColumnInfo(name = "ImageIngame") override var imageIngame: String = "",
+        @field:ColumnInfo(name = "ImageBoxArt") override var imageBoxArt: String = "",
+        @field:ColumnInfo(name = "Publisher") override var publisher: String = "",
+        @field:ColumnInfo(name = "Developer") override var developer: String = "",
+        @field:ColumnInfo(name = "Genre") override var genre: String = "",
+        @field:ColumnInfo(name = "Released") override var released: String = "",
+        @field:ColumnInfo(name = "IsFinal") override var isFinal: Boolean = true,
+        @field:ColumnInfo(name = "ConsoleName") override var consoleName: String = "",
+        @field:ColumnInfo(name = "RichPresencePatch") override var richPresencePatch: String = "",
+        @field:ColumnInfo(name = "NumAchievements") override var numAchievements: Int = 0,
+        @field:ColumnInfo(name = "NumDistinctPlayersCasual") override var numDistinctPlayersCasual: Int = 0,
+        @field:ColumnInfo(name = "NumDistinctPlayersHardcore") override var numDistinctPlayersHardcore: Int = 0,
+        @field:ColumnInfo(name = "NumAwardedToUser") override var numAwardedToUser: Int = 0,
+        @field:ColumnInfo(name = "NumAwardedToUserHardcore") override var numAwardedToUserHardcore: Int = 0,
+        @field:ColumnInfo(name = "UserCompletion") override var userCompletion: String = "",
+        @field:ColumnInfo(name = "UserCompletionHardcore") override var userCompletionHardcore: String = "") : IGame {
 
     override fun toString(): String {
-        return "$title | $consoleName"
+        return "[$id] $title | $consoleName"
     }
 
 }

@@ -122,7 +122,7 @@
     <string name="no_achievements">No Achievements</string>
     <string name="progress">Progress</string>
     <string name="points">Points</string>
-    <string name="retro_ratio">Retro Ratio</string>
+    <string name="true_points">True Points</string>
     <string name="percent">%1$d%%</string>
     <string name="diminished_percent">(%1$d%%)</string>
     <string name="diminished_text">(%1$s)</string>

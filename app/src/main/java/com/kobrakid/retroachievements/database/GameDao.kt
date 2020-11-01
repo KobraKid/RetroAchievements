@@ -20,7 +20,7 @@ interface GameDao {
     @Query("DELETE FROM game")
     fun clearTable()
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertGame(game: Game?)
 
     @Update

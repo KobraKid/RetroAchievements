@@ -1,6 +1,7 @@
 package com.kobrakid.retroachievements.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kobrakid.retroachievements.Consts
@@ -17,19 +18,21 @@ import org.json.JSONObject
 
 class RankingsViewModel : ViewModel() {
 
-    private lateinit var user: String
-    val users = MutableLiveData<List<User>>(mutableListOf())
+    private val _users = MutableLiveData<List<User>>()
 
-    fun getTopUsers(user: String?) {
-        this.user = user ?: ""
-        if (users.value?.isEmpty() == true) {
+    val users: LiveData<List<User>> get() = _users
+
+    fun getTopUsers(currentUser: String?) {
+        if (_users.value?.isEmpty() == true) {
             CoroutineScope(Dispatchers.IO).launch {
-                RetroAchievementsApi.getInstance().GetTopTenUsers { parseTopTenUsers(it) }
+                RetroAchievementsApi.getInstance().GetTopTenUsers {
+                    parseTopTenUsers(currentUser ?: "", it)
+                }
             }
         }
     }
 
-    private suspend fun parseTopTenUsers(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
+    private suspend fun parseTopTenUsers(currentUser: String, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
             RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_TOP_TEN_USERS -> {
@@ -37,10 +40,10 @@ class RankingsViewModel : ViewModel() {
                     val reader = JSONArray(response.second)
                     var loggedInUserIncluded = false
                     for (i in 0 until reader.length()) {
-                        if ((reader[i] as JSONObject).getString("1") == user)
+                        if ((reader[i] as JSONObject).getString("1") == currentUser)
                             loggedInUserIncluded = true
                         withContext(Main) {
-                            users.value = users.value?.plus(User(
+                            _users.value = _users.value?.plus(User(
                                     rank = (i + 1).toString(),
                                     username = (reader[i] as JSONObject).getString("1"),
                                     totalPoints = (reader[i] as JSONObject).getString("2"),
@@ -50,7 +53,7 @@ class RankingsViewModel : ViewModel() {
                     // Adjust for logged in user not being in the Top Ten
                     if (!loggedInUserIncluded) {
                         withContext(Dispatchers.IO) {
-                            RetroAchievementsApi.getInstance().GetUserSummary(user, 0) { parseTopTenUsers(it) }
+                            RetroAchievementsApi.getInstance().GetUserSummary(currentUser, 0) { parseTopTenUsers(currentUser, it) }
                         }
                     }
 
@@ -62,9 +65,9 @@ class RankingsViewModel : ViewModel() {
                 try {
                     val reader = JSONObject(response.second)
                     withContext(Main) {
-                        users.value = users.value?.plus(User(
+                        _users.value = _users.value?.plus(User(
                                 rank = reader.getString("Rank"),
-                                username = user,
+                                username = currentUser,
                                 totalPoints = reader.getString("TotalPoints"),
                                 totalTruePoints = reader.getString("TotalTruePoints")))
                     }

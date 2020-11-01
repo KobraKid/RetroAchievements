@@ -17,10 +17,13 @@ import org.json.JSONException
 
 class RecentGamesViewModel : ViewModel() {
 
-    val loading: LiveData<Boolean> = MutableLiveData()
-    val recentGames: LiveData<List<GameSummary>> = MutableLiveData(mutableListOf())
     private var offset = 0
     private val gamesPerApiCall = 15
+    private val _recentGames = MutableLiveData<List<GameSummary>>(mutableListOf())
+    private val _loading = MutableLiveData<Boolean>()
+
+    val recentGames: LiveData<List<GameSummary>> get() = _recentGames
+    val loading: LiveData<Boolean> get() = _loading
 
     /**
      * Adds recent games to the view's recyclerview. Tries to catch the user reaching end of list
@@ -31,7 +34,7 @@ class RecentGamesViewModel : ViewModel() {
     fun getRecentGames(username: String?, itemCount: Int, scrollPosition: Int) {
         // Only get more games if there are none, or if the last request has completed and the user is scrolling near the end
         if ((scrollPosition == 0 && itemCount == 0) || (scrollPosition >= offset - gamesPerApiCall && itemCount == offset)) {
-            (loading as MutableLiveData).value = true
+            _loading.value = true
             CoroutineScope(Dispatchers.IO).launch {
                 RetroAchievementsApi.getInstance().GetUserRecentlyPlayedGames(username
                         ?: "", gamesPerApiCall, offset) { parseRecentlyPlayedGames(it) }
@@ -42,7 +45,7 @@ class RecentGamesViewModel : ViewModel() {
 
     fun onRefresh() {
         offset = 0
-        ((recentGames as MutableLiveData).value as MutableList).clear()
+        (_recentGames.value as MutableList).clear()
     }
 
     private suspend fun parseRecentlyPlayedGames(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
@@ -68,8 +71,8 @@ class RecentGamesViewModel : ViewModel() {
                     Log.e(TAG, "Failed to parse recenntly played games", e)
                 } finally {
                     withContext(Main) {
-                        (recentGames as MutableLiveData).value = (recentGames.value as MutableList).apply { addAll(games) }
-                        (loading as MutableLiveData).value = false
+                        _recentGames.value = (_recentGames.value as MutableList).apply { addAll(games) }
+                        _loading.value = false
                     }
                 }
             }

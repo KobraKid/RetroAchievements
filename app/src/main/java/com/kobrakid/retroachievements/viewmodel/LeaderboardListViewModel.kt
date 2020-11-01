@@ -17,14 +17,19 @@ import org.jsoup.Jsoup
 
 class LeaderboardListViewModel : ViewModel() {
 
-    val leaderboards: LiveData<List<Leaderboard>> = MutableLiveData()
-    val loading: LiveData<Boolean> = MutableLiveData(false)
-    val max: LiveData<Int> = MutableLiveData()
-    val progress: LiveData<Int> = MutableLiveData()
+    private val _leaderboards = MutableLiveData<List<Leaderboard>>()
+    private val _loading = MutableLiveData<Boolean>()
+    private val _max = MutableLiveData<Int>()
+    private val _progress = MutableLiveData<Int>()
+
+    val leaderboards: LiveData<List<Leaderboard>> get() = _leaderboards
+    val loading: LiveData<Boolean> get() = _loading
+    val max: LiveData<Int> get() = _max
+    val progress: LiveData<Int> get() = _progress
 
     fun init(filename: String) {
         if (leaderboards.value?.isNotEmpty() == true) return
-        (loading as MutableLiveData).value = true
+        _loading.value = true
         CoroutineScope(Dispatchers.IO).launch {
             RetroAchievementsApi.getInstance().GetLeaderboards(filename, true) { parseLeaderboards(it) }
         }
@@ -37,9 +42,9 @@ class LeaderboardListViewModel : ViewModel() {
                 withContext(Default) {
                     val lb = mutableListOf<Leaderboard>()
                     val rows = Jsoup.parse(response.second).select("div[class=detaillist] > table > tbody > tr")
-                    withContext(Main) { (max as MutableLiveData).value = (rows.size - 1).coerceAtLeast(0) }
+                    withContext(Main) { _max.value = (rows.size - 1).coerceAtLeast(0) }
                     for ((i, row) in rows.withIndex()) {
-                        withContext(Main) { (progress as MutableLiveData).value = i }
+                        withContext(Main) { _progress.value = i }
                         // Skip the header row
                         if (i == 0) continue
                         // Helpers
@@ -59,8 +64,8 @@ class LeaderboardListViewModel : ViewModel() {
                         lb.add(Leaderboard(id, image, game, console, title, description, type, numResults))
                     }
                     withContext(Main) {
-                        (leaderboards as MutableLiveData).value = lb
-                        (loading as MutableLiveData).value = false
+                        _leaderboards.value = lb
+                        _loading.value = false
                     }
                 }
             }

@@ -17,9 +17,13 @@ import org.json.JSONObject
 
 class GameImagesViewModel : ViewModel() {
 
-    val boxURL: LiveData<String> = MutableLiveData()
-    val titleURL: LiveData<String> = MutableLiveData()
-    val ingameURL: LiveData<String> = MutableLiveData()
+    private val _boxURL = MutableLiveData<String>()
+    private val _titleURL = MutableLiveData<String>()
+    private val _ingameURL = MutableLiveData<String>()
+
+    val boxURL: LiveData<String> get() = _boxURL
+    val titleURL: LiveData<String> get() = _titleURL
+    val ingameURL: LiveData<String> get() = _ingameURL
 
     fun setId(id: String) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -44,9 +48,9 @@ class GameImagesViewModel : ViewModel() {
                         Log.e(TAG, "Couldn't parse game images", e)
                     } finally {
                         withContext(Main) {
-                            (boxURL as MutableLiveData).value = box
-                            (titleURL as MutableLiveData).value = title
-                            (ingameURL as MutableLiveData).value = ingame
+                            _boxURL.value = box
+                            _titleURL.value = title
+                            _ingameURL.value = ingame
                         }
                     }
                 }

@@ -17,13 +17,18 @@ import org.jsoup.Jsoup
 
 class LeaderboardViewModel : ViewModel() {
 
-    val leaderboardCount: LiveData<Int> = MutableLiveData()
-    val currentLeaderboard: LiveData<Int> = MutableLiveData()
-    val participants: LiveData<List<LeaderboardParticipant>> = MutableLiveData()
-    val loading: LiveData<Boolean> = MutableLiveData()
+    private val _leaderboardCount = MutableLiveData<Int>()
+    private val _currentLeaderboard = MutableLiveData<Int>()
+    private val _participants = MutableLiveData<List<LeaderboardParticipant>>()
+    private val _loading = MutableLiveData<Boolean>()
+
+    val leaderboardCount: LiveData<Int> get() = _leaderboardCount
+    val currentLeaderboard: LiveData<Int> get() = _currentLeaderboard
+    val participants: LiveData<List<LeaderboardParticipant>> get() = _participants
+    val loading: LiveData<Boolean> get() = _loading
 
     fun setLeaderboard(leaderboard: Leaderboard) {
-        (loading as MutableLiveData).value = true
+        _loading.value = true
         CoroutineScope(Dispatchers.IO).launch {
             RetroAchievementsApi.getInstance().GetLeaderboard(leaderboard.id, leaderboard.numResults) { parseLeaderboard(it) }
         }
@@ -39,17 +44,17 @@ class LeaderboardViewModel : ViewModel() {
                     val userData = document.select("td.lb_user")
                     val resultData = document.select("td.lb_result")
                     val dateData = document.select("td.lb_date")
-                    withContext(Main) { (leaderboardCount as MutableLiveData).value = userData.size }
+                    withContext(Main) { _leaderboardCount.value = userData.size }
                     for (i in userData.indices) {
-                        withContext(Main) { (currentLeaderboard as MutableLiveData).value = i }
+                        withContext(Main) { _currentLeaderboard.value = i }
                         users.add(LeaderboardParticipant(
                                 userData[i].text(),
                                 resultData[i].text(),
                                 dateData[i].text()))
                     }
                     withContext(Main) {
-                        (participants as MutableLiveData).value = users
-                        (loading as MutableLiveData).value = false
+                        _participants.value = users
+                        _loading.value = false
                     }
                 }
             }

@@ -18,10 +18,12 @@ import org.json.JSONObject
 
 class MainViewModel : ViewModel() {
 
-    val user: LiveData<User> = MutableLiveData()
+    private val _user = MutableLiveData<User>()
+
+    val user: LiveData<User> get() = _user
 
     fun setUsername(username: String?) {
-        (user as MutableLiveData).value = User(username ?: "")
+        _user.value = User(username ?: "")
         if (username != null) {
             CoroutineScope(IO).launch {
                 RetroAchievementsApi.getInstance().GetUserRankAndScore(username) { parseRankScore(it) }
@@ -30,11 +32,11 @@ class MainViewModel : ViewModel() {
     }
 
     private fun setRank(r: String) {
-        (user as MutableLiveData).value = User(user.value).apply { rank = r }
+        _user.value = User(_user.value).apply { rank = r }
     }
 
     private fun setScore(s: String) {
-        (user as MutableLiveData).value = User(user.value).apply { totalPoints = s }
+        _user.value = User(_user.value).apply { totalPoints = s }
     }
 
     private suspend fun parseRankScore(response: Pair<RetroAchievementsApi.RESPONSE, String>) {

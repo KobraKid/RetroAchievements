@@ -1,6 +1,5 @@
 package com.kobrakid.retroachievements.viewmodel
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -17,35 +16,36 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class UserSummaryViewModel : ViewModel() {
-    private var username: String = ""
-    val userState: LiveData<User> = MutableLiveData(User())
 
-    fun setUsername(context: Context?, username: String) {
+    private var username: String = ""
+    private val _userState = MutableLiveData<User>()
+
+    val userState: LiveData<User> get() = _userState
+
+    fun setUsername(username: String) {
         if (username != this.username) {
             this.username = username
             CoroutineScope(Dispatchers.IO).launch {
-                RetroAchievementsApi.getInstance().GetUserSummary(username, 5) { parseUserSummary(context, it) }
+                RetroAchievementsApi.getInstance().GetUserSummary(username, 5) { parseUserSummary(it) }
             }
         }
     }
 
-    private suspend fun parseUserSummary(context: Context?, response: Pair<RetroAchievementsApi.RESPONSE, String>) {
+    private suspend fun parseUserSummary(response: Pair<RetroAchievementsApi.RESPONSE, String>) {
         when (response.first) {
             RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
             RetroAchievementsApi.RESPONSE.GET_USER_SUMMARY -> {
                 try {
+                    val reader = JSONObject(response.second)
+                    val motto = "\"${reader.getString("Motto")}\""
                     withContext(Main) {
-                        val reader = JSONObject(response.second)
-                        val motto = "\"${reader.getString("Motto")}\""
-                        context?.let {
-                            (userState as MutableLiveData<User>).value = User(
-                                    username = username,
-                                    rank = reader.getString("Rank"),
-                                    motto = if (motto.length > 2) motto else "",
-                                    totalPoints = reader.getString("TotalPoints"),
-                                    totalTruePoints = reader.getString("TotalTruePoints"),
-                                    memberSince = reader.getString("MemberSince"))
-                        }
+                        _userState.value = User(
+                                username = username,
+                                rank = reader.getString("Rank"),
+                                motto = if (motto.length > 2) motto else "",
+                                totalPoints = reader.getString("TotalPoints"),
+                                totalTruePoints = reader.getString("TotalTruePoints"),
+                                memberSince = reader.getString("MemberSince"))
                     }
                 } catch (e: JSONException) {
                     Log.e(TAG, "Unable to parse user summary", e)

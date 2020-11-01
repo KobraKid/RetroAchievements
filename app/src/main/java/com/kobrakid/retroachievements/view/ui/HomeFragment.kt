@@ -83,7 +83,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                             .into(it.findViewById<ImageView>(R.id.game_summary_image_icon))
                     it.findViewById<TextView>(R.id.game_summary_title).text = game.title
                     it.findViewById<TextView>(R.id.game_summary_stats).text = getString(R.string.game_stats,
-                            game.numAchievementsEarned.coerceAtLeast(game.numAchievementsEarnedHC),
+                            game.numAchievementsEarned.coerceAtLeast(game.numAchievementsEarnedHardcore),
                             game.totalAchievements,
                             game.earnedPoints,
                             game.totalPoints)

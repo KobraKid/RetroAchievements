@@ -8,6 +8,7 @@ import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.RetroAchievementsApi
 import com.kobrakid.retroachievements.database.Game
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
+import com.kobrakid.retroachievements.model.IGame
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -18,24 +19,26 @@ import org.json.JSONException
 
 class ConsoleGamesViewModel : ViewModel() {
 
-    val consoleGamesList: LiveData<List<Game?>> = MutableLiveData()
-    val loading = MutableLiveData(true)
     private var consoleID = ""
-
     private val games = mutableListOf<Game>()
+    private val _consoleGamesList = MutableLiveData<List<IGame>>()
+    private val _loading = MutableLiveData<Boolean>()
+
+    val consoleGamesList: LiveData<List<IGame>> get() = _consoleGamesList
+    val loading: LiveData<Boolean> get() = _loading
 
     suspend fun setConsoleID(id: String, forceRefresh: Boolean = false) {
         consoleID = id
         // Prevent re-initialization
         if (!forceRefresh && consoleGamesList.value?.isNotEmpty() == true) {
-            loading.value = false
+            _loading.value = false
             return
         }
-        loading.value = true
+        _loading.value = true
         val db = RetroAchievementsDatabase.getInstance()
         if (!forceRefresh && withContext(IO) { db.gameDao().getGamesFromConsoleByID(consoleID).isNotEmpty() }) {
-            (consoleGamesList as MutableLiveData).value = withContext(IO) { db.gameDao().getGamesFromConsoleByID(consoleID) }
-            loading.value = false
+            _consoleGamesList.value = withContext(IO) { db.gameDao().getGamesFromConsoleByID(consoleID) }
+            _loading.value = false
         } else {
             CoroutineScope(IO).launch {
                 RetroAchievementsApi.getInstance().GetGameList(consoleID) { parseGameList(it) }
@@ -52,11 +55,11 @@ class ConsoleGamesViewModel : ViewModel() {
                     val db = RetroAchievementsDatabase.getInstance()
                     for (i in 0 until reader.length()) {
                         val game = Game(
-                                reader.getJSONObject(i).getString("ID"),
-                                reader.getJSONObject(i).getString("Title"),
-                                reader.getJSONObject(i).getString("ConsoleID"),
-                                reader.getJSONObject(i).getString("ConsoleName"),
-                                reader.getJSONObject(i).getString("ImageIcon"))
+                                id = reader.getJSONObject(i).getString("ID"),
+                                title = reader.getJSONObject(i).getString("Title"),
+                                consoleID = reader.getJSONObject(i).getString("ConsoleID"),
+                                consoleName = reader.getJSONObject(i).getString("ConsoleName"),
+                                imageIcon = reader.getJSONObject(i).getString("ImageIcon"))
                         withContext(IO) {
                             if (db.gameDao().getGameWithID(game.id).isNotEmpty()) {
                                 db.gameDao().updateGame(game)
@@ -67,8 +70,8 @@ class ConsoleGamesViewModel : ViewModel() {
                         games.add(game)
                     }
                     withContext(Main) {
-                        (consoleGamesList as MutableLiveData).value = games
-                        loading.value = false
+                        _consoleGamesList.value = games
+                        _loading.value = false
                     }
                 } catch (e: JSONException) {
                     Log.e(TAG, "Couldn't parse game list", e)

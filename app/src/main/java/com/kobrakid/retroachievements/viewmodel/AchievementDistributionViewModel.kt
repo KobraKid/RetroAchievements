@@ -18,11 +18,11 @@ import java.util.regex.Pattern
 
 class AchievementDistributionViewModel : ViewModel() {
 
-    var chartData: LiveData<List<Entry>> = MutableLiveData()
-    private var id: String = ""
+    private val _chartData = MutableLiveData<List<Entry>>()
+
+    val chartData: LiveData<List<Entry>> get() = _chartData
 
     fun setId(id: String) {
-        this.id = id
         CoroutineScope(IO).launch {
             RetroAchievementsApi.getInstance().ScrapeGameInfoFromWeb(id) { parseAchievementDistribution(it) }
         }
@@ -47,7 +47,7 @@ class AchievementDistributionViewModel : ViewModel() {
                                 }
                             }
                     withContext(Main) {
-                        (chartData as MutableLiveData).value = entries
+                        _chartData.value = entries
                     }
                 }
             }

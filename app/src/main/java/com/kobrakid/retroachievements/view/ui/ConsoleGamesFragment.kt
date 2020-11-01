@@ -42,7 +42,7 @@ class ConsoleGamesFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val console = args.console ?: Console()
-        activity?.title = console.name
+        activity?.title = console.consoleName
         binding.listGames.apply {
             adapter = GameSummaryAdapter(this@ConsoleGamesFragment, context)
             layoutManager = LinearLayoutManager(context)

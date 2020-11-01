@@ -7,13 +7,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.R
-import com.kobrakid.retroachievements.database.Console
+import com.kobrakid.retroachievements.model.IConsole
 import com.kobrakid.retroachievements.view.adapter.ConsoleAdapter.ConsoleViewHolder
 import java.util.*
 
 class ConsoleAdapter(private val listener: View.OnClickListener) : RecyclerView.Adapter<ConsoleViewHolder>() {
 
-    private val consoles = mutableListOf<Console>()
+    private val consoles = mutableListOf<IConsole>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConsoleViewHolder {
         return ConsoleViewHolder(
@@ -39,14 +39,12 @@ class ConsoleAdapter(private val listener: View.OnClickListener) : RecyclerView.
         return consoles.size
     }
 
-    fun setData(data: List<Console?>) {
+    fun setData(data: List<IConsole>) {
         consoles.clear()
         data.forEach { console ->
-            if (console != null) {
-                consoles.add(console)
-                consoles.sortBy { it.consoleName }
-            }
+            consoles.add(console)
         }
+        consoles.sortBy { it.consoleName }
         notifyDataSetChanged()
     }
 

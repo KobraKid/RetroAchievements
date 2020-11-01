@@ -53,9 +53,7 @@ class AchievementDetailsFragment : Fragment() {
         // Set fields from transferred data
         binding.achievementDetailsTitle.text = achievement.title
         binding.achievementDetailsDescription.text = achievement.description
-        if (!achievement.dateEarned.startsWith("NoDate")) {
-            binding.achievementDetailsDate.text = getString(R.string.date_earned_upper, achievement.dateEarned)
-        }
+        binding.achievementDetailsDate.text = if (achievement.dateEarned.isNotEmpty()) getString(R.string.date_earned_upper, achievement.dateEarned) else ""
         binding.achievementDetailsCompletionText.text = getString(
                 R.string.earned_by_details,
                 achievement.numAwarded,
@@ -64,9 +62,9 @@ class AchievementDetailsFragment : Fragment() {
                         .format(achievement.numAwarded.toDouble() / numDistinctCasual * 100.0))
         binding.achievementDetailsCompletionHardcoreText.text = getString(
                 R.string.earned_by_hc_details,
-                achievement.numAwardedHC,
+                achievement.numAwardedHardcore,
                 DecimalFormat("@@@@")
-                        .format(achievement.numAwardedHC.toDouble() / numDistinctCasual * 100.0))
+                        .format(achievement.numAwardedHardcore.toDouble() / numDistinctCasual * 100.0))
         binding.achievementDetailsMetadata.text = getString(R.string.metadata,
                 achievement.author,
                 achievement.dateCreated,
@@ -77,15 +75,15 @@ class AchievementDetailsFragment : Fragment() {
         }
         binding.achievementDetailsCompletionHardcore.apply {
             max = numDistinctCasual.toInt()
-            progress = achievement.numAwardedHC.toInt()
+            progress = achievement.numAwardedHardcore.toInt()
         }
         ResourcesCompat.getDrawable(resources, R.drawable.favicon, activity?.theme)?.let {
             Picasso.get()
-                    .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + achievement.badge + ".png")
+                    .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + achievement.badgeName + ".png")
                     .placeholder(it)
                     .into(binding.achievementDetailsBadge, object : Callback {
                         override fun onSuccess() {
-                            if (achievement.dateEarned.startsWith("NoDate")) {
+                            if (achievement.dateEarned.isEmpty()) {
                                 val matrix = ColorMatrix()
                                 matrix.setSaturation(0f)
                                 binding.achievementDetailsBadge.colorFilter = ColorMatrixColorFilter(matrix)

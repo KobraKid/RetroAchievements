@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Console::class, Game::class, Achievement::class], exportSchema = false, version = 5)
+@Database(entities = [Console::class, Game::class, Achievement::class], exportSchema = false, version = 8)
 abstract class RetroAchievementsDatabase : RoomDatabase() {
     abstract fun consoleDao(): ConsoleDao
     abstract fun gameDao(): GameDao

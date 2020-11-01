@@ -32,6 +32,11 @@ class GameDetailsFragment : Fragment(R.layout.fragment_game_details), View.OnCli
         return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         retainInstance = true
@@ -49,7 +54,7 @@ class GameDetailsFragment : Fragment(R.layout.fragment_game_details), View.OnCli
         binding.gameDetailsButtonPage3?.setOnClickListener(this)
 
         viewModel.game.observe(viewLifecycleOwner) { game ->
-            activity?.title = "${game.title} (${game.console})"
+            activity?.title = "${game.title} (${game.consoleName})"
             Picasso.get()
                     .load(Consts.BASE_URL + game.imageIcon)
                     .placeholder(R.drawable.game_placeholder)
@@ -86,18 +91,18 @@ class GameDetailsFragment : Fragment(R.layout.fragment_game_details), View.OnCli
         return true
     }
 
-    override fun onClick(view: View) {
-        val page = when (view.id) {
+    override fun onClick(view: View?) {
+        val page = when (view?.id) {
             R.id.game_details_button_page_0 -> 0
             R.id.game_details_button_page_1 -> 1
             R.id.game_details_button_page_2 -> 2
             R.id.game_details_button_page_3 -> 3
             else -> 0
         }
-        view.rootView.findViewById<View>(R.id.game_details_frame)
-                .findFragment<AchievementSummaryFragment>()
-                .childFragmentManager
-                .popBackStackImmediate()
+        view?.rootView?.findViewById<View>(R.id.game_details_frame)
+                ?.findFragment<AchievementSummaryFragment>()
+                ?.childFragmentManager
+                ?.popBackStackImmediate()
         binding.gameDetailsViewPager.currentItem = page
     }
 

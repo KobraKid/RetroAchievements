@@ -56,8 +56,8 @@ class RetroAchievementsApi private constructor(context: Context) {
      * @param responseCode The response code to be returned to the callback.
      * @param onResult     The function to be called with the results of the API call.
      */
-    private fun GetRAURL(target: String, responseCode: RESPONSE, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
-        GetRAURL(target, "", responseCode, onResult)
+    private fun GetRAURL(target: String, responseCode: RESPONSE, onResult: suspend (Pair<RESPONSE, String>) -> Unit, requestTag: Any? = null) {
+        GetRAURL(target, "", responseCode, onResult, requestTag)
     }
 
     /**
@@ -68,7 +68,7 @@ class RetroAchievementsApi private constructor(context: Context) {
      * @param responseCode The response code associated with this API call (if it succeeds).
      * @param onResult     The function to be called with the results of the API call.
      */
-    private fun GetRAURL(target: String?, params: String?, responseCode: RESPONSE, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+    private fun GetRAURL(target: String?, params: String?, responseCode: RESPONSE, onResult: suspend (Pair<RESPONSE, String>) -> Unit, requestTag: Any? = null) {
         when {
             target == null -> CoroutineScope(Default).launch { onResult(Pair(RESPONSE.ERROR, "null target")) }
             params == null -> CoroutineScope(Default).launch { onResult(Pair(RESPONSE.ERROR, "null parameters for target $target")) }
@@ -76,6 +76,7 @@ class RetroAchievementsApi private constructor(context: Context) {
                     target + params,
                     { CoroutineScope(Default).launch { onResult(Pair(responseCode, it)) } },
                     { CoroutineScope(Default).launch { onResult(Pair(RESPONSE.ERROR, it.toString())) } })
+                    .setTag(requestTag)
                     .setRetryPolicy(DefaultRetryPolicy(
                             6000,
                             DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
@@ -132,11 +133,15 @@ class RetroAchievementsApi private constructor(context: Context) {
      *
      * @param onResult The function to be called with the results of the API call.
      */
-    fun GetConsoleIDs(onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+    fun GetConsoleIDs(requestTag: Any? = null, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        if (requestTag != null) {
+            requestQueue.cancelAll(requestTag)
+        }
         GetRAURL(
                 AuthQS("API_GetConsoleIDs.php"),
                 RESPONSE.GET_CONSOLE_IDS,
-                onResult
+                onResult,
+                requestTag
         )
     }
 

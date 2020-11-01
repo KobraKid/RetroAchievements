@@ -20,8 +20,11 @@ import org.jsoup.Jsoup
 
 class HomeViewModel : ViewModel() {
 
-    val masteries: LiveData<List<Mastery>> = MutableLiveData()
-    val recentGames: LiveData<List<GameSummary>> = MutableLiveData()
+    private val _masteries = MutableLiveData<List<Mastery>>()
+    private val _recentGames = MutableLiveData<List<GameSummary>>()
+
+    val masteries: LiveData<List<Mastery>> get() = _masteries
+    val recentGames: LiveData<List<GameSummary>> get() = _recentGames
 
     fun setUser(username: String?) {
         if (username != null) {
@@ -49,7 +52,7 @@ class HomeViewModel : ViewModel() {
                                     mastered = image.className() == "goldimage"))
                         }
                     }
-                    withContext(Main) { (this@HomeViewModel.masteries as MutableLiveData).value = masteries }
+                    withContext(Main) { _masteries.value = masteries }
                 }
             }
             else -> Log.v(TAG, "${response.first}: ${response.second}")
@@ -88,7 +91,7 @@ class HomeViewModel : ViewModel() {
                     } catch (e: JSONException) {
                         Log.e(TAG, response.second, e)
                     } finally {
-                        withContext(Main) { (recentGames as MutableLiveData).value = recent }
+                        withContext(Main) { _recentGames.value = recent }
                     }
                 }
             }

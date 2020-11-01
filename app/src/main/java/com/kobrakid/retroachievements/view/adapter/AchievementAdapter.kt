@@ -17,6 +17,7 @@ import androidx.transition.TransitionInflater
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.model.Achievement
+import com.kobrakid.retroachievements.model.IAchievement
 import com.kobrakid.retroachievements.view.adapter.AchievementAdapter.AchievementViewHolder
 import com.kobrakid.retroachievements.view.ui.AchievementDetailsFragment
 import com.kobrakid.retroachievements.view.ui.AchievementSummaryFragment
@@ -26,7 +27,7 @@ import java.text.DecimalFormat
 class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<AchievementViewHolder>() {
 
     private var numDistinctCasual = 1.0
-    private var achievements: List<Achievement> = mutableListOf()
+    private var achievements: List<IAchievement> = mutableListOf()
     private val viewHolderListener = AchievementViewHolderListenerImpl(fragment, this)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AchievementViewHolder {
@@ -47,19 +48,19 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
 
         // Badge
         with(holder.layout.findViewById<ImageView>(R.id.achievement_summary_badge)) {
-            background = if (achievements[position].earnedHardcore) ContextCompat.getDrawable(context, R.drawable.image_view_border) else null
+            background = if (achievements[position].dateEarnedHardcore.isNotEmpty()) ContextCompat.getDrawable(context, R.drawable.image_view_border) else null
             Picasso.get()
-                    .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + achievements[position].badge + ".png")
+                    .load(Consts.BASE_URL + "/" + Consts.GAME_BADGE_POSTFIX + "/" + achievements[position].badgeName + ".png")
                     .placeholder(R.drawable.favicon)
                     .into(this)
         }
-        holder.layout.findViewById<TextView>(R.id.achievement_summary_badge_id).text = achievements[position].badge
+        holder.layout.findViewById<TextView>(R.id.achievement_summary_badge_id).text = achievements[position].badgeName
 
         // Text descriptions
-        holder.layout.findViewById<TextView>(R.id.achievement_summary_id).text = achievements[position].id
+        holder.layout.findViewById<TextView>(R.id.achievement_summary_id).text = achievements[position].achievementID
         holder.layout.findViewById<TextView>(R.id.achievement_summary_title).text = fragment.getString(R.string.achievement_summary_title, achievements[position].title, achievements[position].points, achievements[position].truePoints)
         holder.layout.findViewById<TextView>(R.id.achievement_summary_desc).text = achievements[position].description
-        if (achievements[position].dateEarned.startsWith("NoDate")) {
+        if (achievements[position].dateEarned.isEmpty()) {
             val matrix = ColorMatrix()
             matrix.setSaturation(0f)
             holder.layout.findViewById<ImageView>(R.id.achievement_summary_badge).colorFilter = ColorMatrixColorFilter(matrix)
@@ -70,14 +71,14 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
         }
         holder.layout.findViewById<TextView>(R.id.achievement_summary_stats).text = fragment.getString(R.string.won_by,
                 achievements[position].numAwarded,
-                achievements[position].numAwardedHC,
+                achievements[position].numAwardedHardcore,
                 numDistinctCasual.toInt(),
                 DecimalFormat("@@@@")
                         .format(achievements[position].numAwarded.toDouble() / numDistinctCasual * 100.0))
 
         // Double-layered Progress Bar
         holder.layout.findViewById<ProgressBar>(R.id.achievement_summary_progress).apply {
-            progress = (achievements[position].numAwardedHC.toDouble() / numDistinctCasual * 10000.0).toInt()
+            progress = (achievements[position].numAwardedHardcore.toDouble() / numDistinctCasual * 10000.0).toInt()
             secondaryProgress = (achievements[position].numAwarded.toDouble() / numDistinctCasual * 10000.0).toInt()
         }
     }
@@ -86,9 +87,9 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
         return achievements.size
     }
 
-    fun getAchievementWithId(id: String): Achievement {
+    fun getAchievementWithId(id: String): IAchievement {
         // IDs are unique, so the list should only have one element
-        return achievements.filter { it.id == id }.let { if (it.isEmpty()) Achievement() else it[0] }
+        return achievements.filter { it.achievementID == id }.let { if (it.isEmpty()) Achievement() else it[0] }
     }
 
     /**
@@ -100,7 +101,7 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
         numDistinctCasual = n.toDouble()
     }
 
-    fun setAchievements(achievements: List<Achievement>) {
+    fun setAchievements(achievements: List<IAchievement>) {
         this.achievements = achievements
         notifyDataSetChanged()
     }
@@ -127,7 +128,7 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
                     .replace(R.id.game_details_frame,
                             AchievementDetailsFragment().apply {
                                 arguments = bundleOf(
-                                        "achievement" to adapter.getAchievementWithId(adapter.achievements[adapterPosition].id),
+                                        "achievement" to adapter.getAchievementWithId(adapter.achievements[adapterPosition].achievementID),
                                         "numDistinctCasual" to adapter.numDistinctCasual,
                                         "transitionName" to transitionBadge.transitionName
                                 )

@@ -3,14 +3,16 @@ package com.kobrakid.retroachievements.model
 import android.os.Parcel
 import android.os.Parcelable
 
-data class Console(val id: String = "0", val name: String = "") : Parcelable {
-    constructor(parcel: Parcel) : this(
-            parcel.readString() ?: "0",
-            parcel.readString() ?: "")
+data class Console(
+        override var id: String = "0",
+        override var consoleName: String = "",
+        override var games: Int = 0
+) : IConsole, Parcelable {
+
+    constructor(parcel: Parcel) : this(parcel.readString() ?: "0")
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(id)
-        parcel.writeString(name)
     }
 
     override fun describeContents(): Int {

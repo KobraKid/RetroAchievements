@@ -10,12 +10,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.text.isDigitsOnly
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
-import com.kobrakid.retroachievements.database.Game
 import com.kobrakid.retroachievements.model.GameSummary
+import com.kobrakid.retroachievements.model.IGame
 import com.kobrakid.retroachievements.view.adapter.GameSummaryAdapter.GameSummaryViewHolder
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller.OnPopupTextUpdate
 import com.squareup.picasso.Picasso
@@ -93,12 +92,14 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
             }
 
             override fun publishResults(charSequence: CharSequence, results: FilterResults?) {
-                if (results != null) {
-                    (gamesFiltered as MutableList).clear()
+                (gamesFiltered as MutableList).clear()
+                if (results != null && charSequence.isNotEmpty()) {
                     if (results.count > 0 && results.values is List<*>) {
                         @Suppress("UNCHECKED_CAST")
                         (gamesFiltered as MutableList<GameSummary>).addAll(results.values as List<GameSummary>)
                     }
+                } else {
+                    (gamesFiltered as MutableList).addAll(games)
                 }
                 notifyDataSetChanged()
             }
@@ -122,16 +123,16 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
      *
      * @param games The games to show the user
      */
-    fun setGames(games: List<Game?>) {
+    fun setGames(games: List<IGame>) {
         setGameSummaries(games.map { game ->
             GameSummary().apply {
-                game?.id?.let { id = it }
-                game?.title?.let { title = it }
-                game?.imageIcon?.let { imageIcon = it }
-                game?.numDistinctPlayersCasual?.let { if (it.isNotEmpty() && it.isDigitsOnly()) numDistinctCasual = it.toInt() }
-                game?.numAwardedToUser?.let { numAchievementsEarned = it }
-                game?.numAwardedToUserHardcore?.let { numAchievementsEarnedHC = it }
-                game?.numAchievements?.let { totalAchievements = it }
+                game.id.let { id = it }
+                game.title.let { title = it }
+                game.imageIcon.let { imageIcon = it }
+                game.numDistinctPlayersCasual.let { numDistinctCasual = it }
+                game.numAwardedToUser.let { numAchievementsEarned = it }
+                game.numAwardedToUserHardcore.let { numAchievementsEarnedHardcore = it }
+                game.numAchievements.let { totalAchievements = it }
             }
         })
     }

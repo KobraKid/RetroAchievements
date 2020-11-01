@@ -41,63 +41,59 @@ class AchievementSummaryFragment : Fragment() {
         }
         viewModel.loading.observe(viewLifecycleOwner) { loading ->
             binding.gameDetailsLoadingBar.visibility = if (loading) View.VISIBLE else View.GONE
+            binding.gameDetailsNoAchievements.visibility = if (!loading && binding.gameDetailsAchievementsRecyclerView.adapter?.itemCount ?: 0 == 0) View.VISIBLE else View.GONE
         }
         viewModel.game.observe(viewLifecycleOwner) { game ->
-            val visibleIfAchievements = if (game.totalAchievements == 0) View.GONE else View.VISIBLE
+            val visibleIfAchievements = if (game.numAchievements == 0) View.GONE else View.VISIBLE
             binding.gameDetailsAchievementsEarned.apply {
                 visibility = visibleIfAchievements
-                maximum = game.totalAchievements.toFloat()
-                progress = game.numAchievementsEarned.toFloat()
+                maximum = game.numAchievements.toFloat()
+                progress = game.numAwardedToUser.toFloat()
             }
             binding.gameDetailsAchievementsEarnedText.apply {
                 visibility = visibleIfAchievements
-                text = if (game.totalAchievements == 0) "" else getString(R.string.percent, (game.numAchievementsEarned * 100).div(game.totalAchievements))
+                text = if (game.numAchievements == 0) "" else getString(R.string.percent, (game.numAwardedToUser * 100).div(game.numAchievements))
             }
             binding.gameDetailsAchievementsEarnedHc.apply {
                 visibility = visibleIfAchievements
-                maximum = game.totalAchievements.toFloat()
-                progress = game.numAchievementsEarnedHC.toFloat()
+                maximum = game.numAchievements.toFloat()
+                progress = game.numAwardedToUserHardcore.toFloat()
             }
             binding.gameDetailsAchievementsEarnedHcText.apply {
                 visibility = visibleIfAchievements
-                text = if (game.totalAchievements == 0) "" else getString(R.string.diminished_percent, (game.numAchievementsEarnedHC * 200).div(game.totalAchievements))
+                text = if (game.numAchievements == 0) "" else getString(R.string.diminished_percent, (game.numAwardedToUserHardcore * 200).div(game.numAchievements))
             }
-            binding.gameDetailsPoints.apply {
-                visibility = visibleIfAchievements
-                maximum = game.totalPoints.toFloat()
-                progress = game.earnedPoints.toFloat()
-            }
-            binding.gameDetailsPointsText.apply {
-                visibility = visibleIfAchievements
-                text = game.earnedPoints.toString()
-            }
-            binding.gameDetailsPointsTotalText.apply {
-                visibility = visibleIfAchievements
-                text = getString(R.string.out_of, game.totalPoints.toString())
-            }
-            binding.gameDetailsRatio.apply {
-                visibility = visibleIfAchievements
-                maximum = game.totalTruePoints.toFloat()
-                progress = game.earnedTruePoints.toFloat()
-            }
-            binding.gameDetailsRatioText.apply {
-                visibility = visibleIfAchievements
-                text = game.earnedTruePoints.toString()
-            }
-            binding.gameDetailsRatioTotalText.apply {
-                visibility = visibleIfAchievements
-                text = getString(R.string.out_of, game.totalTruePoints.toString())
-            }
+            binding.gameDetailsPoints.visibility = visibleIfAchievements
+            binding.gameDetailsPointsText.visibility = visibleIfAchievements
+            binding.gameDetailsPointsTotalText.visibility = visibleIfAchievements
+            binding.gameDetailsTruePoints.visibility = visibleIfAchievements
+            binding.gameDetailsTruePointsText.visibility = visibleIfAchievements
+            binding.gameDetailsTruePointsTotalText.visibility = visibleIfAchievements
             binding.gameDetailsAchievementsRecyclerView.visibility = visibleIfAchievements
-            binding.gameDetailsNoAchievements.visibility = if (game.totalAchievements == 0) View.VISIBLE else View.GONE
             binding.gameDetailsAchievementsTitle.visibility = visibleIfAchievements
             binding.gameDetailsAchievementsEarnedSubtitle.visibility = visibleIfAchievements
             binding.gameDetailsPointsSubtitle.visibility = visibleIfAchievements
-            binding.gameDetailsAchievementsRatioSubtitle.visibility = visibleIfAchievements
-            (binding.gameDetailsAchievementsRecyclerView.adapter as AchievementAdapter).setNumDistinctCasual(game.numDistinctCasual)
+            binding.gameDetailsAchievementsTruePointsSubtitle.visibility = visibleIfAchievements
+            (binding.gameDetailsAchievementsRecyclerView.adapter as AchievementAdapter).setNumDistinctCasual(game.numDistinctPlayersCasual)
         }
         viewModel.achievements.observe(viewLifecycleOwner) {
             (binding.gameDetailsAchievementsRecyclerView.adapter as AchievementAdapter).setAchievements(it)
+        }
+        viewModel.totalPoints.observe(viewLifecycleOwner) {
+            binding.gameDetailsPoints.maximum = it
+            binding.gameDetailsPointsTotalText.text = getString(R.string.out_of, it.toInt().toString())
+        }
+        viewModel.totalTruePoints.observe(viewLifecycleOwner) {
+            binding.gameDetailsTruePoints.maximum = it
+            binding.gameDetailsTruePointsTotalText.text = getString(R.string.out_of, it.toInt().toString())
+        }
+        viewModel.earnedPoints.observe(viewLifecycleOwner) {
+            binding.gameDetailsPoints.progress = it
+            binding.gameDetailsPointsText.text = it.toInt().toString()
+        }
+        viewModel.earnedTruePoints.observe(viewLifecycleOwner) {
+            binding.gameDetailsTruePoints.progress = it
+            binding.gameDetailsTruePointsText.text = it.toInt().toString()
         }
         viewModel.getGameInfoForUser((activity as MainActivity?)?.user?.username, arguments?.getString("GameID", "0"))
     }

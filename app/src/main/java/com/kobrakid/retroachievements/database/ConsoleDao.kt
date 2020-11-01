@@ -16,7 +16,7 @@ interface ConsoleDao {
     @Query("DELETE FROM console")
     fun clearTable()
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertConsole(console: Console)
 
     @Update

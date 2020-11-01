@@ -50,18 +50,13 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
-        viewModel.loading.observe(viewLifecycleOwner, { loading ->
+        viewModel.loading.observe(viewLifecycleOwner) { loading ->
             binding.listHidingFade.visibility = if (loading) View.VISIBLE else View.GONE
             binding.listHidingProgress.visibility = if (loading) View.VISIBLE else View.GONE
-        })
-        viewModel.consoleList.observe(viewLifecycleOwner, {
+        }
+        viewModel.consoleList.observe(viewLifecycleOwner) {
             consoleAdapter.setData(it)
-        })
-        viewModel.gameList.observe(viewLifecycleOwner, {
-            gameList.clear()
-            gameList.addAll(it.sortedBy { game -> game?.title ?: "_" })
-        })
-        CoroutineScope(Main).launch { viewModel.init(context) }
+        }
         // Initialize views
         binding.listConsole.apply {
             layoutManager = LinearLayoutManager(context)
@@ -91,9 +86,15 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
                 }
             }
         } catch (e: IllegalStateException) {
+            // TODO check if this should really be tried/caught
             Log.e(TAG, "Context was null", e)
             return // no need to continue if this fragment is not attached to a context
-            // TODO check if this should really be tried/caught
+        }
+        CoroutineScope(Main).launch {
+            viewModel.getConsoles(context
+                    ?.getSharedPreferences(context?.getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
+                    ?.getBoolean(context?.getString(R.string.empty_console_hide_setting), false)
+                    ?: false)
         }
     }
 

@@ -4,10 +4,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import com.kobrakid.retroachievements.view.ui.AchievementDistributionFragment
-import com.kobrakid.retroachievements.view.ui.AchievementSummaryFragment
-import com.kobrakid.retroachievements.view.ui.GameCommentsFragment
-import com.kobrakid.retroachievements.view.ui.GameImagesFragment
+import com.kobrakid.retroachievements.view.ui.*
 
 class GameDetailsPagerAdapter(fm: FragmentManager, private val gameID: String) : FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
@@ -15,8 +12,9 @@ class GameDetailsPagerAdapter(fm: FragmentManager, private val gameID: String) :
         val fragment: Fragment = when (position) {
             0 -> AchievementSummaryFragment()
             1 -> AchievementDistributionFragment()
-            2 -> GameImagesFragment()
-            3 -> GameCommentsFragment()
+            2 -> LeaderboardListFragment()
+            3 -> GameImagesFragment()
+            4 -> GameCommentsFragment()
             else -> AchievementSummaryFragment()
         }
         return fragment.apply { arguments = bundleOf("GameID" to gameID) }
@@ -30,7 +28,7 @@ class GameDetailsPagerAdapter(fm: FragmentManager, private val gameID: String) :
     }
 
     companion object {
-        const val GAME_DETAILS_PAGES = 4
+        const val GAME_DETAILS_PAGES = 5
     }
 
 }

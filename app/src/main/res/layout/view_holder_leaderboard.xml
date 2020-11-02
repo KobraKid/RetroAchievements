@@ -8,15 +8,6 @@
 
     <!-- FIXME This is also really ugly - it shouldn't be so compact -->
 
-    <TextView
-        android:id="@+id/id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="0" />
-
     <ImageView
         android:id="@+id/imageIcon"
         android:layout_width="wrap_content"
@@ -49,24 +40,6 @@
         app:layout_constraintStart_toEndOf="@id/imageIcon"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="TITLE" />
-
-    <TextView
-        android:id="@+id/description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="DESCRIPTION" />
-
-    <TextView
-        android:id="@+id/type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="TYPE" />
 
     <TextView
         android:id="@+id/numresults"

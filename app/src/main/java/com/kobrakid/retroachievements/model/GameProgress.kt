@@ -1,7 +1,6 @@
 package com.kobrakid.retroachievements.model
 
 import android.util.Log
-import androidx.core.text.isDigitsOnly
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.RetroAchievementsApi
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
@@ -14,63 +13,48 @@ import org.json.JSONException
 import org.json.JSONObject
 
 /**
- * Represents a game's summary information.
  * Summarizes the current user's progress towards this game.
  *
  * @property id The game's id
  * @property title The game's title
  * @property imageIcon The game's image icon
- * @property numDistinctCasual The number of distinct casual players that have attempted this game
- * @property numAchievementsEarned The number of achievements the user has earned
- * @property numAchievementsEarnedHardcore The numeber of achievements the user has earned in hardcore mode
- * @property totalAchievements The total number of achievements this game has
+ * @property numDistinctPlayersCasual The number of distinct casual players that have attempted this game
+ * @property numAwardedToUser The number of achievements the user has earned
+ * @property numAwardedToUserHardcore The numeber of achievements the user has earned in hardcore mode
+ * @property numAchievements The total number of achievements this game has
  * @property earnedPoints The number of points the user has earned
  * @property totalPoints The total number of points this game is worth
  * @property earnedTruePoints The number of true points the user has earned
  * @property totalTruePoints The total number of true points this game is worth
  */
-data class GameSummary(
-        var id: String = "0",
-        var title: String = "",
-        var imageIcon: String = "",
-        var numDistinctCasual: Int = 0,
-        var numAchievementsEarned: Int = 0,
-        var numAchievementsEarnedHardcore: Int = 0,
-        var totalAchievements: Int = 0,
+data class GameProgress(
+        override var id: String = "0",
+        override var title: String = "",
+        override var consoleID: String = "0",
+        override var forumTopicID: String = "0",
+        override var flags: Int = 0,
+        override var imageIcon: String = "",
+        override var imageTitle: String = "",
+        override var imageIngame: String = "",
+        override var imageBoxArt: String = "",
+        override var publisher: String = "",
+        override var developer: String = "",
+        override var genre: String = "",
+        override var released: String = "",
+        override var isFinal: Boolean = true,
+        override var consoleName: String = "",
+        override var richPresencePatch: String = "",
+        override var numAchievements: Int = 0,
+        override var numDistinctPlayersCasual: Int = 0,
+        override var numDistinctPlayersHardcore: Int = 0,
+        override var numAwardedToUser: Int = 0,
+        override var numAwardedToUserHardcore: Int = 0,
+        override var userCompletion: String = "",
+        override var userCompletionHardcore: String = "",
         var earnedPoints: Int = 0,
         var totalPoints: Int = 0,
         var earnedTruePoints: Int = 0,
-        var totalTruePoints: Int = 0) {
-
-    // Utility functions for setting int values from parsed strings
-
-    fun setNumAchievementsEarned(points: String) {
-        numAchievementsEarned = if (points.isDigitsOnly()) points.toInt() else 0
-    }
-
-    fun setNumAchievementsEarnedHC(points: String) {
-        numAchievementsEarnedHardcore = if (points.isDigitsOnly()) points.toInt() else 0
-    }
-
-    fun setTotalAchievements(points: String) {
-        totalAchievements = if (points.isDigitsOnly()) points.toInt() else 0
-    }
-
-    fun setEarnedPoints(points: String) {
-        earnedPoints = if (points.isDigitsOnly()) points.toInt() else 0
-    }
-
-    fun setTotalPoints(points: String) {
-        totalPoints = if (points.isDigitsOnly()) points.toInt() else 0
-    }
-
-    fun setEarnedTruePoints(points: String) {
-        earnedTruePoints = if (points.isDigitsOnly()) points.toInt() else 0
-    }
-
-    fun setTotalTruePoints(points: String) {
-        totalTruePoints = if (points.isDigitsOnly()) points.toInt() else 0
-    }
+        var totalTruePoints: Int = 0) : IGame {
 
     companion object {
         suspend fun getAchievementsForGame(user: String?, id: String?, callback: suspend (List<IAchievement>) -> Unit) {
@@ -154,7 +138,7 @@ data class GameSummary(
             }
         }
 
-        private val TAG = Consts.BASE_TAG + GameSummary::class.java.simpleName
+        private val TAG = Consts.BASE_TAG + GameProgress::class.java.simpleName
     }
 
 }

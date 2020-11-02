@@ -41,7 +41,7 @@ class RankingsFragment : Fragment(), View.OnClickListener {
         viewModel.users.observe(viewLifecycleOwner) {
             (binding.rankingsUsers.adapter as UserRankingAdapter).populateUsers(it)
         }
-        viewModel.getTopUsers((activity as MainActivity?)?.user?.username)
+        viewModel.getTopUsers((activity as MainActivity?)?.user)
     }
 
     override fun onClick(view: View) {

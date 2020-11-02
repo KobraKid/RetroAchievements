@@ -12,7 +12,6 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kobrakid.retroachievements.databinding.FragmentConsoleGamesBinding
-import com.kobrakid.retroachievements.model.Console
 import com.kobrakid.retroachievements.view.adapter.GameSummaryAdapter
 import com.kobrakid.retroachievements.viewmodel.ConsoleGamesViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -41,18 +40,17 @@ class ConsoleGamesFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val console = args.console ?: Console()
-        activity?.title = console.consoleName
+        activity?.title = args.console?.consoleName
         binding.listGames.apply {
             adapter = GameSummaryAdapter(this@ConsoleGamesFragment, context)
             layoutManager = LinearLayoutManager(context)
         }
         viewModel.loading.observe(viewLifecycleOwner) {
             binding.listHidingProgress.visibility = if (it) View.VISIBLE else View.GONE
-            binding.listNoGames.visibility = if (!it && binding.listGames.adapter?.itemCount == 0) View.VISIBLE else View.GONE
         }
         viewModel.consoleGamesList.observe(viewLifecycleOwner) {
             (binding.listGames.adapter as GameSummaryAdapter?)?.setGames(it)
+            binding.listNoGames.visibility = if (it.isEmpty() && viewModel.loading.value == false) View.VISIBLE else View.GONE
         }
         binding.listGamesFilter.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence, start: Int, count: Int, after: Int) {}
@@ -62,7 +60,7 @@ class ConsoleGamesFragment : Fragment(), View.OnClickListener {
 
             override fun afterTextChanged(editable: Editable) {}
         })
-        CoroutineScope(Main).launch { viewModel.setConsoleID(console.id) }
+        CoroutineScope(Main).launch { viewModel.setConsoleID(args.console?.id) }
     }
 
     override fun onClick(view: View) {

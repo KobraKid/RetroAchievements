@@ -1,54 +1,98 @@
 package com.kobrakid.retroachievements.model
 
-import android.os.Parcel
-import android.os.Parcelable
+import android.util.Log
+import com.kobrakid.retroachievements.Consts
+import com.kobrakid.retroachievements.RetroAchievementsApi
+import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
+import org.jsoup.Jsoup
 
 data class Leaderboard(
-        val id: String = "0",
-        val image: String = "",
-        val game: String = "",
-        val console: String = "",
-        val title: String = "",
-        val description: String = "",
-        val type: String = "",
-        val numResults: String = "0") : Parcelable {
-
-    constructor(parcel: Parcel) : this(
-            parcel.readString() ?: "0",
-            parcel.readString() ?: "",
-            parcel.readString() ?: "",
-            parcel.readString() ?: "",
-            parcel.readString() ?: "",
-            parcel.readString() ?: "",
-            parcel.readString() ?: "",
-            parcel.readString() ?: "0")
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(id)
-        parcel.writeString(image)
-        parcel.writeString(game)
-        parcel.writeString(console)
-        parcel.writeString(title)
-        parcel.writeString(description)
-        parcel.writeString(type)
-        parcel.writeString(numResults)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
+        override var id: String = "0",
+        override var gameId: String = "",
+        override var icon: String = "",
+        override var console: String = "",
+        override var title: String = "",
+        override var description: String = "",
+        override var type: String = "",
+        override var numResults: String = "0") : ILeaderboard {
 
     override fun toString(): String {
-        return "#$id: $title ($game - $console) [$numResults]"
+        return "#$id: $title ($gameId - $console)"
     }
 
-    companion object CREATOR : Parcelable.Creator<Leaderboard> {
-        override fun createFromParcel(parcel: Parcel): Leaderboard {
-            return Leaderboard(parcel)
+    companion object {
+        suspend fun getLeaderboard(
+                id: String,
+                loadLeaderboard: suspend (ILeaderboard) -> Unit,
+                update: suspend (Int, Int) -> Unit,
+                loadParticipants: suspend (List<LeaderboardParticipant>) -> Unit) {
+            RetroAchievementsDatabase.getInstance().leaderboardDao().getLeaderboardWithID(id).let {
+                if (it.size == 1) {
+                    loadLeaderboard(it[0])
+                }
+            }
+            RetroAchievementsApi.getInstance().GetLeaderboard(id, "") { parseLeaderboard(id, it, loadLeaderboard, update, loadParticipants) }
         }
 
-        override fun newArray(size: Int): Array<Leaderboard?> {
-            return arrayOfNulls(size)
+        private suspend fun parseLeaderboard(
+                id: String,
+                response: Pair<RetroAchievementsApi.RESPONSE, String>,
+                loadLeaderboard: suspend (ILeaderboard) -> Unit,
+                update: suspend (Int, Int) -> Unit,
+                loadParticipants: suspend (List<LeaderboardParticipant>) -> Unit) {
+            when (response.first) {
+                RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
+                RetroAchievementsApi.RESPONSE.GET_LEADERBOARD -> {
+                    withContext(Default) {
+                        val leaderboard = Leaderboard(id = id)
+                        val users = mutableListOf<LeaderboardParticipant>()
+                        val document = Jsoup.parse(response.second)
+                        val userData = document.select("td.lb_user")
+                        val resultData = document.select("td.lb_result")
+                        val dateData = document.select("td.lb_date")
+                        update(0, userData.size)
+                        for (i in userData.indices) {
+                            update(i, userData.size)
+                            users.add(LeaderboardParticipant(
+                                    userData[i].text(),
+                                    resultData[i].text(),
+                                    dateData[i].text()))
+                        }
+                        leaderboard.apply {
+                            val gameInfo = document.select("div.navpath")
+                            gameId = gameInfo.select("a[href^=/game/]").first().attr("href").substring(6)
+                            icon = document.select("img.badgeimg").first().attr("src").let { it.substring(it.lastIndexOf("/") + 1, it.lastIndexOf(".")) }
+                            console = gameInfo.select("a[href^=/gameList.php?c=]").first().attr("href").substring(16)
+                            title = document.select("h3.longheader").first().text().substring(13)
+                            description = document.select("div.larger").first().text()
+                            type = "Score" // TODO: Can't really get the type reliably anymore
+                        }
+                        withContext(IO) {
+                            RetroAchievementsDatabase.getInstance().leaderboardDao().insertLeaderboard(convertModeltoDatabase(leaderboard))
+                        }
+                        loadLeaderboard(leaderboard)
+                        loadParticipants(users)
+                    }
+                }
+                else -> Log.v(TAG, "${response.first}: ${response.second}")
+            }
         }
+
+        private fun convertModeltoDatabase(leaderboard: Leaderboard): com.kobrakid.retroachievements.database.Leaderboard? {
+            return com.kobrakid.retroachievements.database.Leaderboard(
+                    id = leaderboard.id,
+                    gameId = leaderboard.gameId,
+                    icon = leaderboard.icon,
+                    console = leaderboard.console,
+                    title = leaderboard.title,
+                    description = leaderboard.description,
+                    type = leaderboard.type,
+                    numResults = leaderboard.numResults)
+        }
+
+        private val TAG = Consts.BASE_TAG + Leaderboard::class.java.simpleName
     }
 }

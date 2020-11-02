@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kobrakid.retroachievements.model.Game
-import com.kobrakid.retroachievements.model.GameSummary
+import com.kobrakid.retroachievements.model.GameProgress
 import com.kobrakid.retroachievements.model.IAchievement
 import com.kobrakid.retroachievements.model.IGame
 import kotlinx.coroutines.CoroutineScope
@@ -39,7 +39,7 @@ class AchievementSummaryViewModel : ViewModel() {
             Game.getGame(user, id) {
                 withContext(Main) { (game as MutableLiveData).value = it }
             }
-            GameSummary.getAchievementsForGame(user, id) {
+            GameProgress.getAchievementsForGame(user, id) {
                 val totalPts = it
                         .map { achievement -> achievement.points.toFloat() * 2 } // account for all achievements earned hardcore (double the points earned)
                         .reduceRightOrNull { p, acc -> acc + p } ?: 0f

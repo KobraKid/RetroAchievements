@@ -1,7 +1,6 @@
 package com.kobrakid.retroachievements.view.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,20 +42,16 @@ class HomeFragment : Fragment(), View.OnClickListener {
         binding.homeUsername.visibility = View.VISIBLE
         viewModel.masteries.observe(viewLifecycleOwner) {
             binding.masteries.removeAllViews()
-            it.forEach { mastery ->
+            it.forEach { game ->
                 val imageView = ImageView(context).apply {
-                    layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT)
                     adjustViewBounds = true
-                    if (mastery.id.isDigitsOnly()) {
-                        id = mastery.id.toInt()
-                        setOnClickListener(this@HomeFragment)
-                    } else {
-                        Log.w(TAG, "Trophy was not a valid RA game: $mastery")
-                    }
-                    if (mastery.mastered) background = ContextCompat.getDrawable(context, R.drawable.image_view_border)
+                    background = ContextCompat.getDrawable(context, R.drawable.image_view_border)
+                    id = game.id.toInt()
+                    layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                    setOnClickListener(this@HomeFragment)
                 }
                 Picasso.get()
-                        .load(Consts.BASE_URL + mastery.icon)
+                        .load(Consts.BASE_URL + game.imageIcon)
                         .placeholder(R.drawable.game_placeholder)
                         .into(imageView)
                 binding.masteries.addView(imageView)
@@ -83,8 +78,8 @@ class HomeFragment : Fragment(), View.OnClickListener {
                             .into(it.findViewById<ImageView>(R.id.game_summary_image_icon))
                     it.findViewById<TextView>(R.id.game_summary_title).text = game.title
                     it.findViewById<TextView>(R.id.game_summary_stats).text = getString(R.string.game_stats,
-                            game.numAchievementsEarned.coerceAtLeast(game.numAchievementsEarnedHardcore),
-                            game.totalAchievements,
+                            game.numAwardedToUser.coerceAtLeast(game.numAwardedToUserHardcore),
+                            game.numAchievements,
                             game.earnedPoints,
                             game.totalPoints)
                     if (game.id.isDigitsOnly()) {
@@ -107,9 +102,5 @@ class HomeFragment : Fragment(), View.OnClickListener {
             R.id.home_view_more -> Navigation.findNavController(view).navigate(R.id.action_homeFragment_to_recentGamesFragment)
             else -> Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToGameDetailsFragment(view.id.toString()))
         }
-    }
-
-    companion object {
-        private val TAG = Consts.BASE_TAG + HomeFragment::class.java.simpleName
     }
 }

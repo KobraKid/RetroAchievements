@@ -13,7 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
-import com.kobrakid.retroachievements.model.GameSummary
+import com.kobrakid.retroachievements.model.GameProgress
 import com.kobrakid.retroachievements.model.IGame
 import com.kobrakid.retroachievements.view.adapter.GameSummaryAdapter.GameSummaryViewHolder
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller.OnPopupTextUpdate
@@ -23,8 +23,8 @@ import java.util.*
 
 class GameSummaryAdapter(private val listener: View.OnClickListener, private val context: Context?) : RecyclerView.Adapter<GameSummaryViewHolder>(), OnPopupTextUpdate, Filterable {
 
-    private var games: List<GameSummary> = mutableListOf()
-    private var gamesFiltered: List<GameSummary> = mutableListOf()
+    private var games: List<GameProgress> = mutableListOf()
+    private var gamesFiltered: List<GameProgress> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameSummaryViewHolder {
         val layout = LayoutInflater
@@ -39,7 +39,7 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
     override fun onBindViewHolder(holder: GameSummaryViewHolder, position: Int) {
         holder.itemView.id = gamesFiltered[position].id.toInt()
         holder.itemView.findViewById<View>(R.id.game_summary_image_icon).background =
-                if (gamesFiltered[position].totalAchievements > 0 && gamesFiltered[position].numAchievementsEarned == gamesFiltered[position].totalAchievements)
+                if (gamesFiltered[position].numAchievements > 0 && gamesFiltered[position].numAwardedToUser == gamesFiltered[position].numAchievements)
                     context?.let { ContextCompat.getDrawable(it, R.drawable.image_view_border) }
                 else null
         holder.itemView.findViewById<TextView>(R.id.game_summary_title).text = Jsoup.parse(gamesFiltered[position].title.trim { it <= ' ' }).text().let { title ->
@@ -50,11 +50,11 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
             else title
         }
         holder.itemView.findViewById<TextView>(R.id.game_summary_stats).apply {
-            if (gamesFiltered[position].totalAchievements > 0) {
+            if (gamesFiltered[position].numAchievements > 0) {
                 visibility = View.VISIBLE
                 text = context?.getString(R.string.game_stats,
-                        gamesFiltered[position].numAchievementsEarned,
-                        gamesFiltered[position].totalAchievements,
+                        gamesFiltered[position].numAwardedToUser,
+                        gamesFiltered[position].numAchievements,
                         gamesFiltered[position].earnedPoints,
                         gamesFiltered[position].totalPoints)
             } else visibility = View.GONE
@@ -96,7 +96,7 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
                 if (results != null && charSequence.isNotEmpty()) {
                     if (results.count > 0 && results.values is List<*>) {
                         @Suppress("UNCHECKED_CAST")
-                        (gamesFiltered as MutableList<GameSummary>).addAll(results.values as List<GameSummary>)
+                        (gamesFiltered as MutableList<GameProgress>).addAll(results.values as List<GameProgress>)
                     }
                 } else {
                     (gamesFiltered as MutableList).addAll(games)
@@ -111,7 +111,7 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
      *
      * @param games The games to show the user
      */
-    fun setGameSummaries(games: List<GameSummary>) {
+    fun setGameSummaries(games: List<GameProgress>) {
         this.games = games
         (this.gamesFiltered as MutableList).clear()
         (this.gamesFiltered as MutableList).addAll(games)
@@ -125,14 +125,14 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
      */
     fun setGames(games: List<IGame>) {
         setGameSummaries(games.map { game ->
-            GameSummary().apply {
+            GameProgress().apply {
                 game.id.let { id = it }
                 game.title.let { title = it }
                 game.imageIcon.let { imageIcon = it }
-                game.numDistinctPlayersCasual.let { numDistinctCasual = it }
-                game.numAwardedToUser.let { numAchievementsEarned = it }
-                game.numAwardedToUserHardcore.let { numAchievementsEarnedHardcore = it }
-                game.numAchievements.let { totalAchievements = it }
+                game.numDistinctPlayersCasual.let { numDistinctPlayersCasual = it }
+                game.numAwardedToUser.let { numAwardedToUser = it }
+                game.numAwardedToUserHardcore.let { numAwardedToUserHardcore = it }
+                game.numAchievements.let { numAchievements = it }
             }
         })
     }

@@ -3,19 +3,13 @@
 package com.kobrakid.retroachievements
 
 import android.content.Context
-import android.util.Log
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.RequestQueue
-import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileWriter
-import java.io.IOException
 import java.util.*
 
 /**
@@ -300,63 +294,13 @@ class RetroAchievementsApi private constructor(context: Context) {
     /**
      * Scrapes the RA website for alll Leaderboards.
      *
-     * @param filename The file to load/save from
-     * @param useCache Whether this call should try to rely on a cached version before accessing the network.
      * @param onResult The function to be called with the results of the API call.
      */
-    fun GetLeaderboards(filename: String, useCache: Boolean, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
-        // Invalidate cache after at least this many milliseconds
-        // Current value: 60 min * 60 sec * 1000 ms = 1 hr
-        val timeToInvalidateCache = 60 * 60 * 1000
-        var response = ""
-        if (useCache) {
-            // Try to fetch cached file
-            try {
-                val f = File(filename)
-                if (System.currentTimeMillis() - f.lastModified() <= timeToInvalidateCache) {
-                    Log.v(TAG, "Retreiving cached data")
-                    val inputStream = FileInputStream(f)
-                    val buffer = ByteArray(inputStream.available())
-                    if (inputStream.read(buffer) == -1) Log.v(TAG, "Read cached data")
-                    inputStream.close()
-                    response = String(buffer)
-                }
-            } catch (e: IOException) {
-                Log.e(TAG, "Error reading cached data", e)
-            }
-        }
-        when {
-            response.isEmpty() -> {
-                Log.v(TAG, "No cached data read")
-                val url = Consts.BASE_URL + "/" + Consts.LEADERBOARDS_POSTFIX
-                requestQueue.add(StringRequest(
-                        url,
-                        { urlResponse: String? ->
-                            // Cache result
-                            try {
-                                val writer = FileWriter(filename)
-                                writer.write(urlResponse)
-                                writer.flush()
-                                writer.close()
-                                Log.v(TAG, "Wrote data to disk")
-                            } catch (e: IOException) {
-                                Log.e(TAG, "Error writing data to disk", e)
-                            }
-                            CoroutineScope(Default).launch {
-                                when (urlResponse) {
-                                    null -> onResult(Pair(RESPONSE.ERROR, "Empty response when retreiving leaderboards"))
-                                    else -> onResult(Pair(RESPONSE.GET_LEADERBOARDS, urlResponse))
-                                }
-                            }
-                        },
-                        { error: VolleyError? ->
-                            CoroutineScope(Default).launch {
-                                onResult(Pair(RESPONSE.ERROR, "Error retrieving remote leaderboards\n$error"))
-                            }
-                        }))
-            }
-            else -> CoroutineScope(Default).launch { onResult(Pair(RESPONSE.GET_LEADERBOARDS, response)) }
-        }
+    fun GetLeaderboards(onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+        GetRAURL(
+                Consts.BASE_URL + "/" + Consts.LEADERBOARDS_POSTFIX,
+                RESPONSE.GET_LEADERBOARDS,
+                onResult)
     }
 
     /**
@@ -366,10 +310,10 @@ class RetroAchievementsApi private constructor(context: Context) {
      * @param count         The number of users participating in this leaderboard.
      * @param onResult      The function to be called with the results of the API call.
      */
-    fun GetLeaderboard(leaderboardID: String, count: String, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
+    fun GetLeaderboard(leaderboardID: String, count: String?, onResult: suspend (Pair<RESPONSE, String>) -> Unit) {
         GetRAURL(
                 Consts.BASE_URL + "/" + Consts.LEADERBOARDS_INFO_POSTFIX + leaderboardID,
-                "&c=$count",
+                if (count?.isNotEmpty() == true) "&c=$count" else "",
                 RESPONSE.GET_LEADERBOARD,
                 onResult
         )

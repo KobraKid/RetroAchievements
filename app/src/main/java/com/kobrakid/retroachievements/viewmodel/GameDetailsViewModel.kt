@@ -1,6 +1,5 @@
 package com.kobrakid.retroachievements.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -23,7 +22,6 @@ class GameDetailsViewModel : ViewModel() {
         CoroutineScope(IO).launch {
             Game.getGame(user, id) { game ->
                 withContext(Main) {
-                    Log.i("GDVM", game.toString())
                     _game.value = game
                 }
             }

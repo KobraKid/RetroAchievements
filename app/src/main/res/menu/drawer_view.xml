@@ -11,10 +11,6 @@
             android:icon="@drawable/ic_view_list"
             android:title="@string/nav_lists" />
         <item
-            android:id="@+id/leaderboardsFragment"
-            android:icon="@drawable/ic_insert_chart"
-            android:title="@string/nav_leaderboards" />
-        <item
             android:id="@+id/rankingsFragment"
             android:icon="@drawable/ic_baseline_emoji_events_24"
             android:title="@string/nav_rankings" />

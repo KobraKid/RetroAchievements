@@ -15,7 +15,6 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.databinding.FragmentAchievementDistributionBinding
 import com.kobrakid.retroachievements.viewmodel.AchievementDistributionViewModel
@@ -41,8 +40,11 @@ class AchievementDistributionFragment : Fragment() {
         binding.gameDetailsAchievementDistribution.apply {
             setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
                 override fun onValueSelected(e: Entry, h: Highlight) {
-                    binding.gameDetailsChartHints.text = resources.getQuantityString(
-                            R.plurals.achievement_chart_hints, e.y.toInt(), e.y.toInt(), e.x.toInt())
+                    binding.gameDetailsChartHints.text =
+                            if (e.x.toInt() == 1)
+                                resources.getQuantityString(R.plurals.achievement_chart_hints, e.y.toInt(), e.y.toInt())
+                            else
+                                resources.getQuantityString(R.plurals.achievements_chart_hints, e.y.toInt(), e.y.toInt(), e.x.toInt())
                 }
 
                 override fun onNothingSelected() {
@@ -88,9 +90,5 @@ class AchievementDistributionFragment : Fragment() {
 
         binding.gameDetailsAchievementDistroLoading.visibility = View.GONE
         binding.gameDetailsAchievementDistribution.visibility = View.VISIBLE
-    }
-
-    companion object {
-        private val TAG = Consts.BASE_TAG + AchievementDistributionFragment::class.java.simpleName
     }
 }

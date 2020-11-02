@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity() {
     private val navMenuItems = setOf(
             R.id.homeFragment,
             R.id.consoleListFragment,
-            R.id.leaderboardsFragment,
             R.id.rankingsFragment,
             R.id.settingsFragment,
             R.id.aboutFragment)

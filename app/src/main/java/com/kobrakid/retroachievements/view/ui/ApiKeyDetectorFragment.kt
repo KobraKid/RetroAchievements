@@ -9,20 +9,17 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.databinding.FragmentApiKeyDetectorBinding
-import com.kobrakid.retroachievements.viewmodel.ApiKeyDetectorViewModel
 
-class ApiKeyDetectorFragment : Fragment(R.layout.fragment_api_key_detector) {
+class ApiKeyDetectorFragment : Fragment(), View.OnClickListener {
 
-    private lateinit var navController: NavController
-    private val viewModel: ApiKeyDetectorViewModel by viewModels()
     private var _binding: FragmentApiKeyDetectorBinding? = null
     private val binding get() = _binding!!
+    private var username: String = ""
+    private var apiKey: String = ""
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentApiKeyDetectorBinding.inflate(inflater, container, false)
@@ -37,9 +34,8 @@ class ApiKeyDetectorFragment : Fragment(R.layout.fragment_api_key_detector) {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        navController = Navigation.findNavController(binding.root)
-        binding.apiKeyDetectButton.setOnClickListener(viewModel)
-        binding.apiKeyCancelButton.setOnClickListener(viewModel)
+        binding.apiKeyDetectButton.setOnClickListener(this)
+        binding.apiKeyCancelButton.setOnClickListener(this)
         binding.apiKeyWebView.apply {
             settings.javaScriptEnabled = true
             webViewClient = object : WebViewClient() {
@@ -51,13 +47,24 @@ class ApiKeyDetectorFragment : Fragment(R.layout.fragment_api_key_detector) {
                 override fun onPageFinished(view: WebView, url: String) {
                     evaluateJavascript(
                             "(function() { return document.getElementById('ctorDiv').getElementsByTagName('code')[1].innerHTML.match(/\"([^\\s]*)\"/)[0].slice(1, -1); })();"
-                    ) { u: String? -> viewModel.username = u ?: "" }
+                    ) { u: String? -> username = u ?: "" }
                     evaluateJavascript(
                             "(function() { return document.getElementById('ctorDiv').getElementsByTagName('code')[1].innerHTML.match(/[A-z0-9]{32}/)[0]; })();"
-                    ) { key: String? -> viewModel.apiKey = key ?: "" }
+                    ) { key: String? -> apiKey = key ?: "" }
                 }
             }
             loadUrl(Consts.BASE_URL + "/" + Consts.KEY_URL)
+        }
+    }
+
+    override fun onClick(view: View?) {
+        when (view?.id) {
+            R.id.apiKeyDetectButton -> {
+                Navigation.findNavController(view).navigate(ApiKeyDetectorFragmentDirections.actionApiKeyDetectorFragmentToLoginFragment(username, apiKey))
+            }
+            R.id.apiKeyCancelButton -> {
+                Navigation.findNavController(view).popBackStack()
+            }
         }
     }
 

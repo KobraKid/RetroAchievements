@@ -11,21 +11,20 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
+import android.widget.Filterable
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.databinding.FragmentLeaderboardListBinding
 import com.kobrakid.retroachievements.view.adapter.LeaderboardListAdapter
 import com.kobrakid.retroachievements.viewmodel.LeaderboardListViewModel
 
-class LeaderboardListFragment : Fragment() {
+class LeaderboardListFragment : Fragment(), View.OnClickListener {
 
     private val viewModel: LeaderboardListViewModel by viewModels()
     private var _binding: FragmentLeaderboardListBinding? = null
     private val binding get() = _binding!!
-    private val leaderboardsAdapter by lazy { LeaderboardListAdapter(findNavController()) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -43,7 +42,7 @@ class LeaderboardListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.leaderboardsGames.apply {
-            adapter = leaderboardsAdapter
+            adapter = LeaderboardListAdapter(this@LeaderboardListFragment)
             layoutManager = LinearLayoutManager(context)
         }
         viewModel.loading.observe(viewLifecycleOwner) {
@@ -60,7 +59,7 @@ class LeaderboardListFragment : Fragment() {
                     binding.leaderboardsConsoleFilter.adapter = ArrayAdapter(
                             context,
                             android.R.layout.simple_spinner_dropdown_item,
-                            leaderboardsAdapter.getUniqueConsoles().toList())
+                            (binding.leaderboardsGames.adapter as LeaderboardListAdapter).getUniqueConsoles().toList())
                 }
             }
         }
@@ -78,14 +77,14 @@ class LeaderboardListFragment : Fragment() {
         binding.leaderboardsConsoleFilter.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(adapterView: AdapterView<*>, view: View?, pos: Int, id: Long) {
                 binding.leaderboardFastScroller.scrollTo(0, 0)
-                leaderboardsAdapter.consoleFilter = adapterView.getItemAtPosition(pos).toString()
-                leaderboardsAdapter.filter.filter(leaderboardsAdapter.filterTemplate)
+                (binding.leaderboardsGames.adapter as LeaderboardListAdapter).consoleFilter = adapterView.getItemAtPosition(pos).toString()
+                (binding.leaderboardsGames.adapter as Filterable).filter.filter((binding.leaderboardsGames.adapter as LeaderboardListAdapter).filterTemplate)
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>?) {
                 binding.leaderboardFastScroller.scrollTo(0, 0)
-                leaderboardsAdapter.consoleFilter = ""
-                leaderboardsAdapter.filter.filter(leaderboardsAdapter.filterTemplate)
+                (binding.leaderboardsGames.adapter as LeaderboardListAdapter).consoleFilter = ""
+                (binding.leaderboardsGames.adapter as Filterable).filter.filter((binding.leaderboardsGames.adapter as LeaderboardListAdapter).filterTemplate)
             }
         }
         binding.leaderboardsFilter.addTextChangedListener(object : TextWatcher {
@@ -93,12 +92,15 @@ class LeaderboardListFragment : Fragment() {
             override fun afterTextChanged(editable: Editable) {}
             override fun onTextChanged(charSequence: CharSequence, start: Int, before: Int, count: Int) {
                 binding.leaderboardFastScroller.scrollTo(0, 0)
-                leaderboardsAdapter.titleFilter = charSequence.toString()
-                leaderboardsAdapter.filter.filter(leaderboardsAdapter.filterTemplate)
+                (binding.leaderboardsGames.adapter as LeaderboardListAdapter).titleFilter = charSequence.toString()
+                (binding.leaderboardsGames.adapter as Filterable).filter.filter((binding.leaderboardsGames.adapter as LeaderboardListAdapter).filterTemplate)
             }
         })
+        viewModel.getLeaderboardsForGame(arguments?.getString("GameID") ?: "0")
+    }
 
-        // Start populating the view
-        viewModel.init("${context?.filesDir?.path}/${getString(R.string.file_leaderboards_cache)}")
+    override fun onClick(view: View) {
+        Navigation.findNavController(view).navigate(
+                LeaderboardListFragmentDirections.actionLeaderboardsFragmentToLeaderboardFragment(view.id.toString()))
     }
 }

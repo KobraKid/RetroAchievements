@@ -17,14 +17,11 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
-import com.kobrakid.retroachievements.database.Game
 import com.kobrakid.retroachievements.databinding.FragmentConsoleListBinding
 import com.kobrakid.retroachievements.model.Console
+import com.kobrakid.retroachievements.model.IGame
 import com.kobrakid.retroachievements.view.adapter.ConsoleAdapter
 import com.kobrakid.retroachievements.viewmodel.ConsoleListViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
 
 class ConsoleListFragment : Fragment(), View.OnClickListener {
 
@@ -33,7 +30,6 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
     private var _binding: FragmentConsoleListBinding? = null
     private val binding get() = _binding!!
     private val consoleAdapter = ConsoleAdapter(this)
-    private val gameList = mutableListOf<Game?>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -62,40 +58,40 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
             layoutManager = LinearLayoutManager(context)
             adapter = consoleAdapter
         }
-        try {
-            val gameSuggestionAdapter = object : ArrayAdapter<Game>(requireContext(), android.R.layout.simple_list_item_1, gameList) {
-                override fun getItemId(position: Int): Long {
-                    return getItem(position)?.id?.toLong() ?: 0L
+        viewModel.gameSuggestions.observe(viewLifecycleOwner) {
+            try {
+                val gameSuggestionAdapter = object : ArrayAdapter<IGame>(requireContext(), android.R.layout.simple_list_item_1, it) {
+                    override fun getItemId(position: Int): Long {
+                        return getItem(position)?.id?.toLong() ?: 0L
+                    }
                 }
+                binding.gameSearch.apply {
+                    setAdapter(gameSuggestionAdapter)
+                    // Open a game details page when an item is tapped
+                    setOnItemClickListener { _, _, _, id ->
+                        (context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(view.windowToken, 0)
+                        navController.navigate(ConsoleListFragmentDirections.actionConsoleListFragmentToGameDetailsFragment(id.toString()))
+                    }
+                    // Open the first search result when "Go" ime button tapped
+                    setOnEditorActionListener { view, actionId, _ ->
+                        if (actionId == EditorInfo.IME_ACTION_GO && !gameSuggestionAdapter.isEmpty) {
+                            (context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(view.windowToken, 0)
+                            navController.navigate(ConsoleListFragmentDirections.actionConsoleListFragmentToGameDetailsFragment(
+                                    gameSuggestionAdapter.getItem(0)?.id.toString()))
+                            true
+                        } else false
+                    }
+                }
+            } catch (e: IllegalStateException) {
+                // TODO check if this should really be tried/caught
+                Log.e(TAG, "Context was null", e)
             }
-            binding.gameSearch.apply {
-                setAdapter(gameSuggestionAdapter)
-                // Open a game details page when an item is tapped
-                setOnItemClickListener { _, _, _, id ->
-                    (view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(view.windowToken, 0)
-                    navController.navigate(ConsoleListFragmentDirections.actionConsoleListFragmentToGameDetailsFragment(id.toString()))
-                }
-                // Open the first search result when "Go" ime button tapped
-                setOnEditorActionListener { view, actionId, _ ->
-                    if (actionId == EditorInfo.IME_ACTION_GO && !gameSuggestionAdapter.isEmpty) {
-                        (view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(view.windowToken, 0)
-                        navController.navigate(ConsoleListFragmentDirections.actionConsoleListFragmentToGameDetailsFragment(
-                                gameSuggestionAdapter.getItem(0)?.id.toString()))
-                        true
-                    } else false
-                }
-            }
-        } catch (e: IllegalStateException) {
-            // TODO check if this should really be tried/caught
-            Log.e(TAG, "Context was null", e)
-            return // no need to continue if this fragment is not attached to a context
         }
-        CoroutineScope(Main).launch {
-            viewModel.getConsoles(context
-                    ?.getSharedPreferences(context?.getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
-                    ?.getBoolean(context?.getString(R.string.empty_console_hide_setting), false)
-                    ?: false)
-        }
+        viewModel.getConsoles(context
+                ?.getSharedPreferences(context?.getString(R.string.shared_preferences_key), Context.MODE_PRIVATE)
+                ?.getBoolean(context?.getString(R.string.empty_console_hide_setting), false)
+                ?: false)
+        viewModel.getGameSuggestions()
     }
 
     override fun onClick(view: View) {

@@ -40,7 +40,7 @@ class UserRankingAdapter(private val listener: View.OnClickListener, private val
         holder.itemView.findViewById<TextView>(R.id.participant_username).text = users[position].username
         holder.itemView.findViewById<TextView>(R.id.participant_date).text =
                 Html.fromHtml(
-                        holder.itemView.context.getString(R.string.score_ratio_format, users[position].totalPoints, users[position].retroRatio.toString()),
+                        holder.itemView.context.getString(R.string.score_ratio_format, users[position].totalPoints, users[position].retroRatio),
                         TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
         if (user == users[position].username)
             holder.itemView.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.border)

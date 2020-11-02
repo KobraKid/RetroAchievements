@@ -5,11 +5,12 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Console::class, Game::class, Achievement::class], exportSchema = false, version = 8)
+@Database(entities = [Console::class, Game::class, Achievement::class, Leaderboard::class], exportSchema = false, version = 9)
 abstract class RetroAchievementsDatabase : RoomDatabase() {
     abstract fun consoleDao(): ConsoleDao
     abstract fun gameDao(): GameDao
     abstract fun achievementDao(): AchievementDao
+    abstract fun leaderboardDao(): LeaderboardDao
 
     companion object {
         private const val DB_NAME = "ra_db"

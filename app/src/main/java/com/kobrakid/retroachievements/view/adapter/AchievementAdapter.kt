@@ -58,7 +58,10 @@ class AchievementAdapter(private val fragment: Fragment) : RecyclerView.Adapter<
 
         // Text descriptions
         holder.layout.findViewById<TextView>(R.id.achievement_summary_id).text = achievements[position].achievementID
-        holder.layout.findViewById<TextView>(R.id.achievement_summary_title).text = fragment.getString(R.string.achievement_summary_title, achievements[position].title, achievements[position].points, achievements[position].truePoints)
+        holder.layout.findViewById<TextView>(R.id.achievement_summary_title).apply {
+            text = fragment.getString(R.string.achievement_summary_title, achievements[position].title, achievements[position].points, achievements[position].truePoints)
+            isSelected = true
+        }
         holder.layout.findViewById<TextView>(R.id.achievement_summary_desc).text = achievements[position].description
         if (achievements[position].dateEarned.isEmpty()) {
             val matrix = ColorMatrix()

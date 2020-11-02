@@ -10,9 +10,9 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.databinding.FragmentLeaderboardBinding
-import com.kobrakid.retroachievements.model.Leaderboard
 import com.kobrakid.retroachievements.view.adapter.ParticipantsAdapter
 import com.kobrakid.retroachievements.viewmodel.LeaderboardViewModel
 import com.squareup.picasso.Picasso
@@ -23,7 +23,6 @@ class LeaderboardFragment : Fragment(), View.OnClickListener {
     private val viewModel: LeaderboardViewModel by viewModels()
     private var _binding: FragmentLeaderboardBinding? = null
     private val binding get() = _binding!!
-    private var leaderboard = Leaderboard()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentLeaderboardBinding.inflate(inflater, container, false)
@@ -37,44 +36,40 @@ class LeaderboardFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        leaderboard = args.leaderboard ?: Leaderboard()
-        activity?.title =
-                if (leaderboard.game.isNotEmpty() && leaderboard.title.isNotEmpty()) "${leaderboard.game}: ${leaderboard.title}"
-                else ""
-        // Control progress bar with view model
-        viewModel.loading.observe(viewLifecycleOwner) {
-            binding.leaderboardProgressBar.visibility = if (it) View.VISIBLE else View.GONE
-        }
-        viewModel.leaderboardCount.observe(viewLifecycleOwner) {
-            binding.leaderboardProgressBar.max = it
-        }
-        viewModel.currentLeaderboard.observe(viewLifecycleOwner) {
-            binding.leaderboardProgressBar.progress = it
-        }
-        // Set up views from leaderboard argument
-        Picasso.get()
-                .load(leaderboard.image)
-                .placeholder(R.drawable.game_placeholder)
-                .into(binding.leaderboardGameIcon)
-        binding.leaderboardTitle.apply {
-            text = if (leaderboard.console.isNotEmpty()) getString(R.string.leaderboard_title_template, leaderboard.title, leaderboard.console) else activity?.title
-            isSelected = true
-        }
-        binding.leaderboardDescription.text = leaderboard.description
-        binding.leaderboardType.text = when {
-            leaderboard.type.contains("Score") -> getString(R.string.type_score, leaderboard.type, leaderboard.numResults)
-            leaderboard.type.contains("Time") -> getString(R.string.type_time, leaderboard.type, leaderboard.numResults)
-            else -> leaderboard.type
-        }
         binding.leaderboardParticipants.apply {
             adapter = ParticipantsAdapter(this@LeaderboardFragment, (activity as MainActivity?)?.user?.username)
             layoutManager = LinearLayoutManager(context)
         }
-        // Perform view model work
+        viewModel.leaderboard.observe(viewLifecycleOwner) {
+            activity?.title = "${it.gameId}: ${it.title}"
+            Picasso.get()
+                    .load(Consts.BASE_URL + "/Images/" + it.icon)
+                    .placeholder(R.drawable.game_placeholder)
+                    .into(binding.leaderboardGameIcon)
+            binding.leaderboardTitle.apply {
+                text = if (it.console.isNotEmpty()) getString(R.string.leaderboard_title_template, it.title, it.console) else "${it.gameId}: ${it.title}"
+                isSelected = true
+            }
+            binding.leaderboardDescription.text = it.description
+            binding.leaderboardType.text = when {
+                it.type.contains("Score") -> getString(R.string.type_score, it.type, it.numResults)
+                it.type.contains("Time") -> getString(R.string.type_time, it.type, it.numResults)
+                else -> it.type
+            }
+        }
+        viewModel.loading.observe(viewLifecycleOwner) {
+            binding.leaderboardProgressBar.visibility = if (it) View.VISIBLE else View.GONE
+        }
+        viewModel.participantCount.observe(viewLifecycleOwner) {
+            binding.leaderboardProgressBar.max = it
+        }
+        viewModel.progress.observe(viewLifecycleOwner) {
+            binding.leaderboardProgressBar.progress = it
+        }
         viewModel.participants.observe(viewLifecycleOwner) {
             (binding.leaderboardParticipants.adapter as ParticipantsAdapter).setParticipants(it)
         }
-        viewModel.setLeaderboard(leaderboard)
+        viewModel.setLeaderboard(args.leaderboard ?: "0")
     }
 
     override fun onClick(view: View?) {

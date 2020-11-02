@@ -30,7 +30,7 @@ data class Game(
         @field:ColumnInfo(name = "UserCompletionHardcore") override var userCompletionHardcore: String = "") : IGame {
 
     override fun toString(): String {
-        return "[$id] $title | $consoleName"
+        return "$title | $consoleName"
     }
 
 }

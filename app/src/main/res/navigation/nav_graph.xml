@@ -53,7 +53,7 @@
         android:name="com.kobrakid.retroachievements.view.ui.SettingsFragment"
         tools:layout="@layout/fragment_settings" />
     <fragment
-        android:id="@+id/leaderboardsFragment"
+        android:id="@+id/leaderboardListFragment"
         android:name="com.kobrakid.retroachievements.view.ui.LeaderboardListFragment"
         tools:layout="@layout/fragment_leaderboard_list">
         <action
@@ -133,8 +133,8 @@
         tools:layout="@layout/fragment_leaderboard">
         <argument
             android:name="leaderboard"
-            android:defaultValue="@null"
-            app:argType="com.kobrakid.retroachievements.model.Leaderboard"
+            android:defaultValue="0"
+            app:argType="string"
             app:nullable="true" />
         <action
             android:id="@+id/action_leaderboardFragment_to_userSummaryFragment"

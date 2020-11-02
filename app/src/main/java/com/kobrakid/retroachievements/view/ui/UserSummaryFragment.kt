@@ -48,7 +48,7 @@ class UserSummaryFragment : Fragment() {
                 binding.userSummaryMotto.text = user.motto
                 binding.userSummaryRank.text = getString(R.string.user_rank, user.rank)
                 binding.userSummaryPoints.text = getString(R.string.user_points, user.totalPoints)
-                binding.userSummaryRatio.text = getString(R.string.user_ratio, String.format("%.2f", user.retroRatio))
+                binding.userSummaryRatio.text = getString(R.string.user_ratio, user.retroRatio)
                 binding.userSummaryJoined.text = getString(R.string.user_joined, user.memberSince)
             }
         }

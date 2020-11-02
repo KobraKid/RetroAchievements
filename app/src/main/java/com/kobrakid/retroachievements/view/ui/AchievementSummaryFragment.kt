@@ -41,7 +41,7 @@ class AchievementSummaryFragment : Fragment() {
         }
         viewModel.loading.observe(viewLifecycleOwner) { loading ->
             binding.gameDetailsLoadingBar.visibility = if (loading) View.VISIBLE else View.GONE
-            binding.gameDetailsNoAchievements.visibility = if (!loading && binding.gameDetailsAchievementsRecyclerView.adapter?.itemCount ?: 0 == 0) View.VISIBLE else View.GONE
+            binding.gameDetailsNoAchievements.visibility = if (!loading && binding.gameDetailsAchievementsRecyclerView.adapter?.itemCount == 0) View.VISIBLE else View.GONE
         }
         viewModel.game.observe(viewLifecycleOwner) { game ->
             val visibleIfAchievements = if (game.numAchievements == 0) View.GONE else View.VISIBLE
@@ -78,6 +78,7 @@ class AchievementSummaryFragment : Fragment() {
         }
         viewModel.achievements.observe(viewLifecycleOwner) {
             (binding.gameDetailsAchievementsRecyclerView.adapter as AchievementAdapter).setAchievements(it)
+            binding.gameDetailsNoAchievements.visibility = if (it.isEmpty() && viewModel.loading.value == false) View.VISIBLE else View.GONE
         }
         viewModel.totalPoints.observe(viewLifecycleOwner) {
             binding.gameDetailsPoints.maximum = it

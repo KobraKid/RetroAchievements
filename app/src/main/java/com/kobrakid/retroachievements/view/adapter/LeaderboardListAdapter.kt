@@ -7,19 +7,19 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
+import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
+import com.kobrakid.retroachievements.model.ILeaderboard
 import com.kobrakid.retroachievements.model.Leaderboard
 import com.kobrakid.retroachievements.view.adapter.LeaderboardListAdapter.LeaderboardListViewHolder
-import com.kobrakid.retroachievements.view.ui.LeaderboardListFragmentDirections
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller.OnPopupTextUpdate
 import com.squareup.picasso.Picasso
 
-class LeaderboardListAdapter(private val navController: NavController) : RecyclerView.Adapter<LeaderboardListViewHolder>(), Filterable, OnPopupTextUpdate {
+class LeaderboardListAdapter(private val listener: View.OnClickListener) : RecyclerView.Adapter<LeaderboardListViewHolder>(), Filterable, OnPopupTextUpdate {
 
-    private var leaderboards: List<Leaderboard> = mutableListOf()
-    private var leaderboardsFiltered: List<Leaderboard> = mutableListOf()
+    private var leaderboards: List<ILeaderboard> = mutableListOf()
+    private var leaderboardsFiltered: List<ILeaderboard> = mutableListOf()
     var consoleFilter = "console:"
         set(value) {
             field = if (value.isNotEmpty()) "console:$value" else "console:"
@@ -33,25 +33,19 @@ class LeaderboardListAdapter(private val navController: NavController) : Recycle
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LeaderboardListViewHolder {
         val layout = LayoutInflater.from(parent.context).inflate(R.layout.view_holder_leaderboard, parent, false)
+        layout.setOnClickListener(listener)
         return LeaderboardListViewHolder(layout)
     }
 
     override fun onBindViewHolder(holder: LeaderboardListViewHolder, position: Int) {
-        holder.itemView.setOnClickListener {
-            navController.navigate(
-                    LeaderboardListFragmentDirections.actionLeaderboardsFragmentToLeaderboardFragment(
-                            leaderboardsFiltered[position]))
-        }
-        holder.itemView.findViewById<TextView>(R.id.id).text = leaderboardsFiltered[position].id
+        holder.itemView.id = leaderboardsFiltered[position].id.toInt()
         Picasso.get()
-                .load(leaderboardsFiltered[position].image)
+                .load(Consts.BASE_URL + "/Images/" + leaderboardsFiltered[position].icon) // TODO use consts?
                 .placeholder(R.drawable.game_placeholder)
                 .into(holder.itemView.findViewById<ImageView>(R.id.imageIcon))
-        holder.itemView.findViewById<TextView>(R.id.game).text = leaderboardsFiltered[position].game
+        holder.itemView.findViewById<TextView>(R.id.game).text = leaderboardsFiltered[position].gameId
         holder.itemView.findViewById<TextView>(R.id.console).text = holder.itemView.context.getString(R.string.console_parens, leaderboardsFiltered[position].console)
         holder.itemView.findViewById<TextView>(R.id.title).text = leaderboardsFiltered[position].title
-        holder.itemView.findViewById<TextView>(R.id.description).text = leaderboardsFiltered[position].description
-        holder.itemView.findViewById<TextView>(R.id.type).text = leaderboardsFiltered[position].type
         holder.itemView.findViewById<TextView>(R.id.numresults).text = leaderboardsFiltered[position].numResults
     }
 
@@ -61,7 +55,7 @@ class LeaderboardListAdapter(private val navController: NavController) : Recycle
 
     override fun onChange(position: Int): CharSequence {
         return if (consoleFilter == "console:") leaderboardsFiltered[position].console
-        else leaderboardsFiltered[position].game
+        else leaderboardsFiltered[position].gameId
     }
 
     override fun getFilter(): Filter {
@@ -94,7 +88,7 @@ class LeaderboardListAdapter(private val navController: NavController) : Recycle
         }
     }
 
-    fun setLeaderboards(leaderboards: List<Leaderboard>) {
+    fun setLeaderboards(leaderboards: List<ILeaderboard>) {
         this.leaderboards = leaderboards
         (this.leaderboardsFiltered as MutableList).clear()
         (this.leaderboardsFiltered as MutableList).addAll(leaderboards)

@@ -7,8 +7,8 @@
 
     <com.budiyev.android.circularprogressbar.CircularProgressBar
         android:id="@+id/gameRecentAchievementsProgressBarMajor"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         app:animateProgress="true"
         app:foregroundStrokeCap="round"
         app:foregroundStrokeColor="?attr/colorAccent"
@@ -23,15 +23,16 @@
 
     <com.budiyev.android.circularprogressbar.CircularProgressBar
         android:id="@+id/gameRecentAchievementsProgressBarMinor"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_marginEnd="8dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
         android:translationZ="-1dp"
         app:animateProgress="true"
         app:foregroundStrokeCap="round"
         app:foregroundStrokeColor="?attr/colorPrimary"
         app:foregroundStrokeWidth="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/gameRecentAchievementsImageIcon"
         app:maximum="100"
         app:progressAnimationDuration="500"
@@ -56,11 +57,11 @@
         android:id="@+id/gameRecentAchievementsProgress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="16dp"
         android:text="@string/progress"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/textView16"
-        app:layout_constraintEnd_toStartOf="@+id/gameRecentAchievementsProgressBarMajor"
+        app:layout_constraintBottom_toTopOf="@+id/gameRecentAchievementsAchievementSummary"
+        app:layout_constraintStart_toEndOf="@+id/gameRecentAchievementsProgressBarMinor"
         app:layout_constraintTop_toTopOf="@+id/gameRecentAchievementsProgressBarMajor"
         app:layout_constraintVertical_chainStyle="packed"
         tools:visibility="visible" />
@@ -111,26 +112,27 @@
         tools:text="Last Played 2020-06-05" />
 
     <TextView
-        android:id="@+id/textView16"
+        android:id="@+id/gameRecentAchievementsAchievementSummary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView17"
-        app:layout_constraintEnd_toStartOf="@+id/gameRecentAchievementsProgressBarMajor"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/gameRecentAchievementsPointSummary"
+        app:layout_constraintStart_toEndOf="@+id/gameRecentAchievementsProgressBarMinor"
         app:layout_constraintTop_toBottomOf="@+id/gameRecentAchievementsProgress"
         tools:text="38 (38) out of 77 achievements" />
 
     <TextView
-        android:id="@+id/textView17"
+        android:id="@+id/gameRecentAchievementsPointSummary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="16dp"
         app:layout_constraintBottom_toBottomOf="@+id/gameRecentAchievementsProgressBarMajor"
-        app:layout_constraintEnd_toStartOf="@+id/gameRecentAchievementsProgressBarMajor"
-        app:layout_constraintTop_toBottomOf="@+id/textView16"
+        app:layout_constraintStart_toEndOf="@+id/gameRecentAchievementsProgressBarMinor"
+        app:layout_constraintTop_toBottomOf="@+id/gameRecentAchievementsAchievementSummary"
         tools:text="181 (383) out of 600 (2619) points" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/gameRecentAchievementsRecyclerView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -140,5 +142,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/gameRecentAchievementsProgressBarMajor"
         tools:itemCount="2"
-        tools:listitem="@layout/view_holder_basic_achievement_summary" />
+        tools:listitem="@layout/view_holder_basic_achievement_summary">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <View
+        android:id="@+id/gameRecentAchievementsSidebar"
+        android:layout_width="4dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:background="?attr/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="@+id/gameRecentAchievementsRecyclerView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/gameRecentAchievementsProgressBarMajor" />
 </androidx.constraintlayout.widget.ConstraintLayout>

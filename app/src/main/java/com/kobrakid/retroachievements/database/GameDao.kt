@@ -1,6 +1,7 @@
 package com.kobrakid.retroachievements.database
 
 import androidx.room.*
+import com.kobrakid.retroachievements.model.Game
 
 @Dao
 interface GameDao {
@@ -15,10 +16,6 @@ interface GameDao {
 
     @Query("SELECT * FROM game WHERE ConsoleID == :consoleID")
     fun getGamesFromConsoleByID(consoleID: String): List<Game>
-
-    @Transaction
-    @Query("SELECT * FROM game")
-    fun getGamesWithAchievements(): List<GameWithAchievements>
 
     @Query("DELETE FROM game")
     fun clearTable()

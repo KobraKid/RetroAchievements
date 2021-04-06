@@ -86,7 +86,7 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/user_summary_recent_achievements"
-        android:layout_width="409dp"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
@@ -96,4 +96,5 @@
         app:layout_constraintTop_toBottomOf="@+id/user_summary_points"
         tools:itemCount="2"
         tools:listitem="@layout/view_holder_game_recent_achievements" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

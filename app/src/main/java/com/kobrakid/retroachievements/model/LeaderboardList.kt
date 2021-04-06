@@ -3,17 +3,20 @@ package com.kobrakid.retroachievements.model
 import android.util.Log
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.RetroAchievementsApi
+import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
 import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 
 class LeaderboardList {
     companion object {
         suspend fun getLeaderboardList(gameId: String, update: suspend (Int, Int) -> Unit, callback: suspend (List<ILeaderboard>) -> Unit) {
-            RetroAchievementsApi.getInstance().ScrapeGameInfoFromWeb(gameId) { parseLeaderboards(it, update, callback) }
+            callback(RetroAchievementsDatabase.getInstance().leaderboardDao().getLeaderboardsForGameWithID(gameId))
+            RetroAchievementsApi.getInstance().ScrapeGameInfoFromWeb(gameId) { parseLeaderboards(gameId, it, update, callback) }
         }
 
-        private suspend fun parseLeaderboards(response: Pair<RetroAchievementsApi.RESPONSE, String>, update: suspend (Int, Int) -> Unit, callback: suspend (List<ILeaderboard>) -> Unit) {
+        private suspend fun parseLeaderboards(gameId: String, response: Pair<RetroAchievementsApi.RESPONSE, String>, update: suspend (Int, Int) -> Unit, callback: suspend (List<ILeaderboard>) -> Unit) {
             when (response.first) {
                 RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
                 RetroAchievementsApi.RESPONSE.SCRAPE_GAME_PAGE -> {
@@ -21,14 +24,20 @@ class LeaderboardList {
                         val lb = mutableListOf<ILeaderboard>()
                         Jsoup.parse(response.second).select("div[class=fixheightcellsmaller]").forEach { row ->
                             row.select("a[href^=/leaderboardinfo.php?i=]")?.first()?.let { heading ->
-                                lb.add(Leaderboard(id = heading.attr("href").substring(23), title = heading.text()))
+                                val leaderboard = Leaderboard(
+                                        id = heading.attr("href").substring(23), title = heading.text(),
+                                        gameId = gameId)
+                                withContext(IO) {
+                                    RetroAchievementsDatabase.getInstance().leaderboardDao().insertLeaderboard(leaderboard)
+                                }
+                                lb.add(leaderboard)
                             }
                         }
                         callback(lb)
                     }
                 }
                 RetroAchievementsApi.RESPONSE.GET_LEADERBOARDS -> {
-                    // TOOD old code
+                    // TODO old code
                     withContext(Default) {
                         val lb = mutableListOf<ILeaderboard>()
                         val rows = Jsoup.parse(response.second).select("div[class=detaillist] > table > tbody > tr")
@@ -51,7 +60,11 @@ class LeaderboardList {
                             val description = row.select("td")[4].text()
                             val type = row.select("td")[5].text()
                             val numResults = row.select("td")[6].text()
-                            lb.add(Leaderboard(id, image, game, console, title, description, type, numResults))
+                            val leaderboard = Leaderboard(id, image, game, console, title, description, type, numResults)
+                            withContext(IO) {
+                                RetroAchievementsDatabase.getInstance().leaderboardDao().insertLeaderboard(leaderboard)
+                            }
+                            lb.add(leaderboard)
                         }
                         callback(lb)
                     }

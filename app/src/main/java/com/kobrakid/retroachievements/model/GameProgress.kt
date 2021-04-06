@@ -60,11 +60,7 @@ data class GameProgress(
         suspend fun getAchievementsForGame(user: String?, id: String?, callback: suspend (List<IAchievement>) -> Unit) {
             if (user?.isNotEmpty() == true && id?.isNotEmpty() == true) {
                 // get game from db
-                RetroAchievementsDatabase.getInstance().achievementDao().getAchievementsForGameWithId(id).let {
-                    if (it.isNotEmpty()) {
-                        callback(it)
-                    }
-                }
+                callback(RetroAchievementsDatabase.getInstance().achievementDao().getAchievementsForGameWithId(id))
                 // update achievements from network
                 CoroutineScope(IO).launch {
                     RetroAchievementsApi.getInstance().GetGameInfoAndUserProgress(user, id) { parseGameInfoAndUserProgress(it, callback) }
@@ -82,6 +78,7 @@ data class GameProgress(
                     withContext(Default) {
                         val achievementList = mutableListOf<Achievement>()
                         try {
+                            val gameID = JSONObject(response.second).getString("ID")
                             val achievements = JSONObject(response.second).getJSONObject("Achievements")
                             var dateEarned: String
                             var dateEarnedHardcore: String
@@ -103,7 +100,7 @@ data class GameProgress(
                                 }
                                 achievementList.add(Achievement(
                                         achievementID = id,
-                                        id = achievement.getString("ID"),
+                                        id = gameID,
                                         numAwarded = achievement.getString("NumAwarded"),
                                         numAwardedHardcore = achievement.getString("NumAwardedHardcore"),
                                         title = achievement.getString("Title"),
@@ -127,7 +124,7 @@ data class GameProgress(
                         } finally {
                             withContext(IO) {
                                 achievementList.forEach {
-                                    RetroAchievementsDatabase.getInstance().achievementDao().insertAchievement(Achievement.convertAchievementModelToDatabase(it))
+                                    RetroAchievementsDatabase.getInstance().achievementDao().insertAchievement(it)
                                 }
                             }
                             callback(achievementList)

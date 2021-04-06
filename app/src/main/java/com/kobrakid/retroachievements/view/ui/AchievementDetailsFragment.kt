@@ -28,7 +28,7 @@ class AchievementDetailsFragment : Fragment() {
     private val tapDetector = GestureDetector(context, GestureTap())
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         _binding = FragmentAchievementDetailsBinding.inflate(inflater, container, false)
         // FIXME: Shared transition from [@link AchievementAdapter.AchievementViewHolderListenerImpl] not working
         binding.achievementDetailsBadge.transitionName = arguments?.getString("transitionName")

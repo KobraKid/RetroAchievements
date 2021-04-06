@@ -4,6 +4,9 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
 import androidx.core.text.isDigitsOnly
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.RetroAchievementsApi
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
@@ -16,31 +19,31 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.jsoup.Jsoup
 
+@Entity(tableName = "game")
 data class Game(
-        override var id: String = "0",
-        override var title: String = "",
-        override var consoleID: String = "0",
-        override var forumTopicID: String = "0",
-        override var flags: Int = 0,
-        override var imageIcon: String = "",
-        override var imageTitle: String = "",
-        override var imageIngame: String = "",
-        override var imageBoxArt: String = "",
-        override var publisher: String = "",
-        override var developer: String = "",
-        override var genre: String = "",
-        override var released: String = "",
-        override var isFinal: Boolean = true,
-        override var consoleName: String = "",
-        override var richPresencePatch: String = "",
-        override var numAchievements: Int = 0,
-        override var numDistinctPlayersCasual: Int = 0,
-        override var numDistinctPlayersHardcore: Int = 0,
-        override var numAwardedToUser: Int = 0,
-        override var numAwardedToUserHardcore: Int = 0,
-        override var userCompletion: String = "",
-        override var userCompletionHardcore: String = ""
-) : IGame, Parcelable {
+        @field:ColumnInfo(name = "ID") @field:PrimaryKey override var id: String = "0",
+        @field:ColumnInfo(name = "Title") override var title: String = "",
+        @field:ColumnInfo(name = "ConsoleID") override var consoleID: String = "0",
+        @field:ColumnInfo(name = "ForumTopicID") override var forumTopicID: String = "0",
+        @field:ColumnInfo(name = "Flags") override var flags: Int = 0,
+        @field:ColumnInfo(name = "ImageIcon") override var imageIcon: String = "",
+        @field:ColumnInfo(name = "ImageTitle") override var imageTitle: String = "",
+        @field:ColumnInfo(name = "ImageIngame") override var imageIngame: String = "",
+        @field:ColumnInfo(name = "ImageBoxArt") override var imageBoxArt: String = "",
+        @field:ColumnInfo(name = "Publisher") override var publisher: String = "",
+        @field:ColumnInfo(name = "Developer") override var developer: String = "",
+        @field:ColumnInfo(name = "Genre") override var genre: String = "",
+        @field:ColumnInfo(name = "Released") override var released: String = "",
+        @field:ColumnInfo(name = "IsFinal") override var isFinal: Boolean = true,
+        @field:ColumnInfo(name = "ConsoleName") override var consoleName: String = "",
+        @field:ColumnInfo(name = "RichPresencePatch") override var richPresencePatch: String = "",
+        @field:ColumnInfo(name = "NumAchievements") override var numAchievements: Int = 0,
+        @field:ColumnInfo(name = "NumDistinctPlayersCasual") override var numDistinctPlayersCasual: Int = 0,
+        @field:ColumnInfo(name = "NumDistinctPlayersHardcore") override var numDistinctPlayersHardcore: Int = 0,
+        @field:ColumnInfo(name = "NumAwardedToUser") override var numAwardedToUser: Int = 0,
+        @field:ColumnInfo(name = "NumAwardedToUserHardcore") override var numAwardedToUserHardcore: Int = 0,
+        @field:ColumnInfo(name = "UserCompletion") override var userCompletion: String = "",
+        @field:ColumnInfo(name = "UserCompletionHardcore") override var userCompletionHardcore: String = "") : IGame, Parcelable {
 
     constructor(parcel: Parcel) : this(parcel.readString() ?: "0")
 
@@ -94,7 +97,7 @@ data class Game(
                         var game = Game()
                         try {
                             game = convertJsonStringToModel(JSONObject(response.second))
-                            withContext(IO) { RetroAchievementsDatabase.getInstance().gameDao().insertGame(convertGameModelToDatabase(game)) }
+                            withContext(IO) { RetroAchievementsDatabase.getInstance().gameDao().insertGame(game) }
                         } catch (e: JSONException) {
                             Log.e(TAG, "unable to parse game details", e)
                         } finally {
@@ -109,6 +112,7 @@ data class Game(
         fun convertJsonStringToModel(game: JSONObject): Game {
             return Game().apply {
                 if (game.has("ID")) id = game.getString("ID")
+                else if (game.has("GameID")) id = game.getString("GameID")
                 if (game.has("Title")) title = Jsoup.parse(game.getString("Title").trim { it <= ' ' }).text().let { title ->
                     if (title.contains(", The"))
                         "The " + title.indexOf(", The").let {
@@ -138,34 +142,6 @@ data class Game(
                 if (game.has("UserCompletion")) userCompletion = game.getString("UserCompletion")
                 if (game.has("UserCompletionHardcore")) userCompletionHardcore = game.getString("UserCompletionHardcore")
             }
-        }
-
-        fun convertGameModelToDatabase(game: Game): com.kobrakid.retroachievements.database.Game {
-            return com.kobrakid.retroachievements.database.Game(
-                    id = game.id,
-                    title = game.title,
-                    consoleID = game.consoleID,
-                    forumTopicID = game.forumTopicID,
-                    flags = game.flags,
-                    imageIcon = game.imageIcon,
-                    imageTitle = game.imageTitle,
-                    imageIngame = game.imageIngame,
-                    imageBoxArt = game.imageBoxArt,
-                    publisher = game.publisher,
-                    developer = game.developer,
-                    genre = game.genre,
-                    released = game.released,
-                    isFinal = game.isFinal,
-                    consoleName = game.consoleName,
-                    richPresencePatch = game.richPresencePatch,
-                    numAchievements = game.numAchievements,
-                    numDistinctPlayersCasual = game.numDistinctPlayersCasual,
-                    numDistinctPlayersHardcore = game.numDistinctPlayersHardcore,
-                    numAwardedToUser = game.numAwardedToUser,
-                    numAwardedToUserHardcore = game.numAwardedToUserHardcore,
-                    userCompletion = game.userCompletion,
-                    userCompletionHardcore = game.userCompletionHardcore
-            )
         }
 
         private val TAG = Consts.BASE_TAG + Game::class.java.simpleName

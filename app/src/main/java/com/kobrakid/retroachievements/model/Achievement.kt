@@ -2,24 +2,28 @@ package com.kobrakid.retroachievements.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
+@Entity(tableName = "achievement")
 data class Achievement(
-        override val achievementID: String = "0",
-        override val id: String = "0",
-        override val numAwarded: String = "",
-        override val numAwardedHardcore: String = "",
-        override val title: String = "",
-        override val description: String = "",
-        override val points: String = "",
-        override val truePoints: String = "",
-        override val author: String = "",
-        override val dateModified: String = "",
-        override val dateCreated: String = "",
-        override val badgeName: String = "",
-        override val displayOrder: String = "0",
-        override val memAddr: String = "",
-        override val dateEarned: String = "",
-        override val dateEarnedHardcore: String = "") : IAchievement, Parcelable {
+        @field:ColumnInfo(name = "AchievementID") @field:PrimaryKey override var achievementID: String = "0",
+        @field:ColumnInfo(name = "ID") override var id: String = "0",
+        @field:ColumnInfo(name = "NumAwarded") override var numAwarded: String = "0",
+        @field:ColumnInfo(name = "NumAwardedHardcore") override var numAwardedHardcore: String = "0",
+        @field:ColumnInfo(name = "Title") override var title: String = "",
+        @field:ColumnInfo(name = "Description") override var description: String = "",
+        @field:ColumnInfo(name = "Points") override var points: String = "0",
+        @field:ColumnInfo(name = "TruePoints") override var truePoints: String = "0",
+        @field:ColumnInfo(name = "Author") override var author: String = "",
+        @field:ColumnInfo(name = "DateModified") override var dateModified: String = "",
+        @field:ColumnInfo(name = "DateCreated") override var dateCreated: String = "",
+        @field:ColumnInfo(name = "BadgeName") override var badgeName: String = "",
+        @field:ColumnInfo(name = "DisplayOrder") override var displayOrder: String = "",
+        @field:ColumnInfo(name = "MemAddr") override var memAddr: String = "",
+        @field:ColumnInfo(name = "DateEarned") override var dateEarned: String = "",
+        @field:ColumnInfo(name = "DateEarnedHardcore") override var dateEarnedHardcore: String = "") : IAchievement, Parcelable {
 
     constructor(parcel: Parcel) : this(parcel.readString() ?: "0")
 
@@ -38,27 +42,6 @@ data class Achievement(
 
         override fun newArray(size: Int): Array<Achievement?> {
             return arrayOfNulls(size)
-        }
-
-        fun convertAchievementModelToDatabase(achievement: Achievement): com.kobrakid.retroachievements.database.Achievement {
-            return com.kobrakid.retroachievements.database.Achievement(
-                    achievementID = achievement.achievementID,
-                    id = achievement.id,
-                    numAwarded = achievement.numAwarded,
-                    numAwardedHardcore = achievement.numAwardedHardcore,
-                    title = achievement.title,
-                    description = achievement.description,
-                    points = achievement.points,
-                    truePoints = achievement.truePoints,
-                    author = achievement.author,
-                    dateModified = achievement.dateModified,
-                    dateCreated = achievement.dateCreated,
-                    badgeName = achievement.badgeName,
-                    displayOrder = achievement.displayOrder,
-                    memAddr = achievement.memAddr,
-                    dateEarned = achievement.dateEarned,
-                    dateEarnedHardcore = achievement.dateEarnedHardcore
-            )
         }
     }
 }

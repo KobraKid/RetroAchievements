@@ -17,12 +17,12 @@
         android:cropToPadding="false"
         android:elevation="4dp"
         android:scaleType="fitCenter"
-        android:tint="?attr/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/game_details_button_page_1"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_stars" />
+        app:srcCompat="@drawable/ic_stars"
+        app:tint="?attr/colorAccent" />
 
     <ImageButton
         android:id="@+id/game_details_button_page_1"
@@ -34,12 +34,12 @@
         android:contentDescription="@string/cd_achievement_distribution_page"
         android:elevation="4dp"
         android:scaleType="fitCenter"
-        android:tint="?attr/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/game_details_button_page_2"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/game_details_button_page_0"
-        app:srcCompat="@drawable/ic_show_chart" />
+        app:srcCompat="@drawable/ic_show_chart"
+        app:tint="?attr/colorAccent" />
 
     <ImageButton
         android:id="@+id/game_details_button_page_2"
@@ -51,12 +51,12 @@
         android:contentDescription="@string/cd_game_images_page"
         android:elevation="4dp"
         android:scaleType="fitCenter"
-        android:tint="?attr/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/game_details_button_page_3"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/game_details_button_page_1"
-        app:srcCompat="@drawable/ic_image" />
+        app:srcCompat="@drawable/ic_image"
+        app:tint="?attr/colorAccent" />
 
     <ImageButton
         android:id="@+id/game_details_button_page_3"
@@ -68,12 +68,12 @@
         android:contentDescription="@string/cd_game_comments_page"
         android:elevation="4dp"
         android:scaleType="fitCenter"
-        android:tint="?attr/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/guideline6"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@id/game_details_button_page_2"
-        app:srcCompat="@drawable/ic_baseline_comment" />
+        app:srcCompat="@drawable/ic_baseline_comment"
+        app:tint="?attr/colorAccent" />
 
     <ImageView
         android:id="@+id/game_details_image_icon"

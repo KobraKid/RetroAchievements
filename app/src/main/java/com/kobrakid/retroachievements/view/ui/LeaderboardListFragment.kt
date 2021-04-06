@@ -27,7 +27,7 @@ class LeaderboardListFragment : Fragment(), View.OnClickListener {
     private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         _binding = FragmentLeaderboardListBinding.inflate(inflater, container, false)
         activity?.title = "Leaderboards"
         return binding.root
@@ -101,6 +101,6 @@ class LeaderboardListFragment : Fragment(), View.OnClickListener {
 
     override fun onClick(view: View) {
         Navigation.findNavController(view).navigate(
-                LeaderboardListFragmentDirections.actionLeaderboardsFragmentToLeaderboardFragment(view.id.toString()))
+                GameDetailsFragmentDirections.actionGameDetailsFragmentToLeaderboardFragment(view.id.toString()))
     }
 }

@@ -24,7 +24,7 @@ class LeaderboardFragment : Fragment(), View.OnClickListener {
     private var _binding: FragmentLeaderboardBinding? = null
     private val binding get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentLeaderboardBinding.inflate(inflater, container, false)
         return binding.root
     }

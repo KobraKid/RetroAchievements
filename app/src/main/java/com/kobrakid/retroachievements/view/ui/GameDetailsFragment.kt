@@ -27,7 +27,7 @@ class GameDetailsFragment : Fragment(R.layout.fragment_game_details), View.OnCli
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentGameDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }

@@ -25,7 +25,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
     private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         activity?.title = "Home"
         return binding.root

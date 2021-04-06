@@ -34,7 +34,7 @@ class GameImagesFragment : Fragment() {
     private lateinit var titleTarget: Target
     private lateinit var ingameTarget: Target
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentGameImagesBinding.inflate(inflater, container, false)
         return binding.root
     }

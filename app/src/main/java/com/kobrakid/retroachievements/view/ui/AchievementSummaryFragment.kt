@@ -22,7 +22,7 @@ class AchievementSummaryFragment : Fragment() {
     private var _binding: FragmentAchievementsSummaryBinding? = null
     private val binding get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentAchievementsSummaryBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -44,7 +44,7 @@ class AchievementSummaryFragment : Fragment() {
             binding.gameDetailsNoAchievements.visibility = if (!loading && binding.gameDetailsAchievementsRecyclerView.adapter?.itemCount == 0) View.VISIBLE else View.GONE
         }
         viewModel.game.observe(viewLifecycleOwner) { game ->
-            val visibleIfAchievements = if (game.numAchievements == 0) View.GONE else View.VISIBLE
+            val visibleIfAchievements = if (game.numAchievements == 0) View.INVISIBLE else View.VISIBLE
             binding.gameDetailsAchievementsEarned.apply {
                 visibility = visibleIfAchievements
                 maximum = game.numAchievements.toFloat()

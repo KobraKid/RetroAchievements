@@ -9,8 +9,8 @@ import androidx.lifecycle.ViewModel
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.RetroAchievementsApi
-import com.kobrakid.retroachievements.database.Console
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
+import com.kobrakid.retroachievements.model.Console
 import com.kobrakid.retroachievements.model.Settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO

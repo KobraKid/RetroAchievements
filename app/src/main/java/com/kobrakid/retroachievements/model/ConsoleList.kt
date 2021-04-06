@@ -3,8 +3,6 @@ package com.kobrakid.retroachievements.model
 import android.util.Log
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.RetroAchievementsApi
-import com.kobrakid.retroachievements.database.Console
-import com.kobrakid.retroachievements.database.Game
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO

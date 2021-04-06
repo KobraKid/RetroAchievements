@@ -29,9 +29,8 @@ class RecentGamesFragment : Fragment(), View.OnClickListener, SwipeRefreshLayout
     private var gamesAskedFor = 15
 
     private lateinit var navController: NavController
-    private val gameSummaryAdapter: GameSummaryAdapter by lazy { GameSummaryAdapter(this, context) }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentRecentGamesBinding.inflate(inflater, container, false)
         activity?.title = getString(R.string.recent_games_title)
         return binding.root
@@ -49,14 +48,14 @@ class RecentGamesFragment : Fragment(), View.OnClickListener, SwipeRefreshLayout
         binding.recentGamesRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
-            adapter = gameSummaryAdapter
+            adapter = GameSummaryAdapter(this@RecentGamesFragment, context)
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     super.onScrollStateChanged(recyclerView, newState)
                     val scrollPosition = (layoutManager as LinearLayoutManager?)?.findLastVisibleItemPosition()
                     viewModel.getRecentGames(
                             (activity as MainActivity?)?.user?.username,
-                            gameSummaryAdapter.itemCount,
+                            adapter?.itemCount ?: 0,
                             scrollPosition ?: 0)
                 }
             })

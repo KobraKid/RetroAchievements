@@ -40,20 +40,22 @@ data class User(
                     totalTruePoints.toFloat().div(totalPoints.toFloat()) else 0f)
 
     companion object {
-        suspend fun getUser(username: String?, recentGames: Int = 0, callback: suspend (User) -> Unit) {
+        suspend fun getUser(username: String?, recentGames: Int = 0, callback: suspend (User, List<IGame>, Map<String, List<IAchievement>>) -> Unit) {
             if (username?.isNotEmpty() == true) {
                 RetroAchievementsApi.getInstance().GetUserSummary(username, recentGames) { parseUserSummary(username, it, callback) }
             } else {
-                callback(User())
+                callback(User(), listOf(), mapOf())
             }
         }
 
-        private suspend fun parseUserSummary(username: String, response: Pair<RetroAchievementsApi.RESPONSE, String>, callback: suspend (User) -> Unit) {
+        private suspend fun parseUserSummary(username: String, response: Pair<RetroAchievementsApi.RESPONSE, String>, callback: suspend (User, List<IGame>, Map<String, List<IAchievement>>) -> Unit) {
             when (response.first) {
                 RetroAchievementsApi.RESPONSE.ERROR -> Log.w(TAG, response.second)
                 RetroAchievementsApi.RESPONSE.GET_USER_SUMMARY -> {
                     withContext(Default) {
                         var user = User()
+                        val recentGames = mutableListOf<IGame>()
+                        val recentAchievements = mutableMapOf<String, List<IAchievement>>()
                         try {
                             val reader = JSONObject(response.second)
                             val motto = "\"${reader.getString("Motto")}\""
@@ -65,10 +67,20 @@ data class User(
                                     totalTruePoints = reader.getString("TotalTruePoints"),
                                     memberSince = reader.getString("MemberSince"),
                                     userPic = Consts.BASE_URL + "/" + reader.getString("UserPic"))
+                            val recent = reader.getJSONArray("RecentlyPlayed")
+                            for (i in 0 until recent.length()) {
+                                val game = Game.convertJsonStringToModel(recent[i] as JSONObject)
+                                Log.i(TAG, game.id)
+                                game.numAchievements = reader.getJSONObject("Awarded").getJSONObject(game.id).getString("NumPossibleAchievements").let { if (it.isDigitsOnly()) it.toInt() else 0 }
+                                game.numAwardedToUser = reader.getJSONObject("Awarded").getJSONObject(game.id).getString("NumAchieved").let { if (it.isDigitsOnly()) it.toInt() else 0 }
+                                game.numAwardedToUserHardcore = reader.getJSONObject("Awarded").getJSONObject(game.id).getString("NumAchievedHardcore").let { if (it.isDigitsOnly()) it.toInt() else 0 }
+                                recentGames.add(game)
+                                recentAchievements[game.id] = listOf<IAchievement>(Achievement(title = "TITLE"))
+                            }
                         } catch (e: JSONException) {
                             Log.e(TAG, "Unable to parse user summary", e)
                         } finally {
-                            callback(user)
+                            callback(user, recentGames, recentAchievements)
                         }
                     }
                 }

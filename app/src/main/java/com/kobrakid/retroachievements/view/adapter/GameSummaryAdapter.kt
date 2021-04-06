@@ -10,10 +10,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.R
 import com.kobrakid.retroachievements.model.GameProgress
+import com.kobrakid.retroachievements.model.IAchievement
 import com.kobrakid.retroachievements.model.IGame
 import com.kobrakid.retroachievements.view.adapter.GameSummaryAdapter.GameSummaryViewHolder
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller.OnPopupTextUpdate
@@ -21,15 +23,16 @@ import com.squareup.picasso.Picasso
 import org.jsoup.Jsoup
 import java.util.*
 
-class GameSummaryAdapter(private val listener: View.OnClickListener, private val context: Context?) : RecyclerView.Adapter<GameSummaryViewHolder>(), OnPopupTextUpdate, Filterable {
+class GameSummaryAdapter(private val listener: View.OnClickListener, private val context: Context?, private val includeAchievements: Boolean = false) : RecyclerView.Adapter<GameSummaryViewHolder>(), OnPopupTextUpdate, Filterable {
 
     private var games: List<GameProgress> = mutableListOf()
     private var gamesFiltered: List<GameProgress> = mutableListOf()
+    private var achievements: Map<String, List<IAchievement>> = mutableMapOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameSummaryViewHolder {
         val layout = LayoutInflater
                 .from(parent.context)
-                .inflate(R.layout.view_holder_game_summary,
+                .inflate(if (includeAchievements) R.layout.view_holder_game_recent_achievements else R.layout.view_holder_game_summary,
                         parent,
                         false) as ConstraintLayout
         layout.setOnClickListener(listener)
@@ -38,6 +41,14 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
 
     override fun onBindViewHolder(holder: GameSummaryViewHolder, position: Int) {
         holder.itemView.id = gamesFiltered[position].id.toInt()
+        if (includeAchievements) {
+            onBindViewHolderGameAchievements(holder, position)
+        } else {
+            onBindViewHolderGameSummary(holder, position)
+        }
+    }
+
+    private fun onBindViewHolderGameSummary(holder: GameSummaryViewHolder, position: Int) {
         holder.itemView.findViewById<View>(R.id.game_summary_image_icon).background =
                 if (gamesFiltered[position].numAchievements > 0 && gamesFiltered[position].numAwardedToUser == gamesFiltered[position].numAchievements)
                     context?.let { ContextCompat.getDrawable(it, R.drawable.image_view_border) }
@@ -63,6 +74,30 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
                 .load(Consts.BASE_URL + gamesFiltered[position].imageIcon)
                 .placeholder(R.drawable.game_placeholder)
                 .into(holder.itemView.findViewById<ImageView>(R.id.game_summary_image_icon))
+    }
+
+    private fun onBindViewHolderGameAchievements(holder: GameSummaryViewHolder, position: Int) {
+        if (achievements.size > position) {
+            holder.itemView.findViewById<RecyclerView>(R.id.gameRecentAchievementsRecyclerView).apply {
+                layoutManager = LinearLayoutManager(holder.itemView.context)
+                adapter = AchievementListAdapter(achievements[games[position].id] ?: listOf())
+            }
+        }
+        holder.itemView.findViewById<View>(R.id.gameRecentAchievementsImageIcon).background =
+                if (gamesFiltered[position].numAchievements > 0 && gamesFiltered[position].numAwardedToUser == gamesFiltered[position].numAchievements)
+                    context?.let { ContextCompat.getDrawable(it, R.drawable.image_view_border) }
+                else null
+        holder.itemView.findViewById<TextView>(R.id.gameRecentAchievementsTitle).text = Jsoup.parse(gamesFiltered[position].title.trim { it <= ' ' }).text().let { title ->
+            if (title.contains(", The"))
+                "The " + title.indexOf(", The").let {
+                    title.substring(0, it) + title.substring(it + 5)
+                }
+            else title
+        }
+        Picasso.get()
+                .load(Consts.BASE_URL + gamesFiltered[position].imageIcon)
+                .placeholder(R.drawable.game_placeholder)
+                .into(holder.itemView.findViewById<ImageView>(R.id.gameRecentAchievementsImageIcon))
     }
 
     override fun getItemCount(): Int {
@@ -137,5 +172,29 @@ class GameSummaryAdapter(private val listener: View.OnClickListener, private val
         })
     }
 
+    fun setAchievements(achievements: Map<String, List<IAchievement>>) {
+        this.achievements = achievements
+        notifyDataSetChanged()
+    }
+
     inner class GameSummaryViewHolder(constraintLayout: ConstraintLayout) : RecyclerView.ViewHolder(constraintLayout)
+
+    inner class AchievementListAdapter(private val achievements: List<IAchievement>) : RecyclerView.Adapter<AchievementListViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AchievementListViewHolder {
+            return AchievementListViewHolder(LayoutInflater
+                    .from(parent.context)
+                    .inflate(R.layout.view_holder_basic_achievement_summary, parent, false) as ConstraintLayout)
+        }
+
+        override fun onBindViewHolder(holder: AchievementListViewHolder, position: Int) {
+            holder.itemView.findViewById<TextView>(R.id.achievement_summary_title).text = achievements[position].title
+        }
+
+        override fun getItemCount(): Int {
+            return achievements.size
+        }
+
+    }
+
+    inner class AchievementListViewHolder(constraintLayout: ConstraintLayout) : RecyclerView.ViewHolder(constraintLayout)
 }

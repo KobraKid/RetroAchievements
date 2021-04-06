@@ -34,7 +34,7 @@ class GameList {
                         val db = RetroAchievementsDatabase.getInstance()
                         for (i in 0 until reader.length()) {
                             val game = Game.convertJsonStringToModel(reader.getJSONObject(i))
-                            withContext(IO) { db.gameDao().insertGame(Game.convertGameModelToDatabase(game)) }
+                            withContext(IO) { db.gameDao().insertGame(game) }
                             games.add(game)
                         }
                     } catch (e: JSONException) {

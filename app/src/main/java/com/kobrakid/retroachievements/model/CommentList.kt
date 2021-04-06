@@ -22,15 +22,15 @@ class CommentList {
                     withContext(Default) {
                         val commentList = mutableListOf<Comment>()
                         for (comment in Jsoup.parse(response.second).getElementsByClass("feed_comment")) {
-                            val username = comment.selectFirst("td.iconscommentsingle").selectFirst("img")?.attr("title")?.trim { it <= ' ' }
+                            val username = comment.selectFirst("td.iconscommentsingle")?.selectFirst("img")?.attr("title")?.trim { it <= ' ' }
                                     ?: "Unknown"
                             var account = "Unknown"
                             var score = "0"
                             var rank = "0"
                             var tag = ""
-                            val tooltip = comment.selectFirst("td.iconscommentsingle").selectFirst("div").attr("onmouseover")
-                            if (tooltip.length > 5) {
-                                with(Jsoup.parse(Parser.unescapeEntities(tooltip.substring(5, tooltip.length - 2).replace("\\", ""), false))) {
+                            val tooltip = comment.selectFirst("td.iconscommentsingle")?.selectFirst("div")?.attr("onmouseover")
+                            if ((tooltip?.length ?: 0) > 5) {
+                                with(Jsoup.parse(Parser.unescapeEntities(tooltip?.substring(5, tooltip.length - 2)?.replace("\\", ""), false))) {
                                     account = selectFirst("td.usercardaccounttype").html().trim { it <= ' ' }
                                     score = select("td.usercardbasictext")[0].html().substring(15)
                                     rank = select("td.usercardbasictext")[1].html().substring(18)

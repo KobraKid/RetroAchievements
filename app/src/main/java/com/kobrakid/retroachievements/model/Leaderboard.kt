@@ -1,6 +1,9 @@
 package com.kobrakid.retroachievements.model
 
 import android.util.Log
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.kobrakid.retroachievements.Consts
 import com.kobrakid.retroachievements.RetroAchievementsApi
 import com.kobrakid.retroachievements.database.RetroAchievementsDatabase
@@ -9,15 +12,16 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 
+@Entity(tableName = "leaderboard")
 data class Leaderboard(
-        override var id: String = "0",
-        override var gameId: String = "",
-        override var icon: String = "",
-        override var console: String = "",
-        override var title: String = "",
-        override var description: String = "",
-        override var type: String = "",
-        override var numResults: String = "0") : ILeaderboard {
+        @field:ColumnInfo @field:PrimaryKey override var id: String = "0",
+        @field:ColumnInfo override var gameId: String = "",
+        @field:ColumnInfo override var icon: String = "",
+        @field:ColumnInfo override var console: String = "",
+        @field:ColumnInfo override var title: String = "",
+        @field:ColumnInfo override var description: String = "",
+        @field:ColumnInfo override var type: String = "",
+        @field:ColumnInfo override var numResults: String = "0") : ILeaderboard {
 
     override fun toString(): String {
         return "#$id: $title ($gameId - $console)"
@@ -71,7 +75,7 @@ data class Leaderboard(
                             type = "Score" // TODO: Can't really get the type reliably anymore
                         }
                         withContext(IO) {
-                            RetroAchievementsDatabase.getInstance().leaderboardDao().insertLeaderboard(convertModeltoDatabase(leaderboard))
+                            RetroAchievementsDatabase.getInstance().leaderboardDao().insertLeaderboard(leaderboard)
                         }
                         loadLeaderboard(leaderboard)
                         loadParticipants(users)
@@ -79,18 +83,6 @@ data class Leaderboard(
                 }
                 else -> Log.v(TAG, "${response.first}: ${response.second}")
             }
-        }
-
-        private fun convertModeltoDatabase(leaderboard: Leaderboard): com.kobrakid.retroachievements.database.Leaderboard? {
-            return com.kobrakid.retroachievements.database.Leaderboard(
-                    id = leaderboard.id,
-                    gameId = leaderboard.gameId,
-                    icon = leaderboard.icon,
-                    console = leaderboard.console,
-                    title = leaderboard.title,
-                    description = leaderboard.description,
-                    type = leaderboard.type,
-                    numResults = leaderboard.numResults)
         }
 
         private val TAG = Consts.BASE_TAG + Leaderboard::class.java.simpleName

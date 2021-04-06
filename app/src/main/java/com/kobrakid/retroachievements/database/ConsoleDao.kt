@@ -1,6 +1,7 @@
 package com.kobrakid.retroachievements.database
 
 import androidx.room.*
+import com.kobrakid.retroachievements.model.Console
 
 @Dao
 interface ConsoleDao {

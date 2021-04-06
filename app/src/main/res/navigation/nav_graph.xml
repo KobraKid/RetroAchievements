@@ -43,6 +43,9 @@
             android:name="id"
             android:defaultValue="0"
             app:argType="string" />
+        <action
+            android:id="@+id/action_gameDetailsFragment_to_leaderboardFragment"
+            app:destination="@id/leaderboardFragment" />
     </fragment>
     <fragment
         android:id="@+id/aboutFragment"

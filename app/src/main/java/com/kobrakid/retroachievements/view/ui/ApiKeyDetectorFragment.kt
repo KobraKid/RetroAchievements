@@ -21,7 +21,7 @@ class ApiKeyDetectorFragment : Fragment(), View.OnClickListener {
     private var username: String = ""
     private var apiKey: String = ""
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentApiKeyDetectorBinding.inflate(inflater, container, false)
         return binding.root
     }

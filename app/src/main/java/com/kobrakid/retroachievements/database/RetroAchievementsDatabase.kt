@@ -4,6 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.kobrakid.retroachievements.model.Achievement
+import com.kobrakid.retroachievements.model.Console
+import com.kobrakid.retroachievements.model.Game
+import com.kobrakid.retroachievements.model.Leaderboard
 
 @Database(entities = [Console::class, Game::class, Achievement::class, Leaderboard::class], exportSchema = false, version = 9)
 abstract class RetroAchievementsDatabase : RoomDatabase() {

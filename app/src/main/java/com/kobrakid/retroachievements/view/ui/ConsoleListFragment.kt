@@ -32,7 +32,7 @@ class ConsoleListFragment : Fragment(), View.OnClickListener {
     private val consoleAdapter = ConsoleAdapter(this)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         _binding = FragmentConsoleListBinding.inflate(inflater, container, false)
         activity?.title = "Consoles"
         return binding.root

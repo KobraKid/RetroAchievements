@@ -72,6 +72,7 @@
         android:layout_height="64dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:visibility="invisible"
         app:animateProgress="true"
         app:foregroundStrokeCap="round"
         app:foregroundStrokeColor="?attr/colorAccent"
@@ -83,13 +84,15 @@
         app:progressAnimationDuration="900"
         app:startAngle="270"
         tools:maximum="77"
-        tools:progress="38" />
+        tools:progress="38"
+        tools:visibility="visible" />
 
     <com.budiyev.android.circularprogressbar.CircularProgressBar
         android:id="@+id/game_details_achievements_earned"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:translationZ="-1dp"
+        android:visibility="invisible"
         app:animateProgress="true"
         app:foregroundStrokeCap="round"
         app:foregroundStrokeColor="?attr/colorPrimary"
@@ -99,7 +102,8 @@
         app:progressAnimationDuration="500"
         app:startAngle="270"
         tools:maximum="77"
-        tools:progress="56" />
+        tools:progress="56"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/game_details_achievements_earned_text"
@@ -132,6 +136,7 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginStart="8dp"
+        android:visibility="invisible"
         app:animateProgress="true"
         app:foregroundStrokeCap="round"
         app:foregroundStrokeColor="?attr/colorAccent"
@@ -143,7 +148,8 @@
         app:progressAnimationDuration="500"
         app:startAngle="270"
         tools:maximum="600"
-        tools:progress="362" />
+        tools:progress="362"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/game_details_points_text"
@@ -176,6 +182,7 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginStart="8dp"
+        android:visibility="invisible"
         app:animateProgress="true"
         app:foregroundStrokeCap="round"
         app:foregroundStrokeColor="?attr/colorAccent"
@@ -187,7 +194,8 @@
         app:progressAnimationDuration="500"
         app:startAngle="270"
         tools:maximum="2641"
-        tools:progress="391" />
+        tools:progress="391"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/game_details_true_points_text"
